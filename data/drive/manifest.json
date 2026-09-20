@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "folderId": "1PyqEMeBcTtEujY5qbJTBrg4FzMsMdVDA",
+  "folderUrl": "https://drive.google.com/drive/folders/1PyqEMeBcTtEujY5qbJTBrg4FzMsMdVDA",
+  "updatedAt": "2026-09-20",
+  "note": "ใส่ไฟล์ในโฟลเดอร์ Drive แล้วอัปเดตรายการด้านล่าง หรือใส่ Google API key ในเว็บเพื่อดึงรายการอัตโนมัติ",
+  "files": [
+    {
+      "id": "",
+      "name": "room-tt-archive-example.json",
+      "mimeType": "application/json",
+      "localPath": "data/archives/room-tt-example.json",
+      "role": "room-tt-archive",
+      "note": "ตัวอย่างไฟล์สำรองตารางห้อง — แทนที่ด้วยไฟล์จริงจาก Drive ได้"
+    },
+    {
+      "id": "",
+      "name": "student-db-seed.json",
+      "mimeType": "application/json",
+      "localPath": "data/archives/student-db-seed.json",
+      "role": "student-db-seed",
+      "note": "โปรไฟล์นักเรียน + เช็คชื่อย้อนหลังจากชีต 1PqxX94…"
+    },
+    {
+      "id": "",
+      "name": "sales-db-seed.json",
+      "mimeType": "application/json",
+      "localPath": "data/archives/sales-db-seed.json",
+      "role": "sales-db-seed",
+      "note": "สถิติยอดขาย/สมัครจากชีต 1eIHPemh…"
+    }
+  ]
+}
