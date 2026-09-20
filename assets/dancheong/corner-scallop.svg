@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Panel 5 inspired: bold scalloped green petals -->
+  <path d="M0 0 H36 C28 10 20 22 16 40 C8 28 2 14 0 0 Z" fill="#004D40" opacity=".35"/>
+  <path d="M2 2 C18 4 30 14 36 28 C26 18 14 12 4 14 C6 8 4 4 2 2 Z" fill="#1B5E20" stroke="#0D3B14" stroke-width="1.1"/>
+  <path d="M6 8 C18 10 28 18 32 30 C24 22 14 16 8 20 C8 14 8 10 6 8 Z" fill="#43A047" stroke="#1B5E20" stroke-width="1"/>
+  <path d="M4 22 C16 20 26 28 30 40 C20 32 12 30 6 34 C4 28 4 24 4 22 Z" fill="#66BB6A" stroke="#2E7D32" stroke-width="1"/>
+  <path d="M8 36 C18 34 26 40 28 50 C18 44 12 44 8 48 C6 42 6 38 8 36 Z" fill="#A5D6A7" stroke="#388E3C" stroke-width=".9"/>
+  <path d="M2 40 C12 42 18 50 20 58 C10 54 4 52 2 56 C0 48 0 44 2 40 Z" fill="#2E7D32" stroke="#1B5E20" stroke-width="1"/>
+</svg>
