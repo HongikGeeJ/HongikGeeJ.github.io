@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Panel 1 inspired: green cloud swirls + coral/red bands (top-left corner) -->
+  <path d="M2 38 C2 22 14 10 30 8 C22 14 18 24 20 34 C12 36 6 40 2 48 Z" fill="#E57373" stroke="#8B2E2E" stroke-width="1"/>
+  <path d="M4 42 C6 28 18 16 34 12 C26 18 22 28 24 36 C16 38 8 42 4 50 Z" fill="#FF8A65" stroke="#B53A2E" stroke-width=".9"/>
+  <path d="M6 46 C10 32 22 22 38 16 C30 22 26 30 28 38 C20 40 12 44 6 52 Z" fill="#FFCCBC" stroke="#C45C4A" stroke-width=".8"/>
+  <g stroke="#1B4D20" stroke-width="1.1">
+    <circle cx="18" cy="48" r="11" fill="#2E7D32"/>
+    <circle cx="18" cy="48" r="7.5" fill="#43A047"/>
+    <circle cx="18" cy="48" r="4" fill="#81C784"/>
+    <circle cx="18" cy="48" r="1.6" fill="#C8E6C9"/>
+    <circle cx="32" cy="40" r="8.5" fill="#2E7D32"/>
+    <circle cx="32" cy="40" r="5.5" fill="#66BB6A"/>
+    <circle cx="32" cy="40" r="2.8" fill="#A5D6A7"/>
+    <circle cx="32" cy="40" r="1.1" fill="#E8F5E9"/>
+    <circle cx="28" cy="52" r="6.5" fill="#1B5E20"/>
+    <circle cx="28" cy="52" r="4" fill="#4CAF50"/>
+    <circle cx="28" cy="52" r="1.8" fill="#A5D6A7"/>
+  </g>
+</svg>

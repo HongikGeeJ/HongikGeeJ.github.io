@@ -1,0 +1,986 @@
+{
+  "version": 2,
+  "rate": 300,
+  "otStart": "19:00",
+  "otEnd": "22:00",
+  "lookbackMonths": 8,
+  "anchorMonth": "2026-09",
+  "generatedAt": "2026-09-20T16:45:00",
+  "note": "OT from attendance present marks (course end>19:00) + room-tt evening slots when teacher had present that day. Part-time excluded. v2: room-tt date range fixed; weekend Korean private→taehyun.",
+  "byTeacher": {
+    "sua": [
+      {
+        "id": "OT-ROO-sua-20260204-1140",
+        "date": "2026-02-04",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260304-1140",
+        "date": "2026-03-04",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260318-1140",
+        "date": "2026-03-18",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260319-1140",
+        "date": "2026-03-19",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260325-1140",
+        "date": "2026-03-25",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260326-1140",
+        "date": "2026-03-26",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260422-1140",
+        "date": "2026-04-22",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260423-1140",
+        "date": "2026-04-23",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260429-1140",
+        "date": "2026-04-29",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260430-1140",
+        "date": "2026-04-30",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260506-1140",
+        "date": "2026-05-06",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260513-1140",
+        "date": "2026-05-13",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260514-1140",
+        "date": "2026-05-14",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260520-1140",
+        "date": "2026-05-20",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260521-1140",
+        "date": "2026-05-21",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260527-1140",
+        "date": "2026-05-27",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260528-1140",
+        "date": "2026-05-28",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260617-1140",
+        "date": "2026-06-17",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260618-1140",
+        "date": "2026-06-18",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260624-1140",
+        "date": "2026-06-24",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260625-1140",
+        "date": "2026-06-25",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260708-1140",
+        "date": "2026-07-08",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260715-1140",
+        "date": "2026-07-15",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260716-1140",
+        "date": "2026-07-16",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-sua-20260718-1200",
+        "date": "2026-07-18",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาอังกฤษ เบสิก วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-sua-20260719-1200",
+        "date": "2026-07-19",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาอังกฤษ เบสิก วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260722-1140",
+        "date": "2026-07-22",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260723-1140",
+        "date": "2026-07-23",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-sua-20260725-1200",
+        "date": "2026-07-25",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาอังกฤษ เบสิก วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-sua-20260726-1200",
+        "date": "2026-07-26",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาอังกฤษ เบสิก วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260729-1140",
+        "date": "2026-07-29",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260730-1140",
+        "date": "2026-07-30",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260813-1140",
+        "date": "2026-08-13",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260819-1140",
+        "date": "2026-08-19",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260820-1140",
+        "date": "2026-08-20",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260826-1140",
+        "date": "2026-08-26",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-sua-20260827-1140",
+        "date": "2026-08-27",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "Korean 1:1",
+        "source": "room-tt",
+        "auto": true
+      }
+    ],
+    "eunha": [
+      {
+        "id": "OT-ATT-eunha-20260308-1140",
+        "date": "2026-03-08",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260408-1140",
+        "date": "2026-04-08",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260509-1200",
+        "date": "2026-05-09",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260607-1140",
+        "date": "2026-06-07",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260607-1200",
+        "date": "2026-06-07",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 20:00–22:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260609-1200",
+        "date": "2026-06-09",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260613-1200",
+        "date": "2026-06-13",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260614-1200",
+        "date": "2026-06-14",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260620-1200",
+        "date": "2026-06-20",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260621-1200",
+        "date": "2026-06-21",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260627-1200",
+        "date": "2026-06-27",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260628-1200",
+        "date": "2026-06-28",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260707-1140",
+        "date": "2026-07-07",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260707-1200",
+        "date": "2026-07-07",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 20:00–22:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260709-1140",
+        "date": "2026-07-09",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สภาษาเกาหลีพื้นฐาน วันจันทร์-อังคาร ภาคค่ำ 19.00-21.00น. (새로이)",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260713-1140",
+        "date": "2026-07-13",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260713-1200",
+        "date": "2026-07-13",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 20:00–22:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260714-1140",
+        "date": "2026-07-14",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260714-1200",
+        "date": "2026-07-14",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 20:00–22:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260718-1200",
+        "date": "2026-07-18",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260719-1200",
+        "date": "2026-07-19",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260720-1140",
+        "date": "2026-07-20",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260720-1200",
+        "date": "2026-07-20",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 20:00–22:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260721-1140",
+        "date": "2026-07-21",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260721-1200",
+        "date": "2026-07-21",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 20:00–22:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260725-1200",
+        "date": "2026-07-25",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260726-1200",
+        "date": "2026-07-26",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260727-1140",
+        "date": "2026-07-27",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260727-1200",
+        "date": "2026-07-27",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 20:00–22:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260728-1140",
+        "date": "2026-07-28",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260728-1200",
+        "date": "2026-07-28",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 20:00–22:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260809-1140",
+        "date": "2026-08-09",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สภาษาเกาหลีพื้นฐาน วันจันทร์-อังคาร ภาคค่ำ 19.00-21.00น. (새로이)",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260815-1200",
+        "date": "2026-08-15",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260816-1200",
+        "date": "2026-08-16",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260817-1140",
+        "date": "2026-08-17",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260822-1200",
+        "date": "2026-08-22",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260824-1140",
+        "date": "2026-08-24",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260825-1140",
+        "date": "2026-08-25",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260829-1200",
+        "date": "2026-08-29",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260908-1200",
+        "date": "2026-09-08",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260913-1200",
+        "date": "2026-09-13",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260914-1140",
+        "date": "2026-09-14",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น. (솔)",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260915-1140",
+        "date": "2026-09-15",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สเกาหลีภาคค่ำ จันทร์-อังคาร 19:00–21:00น. (솔)",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260916-1140",
+        "date": "2026-09-16",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สภาษาเกาหลีพื้นฐาน วันจันทร์-อังคาร ภาคค่ำ 19.00-21.00น. เริ่ม 16/09/2026",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260917-1140",
+        "date": "2026-09-17",
+        "start": "19:00",
+        "end": "21:00",
+        "subject": "คอร์สภาษาเกาหลีพื้นฐาน วันจันทร์-อังคาร ภาคค่ำ 19.00-21.00น. เริ่ม 16/09/2026",
+        "source": "attendance",
+        "auto": true
+      },
+      {
+        "id": "OT-ATT-eunha-20260919-1200",
+        "date": "2026-09-19",
+        "start": "20:00",
+        "end": "22:00",
+        "subject": "คอร์สภาษาเกาหลี วันเสาร์-อาทิตย์ 20.00 - 22.00 น.",
+        "source": "attendance",
+        "auto": true
+      }
+    ],
+    "taehyun": [
+      {
+        "id": "OT-ROO-taehyun-20260307-1140",
+        "date": "2026-03-07",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-taehyun-20260314-1140",
+        "date": "2026-03-14",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-taehyun-20260321-1140",
+        "date": "2026-03-21",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-taehyun-20260328-1140",
+        "date": "2026-03-28",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-taehyun-20260404-1140",
+        "date": "2026-04-04",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-taehyun-20260516-1140",
+        "date": "2026-05-16",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-taehyun-20260523-1140",
+        "date": "2026-05-23",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-taehyun-20260725-1140",
+        "date": "2026-07-25",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-taehyun-20260808-1140",
+        "date": "2026-08-08",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-taehyun-20260815-1140",
+        "date": "2026-08-15",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      },
+      {
+        "id": "OT-ROO-taehyun-20260822-1140",
+        "date": "2026-08-22",
+        "start": "19:00",
+        "end": "20:00",
+        "subject": "English 1:1 Onsite",
+        "source": "room-tt",
+        "auto": true
+      }
+    ]
+  },
+  "summary": {
+    "sua": {
+      "2026-02": {
+        "hours": 1.0,
+        "sessions": 1,
+        "pay": 300,
+        "days": 1
+      },
+      "2026-03": {
+        "hours": 5.0,
+        "sessions": 5,
+        "pay": 1500,
+        "days": 5
+      },
+      "2026-04": {
+        "hours": 4.0,
+        "sessions": 4,
+        "pay": 1200,
+        "days": 4
+      },
+      "2026-05": {
+        "hours": 7.0,
+        "sessions": 7,
+        "pay": 2100,
+        "days": 7
+      },
+      "2026-06": {
+        "hours": 4.0,
+        "sessions": 4,
+        "pay": 1200,
+        "days": 4
+      },
+      "2026-07": {
+        "hours": 15.0,
+        "sessions": 11,
+        "pay": 4500,
+        "days": 11
+      },
+      "2026-08": {
+        "hours": 5.0,
+        "sessions": 5,
+        "pay": 1500,
+        "days": 5
+      }
+    },
+    "eunha": {
+      "2026-03": {
+        "hours": 2.0,
+        "sessions": 1,
+        "pay": 600,
+        "days": 1
+      },
+      "2026-04": {
+        "hours": 2.0,
+        "sessions": 1,
+        "pay": 600,
+        "days": 1
+      },
+      "2026-05": {
+        "hours": 2.0,
+        "sessions": 1,
+        "pay": 600,
+        "days": 1
+      },
+      "2026-06": {
+        "hours": 18.0,
+        "sessions": 9,
+        "pay": 5400,
+        "days": 8
+      },
+      "2026-07": {
+        "hours": 38.0,
+        "sessions": 19,
+        "pay": 11400,
+        "days": 12
+      },
+      "2026-08": {
+        "hours": 16.0,
+        "sessions": 8,
+        "pay": 4800,
+        "days": 8
+      },
+      "2026-09": {
+        "hours": 14.0,
+        "sessions": 7,
+        "pay": 4200,
+        "days": 7
+      }
+    },
+    "taehyun": {
+      "2026-03": {
+        "hours": 4.0,
+        "sessions": 4,
+        "pay": 1200,
+        "days": 4
+      },
+      "2026-04": {
+        "hours": 1.0,
+        "sessions": 1,
+        "pay": 300,
+        "days": 1
+      },
+      "2026-05": {
+        "hours": 2.0,
+        "sessions": 2,
+        "pay": 600,
+        "days": 2
+      },
+      "2026-07": {
+        "hours": 1.0,
+        "sessions": 1,
+        "pay": 300,
+        "days": 1
+      },
+      "2026-08": {
+        "hours": 3.0,
+        "sessions": 3,
+        "pay": 900,
+        "days": 3
+      }
+    }
+  }
+}

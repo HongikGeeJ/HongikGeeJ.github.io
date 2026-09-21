@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "syncUrl": "",
+  "note": "ใส่ Apps Script Web App URL ที่นี่ แล้ว git push — ทุกเครื่องที่เปิด GitHub Pages จะดึง URL นี้เอง (ซิงก์รูป + ตาราง + คำสั่ง + บันทึก + ข้อมูลร่วมอื่น). ว่างไว้ = local-only. ดู data/README.md และ apps-script/Code.gs"
+}

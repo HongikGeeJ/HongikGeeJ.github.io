@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "updatedAt": "",
+  "source": "local-seed",
+  "note": "Seed อ่านอย่างเดียวบน GitHub Pages — ซิงก์ข้ามเครื่องใช้ sync-config.json + Apps Script (ดู README.md). Export จากเว็บ: hongikDownloadPhotosJson()",
+  "photos": {}
+}

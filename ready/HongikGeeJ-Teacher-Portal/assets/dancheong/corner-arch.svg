@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Panel 4 inspired: concentric green arch + gold finial -->
+  <g stroke="#1B4D20" stroke-width="1.05">
+    <path d="M4 56 C6 30 26 10 52 6 C36 18 28 34 30 52 C20 50 10 52 4 56 Z" fill="#1B5E20"/>
+    <path d="M10 54 C12 34 28 16 48 12 C36 22 30 36 32 50 C24 48 16 50 10 54 Z" fill="#2E7D32"/>
+    <path d="M16 52 C18 36 30 22 44 18 C36 26 32 38 34 48 C28 46 20 48 16 52 Z" fill="#66BB6A"/>
+    <path d="M22 50 C24 38 32 28 42 24 C36 30 34 40 36 48 C30 46 24 48 22 50 Z" fill="#A5D6A7"/>
+  </g>
+  <circle cx="44" cy="14" r="4" fill="#FBC02D" stroke="#F57F17" stroke-width="1"/>
+  <circle cx="44" cy="14" r="1.6" fill="#FFF59D"/>
+  <!-- tiny base flower -->
+  <circle cx="18" cy="56" r="2.8" fill="#E53935" stroke="#B71C1C" stroke-width=".8"/>
+  <circle cx="18" cy="56" r="1.2" fill="#1565C0"/>
+</svg>

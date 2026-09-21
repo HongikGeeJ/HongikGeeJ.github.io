@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="*25H">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c5d8ef"/>
+      <stop offset="55%" stop-color="#e8eef6"/>
+      <stop offset="100%" stop-color="#f4f1ea"/>
+    </linearGradient>
+    <linearGradient id="far" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8fa6c4"/>
+      <stop offset="100%" stop-color="#b7c6d9"/>
+    </linearGradient>
+    <linearGradient id="mid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5f7a96"/>
+      <stop offset="100%" stop-color="#7d93ab"/>
+    </linearGradient>
+    <linearGradient id="near" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d5a73"/>
+      <stop offset="100%" stop-color="#5a738a"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#0f2744"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#sky)"/>
+  <circle cx="98" cy="34" r="11" fill="#f5e6c8" opacity=".9"/>
+  <path d="M0 78 C18 62 34 58 52 66 C62 70 72 68 84 58 C96 48 108 50 128 62 L128 128 L0 128 Z" fill="url(#far)" opacity=".85"/>
+  <path d="M0 92 C22 78 40 74 58 82 C74 90 88 84 104 74 C114 68 122 70 128 76 L128 128 L0 128 Z" fill="url(#mid)"/>
+  <path d="M0 108 C16 98 30 96 46 102 C62 108 78 100 96 94 C110 88 120 90 128 96 L128 128 L0 128 Z" fill="url(#near)"/>
+  <!-- soft school / place silhouette -->
+  <g transform="translate(40 78)">
+    <rect x="8" y="18" width="40" height="28" rx="1.5" fill="#e8eef5"/>
+    <path d="M4 20 L28 4 L52 20 Z" fill="url(#roof)"/>
+    <rect x="4" y="18" width="48" height="3" fill="#1e3a5f"/>
+    <rect x="16" y="26" width="7" height="8" rx=".8" fill="#94a3b8"/>
+    <rect x="33" y="26" width="7" height="8" rx=".8" fill="#94a3b8"/>
+    <rect x="24" y="34" width="8" height="12" rx=".6" fill="#64748b"/>
+    <rect x="18" y="8" width="3" height="6" fill="#94a3b8"/>
+  </g>
+  <ellipse cx="28" cy="118" rx="34" ry="10" fill="#cbd5e1" opacity=".45"/>
+  <ellipse cx="96" cy="120" rx="28" ry="8" fill="#94a3b8" opacity=".28"/>
+</svg>
