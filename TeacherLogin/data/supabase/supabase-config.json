@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "url": "https://qoxdpqlzbbsluxzqchuq.supabase.co",
+  "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveGRwcWx6YmJzbHV4enFjaHVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDEzNzYsImV4cCI6MjEwNTU3NzM3Nn0.sVpAV7RF_Q0O7B9YVx2x2DhpDmsvmZestIIkaMV8Sa4",
+  "note": "Fill Project URL + anon public key only (Settings → API). NEVER put service_role here. Empty = localStorage + optional Apps Script. See data/supabase/README.md"
+}

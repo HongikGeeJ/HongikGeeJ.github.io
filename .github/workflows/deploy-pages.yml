@@ -1,5 +1,6 @@
-# Push to main → GitHub Pages at https://<user>.github.io/<repo>/
-# One-time: Settings → Pages → Source: GitHub Actions
+# Push to main → https://hongikgeej.github.io/TeacherLogin/
+# Root https://hongikgeej.github.io/ redirects to /TeacherLogin/
+# Repo: HongikGeeJ/HongikGeeJ.github.io · Source: GitHub Actions
 name: Deploy to GitHub Pages
 
 on:
@@ -26,10 +27,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Stage TeacherLogin site
+        run: |
+          set -euo pipefail
+          mkdir -p TeacherLogin
+          cp "HongikGeeJ Teacher Login.html" TeacherLogin/index.html
+          rm -rf TeacherLogin/assets TeacherLogin/data
+          cp -a assets TeacherLogin/assets
+          cp -a data TeacherLogin/data
+          cp -a logo.png TeacherLogin/logo.png
+          touch .nojekyll
+          test -f TeacherLogin/index.html
+          test -d TeacherLogin/assets
+          test -d TeacherLogin/data
+          echo "Staged TeacherLogin/ for https://hongikgeej.github.io/TeacherLogin/"
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      # Repo root = portal (index.html → HongikGeeJ Teacher Login.html + assets + data/)
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

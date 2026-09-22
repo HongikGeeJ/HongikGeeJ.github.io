@@ -4,28 +4,35 @@
 
 **Do not use aired.sh for production.** One-off publishes get new IDs / 403 on update. Production is **Git + GitHub Actions → GitHub Pages** at a fixed URL.
 
-### Stable LIVE URL
+### Stable LIVE URL (share this)
 
-**LIVE (stable forever):**
+**LIVE (primary):**
 
-https://chattarins.github.io/Hongik-GeeJ-Login/
+https://hongikgeej.github.io/TeacherLogin/
 
-(`index.html` redirects to `HongikGeeJ Teacher Login.html`.)
+Root `https://hongikgeej.github.io/` redirects to `/TeacherLogin/`.
+
+Org: [HongikGeeJ](https://github.com/HongikGeeJ) · Repo: [HongikGeeJ.github.io](https://github.com/HongikGeeJ/HongikGeeJ.github.io)  
+Git remote `github` → that repo. Old personal site (archive): https://chattarins.github.io/HongikGeeJLogin/ (`github-chattarins` remote).
+
+(`index.html` at site root → `/TeacherLogin/`; portal HTML + `assets/` + `data/` live under `TeacherLogin/`.)
 
 ### How CI/CD works
 
 1. Push (or merge) to **`main`**
 2. Workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) runs
-3. GitHub Pages publishes the **repo root** (portal HTML + `assets/` + `data/` including Supabase config)
+3. Workflow stages `TeacherLogin/` from `HongikGeeJ Teacher Login.html` + `assets/` + `data/`, then GitHub Pages publishes the **repo root**
 4. Same URL forever — refresh after deploy finishes (~1–2 min)
 
 Manual re-run: GitHub → **Actions** → **Deploy to GitHub Pages** → **Run workflow**
 
-### One-time setup (repo owner)
+### One-time setup (already done for HongikGeeJ)
 
-1. Push this repo to GitHub (`main`)
+1. Org `HongikGeeJ` + repo `HongikGeeJ.github.io`
 2. **Settings → Pages → Build and deployment → Source: GitHub Actions**
-3. First push (or workflow_dispatch) deploys; wait for the green check
+3. Push to `main` (or `./scripts/migrate-to-hongikgeej-pages.sh` if recreating)
+
+Custom domain (e.g. `hongikgeej.com`) is optional and only if you already own a domain.
 
 ---
 
