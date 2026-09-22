@@ -16715,7 +16715,11 @@
             if (!modal) return;
             // × / Escape / closeAllModals — snooze until tab/page change
             if (modal.id === 'attend-modal') attendPopupSnoozed = true;
-            if (modal.id === 'sched-alert-modal') schedAlertPopupSnoozed = true;
+            if (modal.id === 'sched-alert-modal') {
+                schedAlertPopupSnoozed = true;
+                modal.classList.remove('is-settled');
+                delete modal.dataset.schedAlertSig;
+            }
             armModalPointerShield(isLiteClient() ? 700 : 480);
             modal.classList.add('is-closing');
             modal.classList.remove('open');
@@ -18373,6 +18377,7 @@
                 currentUser = null;
                 orderPopupSnoozed = false;
                 attendPopupSnoozed = false;
+                schedAlertPopupSnoozed = false;
                 orderPopupIdx = 0;
                 dashboardScreen.classList.add('hidden-screen');
                 loginScreen.classList.remove('hidden-screen');
@@ -18578,10 +18583,11 @@
                 const stableId = canonicalAccountId(user) || (user && user.id);
                 currentUser = user ? { ...user, id: stableId } : user;
                 try { ensureAutoOtSynced(); } catch (_) {}
-                // Fresh login / session restore: allow one head-order / attend popup; keepTab refreshes keep snooze
+                // Fresh login / session restore: allow one head-order / attend / sched-alert popup; keepTab refreshes keep snooze
                 if (!keepTab) {
                     orderPopupSnoozed = false;
                     attendPopupSnoozed = false;
+                    schedAlertPopupSnoozed = false;
                 }
                 loginScreen.classList.add('hidden-screen');
                 dashboardScreen.classList.remove('hidden-screen');
@@ -24548,10 +24554,11 @@
                 currentTab = id;
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
                 document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === id));
-                // Changing page/tab allows head-order / attend popup to show again
+                // Changing page/tab allows head-order / attend / sched-alert popup to show again
                 if (prevTab !== id) {
                     orderPopupSnoozed = false;
                     attendPopupSnoozed = false;
+                    schedAlertPopupSnoozed = false;
                 }
                 if (currentUser) maybeShowAlertPopups(currentUser);
                 if (id === 'orders' && currentUser && currentUser.role === 'director') {
@@ -24563,13 +24570,15 @@
 
             function fillSakura(el, count = 10) {
                 if (!el) return;
-                if (isLiteClient()) { el.innerHTML = ''; return; }
+                // lite: keep sched-alert petals (CSS restores layer); strip other modal FX
+                if (isLiteClient() && el.id !== 'sched-alert-sakura') { el.innerHTML = ''; return; }
                 el.innerHTML = '';
                 const attend = el.id === 'attend-sakura';
                 const slowModal = el.id === 'sched-alert-sakura'
                     || el.id === 'cancel-alert-sakura'
                     || el.id === 'cancel-ack-sakura';
-                const n = attend ? Math.min(count, 12) : count;
+                const n = attend ? Math.min(count, 12)
+                    : (isLiteClient() && el.id === 'sched-alert-sakura' ? Math.min(count, 7) : count);
                 for (let i = 0; i < n; i++) {
                     const s = document.createElement('span');
                     const size = Math.random();
@@ -24912,15 +24921,58 @@
                 reopenModal(modal);
             }
 
+            function schedAlertTeacherLabel(c) {
+                const tid = c && c.teacherId;
+                if (tid) {
+                    const u = resolveAccountById(tid, { allowBlocked: true });
+                    if (u) {
+                        const full = displayName(u);
+                        if (full) return full;
+                    }
+                    const short = shortTeacherLabel(tid);
+                    if (short) return short;
+                    const fixed = TEACHER_DISPLAY[tid];
+                    if (fixed) return fixed[lang] || fixed.ko || '';
+                }
+                return (c && (c.teacherName || c.teacherId)) || '—';
+            }
+
+            function dismissSchedAlertPopupOnly() {
+                // Hide until user changes tab/page — then may show again if still pending
+                schedAlertPopupSnoozed = true;
+                const modal = document.getElementById('sched-alert-modal');
+                if (modal) {
+                    modal.classList.remove('is-settled');
+                    delete modal.dataset.schedAlertSig;
+                    closeModalFast(modal);
+                }
+            }
+
             function maybeShowSchedAlertPopup(user) {
                 const modal = document.getElementById('sched-alert-modal');
                 const check = document.getElementById('sched-alert-check');
                 const confirmBtn = document.getElementById('sched-alert-confirm');
                 const listEl = document.getElementById('sched-alert-list');
                 if (!modal || !listEl || !user || user.role !== 'director') return;
+                // User closed with × / backdrop — stay quiet until they change tabs
+                if (schedAlertPopupSnoozed) {
+                    modal.classList.remove('open');
+                    modal.classList.remove('is-settled');
+                    return;
+                }
                 pruneNonFirstSchedAlerts();
                 const pending = pendingDirectorSchedChanges();
-                if (!pending.length) { modal.classList.remove('open'); return; }
+                if (!pending.length) {
+                    modal.classList.remove('open');
+                    modal.classList.remove('is-settled');
+                    delete modal.dataset.schedAlertSig;
+                    return;
+                }
+                const wasOpen = modal.classList.contains('open');
+                const sig = pending.map(c => `${c.id || ''}:${c.action || ''}:${c.updatedAt || c.createdAt || ''}`).join('|') + `|${lang}`;
+                // Already open + same payload — do NOT remount / reopen (softRefresh bounce)
+                if (wasOpen && modal.dataset.schedAlertSig === sig) return;
+                modal.dataset.schedAlertSig = sig;
                 listEl.innerHTML = pending.map(c => {
                     const isOff = c.action === 'dayoff' || c.classType === 'dayoff';
                     const isUndoOff = c.action === 'undodayoff';
@@ -24949,7 +25001,8 @@
                         : (isOff ? t('schedActionDayOff')
                         : (isEdit ? t('schedActionEdit')
                         : (isDelete ? t('schedActionDelete') : t('schedActionAdd')))));
-                    const cardClass = isOff || isUndoOff ? 'is-off' : (isDelete ? 'is-add' : 'is-add');
+                    const cardClass = (isOff || isUndoOff ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
+                    const teaLbl = schedAlertTeacherLabel(c);
                     const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                     return `<div class="sched-alert-card ${cardClass}">
                         <div class="sched-alert-kind">
@@ -24958,7 +25011,7 @@
                         </div>
                         <p class="sched-alert-summary">${esc(summary)}</p>
                         <dl class="sched-alert-dl">
-                            <div><dt>${esc(t('schedAlertLblTeacher'))}</dt><dd>${esc(c.teacherName || c.teacherId || '—')}</dd></div>
+                            <div><dt>${esc(t('schedAlertLblTeacher'))}</dt><dd>${esc(teaLbl)}</dd></div>
                             <div><dt>${esc(t('schedAlertLblDate'))}</dt><dd>${esc(c.date || '—')}</dd></div>
                             ${(isOff || isUndoOff) ? '' : `<div><dt>${esc(t('schedAlertLblTime'))}</dt><dd>${esc(time)}</dd></div>`}
                             <div><dt>${esc(t('schedAlertLblSubject'))}</dt><dd>${esc(subject)}</dd></div>
@@ -24967,11 +25020,20 @@
                         </dl>
                     </div>`;
                 }).join('');
+                applyStaticI18n();
+                if (wasOpen) {
+                    // Quiet content update — keep checkbox / sakura; no reopenModal remount
+                    modal.classList.add('is-settled');
+                    return;
+                }
                 if (check) check.checked = false;
                 if (confirmBtn) confirmBtn.disabled = true;
-                applyStaticI18n();
                 fillSakura(document.getElementById('sched-alert-sakura'));
                 reopenModal(modal);
+                // After first open animation finishes, block popIn on later softRefresh class toggles
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => modal.classList.add('is-settled'));
+                });
             }
 
             function maybeShowCancelAckPopup(user, pending) {
@@ -25669,12 +25731,19 @@
                     }
                 });
                 saveSchedChanges(list);
-                schedAlertModal?.classList.remove('open');
+                schedAlertPopupSnoozed = false;
+                if (schedAlertModal) {
+                    schedAlertModal.classList.remove('open', 'is-settled');
+                    delete schedAlertModal.dataset.schedAlertSig;
+                }
                 openDashboard(resolveAccountById(currentUser.id), true);
             });
-            document.getElementById('sched-alert-x')?.addEventListener('click', () => schedAlertModal?.classList.remove('open'));
+            document.getElementById('sched-alert-x')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                dismissSchedAlertPopupOnly();
+            });
             schedAlertModal?.addEventListener('click', (e) => {
-                if (e.target === schedAlertModal) schedAlertModal.classList.remove('open');
+                if (e.target === schedAlertModal) dismissSchedAlertPopupOnly();
             });
 
             const dayOffConfirmModal = document.getElementById('sched-dayoff-confirm-modal');
