@@ -1,3 +1,5 @@
+# Push to main → GitHub Pages at https://<user>.github.io/<repo>/
+# One-time: Settings → Pages → Source: GitHub Actions
 name: Deploy to GitHub Pages
 
 on:
@@ -27,6 +29,7 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      # Repo root = portal (index.html → HongikGeeJ Teacher Login.html + assets + data/)
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

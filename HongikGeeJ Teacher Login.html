@@ -2,13 +2,14 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>HongikGeeJ Teacher Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --ink: #111827;
@@ -256,7 +257,14 @@
             .login-sea-sparkles span { animation: none !important; }
             .login-sea-sparkles span { opacity: .35; }
         }
-        body:has(#dashboard-screen:not(.hidden-screen)) .login-sea { visibility: hidden; }
+        body:has(#dashboard-screen:not(.hidden-screen)) .login-sea,
+        body:has(#dashboard-screen:not(.hidden-screen)) #nature-layer { visibility: hidden; pointer-events: none; }
+        body:has(#dashboard-screen:not(.hidden-screen)) .mist {
+            animation: none !important;
+            opacity: .18;
+            filter: blur(40px);
+            will-change: auto;
+        }
         .petal {
             position: absolute; top: -40px; width: 14px; height: 12px;
             background: radial-gradient(circle at 30% 30%, #fff7fa, #ffb7c9 55%, #ff8fb0);
@@ -469,38 +477,87 @@
             .dc-c.bl { transform: scaleY(-1); }
             .dc-c.br { transform: scale(-1); }
         }
-        /* light lotus/arch accents on dashboard content cards (2 corners) */
+        /* Green/white/yellow/purple corner blooms + edge sparkles (all roles) */
         .content-card {
             position: relative;
             overflow: visible;
+            background-color: #fff;
+            background-image:
+                url('assets/dancheong/edge-sparkles.svg?v=spark1'),
+                url('assets/dancheong/edge-sparkles.svg?v=spark1');
+            background-repeat: no-repeat;
+            background-position: center top 5px, center bottom 5px;
+            background-size: min(100%, 440px) 14px;
         }
         .content-card::before,
         .content-card::after {
             content: '';
             position: absolute;
-            width: 30px; height: 30px;
+            width: 32px; height: 32px;
             pointer-events: none;
-            z-index: 1;
+            /* Under card content so blooms never cover text/icons */
+            z-index: 0;
             background-repeat: no-repeat;
             background-size: contain;
-            opacity: .48;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom4');
+            opacity: .78;
+            /*
+              SVG authored for TL (outer L at 0,0). Always pin that vertex with
+              transform-origin: 0 0, then place top-left on each corner and flip —
+              same pattern as .dc-c. Avoid bottom/right + origin 50%: on tab
+              remount / animation restart the BR bloom briefly renders unflipped
+              (ปลิ้นด้าน) and floats off the edge.
+            */
+            transform-origin: 0 0;
         }
+        .content-card > * { position: relative; z-index: 1; }
+        /* Flush kiss on rounded card stroke */
         .content-card::before {
             top: -1px; left: -1px;
-            background-image: url('assets/dancheong/corner-lotus.svg');
+            transform: none;
+            animation: cardBloomSway 3.6s ease-in-out infinite;
         }
         .content-card::after {
-            bottom: -1px; right: -1px;
-            background-image: url('assets/dancheong/corner-arch.svg');
+            top: calc(100% + 1px); left: calc(100% + 1px);
+            bottom: auto; right: auto;
             transform: scale(-1);
+            animation: cardBloomSwayFlip 3.6s ease-in-out infinite;
+            animation-delay: .45s;
+        }
+        @keyframes cardBloomSway {
+            0%, 100% { transform: rotate(-4deg); }
+            50% { transform: rotate(4deg); }
+        }
+        @keyframes cardBloomSwayFlip {
+            0%, 100% { transform: scale(-1) rotate(-4deg); }
+            50% { transform: scale(-1) rotate(4deg); }
         }
         .content-card.compact-card::before,
         .content-card.compact-card::after {
-            width: 24px; height: 24px; opacity: .4;
+            width: 26px; height: 26px; opacity: .72;
+        }
+        .content-card.compact-card {
+            background-size: min(100%, 360px) 12px;
+        }
+        .content-card[style*="transparent"] {
+            background-image: none;
         }
         .content-card[style*="transparent"]::before,
         .content-card[style*="transparent"]::after {
             content: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .content-card {
+                background-image:
+                    url('assets/dancheong/edge-sparkles-static.svg?v=spark1'),
+                    url('assets/dancheong/edge-sparkles-static.svg?v=spark1');
+            }
+            .content-card::before,
+            .content-card::after {
+                animation: none !important;
+            }
+            .content-card::before { transform: none; }
+            .content-card::after { transform: scale(-1); }
         }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.45rem; }
@@ -510,7 +567,8 @@
             .dc-c.bl { top: calc(100% + 12px); left: -12px; bottom: auto; }
             .dc-c.br { top: calc(100% + 12px); left: calc(100% + 12px); bottom: auto; right: auto; }
             .content-card::before,
-            .content-card::after { width: 22px; height: 22px; opacity: .4; }
+            .content-card::after { width: 24px; height: 24px; opacity: .7; }
+            .content-card { background-size: min(100%, 300px) 11px; }
         }
         .dash-shell {
             width: 100%;
@@ -568,7 +626,7 @@
                 margin-bottom: 0;
                 height: 100%;
             }
-            .room-tt-wrap { max-height: min(78vh, 960px); }
+            .tab-panel[data-panel="rooms"] .room-tt-wrap { max-height: none; }
         }
         @media (min-width: 1400px) {
             .dash-body { padding: 1.45rem 2.25rem 1.9rem; }
@@ -978,7 +1036,7 @@
         .stat-card .k { font-size: .72rem; font-weight: 700; color: #64748b; }
         .stat-card .v { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-top: .2rem; }
         .stat-card .h { font-size: .75rem; color: #94a3b8; margin-top: .15rem; }
-        .content-card { background: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 1.05rem 1.1rem; margin-bottom: .85rem; }
+        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 1.05rem 1.1rem; margin-bottom: .85rem; }
         .content-card h3 { margin: 0; font-size: 1rem; font-weight: 750; color: #0f172a; display: flex; align-items: center; gap: .4rem; }
         .item-row { display: flex; justify-content: space-between; gap: .75rem; padding: .7rem 0; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
         .item-row:last-child { border-bottom: none; }
@@ -1710,14 +1768,14 @@
         .theme-teacher-a .content-card,
         .theme-teacher-a .week-chart {
             border: 1px solid rgba(74,111,165,.12);
-            background: rgba(255,255,255,.88);
+            background-color: rgba(255,255,255,.88);
             box-shadow: 0 10px 26px rgba(90,110,140,.08);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
         .theme-teacher-a .content-card {
             animation: taeCardRise .55s cubic-bezier(.22,1,.36,1);
-            background: rgba(255,255,255,.86);
+            background-color: rgba(255,255,255,.86);
             box-shadow:
                 0 10px 26px rgba(90,110,140,.08),
                 0 0 0 1px rgba(74,111,165,.08),
@@ -2325,26 +2383,26 @@
             font-weight: 800;
             border: 1px solid rgba(30,58,95,.18) !important;
         }
-        /* Sent (not yet acked): soft light green */
+        /* Sent but not acked: amber / muted — green reserved for อ่านแล้ว */
         .theme-director .order-ack-badge.is-pending.badge,
         .theme-director button.badge.order-ack-badge.is-pending,
         .dash-shell.theme-director .badge.order-ack-badge.is-pending,
         .order-ack-badge.is-pending {
-            background: #ecfdf5 !important;
-            color: #047857 !important;
-            border: 1px solid rgba(16,185,129,.32) !important;
+            background: #fff7ed !important;
+            color: #9a3412 !important;
+            border: 1px solid rgba(234,88,12,.35) !important;
             gap: .28rem;
             font-weight: 750;
         }
-        /* Acked: stronger green */
+        /* Acked: strong green */
         .theme-director .order-ack-badge.is-done.badge,
         .dash-shell.theme-director .badge.order-ack-badge.is-done,
         .theme-director button.badge.order-ack-badge.is-done,
         .theme-director span.badge.order-ack-badge.is-done,
         .order-ack-badge.is-done {
-            background: #bbf7d0 !important;
+            background: #86efac !important;
             color: #14532d !important;
-            border: 1px solid rgba(22,163,74,.45) !important;
+            border: 1px solid rgba(22,163,74,.55) !important;
             gap: .28rem;
             font-weight: 800;
         }
@@ -4038,8 +4096,8 @@
             55% { opacity: 1; transform: scale(1.2); }
             100% { opacity: 1; transform: scale(1); }
         }
-        .attend-row .aname { font-weight: 800; font-size: .92rem; color: #0f172a; }
-        .attend-row .astatus { margin-left: auto; font-size: .72rem; font-weight: 800; white-space: nowrap; }
+        .attend-row .aname { font-weight: 800; font-size: .92rem; color: #0f172a; flex: 0 1 auto; }
+        .attend-row .astatus { margin-left: 0; font-size: .72rem; font-weight: 800; white-space: nowrap; flex: 0 0 auto; }
         .attend-row.on .astatus,
         .attend-row .astatus.st-present { color: #166534; }
         .attend-row .astatus.st-absent { color: #94a3b8; }
@@ -4181,7 +4239,7 @@
             transform: translateX(-120%);
             animation: attendShimmer 2.4s ease-in-out infinite;
         }
-        #attend-modal .modal-box > *:not(.order-sakura):not(.attend-sparkles) { position: relative; z-index: 1; }
+        #attend-modal .modal-box > *:not(.order-sakura):not(.attend-sparkles):not(.modal-x):not(#attend-modal-clock) { position: relative; z-index: 1; }
         #attend-modal .order-sakura {
             position: absolute; inset: 0; overflow: hidden; pointer-events: none;
             border-radius: inherit; z-index: 0;
@@ -4303,7 +4361,8 @@
         #attend-modal-clock {
             position: absolute;
             top: .85rem;
-            left: .95rem;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 2;
             font-variant-numeric: tabular-nums;
             font-weight: 800;
@@ -4316,6 +4375,8 @@
             padding: .35rem .65rem;
             box-shadow: 0 4px 12px rgba(15,118,110,.12);
             line-height: 1.2;
+            text-align: center;
+            white-space: nowrap;
             pointer-events: none;
             animation: attendTwinkleSoft 2.4s ease-in-out infinite;
         }
@@ -6181,77 +6242,157 @@
         #app-toast.is-warn { border-color: #fcd34d; background: linear-gradient(180deg, #fffbeb, #fff); color: #92400e; }
         #app-toast.is-err { border-color: #fda4af; background: linear-gradient(180deg, #fff1f2, #fff); color: #9f1239; }
 
-        /* —— Shared room timetable (2 rooms · Mon–Sun · 10–22) —— */
-        .room-tt-wrap { position: relative; }
+        /* —— Shared room timetable (3 rooms · Mon–Sun · 10–22) —— */
+        .room-tt-wrap {
+            position: relative; max-width: 100%;
+            display: flex; flex-direction: column; flex: 1; min-height: 0; gap: .45rem;
+        }
         .room-tt-head {
             display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-            gap: .65rem .85rem; margin-bottom: .85rem;
+            gap: .45rem .65rem; margin: 0;
         }
         .room-tt-live {
-            display: inline-flex; align-items: center; gap: .35rem;
-            font-size: .72rem; font-weight: 750; color: #047857;
-            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-            border: 1px solid #6ee7b7; border-radius: 999px; padding: .28rem .7rem;
+            display: inline-flex; align-items: center; gap: .4rem;
+            min-height: 2rem; font-size: .78rem; font-weight: 800; letter-spacing: .01em;
+            color: #065f46;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 55%, #6ee7b7 140%);
+            border: 1.5px solid #059669; border-radius: 999px;
+            padding: .38rem .78rem .38rem .7rem;
+            cursor: pointer; font-family: inherit; line-height: 1.15;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,.55) inset,
+                0 2px 6px rgba(5, 150, 105, .22),
+                0 0 0 1px rgba(16, 185, 129, .12);
+            transition: background .18s, border-color .18s, box-shadow .18s, transform .18s, color .18s;
+        }
+        .room-tt-live:hover, .room-tt-live:focus-visible {
+            color: #064e3b;
+            background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 60%, #34d399 130%);
+            border-color: #047857;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,.6) inset,
+                0 4px 12px rgba(5, 150, 105, .28),
+                0 0 0 3px rgba(16, 185, 129, .28);
+            transform: scale(1.04);
+            outline: none;
+        }
+        .room-tt-live:active { transform: scale(.97); }
+        .room-tt-live .live-dot {
+            width: 9px; height: 9px; margin-right: 0; flex-shrink: 0;
+            background: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, .28);
+            animation: roomTtLiveDotPulse 1.5s ease-in-out infinite;
+        }
+        .room-tt-live .rt-live-refresh {
+            font-size: .95rem; opacity: .95; margin-left: .02rem; flex-shrink: 0;
+            transform-origin: center;
+            animation: roomTtLiveIconNudge 2.4s ease-in-out infinite;
+        }
+        .room-tt-live.is-loading {
+            pointer-events: none; opacity: .85;
+            border-color: #059669;
+            transform: none;
+        }
+        .room-tt-live.is-loading .live-dot {
+            animation: none;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, .2);
+        }
+        .room-tt-live.is-loading .rt-live-refresh {
+            animation: roomTtLiveSpin .7s linear infinite;
+            opacity: 1;
+        }
+        @keyframes roomTtLiveDotPulse {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(22, 163, 74, .28); transform: scale(1); }
+            50% { box-shadow: 0 0 0 7px rgba(22, 163, 74, .1); transform: scale(1.12); }
+        }
+        @keyframes roomTtLiveIconNudge {
+            0%, 100% { transform: rotate(0deg); opacity: .88; }
+            35% { transform: rotate(-14deg); opacity: 1; }
+            55% { transform: rotate(10deg); opacity: 1; }
+            70% { transform: rotate(-4deg); opacity: .95; }
+        }
+        @keyframes roomTtLiveSpin {
+            to { transform: rotate(360deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .room-tt-live .live-dot,
+            .room-tt-live .rt-live-refresh { animation: none !important; }
+            .room-tt-live, .room-tt-live:hover, .room-tt-live:focus-visible, .room-tt-live:active {
+                transform: none;
+            }
+            .room-tt-live.is-loading .rt-live-refresh {
+                animation: roomTtLiveSpin .7s linear infinite !important;
+            }
         }
         .room-tt-nav {
-            display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+            display: flex; align-items: center; gap: .35rem; flex-wrap: wrap;
         }
         .room-tt-nav .soft-btn {
-            min-width: 2.2rem; padding: .4rem .55rem; font-size: .85rem;
+            min-width: 2.05rem; padding: .35rem .5rem; font-size: .82rem;
         }
         .room-tt-range {
-            font-weight: 800; font-size: .92rem; color: #0f172a;
+            font-weight: 800; font-size: .9rem; color: #0f172a;
             letter-spacing: -.01em; min-width: 9rem; text-align: center;
+            border: 1.5px solid #bfdbfe; background: #f8fbff; border-radius: .75rem;
+            padding: .35rem .65rem; cursor: pointer; font-family: inherit;
+            transition: background .15s, border-color .15s, box-shadow .15s;
+        }
+        .room-tt-range:hover, .room-tt-range:focus-visible {
+            background: #eff6ff; border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56,189,248,.18); outline: none;
+        }
+        .room-tt-range .rt-range-hint {
+            display: block; font-size: .62rem; font-weight: 700; color: #64748b; margin-top: .1rem;
         }
         .room-tt-hint {
-            font-size: .78rem; color: #64748b; margin: 0 0 .7rem; line-height: 1.45;
+            font-size: .74rem; color: #64748b; margin: 0; line-height: 1.4;
         }
         .room-tt-legend {
-            display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .75rem;
+            display: flex; flex-wrap: wrap; gap: .3rem; margin: 0;
         }
         .room-tt-chip {
-            display: inline-flex; align-items: center; gap: .35rem;
-            font-size: .72rem; font-weight: 750; padding: .25rem .55rem;
+            display: inline-flex; align-items: center; gap: .3rem;
+            font-size: .68rem; font-weight: 750; padding: .18rem .45rem;
             border-radius: 999px; border: 1.5px solid; animation: roomTtFadeIn .45s ease both;
         }
         .room-tt-chip i {
-            width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+            width: 7px; height: 7px; border-radius: 50%; display: inline-block;
         }
         .room-tt-scroll {
             overflow: auto; overflow-x: auto; -webkit-overflow-scrolling: touch;
-            max-height: min(78vh, 920px);
-            border-radius: 1rem; border: 1px solid #e2e8f0;
-            background:
-                radial-gradient(120% 80% at 0% 0%, rgba(14,165,233,.08), transparent 55%),
-                radial-gradient(100% 70% at 100% 100%, rgba(244,63,94,.06), transparent 50%),
-                #fff;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+            flex: 1 1 auto;
+            min-height: 22rem;
+            max-height: none;
+            border-radius: .85rem; border: 1px solid #d8dee8;
+            /* One flat table surface — no stacked gradient panels */
+            background: #fff;
+            box-shadow: none;
         }
         .room-tt-grid {
             display: grid;
-            min-width: 1680px;
-            grid-template-columns: 4rem repeat(21, minmax(4.4rem, 1fr));
-            grid-auto-rows: minmax(3.15rem, auto);
-            gap: 3px;
+            min-width: 1520px;
+            grid-template-columns: 3.5rem repeat(21, minmax(4rem, 1fr));
+            grid-auto-rows: minmax(2.7rem, auto);
+            gap: 1px;
+            background: #dbe3ee;
         }
-        .room-tt-wrap { max-width: 100%; }
         .soft-btn:disabled { opacity: .4; pointer-events: none; }
         .room-tt-monthbar {
-            display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .65rem;
-            margin: 0 0 .75rem; padding: .55rem .7rem;
-            background: rgba(255,255,255,.72); border: 1px solid rgba(15,23,42,.08);
-            border-radius: 14px;
+            display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .55rem;
+            margin: 0; padding: .4rem .55rem;
+            background: #f8fafc; border: 1px solid #e2e8f0;
+            border-radius: 12px;
         }
-        .room-tt-monthbar label { font-size: .72rem; font-weight: 750; color: #64748b; }
+        .room-tt-monthbar label { font-size: .7rem; font-weight: 750; color: #64748b; }
         .room-tt-monthbar select, .room-tt-monthbar .soft-btn {
-            font-size: .8rem; padding: .35rem .65rem; border-radius: 10px;
+            font-size: .78rem; padding: .3rem .55rem; border-radius: 10px;
         }
         .room-tt-monthbar select {
             border: 1px solid #e2e8f0; background: #fff; font-weight: 700; color: #0f172a;
         }
         .room-tt-lookback {
-            font-size: .7rem; font-weight: 750; color: #0369a1;
-            background: #e0f2fe; border-radius: 999px; padding: .2rem .55rem;
+            font-size: .66rem; font-weight: 750; color: #0369a1;
+            background: #e0f2fe; border-radius: 999px; padding: .16rem .5rem;
         }
         .room-tt-booked.is-break {
             background: #fee2e2 !important; border-color: #f87171 !important; color: #b91c1c !important;
@@ -6266,73 +6407,85 @@
         .room-tt-stu-row .stu-meta { color: #64748b; font-size: .72rem; }
         .room-tt-rooms .r-c { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
         .room-tt-cell {
-            border-right: 1px solid #eef2f7; border-bottom: 1px solid #eef2f7;
-            min-height: 3.15rem; padding: .22rem; position: relative;
+            border: none;
+            min-height: 2.7rem; padding: .14rem; position: relative;
+            background: #fff;
         }
         .room-tt-cell.is-corner, .room-tt-cell.is-time, .room-tt-cell.is-day {
-            background: rgba(248,250,252,.95); position: sticky; z-index: 2;
+            background: #f1f5f9; position: sticky; z-index: 2;
         }
         .room-tt-cell.is-corner { left: 0; top: 0; z-index: 4; }
         .room-tt-cell.is-time {
             left: 0; z-index: 3; display: flex; align-items: center; justify-content: center;
-            font-size: .72rem; font-weight: 800; color: #475569;
-            background: linear-gradient(90deg, #f8fafc, #f1f5f9);
+            font-size: .68rem; font-weight: 800; color: #475569;
+            background: #eef2f7;
         }
         .room-tt-cell.is-day {
-            top: 0; z-index: 3; text-align: center; padding: .4rem .2rem .35rem;
-            background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+            top: 0; z-index: 3; text-align: center; padding: .32rem .15rem .28rem;
+            background: #eef2f7;
         }
-        .room-tt-day-name { font-size: .78rem; font-weight: 850; color: #0f172a; }
-        .room-tt-day-date { font-size: .65rem; color: #64748b; font-weight: 650; }
+        .room-tt-day-name { font-size: .74rem; font-weight: 850; color: #0f172a; }
+        .room-tt-day-date { font-size: .62rem; color: #64748b; font-weight: 650; }
         .room-tt-rooms {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .2rem; margin-top: .25rem;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .15rem; margin-top: .18rem;
         }
         .room-tt-rooms span {
-            font-size: .58rem; font-weight: 800; letter-spacing: .02em;
-            padding: .12rem 0; border-radius: .35rem; color: #fff;
+            font-size: .54rem; font-weight: 800; letter-spacing: .02em;
+            padding: .1rem 0; border-radius: .3rem; color: #fff;
         }
         .room-tt-rooms .r-a { background: linear-gradient(135deg, #0284c7, #0ea5e9); }
         .room-tt-rooms .r-b { background: linear-gradient(135deg, #db2777, #f472b6); color: #fff; }
-        /* Alternating day bands (rooms 1–2–3 per day) for easier horizontal scanning */
-        .room-tt-cell.is-day-band-a { background: #ffffff; }
-        .room-tt-cell.is-day-band-b { background: #f1f5f9; }
-        .room-tt-cell.is-day.is-day-band-a {
-            background: linear-gradient(180deg, #f8fafc, #ffffff);
+        /* Soft room column tints (match header blue / pink / purple, low opacity) */
+        .room-tt-cell.is-room-a { background: #f3f8fc; }
+        .room-tt-cell.is-room-b { background: #fbf5f8; }
+        .room-tt-cell.is-room-c { background: #f6f4fb; }
+        .room-tt-cell.is-day.is-day-band-a,
+        .room-tt-cell.is-day.is-day-band-b { background: #eef2f7; }
+        /* Day boundary: thicker left edge after Room 3 → next day's Room 1 */
+        .room-tt-cell.is-day-start {
+            box-shadow: inset 3px 0 0 #64748b;
         }
-        .room-tt-cell.is-day.is-day-band-b {
-            background: linear-gradient(180deg, #e8eef5, #f1f5f9);
+        .room-tt-cell.is-day.is-day-start {
+            box-shadow: inset 3px 0 0 #64748b;
         }
-        .room-tt-cell.is-day-band-b.is-day-start,
-        .room-tt-cell.is-day.is-day-band-b {
-            box-shadow: inset 2px 0 0 rgba(148, 163, 184, .35);
-        }
-        .room-tt-cell.is-today-col { background: rgba(14,165,233,.04); }
+        .room-tt-cell.is-today-col.is-room-a { background: #e8f4fc; }
+        .room-tt-cell.is-today-col.is-room-b { background: #fce8f1; }
+        .room-tt-cell.is-today-col.is-room-c { background: #eee8fc; }
         .room-tt-cell.is-today-col.is-day {
-            background: linear-gradient(180deg, #e0f2fe, #f0f9ff);
+            background: #e0f2fe;
             box-shadow: inset 0 -2px 0 #38bdf8;
         }
-        .room-tt-cell.is-today-col.is-day-band-b.is-day-start {
-            box-shadow: inset 2px 0 0 rgba(56, 189, 248, .45);
+        .room-tt-cell.is-today-col.is-day-start {
+            box-shadow: inset 3px 0 0 #0ea5e9;
         }
+        .room-tt-cell.is-today-col.is-day.is-day-start {
+            box-shadow: inset 3px 0 0 #0ea5e9, inset 0 -2px 0 #38bdf8;
+        }
+        /* Empty slots: soft gray-white pin/watermark; booked colors stay vivid */
         .room-tt-plus {
-            width: 100%; height: 100%; min-height: 2.6rem; border-radius: .55rem;
-            border: 1.5px dashed #cbd5e1; background: rgba(255,255,255,.55);
-            color: #94a3b8; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: transform .2s, border-color .2s, color .2s, background .2s;
-            animation: roomTtPulse 2.4s ease-in-out infinite;
+            width: 100%; height: 100%; min-height: 2.35rem; border-radius: .45rem;
+            border: 1.5px dashed rgba(148, 163, 184, .55);
+            background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 100%);
+            color: rgba(148, 163, 184, .5);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: transform .2s, border-color .2s, color .2s, background .2s, box-shadow .2s;
+            animation: none;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
         }
         .room-tt-plus:hover, .room-tt-plus:focus-visible {
-            border-color: #38bdf8; color: #0284c7; background: #f0f9ff;
-            transform: scale(1.04); outline: none; animation: none;
+            border-color: #7dd3fc; color: #0ea5e9;
+            background: linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 100%);
+            transform: scale(1.03); outline: none;
+            box-shadow: inset 0 0 0 1px rgba(125, 211, 252, .35);
         }
-        .room-tt-plus i { font-size: 1.15rem; font-weight: 700; }
+        .room-tt-plus i { font-size: 1.05rem; font-weight: 700; }
         .room-tt-booked {
-            width: 100%; height: 100%; min-height: 2.6rem; border-radius: .55rem;
-            border: 1.5px solid; padding: .28rem .32rem; text-align: left;
+            width: 100%; height: 100%; min-height: 2.35rem; border-radius: .45rem;
+            border: 1.5px solid; padding: .22rem .28rem; text-align: left;
             cursor: pointer; display: flex; flex-direction: column; justify-content: center;
-            gap: .08rem; transition: transform .2s, box-shadow .2s;
+            gap: .06rem; transition: transform .2s, box-shadow .2s;
             animation: roomTtPop .38s cubic-bezier(.2,.9,.3,1.2) both;
-            box-shadow: 0 4px 12px rgba(15,23,42,.06);
+            box-shadow: 0 3px 10px rgba(15,23,42,.1);
         }
         .room-tt-cell.is-span-host {
             z-index: 2;
@@ -6423,6 +6576,99 @@
             .room-tt-booked .rt-name { font-size: .62rem; }
             .room-tt-booked .rt-subj { font-size: .54rem; }
         }
+
+        /* Room TT panel: white card fills to bottom of dash-body (all roles) */
+        .dash-body {
+            display: flex;
+            flex-direction: column;
+        }
+        #tab-panels {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .tab-panel[data-panel="rooms"].active {
+            display: flex !important;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: calc(100dvh - 11.5rem);
+            animation: none;
+        }
+        .tab-panel[data-panel="rooms"] > .content-card {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0 !important;
+            min-height: 100%;
+            background-color: #fff !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: 0 1px 0 rgba(15, 23, 42, .04) !important;
+        }
+        .theme-teacher-a .tab-panel[data-panel="rooms"].active .content-card,
+        .theme-teacher-b .tab-panel[data-panel="rooms"] > .content-card,
+        .theme-teacher-c .tab-panel[data-panel="rooms"] > .content-card,
+        .theme-director .tab-panel[data-panel="rooms"] > .content-card {
+            animation: none !important;
+            background: #fff !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: 0 1px 0 rgba(15, 23, 42, .04) !important;
+        }
+        .tab-panel[data-panel="rooms"] #room-tt-board {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .tab-panel[data-panel="rooms"] .room-tt-scroll {
+            min-height: min(58vh, 640px);
+        }
+
+        /* Big month overview modal */
+        #room-tt-month-modal .modal-box {
+            width: min(960px, 96vw);
+            max-height: min(92dvh, 860px);
+            overflow: auto;
+        }
+        .rt-month-head {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+            gap: .55rem; margin: .35rem 0 .75rem;
+        }
+        .rt-month-nav { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+        .rt-month-title { font-size: 1.05rem; font-weight: 850; color: #0f172a; min-width: 8rem; text-align: center; }
+        .rt-month-hint { font-size: .74rem; color: #64748b; margin: 0 0 .65rem; line-height: 1.4; }
+        .rt-month-hint.is-move { color: #9a3412; font-weight: 750; background: #fff7ed; border: 1px solid #fed7aa; border-radius: .65rem; padding: .45rem .65rem; }
+        .rt-month-grid {
+            display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .35rem;
+        }
+        .rt-month-dow {
+            text-align: center; font-size: .68rem; font-weight: 800; color: #64748b;
+            padding: .2rem 0;
+        }
+        .rt-month-day {
+            min-height: 5.6rem; border-radius: .7rem; border: 1px solid #e2e8f0;
+            background: #f8fafc; padding: .28rem .32rem; display: flex; flex-direction: column; gap: .18rem;
+            cursor: pointer; transition: border-color .15s, box-shadow .15s, background .15s;
+        }
+        .rt-month-day:hover, .rt-month-day:focus-visible {
+            border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,.2); outline: none; background: #f0f9ff;
+        }
+        .rt-month-day.is-out { opacity: .38; pointer-events: none; background: #f1f5f9; }
+        .rt-month-day.is-today { border-color: #0ea5e9; background: #e0f2fe; }
+        .rt-month-day.is-drop-target { border-color: #f59e0b; background: #fffbeb; box-shadow: inset 0 0 0 2px #fbbf24; }
+        .rt-month-daynum { font-size: .72rem; font-weight: 850; color: #334155; }
+        .rt-month-chips { display: flex; flex-direction: column; gap: .15rem; flex: 1; min-height: 0; overflow: hidden; }
+        .rt-month-chip {
+            border: 1px solid; border-radius: .4rem; padding: .12rem .28rem;
+            font-size: .58rem; font-weight: 750; line-height: 1.2; text-align: left;
+            cursor: grab; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-family: inherit;
+        }
+        .rt-month-chip.is-picked { outline: 2px solid #f59e0b; outline-offset: 1px; }
+        .rt-month-chip:active { cursor: grabbing; }
+        .rt-month-more { font-size: .58rem; font-weight: 700; color: #64748b; }
 
         /* Help / AI assistant */
         .help-fab {
@@ -6545,6 +6791,276 @@
         @media (max-width: 520px) {
             .help-fab { right: .75rem; bottom: .85rem; }
             .help-panel { right: .5rem; left: .5rem; width: auto; bottom: 4.2rem; }
+        }
+
+        /* ── Mobile / iPad / coarse-pointer: cut FX cost, fix touch & scroll ── */
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        body {
+            padding-left: env(safe-area-inset-left, 0);
+            padding-right: env(safe-area-inset-right, 0);
+        }
+        .help-fab {
+            right: calc(1.1rem + env(safe-area-inset-right, 0px));
+            bottom: calc(1.1rem + env(safe-area-inset-bottom, 0px));
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .tab-btn, .soft-btn, .logout-btn, .lang-btn, .help-chip, .help-tab,
+        .order-ack-check, .check-row, .modal-x, button {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media (max-width: 900px), (max-width: 1024px), (hover: none), (pointer: coarse) {
+            html.lite-fx .bg-stage::before,
+            html.lite-fx .bg-stage::after,
+            .bg-stage::before,
+            .bg-stage::after {
+                animation: none !important;
+                opacity: .55;
+            }
+            .mist {
+                animation: none !important;
+                will-change: auto;
+                filter: blur(48px);
+                opacity: .22;
+            }
+            .mist-c, .mist-d { display: none; }
+            .login-sea-wave { animation: none !important; will-change: auto; opacity: .7; }
+            .login-sea-sparkles span { animation: none !important; }
+            .login-sea-sparkles span:nth-child(n+5) { display: none; }
+            .petal, .leaf, .sakura, .hangul-float, .ko-cloud, .crane-bird,
+            .dir-ink-dot, .soft-star, .ink-splash {
+                animation: none !important;
+                will-change: auto;
+                filter: none !important;
+            }
+            .petal, .leaf { opacity: .35; }
+            .petal:nth-child(n+9), .leaf:nth-child(n+4) { display: none; }
+            .panel, .dash-shell {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .panel::before, .dash-shell::before {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .theme-teacher-a .content-card,
+            .theme-teacher-b .content-card,
+            .theme-teacher-c .content-card,
+            .theme-director .content-card,
+            .content-card {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background-image:
+                    url('assets/dancheong/edge-sparkles-static.svg?v=spark1'),
+                    url('assets/dancheong/edge-sparkles-static.svg?v=spark1') !important;
+            }
+            .content-card::before,
+            .content-card::after {
+                animation: none !important;
+                will-change: auto !important;
+            }
+            .content-card::before { transform: none; }
+            .content-card::after { transform: scale(-1); }
+            .dc-c { animation: none !important; will-change: auto; filter: none !important; }
+            .dash-shell.theme-teacher-a::before,
+            .dash-shell.theme-teacher-a::after,
+            .taehyun-fx .dancheong-rail,
+            .logo-wrap::before {
+                animation: none !important;
+            }
+            .taehyun-fx .sakura:nth-child(n+8),
+            .taehyun-fx .hangul-float:nth-child(n+6),
+            .taehyun-fx .crane-bird.c2,
+            .taehyun-fx .ink-splash:nth-of-type(n+3) { display: none; }
+            #order-modal .order-sakura,
+            #attend-modal .order-sakura,
+            #attend-modal .attend-sparkles,
+            #sched-alert-modal .order-sakura,
+            #cancel-alert-modal .order-sakura,
+            #cancel-ack-modal .order-sakura { display: none !important; }
+            #order-modal.open .modal-box,
+            #attend-modal.open .modal-box {
+                animation: riseIn .2s ease both !important;
+                background-size: auto, 100% 100% !important;
+            }
+            #order-modal.open .order-new-badge,
+            #attend-modal-clock,
+            #attend-modal.open .attend-bell,
+            #order-modal.open .order-bell { animation: none !important; }
+            .modal { will-change: auto; padding: max(.5rem, env(safe-area-inset-top)) .65rem max(.65rem, env(safe-area-inset-bottom)); align-items: flex-end; }
+            @media (min-height: 700px) {
+                .modal { align-items: center; }
+            }
+            .modal-box {
+                max-height: min(92dvh, calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1rem));
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
+            #order-modal .modal-box {
+                width: min(100%, 96vw) !important;
+                max-height: min(88dvh, 760px) !important;
+                padding: 1rem 1rem .95rem !important;
+            }
+            #order-modal #order-modal-list {
+                max-height: min(46dvh, 380px);
+            }
+            #order-modal #order-modal-x,
+            #attend-modal .modal-x {
+                width: 44px !important;
+                height: 44px !important;
+                min-width: 44px !important;
+                min-height: 44px !important;
+                max-width: 44px !important;
+                max-height: 44px !important;
+            }
+            #attend-modal .modal-box {
+                width: min(100%, 96vw);
+                max-height: min(90dvh, 780px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+            }
+            #attend-modal-list.attend-list {
+                max-height: min(48dvh, 420px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
+            .dash-shell {
+                height: auto;
+                min-height: 100dvh;
+                min-height: 100svh;
+                overflow-x: hidden;
+            }
+            .dash-body {
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-y: contain;
+                padding-bottom: max(1.25rem, calc(.75rem + env(safe-area-inset-bottom, 0px)));
+            }
+            .dash-tabs {
+                gap: .35rem;
+                padding: .65rem .75rem;
+                overflow-x: auto;
+                flex-wrap: wrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            .tab-btn {
+                min-height: 44px;
+                padding: .55rem .7rem;
+                font-size: .8rem;
+            }
+            .soft-btn, .logout-btn, .help-fab, .lang-btn {
+                min-height: 44px;
+            }
+            .order-ack-check {
+                width: 2.75rem;
+                height: 2.75rem;
+            }
+            .order-ack-check .order-ack-box {
+                width: 1.55rem;
+                height: 1.55rem;
+            }
+            #order-modal .check-row {
+                min-height: 48px;
+                padding: .55rem .35rem;
+                gap: .65rem;
+            }
+            #order-modal .check-row input[type="checkbox"] {
+                width: 1.35rem;
+                height: 1.35rem;
+                flex-shrink: 0;
+            }
+            .help-fab {
+                width: 3.55rem;
+                height: 3.55rem;
+            }
+            .help-panel {
+                height: min(620px, calc(100dvh - 5.5rem - env(safe-area-inset-bottom, 0px)));
+                max-height: calc(100dvh - 5rem - env(safe-area-inset-bottom, 0px));
+            }
+            .header-actions {
+                flex-wrap: wrap !important;
+                gap: .4rem !important;
+            }
+            .stat-grid, .stat-grid.work-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .digital-clock .flip { animation: none !important; }
+            .enter-btn { animation: none !important; background-position: 50% 50%; }
+            .soft-logo-scene .soft-orbit,
+            .soft-logo-scene .soft-star,
+            .soft-logo-scene .soft-spark { animation: none !important; }
+            .soft-logo-scene .soft-orbit.o2,
+            .soft-logo-scene .soft-orbit.o3,
+            .soft-logo-scene .soft-spark { display: none; }
+            .lang-mini-toggle {
+                min-width: 44px;
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .lang-mini-menu .lang-btn {
+                width: 44px;
+                height: 44px;
+                min-width: 44px;
+                min-height: 44px;
+            }
+            .sched-save, .sched-edit-open, .sched-edit-abort, .sched-cancel, .sched-del {
+                min-height: 44px;
+                padding: .55rem .85rem;
+            }
+            .tab-btn:active, .soft-btn:active, .enter-btn:active,
+            .lang-btn:active, .order-card:active, .help-fab:active {
+                filter: brightness(.97);
+                transform: scale(.98);
+            }
+            .order-ack-check:active .order-ack-box { border-color: #16a34a; }
+            /* Avoid sticky :hover styles on touch */
+            .tab-btn:hover, .soft-btn:hover, .order-card:hover,
+            .lang-btn:hover, .logout-btn:hover { transform: none; }
+        }
+        @media (max-width: 720px) {
+            .stat-grid, .stat-grid.work-stats { grid-template-columns: 1fr; }
+            .dash-tabs { padding: .55rem .65rem .7rem; }
+            .dash-body { padding: .9rem .85rem 1.25rem; }
+            .content-card { padding: .9rem .85rem; margin-bottom: .7rem; }
+            .content-card::before,
+            .content-card::after { width: 24px; height: 24px; opacity: .7; }
+            .panel { margin: .5rem; width: calc(100% - 1rem); }
+            .login-sea { height: min(96px, 16vh); }
+            .lang-float { top: max(.65rem, env(safe-area-inset-top, 0px)); right: max(.55rem, env(safe-area-inset-right, 0px)); }
+            .lang-btn { min-width: 44px; min-height: 44px; }
+            .enter-btn { min-height: 48px; }
+            .pass-input { min-height: 48px; font-size: 1.05rem; }
+        }
+        @media (min-width: 721px) and (max-width: 1024px) {
+            .dash-header { flex-wrap: wrap; gap: .55rem; }
+            .header-actions { width: auto; max-width: 100%; }
+            .stat-grid.work-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .dash-body { padding: 1.05rem 1.15rem 1.4rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .mist, .petal, .leaf, .login-sea-wave, .login-sea-sparkles span,
+            .content-card::before, .content-card::after, .dc-c,
+            .sakura, .hangul-float, .ko-cloud, .crane-bird,
+            .bg-stage::before, .bg-stage::after {
+                animation: none !important;
+                transition: none !important;
+            }
+            #order-modal .order-sakura,
+            #attend-modal .order-sakura,
+            #attend-modal .attend-sparkles { display: none !important; }
+        }
+        html.lite-fx.page-hidden .bg-stage *,
+        html.lite-fx.page-hidden .taehyun-fx * {
+            animation-play-state: paused !important;
         }
     </style>
 </head>
@@ -6703,6 +7219,21 @@
                 <button type="button" class="soft-btn ghost" id="sched-dayoff-confirm-cancel" data-i18n="schedDayOffConfirmCancel">ปิด</button>
                 <button type="button" class="soft-btn" id="sched-dayoff-confirm-ok" data-i18n="schedDayOffConfirmOk">ยืนยัน · ไม่มีคลาส</button>
             </div>
+        </div>
+    </div>
+
+    <div id="room-tt-month-modal" class="modal teach-shell">
+        <div class="modal-box teach-pop">
+            <div class="teach-pop-decor" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+            </div>
+            <button type="button" class="modal-x" id="room-tt-month-modal-x"><i class="ph ph-x"></i></button>
+            <div class="teach-pop-head">
+                <div class="teach-pop-icon" aria-hidden="true"><i class="ph-fill ph-calendar-blank"></i></div>
+                <p class="teach-pop-title" id="room-tt-month-modal-title" data-i18n="roomTtMonthOpen">ปฏิทินเดือนใหญ่</p>
+                <p class="teach-pop-sub" id="room-tt-month-modal-sub" data-i18n="roomTtMonthHint">กดคลาสเพื่อเลือก แล้วกดวันอื่นเพื่อย้าย</p>
+            </div>
+            <div id="room-tt-month-body"></div>
         </div>
     </div>
 
@@ -7908,6 +8439,37 @@
         /** Optional hard-coded Apps Script Web App URL (same for every PC after Pages deploy). Prefer sync-config.json. */
         const DEFAULT_PHOTOS_SYNC_URL = '';
         const PHOTOS_SYNC_MS = 20000;
+        const PHOTOS_SYNC_MS_LITE = 45000;
+        /** Mobile / iPad / touch / reduced-motion: cheaper clocks, sync, and particle FX. */
+        const LITE_MQ = '(max-width: 900px), (max-width: 1024px), (hover: none), (pointer: coarse)';
+        function isLiteClient() {
+            try {
+                if (typeof window.matchMedia !== 'function') return false;
+                return window.matchMedia(LITE_MQ).matches
+                    || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            } catch (_) {
+                return false;
+            }
+        }
+        function syncIntervalMs(desktopMs, liteMs) {
+            return isLiteClient() ? (liteMs || Math.max(desktopMs * 2.5, 30000)) : desktopMs;
+        }
+        function applyLiteClientClass() {
+            try {
+                document.documentElement.classList.toggle('lite-fx', isLiteClient());
+            } catch (_) {}
+        }
+        applyLiteClientClass();
+        try {
+            window.matchMedia('(max-width: 900px)').addEventListener?.('change', applyLiteClientClass);
+            window.matchMedia('(max-width: 1024px)').addEventListener?.('change', applyLiteClientClass);
+            window.matchMedia('(hover: none)').addEventListener?.('change', applyLiteClientClass);
+            window.matchMedia('(pointer: coarse)').addEventListener?.('change', applyLiteClientClass);
+            window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener?.('change', applyLiteClientClass);
+            document.addEventListener('visibilitychange', () => {
+                document.documentElement.classList.toggle('page-hidden', document.hidden);
+            });
+        } catch (_) {}
         let photosSyncTimer = null;
         let photosSyncState = { status: 'idle', at: '', error: '', source: '' };
         let photosSyncInFlight = false;
@@ -8330,7 +8892,7 @@
                 if (!currentUser) return;
                 if (document.hidden) return;
                 syncPhotosFromCentral({ silent: true });
-            }, PHOTOS_SYNC_MS);
+            }, syncIntervalMs(PHOTOS_SYNC_MS, PHOTOS_SYNC_MS_LITE));
         }
         function stopPhotosLiveSync() {
             if (photosSyncTimer) {
@@ -8417,12 +8979,20 @@
         let currentUser = null;
         let currentTab = 'today';
         let openDashboard = null;
+        let softRefreshDashboard = null;
+        let softRefreshDeferred = null;
+        let softRefreshBusy = false;
+        let softRefreshLastAt = 0;
+        let softRefreshThrottleTimer = null;
         let clockTimer = null;
         let orderResendCdTimer = null;
         let roomTtWeekOffset = 0;
         let roomTtSyncStatusMsg = '';
         let roomTtDraft = null;
         let roomTtRangePick = null; // { date, room, start } when selecting กี่โมง→กี่โมง
+        let roomTtMonthPick = null; // block id selected in big-month view for relocate
+        let roomTtMonthKeyView = ''; // YYYY-MM currently shown in month modal
+        let roomTtMonthBusy = false; // soft-refresh: skip board remount while month UI mid-edit
         let celestialTimer = null;
         let emergencyEditMode = false;
         let emergencyDraft = null;
@@ -8448,6 +9018,7 @@
         let leaveInboxOpenId = null;
         let orderPopupIdx = 0;
         let orderPopupSnoozed = false; // dismissed with × / backdrop until tab change
+        let attendPopupSnoozed = false; // dismissed with × / backdrop until tab change
         let pendingSelfPw = null;
         let cropState = { x: 0, y: 0, scale: 1, dragging: false, startX: 0, startY: 0, baseX: 0, baseY: 0, naturalW: 0, naturalH: 0 };
 
@@ -8470,11 +9041,18 @@
                 tabClasses: '수업 시간표',
                 tabRooms: '교실 시간표',
                 roomTtTitle: '교실 시간표',
-                roomTtHint: '월~일 · 30분 · 교실 3개 · 최대 8개월 조회 · 월 선택 가능 · 클릭해 수강생·메모 수정',
+                roomTtHint: '월~일 · 30분 · 교실 3개 · 8개월 보관 · 6개월 미리보기 · 날짜 범위 클릭 = 월간 보기',
                 roomTtLive: '실시간',
                 roomTtThisWeek: '이번 주',
                 roomTtPickMonth: '월 선택',
-                roomTtLookback: '최대 8개월 보관',
+                roomTtLookback: '보관 8개월 · 미리보기 6개월',
+                roomTtMonthOpen: '월간 달력',
+                roomTtMonthHint: '수업을 눌러 선택한 뒤 다른 날짜를 누르면 이동합니다 · 날짜를 누르면 그 주로 이동합니다',
+                roomTtMonthMoveHint: '이동할 날짜를 눌러 주세요 (같은 교실·시간 유지)',
+                roomTtMonthMoved: '월간 보기에서 이동했습니다',
+                roomTtRefresh: '실시간 새로고침',
+                roomTtRefreshOk: '시간표를 새로고침했습니다',
+                roomTtRefreshBusy: '동기화 중…',
                 roomTtExport: '월 내보내기',
                 roomTtImport: '가져오기',
                 roomTtSyncDrive: 'Drive 동기화',
@@ -8883,7 +9461,7 @@
                 readStatus: '확인 현황',
                 readDone: '확인함',
                 unread: '미확인',
-                msgSent: '메시지 보냄',
+                msgSent: '미확인',
                 orderResend: '다시 보내기',
                 orderResendDone: '다시 보냈습니다',
                 orderResendCooldown: '다시 보내기까지 {time}',
@@ -9169,7 +9747,7 @@
                 pwWrongCurrent: '현재 비밀번호가 올바르지 않습니다',
                 pwUsed: '이미 사용 중인 비밀번호입니다',
                 attendTitle: '출근 체크',
-                attendHint: '오늘 출근한 사람을 체크해 통계에 반영합니다.\n×는 잠시만 숨깁니다 (저장 전까지 다시 뜹니다).',
+                attendHint: '오늘 출근한 사람을 체크해 통계에 반영합니다.\n×는 잠시 숨깁니다 (다른 탭으로 이동하면 저장 전까지 다시 뜹니다).',
                 attendSave: '출근 저장',
                 attendSaved: '출근 체크 저장됨',
                 attendPresent: '출근',
@@ -9239,11 +9817,18 @@
                 tabClasses: 'ตารางสอน',
                 tabRooms: 'ตารางห้องเรียน',
                 roomTtTitle: 'ตารางห้องเรียน',
-                roomTtHint: 'จ–อา · ทุก 30 นาที · 3 ห้อง · ดูย้อนหลังได้ 8 เดือน · เลือกเดือนได้ · กดช่องเพื่อแก้รายชื่อ/บันทึก',
+                roomTtHint: 'จ–อา · ทุก 30 นาที · 3 ห้อง · ย้อนหลัง 8 เดือน · ล่วงหน้า 6 เดือน · กดช่วงวันที่ = ดูเดือนใหญ่',
                 roomTtLive: 'เรียลไทม์',
                 roomTtThisWeek: 'สัปดาห์นี้',
                 roomTtPickMonth: 'เลือกเดือน',
-                roomTtLookback: 'เก็บย้อนหลังได้ 8 เดือน',
+                roomTtLookback: 'เก็บ 8 เดือน · ดูล่วงหน้า 6 เดือน',
+                roomTtMonthOpen: 'ปฏิทินเดือนใหญ่',
+                roomTtMonthHint: 'กดคลาสเพื่อเลือก แล้วกดวันอื่นเพื่อย้าย · กดวันที่เพื่อไปสัปดาห์นั้น',
+                roomTtMonthMoveHint: 'กดวันที่ต้องการย้ายไป (คงห้องและเวลาเดิม)',
+                roomTtMonthMoved: 'ย้ายจากมุมมองเดือนแล้ว',
+                roomTtRefresh: 'รีเฟรชเรียลไทม์',
+                roomTtRefreshOk: 'รีเฟรชตารางแล้ว',
+                roomTtRefreshBusy: 'กำลังซิงก์…',
                 roomTtExport: 'ส่งออกเดือนนี้',
                 roomTtImport: 'นำเข้า',
                 roomTtSyncDrive: 'ซิงก์ Drive',
@@ -9650,9 +10235,9 @@
                 assignLangEn: 'อังกฤษ',
                 assignMultiHint: 'ใส่ข้อความแยกภาษา · สลับภาษาแล้วเนื้อหาจะเปลี่ยนตามทันที',
                 readStatus: 'สถานการณ์รับทราบงานของครูแต่ละคน',
-                readDone: 'รับทราบแล้ว',
-                unread: 'ยังไม่รับทราบ',
-                msgSent: 'ส่งข้อความไปแล้ว',
+                readDone: 'อ่านแล้ว',
+                unread: 'ยังไม่ได้อ่าน',
+                msgSent: 'ยังไม่ได้อ่าน',
                 orderResend: 'ส่งอีกครั้ง',
                 orderResendDone: 'ส่งอีกครั้งแล้ว',
                 orderResendCooldown: 'ส่งได้อีกใน {time}',
@@ -10008,11 +10593,18 @@
                 tabClasses: 'Class schedule',
                 tabRooms: 'Room timetable',
                 roomTtTitle: 'Room timetable',
-                roomTtHint: 'Mon–Sun · 30-min · 3 rooms · 8-month lookback · month picker · edit students/notes',
+                roomTtHint: 'Mon–Sun · 30-min · 3 rooms · 8-mo archive · 6-mo look-ahead · tap date range = month view',
                 roomTtLive: 'Live',
                 roomTtThisWeek: 'This week',
                 roomTtPickMonth: 'Pick month',
-                roomTtLookback: 'Up to 8 months stored',
+                roomTtLookback: '8 mo stored · 6 mo ahead',
+                roomTtMonthOpen: 'Month calendar',
+                roomTtMonthHint: 'Tap a class then another day to move · tap a day to open that week',
+                roomTtMonthMoveHint: 'Tap the destination day (keeps room & time)',
+                roomTtMonthMoved: 'Moved from month view',
+                roomTtRefresh: 'Refresh live',
+                roomTtRefreshOk: 'Timetable refreshed',
+                roomTtRefreshBusy: 'Syncing…',
                 roomTtExport: 'Export month',
                 roomTtImport: 'Import',
                 roomTtSyncDrive: 'Sync Drive',
@@ -10419,9 +11011,9 @@
                 assignLangEn: 'English',
                 assignMultiHint: 'Enter each language · content switches live when teachers change language',
                 readStatus: 'Read status',
-                readDone: 'Acknowledged',
-                unread: 'Unread',
-                msgSent: 'Message sent',
+                readDone: 'Read',
+                unread: 'Not yet read',
+                msgSent: 'Not yet read',
                 orderResend: 'Send again',
                 orderResendDone: 'Sent again',
                 orderResendCooldown: 'Resend in {time}',
@@ -10707,7 +11299,7 @@
                 pwWrongCurrent: 'Current password is incorrect',
                 pwUsed: 'This password is already in use',
                 attendTitle: 'Morning attendance',
-                attendHint: 'Check who came to work today for stats.\n× hides briefly until you save.',
+                attendHint: 'Check who came to work today for stats.\n× hides until you change tabs (comes back until saved).',
                 attendSave: 'Save attendance',
                 attendSaved: 'Attendance saved',
                 attendPresent: 'Present',
@@ -11006,6 +11598,8 @@
         const ROOM_TT_STORE = 'hongik-room-timetable-v2';
         const ROOM_TT_ARCHIVE_STORE = 'hongik-room-tt-archives-v1';
         const ROOM_TT_LOOKBACK_MONTHS = 8;
+        const ROOM_TT_LOOKAHEAD_MONTHS = 6;
+        const WEEK_CLASS_LOOKAHEAD_MONTHS = 6;
         const DRIVE_FOLDER_ID = '1PyqEMeBcTtEujY5qbJTBrg4FzMsMdVDA';
         const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/' + DRIVE_FOLDER_ID;
         const DRIVE_MANIFEST_URL = 'data/drive/manifest.json';
@@ -12398,6 +12992,17 @@
             const minMon = new Date(start.getFullYear(), start.getMonth(), start.getDate() + monOff);
             return Math.ceil((minMon - curMon) / (7 * 24 * 60 * 60 * 1000));
         }
+        function roomTtMaxOffset() {
+            const curMon = currentMondayDate();
+            const end = new Date();
+            end.setDate(1);
+            end.setMonth(end.getMonth() + ROOM_TT_LOOKAHEAD_MONTHS + 1);
+            end.setDate(0); // last day of lookahead month
+            const dow = end.getDay();
+            const monOff = dow === 0 ? -6 : 1 - dow;
+            const maxMon = new Date(end.getFullYear(), end.getMonth(), end.getDate() + monOff);
+            return Math.floor((maxMon - curMon) / (7 * 24 * 60 * 60 * 1000));
+        }
         function roomTtOffsetForMonthKey(ym) {
             const [y, m] = String(ym || '').split('-').map(Number);
             if (!y || !m) return 0;
@@ -12406,15 +13011,13 @@
             const dow = first.getDay();
             const monOff = dow === 0 ? -6 : 1 - dow;
             let mon = new Date(first.getFullYear(), first.getMonth(), first.getDate() + monOff);
-            // if that Monday is before lookback window, snap to earliest allowed Monday
             const curMon = currentMondayDate();
             let off = Math.round((mon - curMon) / (7 * 24 * 60 * 60 * 1000));
             const min = roomTtMinOffset();
+            const max = roomTtMaxOffset();
             if (off < min) {
-                // jump to first Monday on/after lookback that still falls in this month
                 mon = new Date(curMon.getTime() + min * 7 * 24 * 60 * 60 * 1000);
                 off = min;
-                // if that Monday's week is still in target month, ok; else find next weeks until month matches
                 for (let i = 0; i < 6; i++) {
                     const thu = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 3);
                     if (thu.getFullYear() === y && thu.getMonth() === m - 1) break;
@@ -12423,21 +13026,39 @@
                     mon = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 7);
                 }
             }
+            if (off > max) off = max;
             return clampRoomTtOffset(off);
         }
         function clampRoomTtOffset(off) {
             const min = roomTtMinOffset();
-            return Math.max(min, Math.min(0, Number(off) || 0));
+            const max = roomTtMaxOffset();
+            return Math.max(min, Math.min(max, Number(off) || 0));
         }
         function roomTtMonthOptions() {
             const out = [];
             const now = new Date();
-            for (let i = 0; i <= ROOM_TT_LOOKBACK_MONTHS; i++) {
-                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            for (let i = -ROOM_TT_LOOKBACK_MONTHS; i <= ROOM_TT_LOOKAHEAD_MONTHS; i++) {
+                const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                 out.push({ key, year: d.getFullYear(), month: d.getMonth() });
             }
             return out;
+        }
+        function moveRoomBlockToDate(blockId, newDate, user, { room } = {}) {
+            const store = loadRoomTimetable();
+            const prev = store.blocks[blockId];
+            if (!prev || !newDate) return { ok: false, msg: t('none') };
+            const isDirector = user && user.role === 'director';
+            if (user && user.role === 'teacher' && prev.teacherId !== user.id && prev.teacherId !== 'parttime' && !isDirector) {
+                return { ok: false, msg: t('roomTtViewOnly') };
+            }
+            return saveRoomBlock({
+                ...prev,
+                date: newDate,
+                room: room || prev.room,
+                start: prev.start,
+                end: prev.end
+            }, user);
         }
         function roomTtMonthKeyFromOffset(offset = roomTtWeekOffset) {
             const days = roomTtWeekDates(offset);
@@ -12740,6 +13361,10 @@
             const today = new Date();
             return new Date(today.getFullYear(), today.getMonth() - 2, today.getDate());
         }
+        function weekClassMaxDate() {
+            const today = new Date();
+            return new Date(today.getFullYear(), today.getMonth() + WEEK_CLASS_LOOKAHEAD_MONTHS, today.getDate());
+        }
         function weekClassMinOffset() {
             const curMon = currentMondayDate();
             const minD = weekClassMinDate();
@@ -12748,9 +13373,18 @@
             const minMon = new Date(minD.getFullYear(), minD.getMonth(), minD.getDate() + minMonOff);
             return Math.ceil((minMon - curMon) / (7 * 24 * 60 * 60 * 1000));
         }
+        function weekClassMaxOffset() {
+            const curMon = currentMondayDate();
+            const maxD = weekClassMaxDate();
+            const maxDow = maxD.getDay();
+            const maxMonOff = maxDow === 0 ? -6 : 1 - maxDow;
+            const maxMon = new Date(maxD.getFullYear(), maxD.getMonth(), maxD.getDate() + maxMonOff);
+            return Math.floor((maxMon - curMon) / (7 * 24 * 60 * 60 * 1000));
+        }
         function clampWeekOffset(off) {
             const min = weekClassMinOffset();
-            return Math.max(min, Math.min(0, Number(off) || 0));
+            const max = weekClassMaxOffset();
+            return Math.max(min, Math.min(max, Number(off) || 0));
         }
         function mondayForWeekOffset(offset) {
             return addDaysDate(currentMondayDate(), clampWeekOffset(offset) * 7);
@@ -12822,7 +13456,7 @@
         }
         function weeksInRange(fromKey, toKey) {
             const minKey = dateKeyFromDate(weekClassMinDate());
-            const maxKey = todayKey();
+            const maxKey = dateKeyFromDate(weekClassMaxDate());
             let from = fromKey || minKey;
             let to = toKey || maxKey;
             if (from < minKey) from = minKey;
@@ -12837,7 +13471,7 @@
             const curMon = currentMondayDate();
             while (dateKeyFromDate(mon) <= to) {
                 const offset = Math.round((mon - curMon) / (7 * 24 * 60 * 60 * 1000));
-                if (offset <= 0 && offset >= weekClassMinOffset()) {
+                if (offset <= weekClassMaxOffset() && offset >= weekClassMinOffset()) {
                     weeks.push({ monday: new Date(mon), offset: clampWeekOffset(offset) });
                 }
                 mon = addDaysDate(mon, 7);
@@ -13237,8 +13871,10 @@
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('helpChats');
         }
 
-        /* ── Cross-PC portal sync (same Apps Script URL as photos) ── */
-        const PORTAL_SYNC_MS = 15000;
+        /* ── Cross-PC portal sync (Supabase preferred, else Apps Script) ── */
+        const PORTAL_SYNC_MS_FALLBACK = 8000;
+        const PORTAL_SYNC_MS_REALTIME = 45000;
+        let PORTAL_SYNC_MS = PORTAL_SYNC_MS_FALLBACK;
         let portalSyncTimer = null;
         let portalSyncApplying = false;
         let portalSyncInFlight = false;
@@ -13252,6 +13888,232 @@
             'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
             'studentEdits', 'helpChats', 'partTime', 'otReports'
         ];
+        const PORTAL_PUSH_URGENT = new Set([
+            'headOrders', 'orderAcks', 'helpChats', 'classCancels',
+            'leaveRequests', 'daySchedules', 'roomTt', 'schedChanges'
+        ]);
+
+        const SUPABASE_CONFIG_JSON = 'data/supabase/supabase-config.json';
+        const SUPABASE_CFG_STORE = 'hongik-supabase-config-v1';
+        let supabaseCfgCache = null;
+        let supabaseCfgLoaded = false;
+        let supabaseClient = null;
+        let supabaseRealtimeChannel = null;
+        let supabaseRealtimeReady = false;
+
+        function normalizeSupabaseConfig(raw) {
+            if (!raw || typeof raw !== 'object') return { url: '', anonKey: '' };
+            const url = String(raw.url || raw.projectUrl || raw.supabaseUrl || '').trim().replace(/\/+$/, '');
+            const anonKey = String(raw.anonKey || raw.anon_key || raw.anon || raw.key || '').trim();
+            return { url, anonKey };
+        }
+        function isSupabaseConfigReady(cfg) {
+            const c = normalizeSupabaseConfig(cfg);
+            return !!(c.url && c.anonKey && /^https?:\/\//i.test(c.url));
+        }
+        function readSupabaseConfigLocal() {
+            try {
+                return normalizeSupabaseConfig(JSON.parse(localStorage.getItem(SUPABASE_CFG_STORE) || 'null'));
+            } catch (_) {
+                return { url: '', anonKey: '' };
+            }
+        }
+        function writeSupabaseConfigLocal(cfg) {
+            const next = normalizeSupabaseConfig(cfg);
+            try {
+                if (isSupabaseConfigReady(next)) localStorage.setItem(SUPABASE_CFG_STORE, JSON.stringify(next));
+                else localStorage.removeItem(SUPABASE_CFG_STORE);
+            } catch (_) {}
+            supabaseCfgCache = next;
+            supabaseCfgLoaded = true;
+            supabaseClient = null;
+            return next;
+        }
+        async function loadSupabaseConfig({ force = false } = {}) {
+            if (supabaseCfgLoaded && !force) return supabaseCfgCache || { url: '', anonKey: '' };
+            const local = readSupabaseConfigLocal();
+            if (isSupabaseConfigReady(local)) {
+                supabaseCfgCache = local;
+                supabaseCfgLoaded = true;
+                return local;
+            }
+            try {
+                const embRaw = (typeof window !== 'undefined') ? window.__HONGIK_SUPABASE_CONFIG__ : null;
+                const emb = normalizeSupabaseConfig(embRaw);
+                if (isSupabaseConfigReady(emb)) {
+                    supabaseCfgCache = emb;
+                    supabaseCfgLoaded = true;
+                    return emb;
+                }
+            } catch (_) {}
+            try {
+                const res = await fetch(SUPABASE_CONFIG_JSON + '?_ts=' + Date.now(), { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    const fileCfg = normalizeSupabaseConfig(data);
+                    if (isSupabaseConfigReady(fileCfg)) {
+                        supabaseCfgCache = fileCfg;
+                        supabaseCfgLoaded = true;
+                        return fileCfg;
+                    }
+                }
+            } catch (_) {}
+            supabaseCfgCache = local;
+            supabaseCfgLoaded = true;
+            return local;
+        }
+        async function ensureSupabaseClient() {
+            const cfg = await loadSupabaseConfig();
+            if (!isSupabaseConfigReady(cfg)) {
+                supabaseClient = null;
+                return null;
+            }
+            if (supabaseClient) return supabaseClient;
+            const lib = typeof window !== 'undefined' ? window.supabase : null;
+            if (!lib || typeof lib.createClient !== 'function') {
+                portalSyncState = {
+                    ...portalSyncState,
+                    status: 'error',
+                    error: 'supabase-js CDN missing',
+                    source: 'supabase'
+                };
+                return null;
+            }
+            try {
+                supabaseClient = lib.createClient(cfg.url, cfg.anonKey, {
+                    auth: { persistSession: false, autoRefreshToken: false },
+                    realtime: { params: { eventsPerSecond: 8 } }
+                });
+                return supabaseClient;
+            } catch (err) {
+                supabaseClient = null;
+                portalSyncState = {
+                    ...portalSyncState,
+                    status: 'error',
+                    error: String(err?.message || err || 'supabase createClient failed'),
+                    source: 'supabase'
+                };
+                return null;
+            }
+        }
+        function stopSupabaseRealtime() {
+            if (supabaseRealtimeChannel && supabaseClient) {
+                try { supabaseClient.removeChannel(supabaseRealtimeChannel); } catch (_) {}
+            }
+            supabaseRealtimeChannel = null;
+            supabaseRealtimeReady = false;
+            PORTAL_SYNC_MS = PORTAL_SYNC_MS_FALLBACK;
+        }
+        function currentPortalPollMs() {
+            const base = supabaseRealtimeReady ? PORTAL_SYNC_MS_REALTIME : PORTAL_SYNC_MS_FALLBACK;
+            if (!isLiteClient()) return base;
+            return supabaseRealtimeReady ? Math.max(base, 90000) : Math.max(base, 22000);
+        }
+        function restartPortalPollTimer() {
+            PORTAL_SYNC_MS = currentPortalPollMs();
+            if (!portalSyncTimer) return;
+            clearInterval(portalSyncTimer);
+            portalSyncTimer = setInterval(() => {
+                if (!currentUser) return;
+                if (document.hidden) return;
+                syncPortalStoresFromCentral({ silent: true });
+            }, PORTAL_SYNC_MS);
+        }
+        async function startSupabaseRealtime() {
+            stopSupabaseRealtime();
+            const sb = await ensureSupabaseClient();
+            if (!sb) return false;
+            try {
+                supabaseRealtimeChannel = sb
+                    .channel('hongik-portal-stores')
+                    .on(
+                        'postgres_changes',
+                        { event: '*', schema: 'public', table: 'portal_stores' },
+                        (payload) => {
+                            const row = payload?.new;
+                            if (!row || !row.store_name) return;
+                            if (applyPortalStoreFromRemote(row.store_name, {
+                                data: row.data,
+                                updatedAt: row.updated_at || ''
+                            })) {
+                                try {
+                                    window.dispatchEvent(new CustomEvent('hongik-portal-synced', {
+                                        detail: {
+                                            at: Date.now(),
+                                            source: 'supabase-realtime',
+                                            store: row.store_name,
+                                            stores: [row.store_name]
+                                        }
+                                    }));
+                                } catch (_) {}
+                            }
+                        }
+                    )
+                    .subscribe((status) => {
+                        supabaseRealtimeReady = status === 'SUBSCRIBED';
+                        PORTAL_SYNC_MS = currentPortalPollMs();
+                        try { restartPortalPollTimer(); } catch (_) {}
+                        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                            supabaseRealtimeReady = false;
+                            PORTAL_SYNC_MS = PORTAL_SYNC_MS_FALLBACK;
+                            try { restartPortalPollTimer(); } catch (_) {}
+                        }
+                    });
+                return true;
+            } catch (err) {
+                supabaseRealtimeChannel = null;
+                supabaseRealtimeReady = false;
+                portalSyncState = {
+                    ...portalSyncState,
+                    status: 'error',
+                    error: String(err?.message || err || 'supabase realtime failed'),
+                    source: 'supabase'
+                };
+                return false;
+            }
+        }
+        async function pushPortalStoresToSupabase(stores) {
+            const sb = await ensureSupabaseClient();
+            if (!sb) return { ok: false, skipped: true, reason: 'no-supabase' };
+            const entries = Object.keys(stores || {}).map((name) => ({
+                name,
+                data: stores[name]?.data ?? null,
+                updatedAt: stores[name]?.updatedAt || new Date().toISOString()
+            }));
+            for (const entry of entries) {
+                const { error } = await sb.rpc('upsert_portal_store', {
+                    p_name: entry.name,
+                    p_data: entry.data,
+                    p_updated_at: entry.updatedAt
+                });
+                if (error) {
+                    const { error: upErr } = await sb.from('portal_stores').upsert({
+                        store_name: entry.name,
+                        data: entry.data,
+                        updated_at: entry.updatedAt
+                    }, { onConflict: 'store_name' });
+                    if (upErr) throw new Error(upErr.message || 'supabase upsert failed');
+                }
+            }
+            return { ok: true, source: 'supabase', count: entries.length };
+        }
+        async function pullPortalStoresFromSupabase() {
+            const sb = await ensureSupabaseClient();
+            if (!sb) return { ok: false, skipped: true, reason: 'no-supabase', stores: {} };
+            const { data, error } = await sb
+                .from('portal_stores')
+                .select('store_name, data, updated_at');
+            if (error) throw new Error(error.message || 'supabase select failed');
+            const stores = {};
+            (Array.isArray(data) ? data : []).forEach((row) => {
+                if (!row || !row.store_name) return;
+                stores[row.store_name] = {
+                    data: row.data,
+                    updatedAt: row.updated_at || ''
+                };
+            });
+            return { ok: true, source: 'supabase', stores };
+        }
 
         function portalStoreStatusRank(status) {
             const s = String(status || '');
@@ -13401,7 +14263,7 @@
                 }
             });
             let seedVer = local.seedVer || '';
-            if (remoteAt && remoteAt > localAt && remote.seedVer) {
+            if (remoteAt && remoteAt > localAt && remote.seedVer && remote.seedVer !== seedVer) {
                 seedVer = remote.seedVer;
                 changed = true;
             }
@@ -13747,19 +14609,17 @@
         }
         function queuePortalStorePush(...names) {
             if (portalSyncApplying) return;
+            let urgent = false;
             names.flat().forEach((n) => {
-                if (PORTAL_STORE_IDS.includes(n)) portalSyncPending.add(n);
+                if (PORTAL_STORE_IDS.includes(n)) {
+                    portalSyncPending.add(n);
+                    if (PORTAL_PUSH_URGENT.has(n)) urgent = true;
+                }
             });
             clearTimeout(portalSyncPushTimer);
-            portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, 450);
+            portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, urgent ? 80 : 420);
         }
         async function flushPortalStorePush() {
-            const url = typeof getPhotosSyncUrl === 'function' ? getPhotosSyncUrl() : '';
-            if (!url) {
-                portalSyncState = { ...portalSyncState, status: 'local-only', error: 'no-sync-url' };
-                portalSyncPending.clear();
-                return { ok: false, skipped: true, reason: 'no-sync-url' };
-            }
             if (!portalSyncPending.size) return { ok: false, skipped: true };
             const names = [...portalSyncPending];
             portalSyncPending.clear();
@@ -13768,6 +14628,31 @@
             names.forEach((name) => {
                 stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
             });
+
+            const sb = await ensureSupabaseClient();
+            if (sb) {
+                try {
+                    const pushed = await pushPortalStoresToSupabase(stores);
+                    if (!pushed.ok) throw new Error(pushed.reason || 'supabase push failed');
+                    portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'supabase' };
+                    return { ok: true, source: 'supabase' };
+                } catch (err) {
+                    names.forEach((n) => portalSyncPending.add(n));
+                    portalSyncState = {
+                        ...portalSyncState,
+                        status: 'error',
+                        error: String(err?.message || err || 'supabase push failed'),
+                        source: 'supabase'
+                    };
+                    return { ok: false, error: portalSyncState.error, source: 'supabase' };
+                }
+            }
+
+            const url = typeof getPhotosSyncUrl === 'function' ? getPhotosSyncUrl() : '';
+            if (!url) {
+                portalSyncState = { ...portalSyncState, status: 'local-only', error: 'no-sync-backend' };
+                return { ok: false, skipped: true, reason: 'no-sync-backend' };
+            }
             try {
                 const res = await fetch(url, {
                     method: 'POST',
@@ -13785,7 +14670,7 @@
                     });
                 }
                 portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'gas' };
-                return { ok: true };
+                return { ok: true, source: 'gas' };
             } catch (err) {
                 names.forEach((n) => portalSyncPending.add(n));
                 portalSyncState = {
@@ -13794,7 +14679,7 @@
                     error: String(err?.message || err || 'portal push failed'),
                     source: 'gas'
                 };
-                return { ok: false, error: portalSyncState.error };
+                return { ok: false, error: portalSyncState.error, source: 'gas' };
             }
         }
         async function syncPortalStoresFromCentral({ silent = true } = {}) {
@@ -13802,11 +14687,39 @@
             portalSyncInFlight = true;
             let changed = false;
             try {
+                await loadSupabaseConfig();
                 if (typeof loadPhotosSyncConfig === 'function') await loadPhotosSyncConfig();
+
+                const sb = await ensureSupabaseClient();
+                const changedStores = [];
+                if (sb) {
+                    const pulled = await pullPortalStoresFromSupabase();
+                    const stores = pulled.stores || {};
+                    PORTAL_STORE_IDS.forEach((name) => {
+                        if (stores[name]) {
+                            if (applyPortalStoreFromRemote(name, stores[name])) {
+                                changed = true;
+                                changedStores.push(name);
+                            }
+                        }
+                    });
+                    const missing = PORTAL_STORE_IDS.filter((name) => !stores[name]);
+                    if (missing.length) queuePortalStorePush(...missing);
+                    portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'supabase' };
+                    if (changed) {
+                        try {
+                            window.dispatchEvent(new CustomEvent('hongik-portal-synced', {
+                                detail: { at: Date.now(), source: 'supabase', stores: changedStores.slice() }
+                            }));
+                        } catch (_) {}
+                    }
+                    return { ok: true, changed, stores: changedStores, source: 'supabase' };
+                }
+
                 const url = typeof getPhotosSyncUrl === 'function' ? getPhotosSyncUrl() : '';
                 if (!url) {
-                    portalSyncState = { status: 'local-only', at: new Date().toISOString(), error: 'no-sync-url', source: 'localStorage' };
-                    return { ok: false, skipped: true, changed: false, reason: 'no-sync-url' };
+                    portalSyncState = { status: 'local-only', at: new Date().toISOString(), error: 'no-sync-backend', source: 'localStorage' };
+                    return { ok: false, skipped: true, changed: false, reason: 'no-sync-backend' };
                 }
                 const endpoint = url.includes('?') ? (url + '&_ts=' + Date.now()) : (url + '?_ts=' + Date.now());
                 const res = await fetch(endpoint, { method: 'GET', mode: 'cors', credentials: 'omit', cache: 'no-store' });
@@ -13815,22 +14728,29 @@
                 const stores = data?.stores && typeof data.stores === 'object' ? data.stores : {};
                 PORTAL_STORE_IDS.forEach((name) => {
                     if (stores[name]) {
-                        if (applyPortalStoreFromRemote(name, stores[name])) changed = true;
+                        if (applyPortalStoreFromRemote(name, stores[name])) {
+                            changed = true;
+                            changedStores.push(name);
+                        }
                     }
                 });
                 const missing = PORTAL_STORE_IDS.filter((name) => !stores[name]);
                 if (missing.length) queuePortalStorePush(...missing);
                 portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'gas' };
                 if (changed) {
-                    try { window.dispatchEvent(new CustomEvent('hongik-portal-synced', { detail: { at: Date.now() } })); } catch (_) {}
+                    try {
+                        window.dispatchEvent(new CustomEvent('hongik-portal-synced', {
+                            detail: { at: Date.now(), source: 'gas', stores: changedStores.slice() }
+                        }));
+                    } catch (_) {}
                 }
-                return { ok: true, changed };
+                return { ok: true, changed, stores: changedStores, source: 'gas' };
             } catch (err) {
                 portalSyncState = {
                     ...portalSyncState,
                     status: 'error',
                     error: String(err?.message || err || 'portal sync failed'),
-                    source: 'gas'
+                    source: portalSyncState.source || 'unknown'
                 };
                 if (!silent) { /* keep state */ }
                 return { ok: false, error: portalSyncState.error, changed };
@@ -13840,7 +14760,12 @@
         }
         function startPortalLiveSync() {
             stopPortalLiveSync();
-            syncPortalStoresFromCentral({ silent: true });
+            syncPortalStoresFromCentral({ silent: true }).then(() => {
+                startSupabaseRealtime().then(() => {
+                    restartPortalPollTimer();
+                });
+            });
+            PORTAL_SYNC_MS = currentPortalPollMs();
             portalSyncTimer = setInterval(() => {
                 if (!currentUser) return;
                 if (document.hidden) return;
@@ -13848,6 +14773,7 @@
             }, PORTAL_SYNC_MS);
         }
         function stopPortalLiveSync() {
+            stopSupabaseRealtime();
             if (portalSyncTimer) {
                 clearInterval(portalSyncTimer);
                 portalSyncTimer = null;
@@ -13857,6 +14783,17 @@
             window.hongikPortalSyncStatus = () => ({
                 ...portalSyncState,
                 url: (typeof getPhotosSyncUrl === 'function' && getPhotosSyncUrl()) || '',
+                supabase: (() => {
+                    const c = supabaseCfgCache || readSupabaseConfigLocal();
+                    return {
+                        ready: isSupabaseConfigReady(c),
+                        url: c.url || '',
+                        hasAnonKey: !!c.anonKey,
+                        realtime: !!supabaseRealtimeChannel,
+                        realtimeReady: !!supabaseRealtimeReady,
+                        pollMs: PORTAL_SYNC_MS
+                    };
+                })(),
                 stores: PORTAL_STORE_IDS.slice(),
                 pending: [...portalSyncPending],
                 pollMs: PORTAL_SYNC_MS
@@ -13876,6 +14813,29 @@
             if (!window.hongikSetPhotosSyncUrl) {
                 window.hongikSetPhotosSyncUrl = window.hongikSetPortalSyncUrl;
             }
+            window.hongikSetSupabaseConfig = (cfg) => {
+                const next = writeSupabaseConfigLocal(cfg);
+                supabaseClient = null;
+                if (currentUser) {
+                    startPortalLiveSync();
+                }
+                return { ready: isSupabaseConfigReady(next), url: next.url, hasAnonKey: !!next.anonKey };
+            };
+            window.hongikClearSupabaseConfig = () => window.hongikSetSupabaseConfig({ url: '', anonKey: '' });
+            window.hongikSupabaseStatus = async () => {
+                const cfg = await loadSupabaseConfig({ force: true });
+                const sb = await ensureSupabaseClient();
+                return {
+                    ready: isSupabaseConfigReady(cfg),
+                    url: cfg.url || '',
+                    hasAnonKey: !!cfg.anonKey,
+                    client: !!sb,
+                    realtime: !!supabaseRealtimeChannel,
+                    realtimeReady: !!supabaseRealtimeReady,
+                    pollMs: PORTAL_SYNC_MS,
+                    portal: typeof window.hongikPortalSyncStatus === 'function' ? window.hongikPortalSyncStatus() : null
+                };
+            };
         } catch (_) {}
 
         function weekWorkBars(userId) {
@@ -14800,7 +15760,7 @@
                 if (currentUser.role !== 'director' && currentUser.role !== 'admin') return;
                 if (document.hidden) return;
                 syncStudentDbFromSheet({ silent: true });
-            }, STUDENT_SHEET_SYNC_MS);
+            }, syncIntervalMs(STUDENT_SHEET_SYNC_MS, 90000));
         }
         function stopStudentSheetLiveSync() {
             if (studentSheetSyncTimer) {
@@ -15279,6 +16239,8 @@
         function closeModalFast(modalOrId) {
             const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
             if (!modal) return;
+            // × / Escape / closeAllModals — snooze attendance until tab/page change
+            if (modal.id === 'attend-modal') attendPopupSnoozed = true;
             modal.classList.add('is-closing');
             modal.classList.remove('open');
             const box = modal.querySelector('.modal-box');
@@ -15318,7 +16280,11 @@
         }
         function setAttendanceDay(dateKey, presentMap, done) {
             const store = loadAttendanceStore();
-            store[dateKey] = { present: { ...presentMap }, done: !!done };
+            store[dateKey] = {
+                present: { ...presentMap },
+                done: !!done,
+                updatedAt: new Date().toISOString()
+            };
             saveAttendanceStore(store);
         }
         function isAttended(userId, dateKey) {
@@ -16509,6 +17475,47 @@
             const ok = isOrderRead(uid, oid);
             return { ok, inAcks, inMirror, inRead, orderFound: !!order, userId: uid, orderId: oid };
         }
+        /** Live-update director ack pills without remounting #tab-panels (no flicker). */
+        function patchDirectorOrderAckBadges() {
+            const badges = document.querySelectorAll('.order-ack-badge[data-ack-user][data-ack-order]');
+            if (!badges.length) return false;
+            let changed = false;
+            badges.forEach((el) => {
+                const teaId = el.getAttribute('data-ack-user');
+                const oid = el.getAttribute('data-ack-order');
+                if (!teaId || !oid) return;
+                const ok = isOrderRead(String(teaId), String(oid));
+                const wasDone = el.classList.contains('is-done');
+                if (ok === wasDone && el.classList.contains(ok ? 'is-done' : 'is-pending')) {
+                    // still refresh label language if needed
+                }
+                const tea = resolveAccountById(teaId) || { id: teaId };
+                const name = displayName(tea);
+                const label = ok ? t('readDone') : t('unread');
+                const icon = ok
+                    ? '<i class="ph-fill ph-check-circle" aria-hidden="true"></i> '
+                    : '<i class="ph ph-hourglass" aria-hidden="true"></i> ';
+                const nextBody = `${icon}${name} · ${label}`;
+                if (el.innerHTML !== nextBody || ok !== wasDone) {
+                    el.innerHTML = nextBody;
+                    changed = true;
+                }
+                el.classList.toggle('is-done', ok);
+                el.classList.toggle('is-pending', !ok);
+                el.title = ok ? `${name} · ${label}` : (el.getAttribute('data-order-resend')
+                    ? `${t('orderResend')} · ${name}`
+                    : `${name} · ${label}`);
+                if (ok) {
+                    el.style.removeProperty('opacity');
+                    el.style.removeProperty('cursor');
+                    if (el.tagName === 'BUTTON') {
+                        el.disabled = true;
+                        el.setAttribute('aria-disabled', 'true');
+                    }
+                }
+            });
+            return changed;
+        }
         function markOrdersRead(userId, ids) {
             if (!userId || !ids || !ids.length) return;
             const uid = canonicalAccountId(userId);
@@ -16554,6 +17561,16 @@
                     detail: { userId: uid, orderIds: idList }
                 }));
             } catch (_) {}
+            // Push acks to Supabase immediately so the director board flips within ~1s
+            try {
+                if (typeof flushPortalStorePush === 'function') {
+                    clearTimeout(portalSyncPushTimer);
+                    portalSyncPending.add('headOrders');
+                    portalSyncPending.add('orderAcks');
+                    flushPortalStorePush();
+                }
+            } catch (_) {}
+            try { patchDirectorOrderAckBadges(); } catch (_) {}
         }
         function unmarkOrdersRead(userId, ids) {
             if (!userId || !ids || !ids.length) return;
@@ -16758,25 +17775,39 @@
 
         // ---- DOM ----
         document.addEventListener('DOMContentLoaded', () => {
+            applyLiteClientClass();
             const layer = document.getElementById('nature-layer');
-            for (let i = 0; i < 36; i++) {
-                const p = document.createElement('span');
-                const size = Math.random();
-                p.className = 'petal' + (size > 0.7 ? ' petal-lg' : size < 0.35 ? ' petal-sm' : '');
-                p.style.left = `${Math.random()*100}%`;
-                p.style.setProperty('--drift', `${(Math.random() > .5 ? 1 : -1) * (18 + Math.random()*70)}px`);
-                p.style.animationDuration = `${10 + Math.random()*14}s`;
-                p.style.animationDelay = `${-Math.random()*20}s`;
-                layer.appendChild(p);
-            }
-            for (let i = 0; i < 12; i++) {
-                const leaf = document.createElement('span');
-                leaf.className = 'leaf';
-                leaf.style.left = `${Math.random()*100}%`;
-                leaf.style.setProperty('--drift', `${-60+Math.random()*40}px`);
-                leaf.style.animationDuration = `${16+Math.random()*14}s`;
-                leaf.style.animationDelay = `${-Math.random()*20}s`;
-                layer.appendChild(leaf);
+            const spawnNatureFx = () => {
+                if (!layer || layer.dataset.spawned === '1') return;
+                layer.dataset.spawned = '1';
+                const lite = isLiteClient();
+                const petalN = lite ? 8 : 36;
+                const leafN = lite ? 3 : 12;
+                for (let i = 0; i < petalN; i++) {
+                    const p = document.createElement('span');
+                    const size = Math.random();
+                    p.className = 'petal' + (size > 0.7 ? ' petal-lg' : size < 0.35 ? ' petal-sm' : '');
+                    p.style.left = `${Math.random()*100}%`;
+                    p.style.setProperty('--drift', `${(Math.random() > .5 ? 1 : -1) * (18 + Math.random()*70)}px`);
+                    p.style.animationDuration = `${10 + Math.random()*14}s`;
+                    p.style.animationDelay = `${-Math.random()*20}s`;
+                    layer.appendChild(p);
+                }
+                for (let i = 0; i < leafN; i++) {
+                    const leaf = document.createElement('span');
+                    leaf.className = 'leaf';
+                    leaf.style.left = `${Math.random()*100}%`;
+                    leaf.style.setProperty('--drift', `${-60+Math.random()*40}px`);
+                    leaf.style.animationDuration = `${16+Math.random()*14}s`;
+                    leaf.style.animationDelay = `${-Math.random()*20}s`;
+                    layer.appendChild(leaf);
+                }
+            };
+            if (isLiteClient()) {
+                const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 400));
+                idle(() => spawnNatureFx(), { timeout: 1200 });
+            } else {
+                spawnNatureFx();
             }
 
             applySchoolLogo();
@@ -16853,6 +17884,7 @@
                 closeAllModals();
                 currentUser = null;
                 orderPopupSnoozed = false;
+                attendPopupSnoozed = false;
                 orderPopupIdx = 0;
                 dashboardScreen.classList.add('hidden-screen');
                 loginScreen.classList.remove('hidden-screen');
@@ -16896,9 +17928,14 @@
             }
 
             function tickClock() {
+                if (document.hidden) return;
                 const now = new Date();
                 const locale = lang === 'th' ? 'th-TH' : lang === 'en' ? 'en-US' : 'ko-KR';
-                const next = now.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+                const lite = isLiteClient();
+                const timeOpts = lite
+                    ? { hour: 'numeric', minute: '2-digit', hour12: true }
+                    : { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true };
+                const next = now.toLocaleTimeString(locale, timeOpts);
                 const attendClock = document.getElementById('attend-modal-clock');
                 if (attendClock) attendClock.textContent = next;
                 const el = document.getElementById('digital-clock');
@@ -16912,6 +17949,11 @@
                     return;
                 }
                 el.dataset.clockText = next;
+                if (lite) {
+                    el.textContent = next;
+                    updateClassStatus();
+                    return;
+                }
                 const chars = [...next];
                 const prevChars = [...prev];
                 el.innerHTML = chars.map((ch, i) => {
@@ -16973,7 +18015,7 @@
 
             if (clockTimer) clearInterval(clockTimer);
             tickClock();
-            clockTimer = setInterval(tickClock, 1000);
+            clockTimer = setInterval(tickClock, isLiteClient() ? 15000 : 1000);
 
             const form = document.getElementById('login-form');
             const passcode = document.getElementById('passcode');
@@ -17021,8 +18063,11 @@
                 const stableId = canonicalAccountId(user) || (user && user.id);
                 currentUser = user ? { ...user, id: stableId } : user;
                 try { ensureAutoOtSynced(); } catch (_) {}
-                // Fresh login / session restore: allow one head-order popup; keepTab refreshes keep snooze
-                if (!keepTab) orderPopupSnoozed = false;
+                // Fresh login / session restore: allow one head-order / attend popup; keepTab refreshes keep snooze
+                if (!keepTab) {
+                    orderPopupSnoozed = false;
+                    attendPopupSnoozed = false;
+                }
                 loginScreen.classList.add('hidden-screen');
                 dashboardScreen.classList.remove('hidden-screen');
                 setLangVisibility(true);
@@ -17031,7 +18076,8 @@
                 shell.className = 'dash-shell';
                 if (themeClass) shell.classList.add(themeClass);
                 if (user.id === 'taehyun') shell.classList.add('theme-teacher-a');
-                mountThemeFx(user);
+                // keepTab: do not remount theme FX (sun/flowers) — remounting replays enter animations = flicker
+                if (!keepTab) mountThemeFx(user);
                 document.getElementById('dash-name').textContent = displayName(user);
                 const chip = document.getElementById('dash-role-chip');
                 const roleText = displayRole(user);
@@ -17055,10 +18101,12 @@
                 setTab(nextTab);
                 maybeShowAlertPopups(user);
                 tickClock();
-                if (user.role === 'director' || user.role === 'admin' || user.role === 'teacher' || user.role === 'accounting') {
-                    startStudentSheetLiveSync();
-                    startPhotosLiveSync();
-                    startPortalLiveSync();
+                const wantLiveSync = user.role === 'director' || user.role === 'admin' || user.role === 'teacher' || user.role === 'accounting';
+                if (wantLiveSync) {
+                    // keepTab soft path: do not stop/restart pollers (restart was re-pulling + full UI rebuild loops)
+                    if (!keepTab || !studentSheetSyncTimer) startStudentSheetLiveSync();
+                    if (!keepTab || !photosSyncTimer) startPhotosLiveSync();
+                    if (!keepTab || !portalSyncTimer) startPortalLiveSync();
                 } else {
                     stopStudentSheetLiveSync();
                     stopPhotosLiveSync();
@@ -17074,12 +18122,199 @@
                 updateHelpFabBadge();
             };
 
+            function isDashboardUiBusy() {
+                try {
+                    if (roomTtRangePick) return true;
+                    if (roomTtMonthPick || roomTtMonthBusy) return true;
+                    if (document.querySelector('.modal.open')) return true;
+                    if (document.querySelector('.sched-item.is-editing')) return true;
+                    const ae = document.activeElement;
+                    if (ae && typeof ae.closest === 'function') {
+                        if (ae.matches('input, select, textarea, button, [contenteditable="true"]')) {
+                            if (ae.closest('#tab-panels, #admin-editor, .modal, .teach-shell, .sched-form, #room-tt-board, #notes-app, #help-panel')) {
+                                return true;
+                            }
+                        }
+                        if (ae.closest('.sched-form, #admin-editor, #room-tt-modal, #room-tt-month-modal, #room-tt-board .room-tt-book-form')) return true;
+                    }
+                } catch (_) {}
+                return false;
+            }
+
+            function refreshMountedDataBoards(user, { stores = null } = {}) {
+                if (!user) return;
+                const all = !stores || !stores.length;
+                const has = (name) => all || stores.includes(name);
+                try {
+                    if (has('roomTt') && document.getElementById('room-tt-board')) {
+                        const roomModalOpen = document.getElementById('room-tt-modal')?.classList.contains('open');
+                        const monthModalOpen = document.getElementById('room-tt-month-modal')?.classList.contains('open');
+                        if (!roomModalOpen && !monthModalOpen && !roomTtMonthBusy && !roomTtMonthPick && !roomTtRangePick) {
+                            renderRoomTimetableBoard(user);
+                        } else if (monthModalOpen && !roomTtMonthPick) {
+                            try { renderRoomTtMonthBody(user); } catch (_) {}
+                        }
+                    }
+                    if ((has('headOrders') || has('orderAcks')) && document.getElementById('order-board')) {
+                        renderOrderBoard(user);
+                    }
+                    if ((has('headOrders') || has('orderAcks')) && user.role === 'director') {
+                        try { patchDirectorOrderAckBadges(); } catch (_) {}
+                    }
+                    if (has('helpChats')) {
+                        try { updateHelpFabBadge(); } catch (_) {}
+                        if (document.getElementById('help-panel')?.classList.contains('open')) {
+                            try { renderHelpPanel(); } catch (_) {}
+                        }
+                    }
+                    if (document.getElementById('student-db-board') && (all || has('studentDb') || has('otReports') || has('studentEdits'))) {
+                        renderStudentDbBoard(user);
+                    }
+                    if (document.getElementById('overview-board') && (all || has('attendance') || has('photos') || has('otReports'))) {
+                        renderOverviewBoard(user);
+                    }
+                    if (document.getElementById('dorm-board') && (all || has('dormStudents'))) renderDormBoard(user);
+                    if (document.getElementById('study-pause-board') && (all || has('studyPauses'))) renderStudyPauseBoard(user);
+                    if (document.getElementById('textbook-board') && (all || has('textbooks'))) renderTextbookBoard(user);
+                    if (document.getElementById('waitlist-board') && (all || has('waitlist'))) renderWaitlistBoard(user);
+                    if (document.getElementById('job-app-board') && (all || has('jobApps'))) renderJobAppBoard(user);
+                    if (document.getElementById('attend-stats-board') && (all || has('attendance'))) renderAttendStatsBoard(user);
+                    if (document.getElementById('attend-graph-board') && (all || has('attendance'))) renderAttendGraphBoard(user);
+                    if (document.getElementById('ot-pay-board') && (all || has('otReports') || has('schoolFinance'))) renderOtPayBoard(user);
+                    if (document.getElementById('teacher-ot-board') && (all || has('otReports'))) renderTeacherOtBoard(user);
+                    if (document.getElementById('sales-stats-board') && (all || has('schoolFinance'))) renderSalesStatsBoard(user);
+                    if (document.getElementById('admin-ops-board') && all) renderAdminOpsBoard(user);
+                    if (document.getElementById('admin-school-board') && (all || has('schoolFinance'))) renderAdminSchoolBoard(user);
+                    if (document.getElementById('week-class-board') && (all || has('roomTt') || has('daySchedules'))) renderWeekClassBoard(user);
+                    if (document.getElementById('notes-app') && (all || has('sharedNotes') || has('sharedNoteStudents'))) renderNotesApp(user);
+                    if (typeof renderLeaveMineList === 'function' && document.getElementById('leave-mine-list') && (all || has('leaveRequests'))) {
+                        renderLeaveMineList(user);
+                    }
+                    if (typeof renderTeacherEmergencyApp === 'function' && document.getElementById('em-teacher-app') && all) {
+                        renderTeacherEmergencyApp(user);
+                    }
+                } catch (_) {}
+            }
+
+            softRefreshDashboard = function (user, { stores = null, reason = '' } = {}) {
+                if (!user) return;
+                if (dashboardScreen?.classList.contains('hidden-screen')) return;
+                if (softRefreshBusy) {
+                    softRefreshDeferred = { user, stores, reason };
+                    return;
+                }
+                // Mobile/iPad: coalesce rapid sync-driven refreshes (clock + poll + realtime)
+                if (isLiteClient() && (reason === 'portal-synced' || String(reason || '').startsWith('storage:'))) {
+                    const now = Date.now();
+                    const minGap = 1100;
+                    if (now - softRefreshLastAt < minGap) {
+                        softRefreshDeferred = { user, stores, reason };
+                        if (!softRefreshThrottleTimer) {
+                            softRefreshThrottleTimer = setTimeout(() => {
+                                softRefreshThrottleTimer = null;
+                                if (!softRefreshDeferred || softRefreshBusy) return;
+                                const pending = softRefreshDeferred;
+                                softRefreshDeferred = null;
+                                softRefreshLastAt = Date.now();
+                                softRefreshDashboard(pending.user || user, {
+                                    stores: pending.stores,
+                                    reason: pending.reason || 'throttled'
+                                });
+                            }, minGap - (now - softRefreshLastAt) + 40);
+                        }
+                        return;
+                    }
+                    softRefreshLastAt = now;
+                }
+                const stableId = canonicalAccountId(user) || user.id;
+                currentUser = { ...user, id: stableId };
+                try {
+                    document.getElementById('dash-name').textContent = displayName(user);
+                    const chip = document.getElementById('dash-role-chip');
+                    const roleText = displayRole(user);
+                    if (chip) {
+                        if (roleText) {
+                            chip.textContent = roleText;
+                            chip.classList.remove('hidden');
+                        } else {
+                            chip.textContent = '';
+                            chip.classList.add('hidden');
+                        }
+                    }
+                    const todayEl = document.getElementById('dash-today');
+                    if (todayEl) todayEl.textContent = formatToday();
+                } catch (_) {}
+                try { loadPhoto(user.id); } catch (_) {}
+                try { renderStats(user); } catch (_) {}
+                try { updateHelpFabBadge(); } catch (_) {}
+
+                // Always patch ack pills first (works even while typing / other tabs)
+                if (!stores || !stores.length || stores.includes('headOrders') || stores.includes('orderAcks')) {
+                    try { patchDirectorOrderAckBadges(); } catch (_) {}
+                }
+
+                if (isDashboardUiBusy()) {
+                    softRefreshDeferred = { user, stores, reason };
+                    try { maybeShowAlertPopups(user); } catch (_) {}
+                    return;
+                }
+
+                softRefreshBusy = true;
+                try {
+                    // Data-only: never remount theme FX / never wipe #tab-panels (that caused global flicker)
+                    refreshMountedDataBoards(user, { stores });
+
+                    // Director panels baked into renderPanels (orders / leave / cancels) — refresh shell only when needed & idle
+                    // Never rebuild "today" schedule form shell on sync (that flashed 종료 시간 inputs)
+                    const shellStores = ['headOrders', 'orderAcks', 'leaveRequests', 'classCancels', 'schedChanges', 'directorTodos'];
+                    const orderOnly = !!(stores && stores.length && stores.every((s) => s === 'headOrders' || s === 'orderAcks'));
+                    const needShell = !stores || !stores.length || stores.some((s) => shellStores.includes(s));
+                    const directorShellTab = user.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab);
+                    // Order ack: patch pills in place (no remount flicker). Other shell stores remount when idle on that tab.
+                    if (needShell && directorShellTab && typeof renderPanels === 'function') {
+                        if (orderOnly) {
+                            try { patchDirectorOrderAckBadges(); } catch (_) {}
+                        } else {
+                            renderPanels(user);
+                            setTab(currentTab);
+                        }
+                    }
+                    try { maybeShowAlertPopups(user); } catch (_) {}
+                } finally {
+                    softRefreshBusy = false;
+                }
+                if (softRefreshDeferred) {
+                    const pending = softRefreshDeferred;
+                    softRefreshDeferred = null;
+                    if (!isDashboardUiBusy()) {
+                        softRefreshDashboard(pending.user || user, { stores: pending.stores, reason: pending.reason || 'deferred' });
+                    } else {
+                        softRefreshDeferred = pending;
+                    }
+                }
+            };
+
+            // When user leaves a field, flush any sync refresh that was deferred while typing
+            document.addEventListener('focusout', () => {
+                if (!softRefreshDeferred) return;
+                setTimeout(() => {
+                    if (!softRefreshDeferred || isDashboardUiBusy()) return;
+                    const pending = softRefreshDeferred;
+                    softRefreshDeferred = null;
+                    const u = resolveAccountById((pending.user && pending.user.id) || (currentUser && currentUser.id));
+                    if (u && typeof softRefreshDashboard === 'function') {
+                        softRefreshDashboard(u, { stores: pending.stores, reason: 'focusout' });
+                    }
+                }, 120);
+            }, true);
+
             function mountThemeFx(user) {
                 const fx = document.getElementById('taehyun-fx');
                 const bodyScene = document.getElementById('tae-body-scene');
                 const softScene = document.getElementById('soft-logo-scene');
+                const lite = isLiteClient();
                 if (bodyScene) {
-                    if (user.id === 'taehyun') {
+                    if (user.id === 'taehyun' && !lite) {
                         bodyScene.innerHTML = `
                             <div class="tae-scene-frame">
                                 <div class="tae-sky"></div>
@@ -17094,6 +18329,13 @@
                                 <div class="tae-wave w2"></div>
                                 <div class="tae-wave w3"></div>
                             </div>`;
+                    } else if (user.id === 'taehyun' && lite) {
+                        bodyScene.innerHTML = `
+                            <div class="tae-scene-frame">
+                                <div class="tae-sky"></div>
+                                <div class="tae-mount mid"></div>
+                                <div class="tae-mount near"></div>
+                            </div>`;
                     } else {
                         bodyScene.innerHTML = '';
                     }
@@ -17101,7 +18343,9 @@
                 if (softScene) {
                     const softIds = ['eunha', 'sua', 'director'];
                     if (softIds.includes(user.id)) {
-                        softScene.innerHTML = `
+                        softScene.innerHTML = lite
+                            ? `<div class="soft-logo-frame"><img class="soft-logo-mark" src="" data-school-logo="1" alt=""></div>`
+                            : `
                             <div class="soft-logo-frame">
                                 <div class="soft-orbit o1">
                                     <span class="soft-star"></span>
@@ -17133,7 +18377,9 @@
                 }
                 if (!fx) return;
                 if (user.id === 'taehyun') {
-                    const glyphs = ['태', '현', '홍', '익', '한', '국', '빛', '길', '꿈', '힘', '정', '성', '학', '원'];
+                    const glyphs = lite
+                        ? ['태', '현', '홍', '익', '빛']
+                        : ['태', '현', '홍', '익', '한', '국', '빛', '길', '꿈', '힘', '정', '성', '학', '원'];
                     const hangul = glyphs.map((ch, i) => {
                         const left = 4 + (i * 7) % 90;
                         const size = (1.15 + (i % 5) * 0.38).toFixed(2);
@@ -17143,7 +18389,8 @@
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
                     const petalKinds = ['pink', 'purple', 'green', 'yellow'];
-                    const petals = Array.from({ length: 22 }, (_, i) => {
+                    const petalCount = lite ? 6 : 22;
+                    const petals = Array.from({ length: petalCount }, (_, i) => {
                         const left = 2 + (i * 4.5) % 96;
                         const delay = (i * 0.45).toFixed(1);
                         const dur = (6.5 + (i % 7) * 1.15).toFixed(1);
@@ -17151,12 +18398,15 @@
                         const size = 9 + (i % 5) * 2;
                         return `<span class="sakura ${k}" style="left:${left}%;width:${size}px;height:${size}px;animation-duration:${dur}s;animation-delay:-${delay}s"></span>`;
                     }).join('');
-                    const clouds = [
+                    const cloudSrc = lite
+                        ? [{ left: '55%', top: '10%', dur: 34, delay: -8, scale: 1.05, tint: '' }]
+                        : [
                         { left: '8%', top: '14%', dur: 28, delay: 0, scale: 1, tint: '' },
                         { left: '55%', top: '10%', dur: 34, delay: -8, scale: 1.15, tint: ' tint' },
                         { left: '30%', top: '22%', dur: 30, delay: -14, scale: .85, tint: '' },
                         { left: '72%', top: '18%', dur: 32, delay: -6, scale: .9, tint: ' tint' }
-                    ].map((c) =>
+                    ];
+                    const clouds = cloudSrc.map((c) =>
                         `<span class="ko-cloud${c.tint}" style="left:${c.left};top:${c.top};animation-duration:${c.dur}s;animation-delay:${c.delay}s;transform:scale(${c.scale})"></span>`
                     ).join('');
                     const sunRaysSvg = `<svg viewBox="0 0 100 100" aria-hidden="true">
@@ -17223,7 +18473,7 @@
                             <polygon points="72,18 73.5,22 78,22 74.5,24.5 76,29 72,26.5 68,29 69.5,24.5 66,22 70.5,22"/>
                         </g>
                     </svg>`;
-                    const celestial = `<span class="tae-celestial" id="tae-celestial" aria-hidden="true">
+                    const celestial = lite ? '' : `<span class="tae-celestial" id="tae-celestial" aria-hidden="true">
                         <span class="orb sun">
                             <span class="tae-sun-spin">${sunRaysSvg}</span>
                             <span class="tae-sun-face">${sunFaceSvg}</span>
@@ -17234,25 +18484,29 @@
                         <span class="dancheong-rail"></span>
                         <span class="dancheong-rail bottom"></span>
                         <span class="ink-splash"></span>
-                        <span class="ink-splash"></span>
-                        <span class="ink-splash"></span>
-                        <span class="ink-splash"></span>
+                        ${lite ? '' : '<span class="ink-splash"></span><span class="ink-splash"></span><span class="ink-splash"></span>'}
                         ${celestial}
                         ${clouds}
                         <span class="crane-bird" style="top:26%;left:-10%"></span>
-                        <span class="crane-bird c2" style="top:48%;left:-15%"></span>
+                        ${lite ? '' : '<span class="crane-bird c2" style="top:48%;left:-15%"></span>'}
                         <span class="hangul-mark">태현</span>
                         ${hangul}
                         ${petals}`;
                     if (celestialTimer) clearInterval(celestialTimer);
-                    celestialTimer = setInterval(() => {
-                        document.getElementById('tae-celestial')?.classList.toggle('show-moon');
-                    }, 60000);
+                    if (!lite) {
+                        celestialTimer = setInterval(() => {
+                            document.getElementById('tae-celestial')?.classList.toggle('show-moon');
+                        }, 60000);
+                    } else {
+                        celestialTimer = null;
+                    }
                     return;
                 }
                 if (celestialTimer) { clearInterval(celestialTimer); celestialTimer = null; }
                 if (user.role === 'director') {
-                    const glyphs = ['원', '장', '홍', '익', '학', '원', '정', '성', '한', '국', '빛', '길', '힘', '덕'];
+                    const glyphs = lite
+                        ? ['원', '장', '홍', '익', '학']
+                        : ['원', '장', '홍', '익', '학', '원', '정', '성', '한', '국', '빛', '길', '힘', '덕'];
                     const hangul = glyphs.map((ch, i) => {
                         const left = 5 + (i * 7) % 88;
                         const size = (1.05 + (i % 4) * 0.32).toFixed(2);
@@ -17261,29 +18515,29 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
-                    const dots = Array.from({ length: 14 }, (_, i) => {
+                    const dots = Array.from({ length: lite ? 4 : 14 }, (_, i) => {
                         const left = 6 + (i * 6.8) % 90;
                         const delay = (i * 0.7).toFixed(1);
                         const dur = (8 + (i % 5) * 1.4).toFixed(1);
                         return `<span class="dir-ink-dot" style="left:${left}%;animation-duration:${dur}s;animation-delay:-${delay}s"></span>`;
                     }).join('');
-                    const clouds = [
+                    const clouds = (lite
+                        ? [{ left: '58%', top: '9%', dur: 38, delay: -10, scale: 1.05 }]
+                        : [
                         { left: '10%', top: '12%', dur: 32, delay: 0, scale: 1 },
                         { left: '58%', top: '9%', dur: 38, delay: -10, scale: 1.1 },
                         { left: '36%', top: '20%', dur: 34, delay: -16, scale: .8 }
-                    ].map((c) =>
+                    ]).map((c) =>
                         `<span class="ko-cloud" style="left:${c.left};top:${c.top};animation-duration:${c.dur}s;animation-delay:${c.delay}s;transform:scale(${c.scale})"></span>`
                     ).join('');
                     fx.innerHTML = `
                         <span class="dancheong-rail"></span>
                         <span class="dancheong-rail bottom"></span>
                         <span class="ink-splash"></span>
-                        <span class="ink-splash"></span>
-                        <span class="ink-splash"></span>
-                        <span class="ink-splash"></span>
+                        ${lite ? '' : '<span class="ink-splash"></span><span class="ink-splash"></span><span class="ink-splash"></span>'}
                         ${clouds}
                         <span class="crane-bird" style="top:22%;left:-10%"></span>
-                        <span class="crane-bird c2" style="top:44%;left:-18%"></span>
+                        ${lite ? '' : '<span class="crane-bird c2" style="top:44%;left:-18%"></span>'}
                         <span class="hangul-mark">혹익 지제이</span>
                         ${hangul}
                         ${dots}`;
@@ -17321,8 +18575,9 @@
                 }
 
                 const minOff = weekClassMinOffset();
+                const maxOff = weekClassMaxOffset();
                 const minDate = dateKeyFromDate(weekClassMinDate());
-                const maxDate = todayKey();
+                const maxDate = dateKeyFromDate(weekClassMaxDate());
                 const usingRange = !!(weekClassNav.rangeFrom && weekClassNav.rangeTo);
                 let weekList = usingRange
                     ? weeksInRange(weekClassNav.rangeFrom, weekClassNav.rangeTo)
@@ -17338,9 +18593,9 @@
                 const dayBlocks = keys.map((key, di) => {
                     const dayDate = addDaysDate(monday, di);
                     const dateKey = dateKeyFromDate(dayDate);
-                    const inFuture = dateKey > maxDate;
+                    const tooNew = dateKey > maxDate;
                     const tooOld = dateKey < minDate;
-                    const dayItems = (inFuture || tooOld) ? [] : collectClassesForCalendarDay(dayDate);
+                    const dayItems = (tooNew || tooOld) ? [] : collectClassesForCalendarDay(dayDate);
                     const body = dayItems.length ? dayItems.map(it => {
                         const names = it.students.length
                             ? it.students.map(s => `<span title="${esc(s.note || '')}">${esc(s.name)}</span>`).join('')
@@ -17363,7 +18618,7 @@
                 const monKey = dateKeyFromDate(monday);
                 const sunKey = dateKeyFromDate(addDaysDate(monday, 6));
                 const olderDisabled = usingRange ? (weekClassNav.page >= weekList.length - 1) : (weekClassNav.weekOffset <= minOff);
-                const newerDisabled = usingRange ? (weekClassNav.page <= 0) : (weekClassNav.weekOffset >= 0);
+                const newerDisabled = usingRange ? (weekClassNav.page <= 0) : (weekClassNav.weekOffset >= maxOff);
 
                 board.innerHTML = `
                     <button type="button" class="attend-stats-back" id="week-class-back-btn"><i class="ph ph-caret-left"></i> ${t('weekClassesBack')}</button>
@@ -17778,6 +19033,266 @@
                 openTeachPop('room-tt-modal');
             }
 
+            function closeRoomTtMonthView() {
+                roomTtMonthPick = null;
+                roomTtMonthBusy = false;
+                closeModalFast('room-tt-month-modal');
+            }
+
+            function shiftRoomTtMonthKey(ym, delta) {
+                const [y, m] = String(ym || '').split('-').map(Number);
+                if (!y || !m) return ym;
+                const d = new Date(y, m - 1 + delta, 1);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            }
+
+            function roomTtMonthKeyAllowed(ym) {
+                return roomTtMonthOptions().some((o) => o.key === ym);
+            }
+
+            function seedRoomTtMonthWeeks(ym) {
+                const [y, m] = String(ym || '').split('-').map(Number);
+                if (!y || !m) return;
+                const first = new Date(y, m - 1, 1);
+                const last = new Date(y, m, 0);
+                const curMon = currentMondayDate();
+                let mon = first;
+                const dow = mon.getDay();
+                mon = addDaysDate(mon, dow === 0 ? -6 : 1 - dow);
+                while (mon <= last || dateKeyFromDate(mon).slice(0, 7) === ym) {
+                    const off = Math.round((mon - curMon) / (7 * 24 * 60 * 60 * 1000));
+                    if (off >= roomTtMinOffset() && off <= roomTtMaxOffset()) {
+                        ensureRoomTtWeekSeeded(off);
+                    }
+                    mon = addDaysDate(mon, 7);
+                    if (dateKeyFromDate(mon) > dateKeyFromDate(addDaysDate(last, 7))) break;
+                }
+            }
+
+            function renderRoomTtMonthBody(user) {
+                const body = document.getElementById('room-tt-month-body');
+                if (!body || !user) return;
+                const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+                const ym = roomTtMonthKeyView || roomTtMonthKeyFromOffset(roomTtWeekOffset);
+                roomTtMonthKeyView = ym;
+                seedRoomTtMonthWeeks(ym);
+                const store = loadRoomTimetable();
+                const [y, m] = ym.split('-').map(Number);
+                const first = new Date(y, m - 1, 1);
+                const lastDate = new Date(y, m, 0).getDate();
+                const startPad = (first.getDay() + 6) % 7; // Mon=0
+                const today = todayKey();
+                const canEdit = user.role === 'teacher' || user.role === 'director';
+                const monthLabel = (() => {
+                    if (lang === 'th') return `${m}/${y}`;
+                    if (lang === 'en') {
+                        const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                        return `${names[m - 1]} ${y}`;
+                    }
+                    return `${y}년 ${m}월`;
+                })();
+                const dowNames = lang === 'th'
+                    ? ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา']
+                    : lang === 'en'
+                        ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                        : ['월', '화', '수', '목', '금', '토', '일'];
+                const byDate = {};
+                Object.values(store.blocks || {}).forEach((b) => {
+                    if (!b || !b.date || b.isBreak || !String(b.date).startsWith(ym)) return;
+                    (byDate[b.date] || (byDate[b.date] = [])).push(b);
+                });
+                Object.keys(byDate).forEach((dk) => {
+                    byDate[dk].sort((a, b) => String(a.start).localeCompare(String(b.start)));
+                });
+                const prevKey = shiftRoomTtMonthKey(ym, -1);
+                const nextKey = shiftRoomTtMonthKey(ym, 1);
+                const canPrev = roomTtMonthKeyAllowed(prevKey);
+                const canNext = roomTtMonthKeyAllowed(nextKey);
+                const hintCls = roomTtMonthPick ? ' is-move' : '';
+                const hintText = roomTtMonthPick ? t('roomTtMonthMoveHint') : t('roomTtMonthHint');
+
+                let cells = '';
+                for (let i = 0; i < startPad; i++) {
+                    cells += `<div class="rt-month-day is-out" aria-hidden="true"></div>`;
+                }
+                for (let day = 1; day <= lastDate; day++) {
+                    const date = `${ym}-${String(day).padStart(2, '0')}`;
+                    const slots = byDate[date] || [];
+                    const isToday = date === today;
+                    const show = slots.slice(0, 4);
+                    const more = slots.length - show.length;
+                    const chips = show.map((b) => {
+                        const c = roomTtTeacherColor(b.teacherId);
+                        const label = `${shortTeacherLabel(b.teacherId) || b.teacherName || ''} ${b.start || ''}`.trim();
+                        const picked = roomTtMonthPick === b.id ? ' is-picked' : '';
+                        const drag = canEdit ? `draggable="true" data-rt-month-drag="${esc(b.id)}"` : '';
+                        return `<button type="button" class="rt-month-chip${picked}" data-rt-month-chip="${esc(b.id)}"
+                            style="background:${c.bg};border-color:${c.border};color:${c.accent}" ${drag}
+                            title="${esc(label)}">${esc(label)}</button>`;
+                    }).join('');
+                    cells += `<div class="rt-month-day${isToday ? ' is-today' : ''}${roomTtMonthPick ? ' is-drop-target' : ''}" data-rt-month-day="${esc(date)}" tabindex="0">
+                        <div class="rt-month-daynum">${day}</div>
+                        <div class="rt-month-chips">${chips}${more > 0 ? `<div class="rt-month-more">+${more}</div>` : ''}</div>
+                    </div>`;
+                }
+
+                body.innerHTML = `
+                    <div class="rt-month-head">
+                        <div class="rt-month-nav">
+                            <button type="button" class="soft-btn ghost" id="rt-month-prev" ${canPrev ? '' : 'disabled'}><i class="ph ph-caret-left"></i></button>
+                            <div class="rt-month-title">${esc(monthLabel)}</div>
+                            <button type="button" class="soft-btn ghost" id="rt-month-next" ${canNext ? '' : 'disabled'}><i class="ph ph-caret-right"></i></button>
+                        </div>
+                        ${roomTtMonthPick ? `<button type="button" class="soft-btn ghost" id="rt-month-cancel-move">${esc(t('roomTtPickCancel'))}</button>` : ''}
+                    </div>
+                    <p class="rt-month-hint${hintCls}">${esc(hintText)}</p>
+                    <div class="rt-month-grid">
+                        ${dowNames.map((n) => `<div class="rt-month-dow">${esc(n)}</div>`).join('')}
+                        ${cells}
+                    </div>`;
+
+                document.getElementById('rt-month-prev')?.addEventListener('click', () => {
+                    if (!canPrev) return;
+                    roomTtMonthPick = null;
+                    roomTtMonthKeyView = prevKey;
+                    renderRoomTtMonthBody(user);
+                });
+                document.getElementById('rt-month-next')?.addEventListener('click', () => {
+                    if (!canNext) return;
+                    roomTtMonthPick = null;
+                    roomTtMonthKeyView = nextKey;
+                    renderRoomTtMonthBody(user);
+                });
+                document.getElementById('rt-month-cancel-move')?.addEventListener('click', () => {
+                    roomTtMonthPick = null;
+                    renderRoomTtMonthBody(user);
+                });
+
+                const jumpToWeek = (dateKey) => {
+                    const [yy, mm, dd] = dateKey.split('-').map(Number);
+                    const d = new Date(yy, mm - 1, dd);
+                    const dow = d.getDay();
+                    const mon = addDaysDate(d, dow === 0 ? -6 : 1 - dow);
+                    const curMon = currentMondayDate();
+                    roomTtWeekOffset = clampRoomTtOffset(Math.round((mon - curMon) / (7 * 24 * 60 * 60 * 1000)));
+                    closeRoomTtMonthView();
+                    renderRoomTimetableBoard(user);
+                };
+
+                const tryMoveToDay = (dateKey) => {
+                    if (!roomTtMonthPick || !canEdit) return false;
+                    roomTtMonthBusy = true;
+                    const res = moveRoomBlockToDate(roomTtMonthPick, dateKey, user);
+                    roomTtMonthPick = null;
+                    roomTtMonthBusy = false;
+                    if (!res.ok) {
+                        showAppToast(res.msg || t('none'), 'err');
+                        renderRoomTtMonthBody(user);
+                        return true;
+                    }
+                    showAppToast(t('roomTtMonthMoved'), 'ok');
+                    renderRoomTtMonthBody(user);
+                    renderRoomTimetableBoard(user);
+                    return true;
+                };
+
+                body.querySelectorAll('[data-rt-month-chip]').forEach((chip) => {
+                    chip.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (!canEdit) {
+                            const id = chip.dataset.rtMonthChip;
+                            closeRoomTtMonthView();
+                            openRoomTtModal(user, { blockId: id });
+                            return;
+                        }
+                        const id = chip.dataset.rtMonthChip;
+                        if (roomTtMonthPick === id) {
+                            roomTtMonthPick = null;
+                        } else {
+                            roomTtMonthPick = id;
+                        }
+                        renderRoomTtMonthBody(user);
+                    });
+                    chip.addEventListener('dragstart', (e) => {
+                        if (!canEdit) return;
+                        roomTtMonthBusy = true;
+                        roomTtMonthPick = chip.dataset.rtMonthChip;
+                        try { e.dataTransfer.setData('text/plain', chip.dataset.rtMonthChip); } catch (_) {}
+                        try { e.dataTransfer.effectAllowed = 'move'; } catch (_) {}
+                    });
+                    chip.addEventListener('dragend', () => {
+                        roomTtMonthBusy = false;
+                    });
+                });
+
+                body.querySelectorAll('[data-rt-month-day]').forEach((dayEl) => {
+                    dayEl.addEventListener('click', () => {
+                        const dateKey = dayEl.dataset.rtMonthDay;
+                        if (!dateKey) return;
+                        if (tryMoveToDay(dateKey)) return;
+                        jumpToWeek(dateKey);
+                    });
+                    dayEl.addEventListener('dragover', (e) => {
+                        if (!roomTtMonthPick && !e.dataTransfer?.types?.includes('text/plain')) return;
+                        e.preventDefault();
+                        dayEl.classList.add('is-drop-target');
+                    });
+                    dayEl.addEventListener('dragleave', () => dayEl.classList.remove('is-drop-target'));
+                    dayEl.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        dayEl.classList.remove('is-drop-target');
+                        let id = roomTtMonthPick;
+                        try { id = e.dataTransfer.getData('text/plain') || id; } catch (_) {}
+                        if (id) roomTtMonthPick = id;
+                        tryMoveToDay(dayEl.dataset.rtMonthDay);
+                    });
+                });
+            }
+
+            function openRoomTtMonthView(user, monthKey) {
+                if (!user) return;
+                roomTtMonthPick = null;
+                roomTtMonthKeyView = monthKey || roomTtMonthKeyFromOffset(roomTtWeekOffset);
+                roomTtMonthBusy = true;
+                renderRoomTtMonthBody(user);
+                const sub = document.getElementById('room-tt-month-modal-sub');
+                if (sub) sub.textContent = t('roomTtMonthHint');
+                openTeachPop('room-tt-month-modal');
+            }
+
+            async function refreshRoomTtLive(user, btn) {
+                if (!user || btn?.classList.contains('is-loading')) return;
+                if (btn) {
+                    btn.classList.add('is-loading');
+                    btn.setAttribute('aria-busy', 'true');
+                }
+                try {
+                    const res = await syncPortalStoresFromCentral({ silent: true });
+                    if (res?.busy) {
+                        showAppToast(t('roomTtRefreshBusy'), 'warn');
+                    } else {
+                        showAppToast(t('roomTtRefreshOk'), 'ok');
+                    }
+                    if (!document.getElementById('room-tt-month-modal')?.classList.contains('open')
+                        && !document.getElementById('room-tt-modal')?.classList.contains('open')) {
+                        renderRoomTimetableBoard(user);
+                    } else if (document.getElementById('room-tt-month-modal')?.classList.contains('open')) {
+                        renderRoomTtMonthBody(user);
+                    }
+                    if (document.getElementById('week-class-board') && typeof renderWeekClassBoard === 'function') {
+                        try { renderWeekClassBoard(user); } catch (_) {}
+                    }
+                } catch (_) {
+                    showAppToast(t('roomTtRefreshOk'), 'warn');
+                    try { renderRoomTimetableBoard(user); } catch (_) {}
+                } finally {
+                    if (btn) {
+                        btn.classList.remove('is-loading');
+                        btn.removeAttribute('aria-busy');
+                    }
+                }
+            }
+
             function renderRoomTimetableBoard(user) {
                 const board = document.getElementById('room-tt-board');
                 if (!board || !user) return;
@@ -17810,8 +19325,9 @@
                     `<option value="${esc(o.key)}"${o.key === monthKey ? ' selected' : ''}>${esc(monthLabel(o.key))}</option>`
                 ).join('');
                 const minOff = roomTtMinOffset();
+                const maxOff = roomTtMaxOffset();
                 const canGoPrev = roomTtWeekOffset > minOff;
-                const canGoNext = roomTtWeekOffset < 0;
+                const canGoNext = roomTtWeekOffset < maxOff;
 
                 const legendTeachers = [
                     { id: 'eunha', label: shortTeacherLabel('eunha') },
@@ -17829,8 +19345,9 @@
                     const key = dateKeyFromDate(d);
                     const isToday = key === today;
                     const dayBand = di % 2 === 0 ? ' is-day-band-a' : ' is-day-band-b';
+                    const dayStart = di > 0 ? ' is-day-start' : '';
                     const colStart = 2 + di * 3;
-                    headCells += `<div class="room-tt-cell is-day${dayBand}${isToday ? ' is-today-col' : ''}" style="grid-column:${colStart} / span 3;grid-row:1">
+                    headCells += `<div class="room-tt-cell is-day${dayBand}${dayStart}${isToday ? ' is-today-col' : ''}" style="grid-column:${colStart} / span 3;grid-row:1">
                         <div class="room-tt-day-name">${dayNames[di]}</div>
                         <div class="room-tt-day-date">${key.slice(5)}</div>
                         <div class="room-tt-rooms"><span class="r-a">${esc(t('roomTtRoomA'))}</span><span class="r-b">${esc(t('roomTtRoomB'))}</span><span class="r-c">${esc(t('roomTtRoomC'))}</span></div>
@@ -17861,11 +19378,12 @@
                             const col = 2 + di * 3 + ri;
                             const key = `${date}|${room}|${half}`;
                             const slot = byCell[key];
-                            const dayStart = ri === 0 ? ' is-day-start' : '';
-                            const colCls = `${dayBand}${dayStart}${isToday ? ' is-today-col' : ''}`;
+                            const roomCls = ri === 0 ? ' is-room-a' : ri === 1 ? ' is-room-b' : ' is-room-c';
+                            const dayStart = ri === 0 && di > 0 ? ' is-day-start' : '';
+                            const colCls = `${dayBand}${dayStart}${roomCls}${isToday ? ' is-today-col' : ''}`;
                             if (!slot) {
                                 if (!canBook) {
-                                    body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}"><div class="room-tt-plus" style="animation:none;opacity:.28;cursor:default;pointer-events:none">·</div></div>`;
+                                    body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}"><div class="room-tt-plus" style="animation:none;opacity:.55;cursor:default;pointer-events:none;color:rgba(148,163,184,.4)">·</div></div>`;
                                     return;
                                 }
                                 body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
@@ -17899,10 +19417,17 @@
                 board.innerHTML = `
                     <div class="room-tt-wrap">
                         <div class="room-tt-head">
-                            <span class="room-tt-live"><span class="live-dot"></span>${esc(t('roomTtLive'))}</span>
+                            <button type="button" class="room-tt-live" id="room-tt-live-refresh" title="${esc(t('roomTtRefresh'))}" aria-label="${esc(t('roomTtRefresh'))}">
+                                <span class="live-dot" aria-hidden="true"></span>
+                                <span>${esc(t('roomTtLive'))}</span>
+                                <i class="ph ph-arrows-clockwise rt-live-refresh" aria-hidden="true"></i>
+                            </button>
                             <div class="room-tt-nav">
                                 <button type="button" class="soft-btn ghost" id="room-tt-prev" aria-label="prev" ${canGoPrev ? '' : 'disabled'}><i class="ph ph-caret-left"></i></button>
-                                <div class="room-tt-range">${esc(formatRoomTtRange(roomTtWeekOffset))}</div>
+                                <button type="button" class="room-tt-range" id="room-tt-range-btn" title="${esc(t('roomTtMonthOpen'))}">
+                                    ${esc(formatRoomTtRange(roomTtWeekOffset))}
+                                    <span class="rt-range-hint">${esc(t('roomTtMonthOpen'))}</span>
+                                </button>
                                 <button type="button" class="soft-btn ghost" id="room-tt-next" aria-label="next" ${canGoNext ? '' : 'disabled'}><i class="ph ph-caret-right"></i></button>
                                 ${roomTtWeekOffset !== 0 ? `<button type="button" class="soft-btn ghost" id="room-tt-today">${esc(t('roomTtThisWeek'))}</button>` : ''}
                             </div>
@@ -17910,6 +19435,7 @@
                         <div class="room-tt-monthbar">
                             <label for="room-tt-month">${esc(t('roomTtPickMonth'))}</label>
                             <select id="room-tt-month">${monthSelectHtml}</select>
+                            <button type="button" class="soft-btn ghost" id="room-tt-month-open">${esc(t('roomTtMonthOpen'))}</button>
                             <span class="room-tt-lookback">${esc(t('roomTtLookback'))}</span>
                         </div>
                         <p class="room-tt-hint">${esc(t('roomTtHint'))}</p>
@@ -17939,6 +19465,12 @@
                 document.getElementById('room-tt-month')?.addEventListener('change', (e) => {
                     roomTtWeekOffset = roomTtOffsetForMonthKey(e.target.value);
                     renderRoomTimetableBoard(user);
+                });
+                const openMonth = () => openRoomTtMonthView(user, monthKey);
+                document.getElementById('room-tt-range-btn')?.addEventListener('click', openMonth);
+                document.getElementById('room-tt-month-open')?.addEventListener('click', openMonth);
+                document.getElementById('room-tt-live-refresh')?.addEventListener('click', () => {
+                    refreshRoomTtLive(user, document.getElementById('room-tt-live-refresh'));
                 });
                 const rangeBannerHost = board.querySelector('.room-tt-head');
                 if (roomTtRangePick && rangeBannerHost) {
@@ -20576,16 +22108,16 @@
                             if (!orderTargetsUser(o, tea.id)) return '';
                             const ok = isOrderRead(String(tea.id), String(o.id));
                             const cls = ok ? 'is-done' : 'is-pending';
-                            // Sent → light green "ส่งข้อความไปแล้ว"; Acked → stronger green "รับทราบแล้ว"
-                            const label = ok ? t('readDone') : t('msgSent');
+                            // Pending → amber "ยังไม่ได้อ่าน"; Acked → strong green "อ่านแล้ว"
+                            const label = ok ? t('readDone') : t('unread');
                             const icon = ok
                                 ? '<i class="ph-fill ph-check-circle" aria-hidden="true"></i> '
-                                : '';
+                                : '<i class="ph ph-hourglass" aria-hidden="true"></i> ';
                             const body = `${icon}${displayName(tea)} · ${label}`;
                             if (ok) {
-                                return `<span class="badge order-ack-badge ${cls}" style="margin:.15rem;background:#bbf7d0 !important;color:#14532d !important;border:1px solid rgba(22,163,74,.45) !important" title="${displayName(tea)} · ${label}" data-ack-user="${tea.id}" data-ack-order="${String(o.id)}">${body}</span>`;
+                                return `<span class="badge order-ack-badge ${cls}" style="margin:.15rem" title="${displayName(tea)} · ${label}" data-ack-user="${tea.id}" data-ack-order="${String(o.id)}">${body}</span>`;
                             }
-                            // Sent (not acked): light green pill · tap to resend one teacher
+                            // Not acked: amber waiting pill · tap to resend one teacher
                             const teaCdLeft = getOrderResendCooldownRemaining(o.id, tea.id);
                             const teaCdActive = teaCdLeft > 0;
                             const teaTitle = teaCdActive
@@ -20593,9 +22125,9 @@
                                 : `${t('orderResend')} · ${displayName(tea)}`;
                             const teaDis = teaCdActive ? ' disabled aria-disabled="true" data-cd-active="1"' : '';
                             const teaStyle = teaCdActive
-                                ? 'margin:.15rem;cursor:not-allowed;opacity:.55;background:#ecfdf5 !important;color:#047857 !important;border:1px solid rgba(16,185,129,.32) !important'
-                                : 'margin:.15rem;cursor:pointer;background:#ecfdf5 !important;color:#047857 !important;border:1px solid rgba(16,185,129,.32) !important';
-                            return `<button type="button" class="badge order-ack-badge ${cls}" style="${teaStyle}" title="${teaTitle}" data-order-resend="${o.id}" data-order-resend-user="${tea.id}" data-order-resend-name="${displayName(tea).replace(/"/g, '&quot;')}"${teaDis}>${body}</button>`;
+                                ? 'margin:.15rem;cursor:not-allowed;opacity:.55'
+                                : 'margin:.15rem;cursor:pointer';
+                            return `<button type="button" class="badge order-ack-badge ${cls}" style="${teaStyle}" title="${teaTitle}" data-order-resend="${o.id}" data-order-resend-user="${tea.id}" data-order-resend-name="${displayName(tea).replace(/"/g, '&quot;')}" data-ack-user="${tea.id}" data-ack-order="${String(o.id)}"${teaDis}>${body}</button>`;
                         }).join('');
                         const textKo = escAttr(o.textKo != null ? o.textKo : (o.text || ''));
                         const textTh = escAttr(o.textTh != null ? o.textTh : (o.text || ''));
@@ -22442,10 +23974,14 @@
                 currentTab = id;
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
                 document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === id));
-                // Changing page/tab allows head-order popup to show again (if still unread)
-                if (prevTab !== id) orderPopupSnoozed = false;
+                // Changing page/tab allows head-order / attend popup to show again
+                if (prevTab !== id) {
+                    orderPopupSnoozed = false;
+                    attendPopupSnoozed = false;
+                }
                 if (currentUser) maybeShowAlertPopups(currentUser);
                 if (id === 'orders' && currentUser && currentUser.role === 'director') {
+                    try { patchDirectorOrderAckBadges(); } catch (_) {}
                     ensureOrderResendCdTicker();
                     applyOrderResendCooldownUi(document);
                 }
@@ -22453,6 +23989,7 @@
 
             function fillSakura(el, count = 10) {
                 if (!el) return;
+                if (isLiteClient()) { el.innerHTML = ''; return; }
                 el.innerHTML = '';
                 const attend = el.id === 'attend-sakura';
                 const slowModal = el.id === 'sched-alert-sakura'
@@ -22481,6 +24018,7 @@
             }
             function fillAttendSparkles(el, count = 18) {
                 if (!el) return;
+                if (isLiteClient()) { el.innerHTML = ''; return; }
                 el.innerHTML = '';
                 for (let i = 0; i < count; i++) {
                     const s = document.createElement('span');
@@ -22493,6 +24031,7 @@
             }
             function fillOrderNature(el, count = 14) {
                 if (!el) return;
+                if (isLiteClient()) { el.innerHTML = ''; return; }
                 el.innerHTML = '';
                 // half pink (petal/bloom) · half green (leaf/bloom.green) — all teachers
                 const kinds = ['petal', 'leaf', 'petal petal-soft', 'leaf', 'bloom', 'leaf', 'petal', 'bloom green'];
@@ -22738,6 +24277,12 @@
                 if (!modal || !user || user.role !== 'director') return;
                 if (isAttendanceDoneToday()) {
                     modal.classList.remove('open');
+                    attendPopupSnoozed = false;
+                    return;
+                }
+                // User closed with × / backdrop — stay quiet until they change tabs
+                if (attendPopupSnoozed) {
+                    modal.classList.remove('open');
                     return;
                 }
                 const day = getAttendanceDay(todayKey());
@@ -22746,6 +24291,12 @@
                 const dateEl = document.getElementById('attend-modal-date');
                 if (dateEl) dateEl.textContent = formatToday();
                 tickClock();
+                // Already open — keep in-progress checks; do NOT rebuild rows (innerHTML remount
+                // re-fires attendRowPop → list "bounces" 2–3× on softRefresh/sync while open)
+                if (modal.classList.contains('open')) {
+                    if (!modal._attendPresent) modal._attendPresent = presentMap;
+                    return;
+                }
                 renderAttendRows(listEl, presentMap, true);
                 modal._attendPresent = presentMap;
                 const msg = document.getElementById('attend-modal-msg');
@@ -22754,6 +24305,13 @@
                 fillSakura(document.getElementById('attend-sakura'), 11);
                 fillAttendSparkles(document.getElementById('attend-sparkles'), 14);
                 reopenModal(modal);
+            }
+
+            function dismissAttendPopupOnly() {
+                // Hide until user changes tab/page — then may show again if not saved today
+                attendPopupSnoozed = true;
+                const modal = document.getElementById('attend-modal');
+                if (modal) closeModalFast(modal);
             }
 
             function maybeShowCancelAlertPopup(user) {
@@ -22963,6 +24521,19 @@
             document.getElementById('room-tt-modal-x')?.addEventListener('click', closeRoomTtModal);
             document.getElementById('room-tt-modal-cancel')?.addEventListener('click', closeRoomTtModal);
             roomTtModal?.addEventListener('click', (e) => { if (e.target === roomTtModal) closeRoomTtModal(); });
+            const roomTtMonthModal = document.getElementById('room-tt-month-modal');
+            document.getElementById('room-tt-month-modal-x')?.addEventListener('click', () => {
+                roomTtMonthPick = null;
+                roomTtMonthBusy = false;
+                closeModalFast(roomTtMonthModal);
+            });
+            roomTtMonthModal?.addEventListener('click', (e) => {
+                if (e.target === roomTtMonthModal) {
+                    roomTtMonthPick = null;
+                    roomTtMonthBusy = false;
+                    closeModalFast(roomTtMonthModal);
+                }
+            });
             document.getElementById('room-tt-reauth-x')?.addEventListener('click', closeRoomTtReauth);
             document.getElementById('room-tt-reauth-cancel')?.addEventListener('click', closeRoomTtReauth);
             roomTtReauthModal?.addEventListener('click', (e) => {
@@ -23606,14 +25177,20 @@
             });
 
             const attendModal = document.getElementById('attend-modal');
-            document.getElementById('attend-modal-x')?.addEventListener('click', () => attendModal?.classList.remove('open'));
+            document.getElementById('attend-modal-x')?.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dismissAttendPopupOnly();
+            });
             attendModal?.addEventListener('click', (e) => {
-                if (e.target === attendModal) attendModal.classList.remove('open');
+                if (e.target === attendModal) dismissAttendPopupOnly();
             });
             document.getElementById('attend-modal-save')?.addEventListener('click', () => {
                 if (!currentUser || currentUser.role !== 'director') return;
                 const presentMap = attendModal?._attendPresent || {};
                 setAttendanceDay(todayKey(), presentMap, true);
+                attendPopupSnoozed = false;
+                if (attendModal) attendModal._attendPresent = null;
                 const msg = document.getElementById('attend-modal-msg');
                 if (msg) msg.textContent = t('attendSaved');
                 attendModal?.classList.remove('open');
@@ -23811,9 +25388,11 @@
                 if (dashboardScreen?.classList.contains('hidden-screen')) return;
                 ordersUiRefreshing = true;
                 try {
-                    const tab = document.querySelector('.tab-btn.active')?.dataset?.tab;
-                    openDashboard(resolveAccountById(canonicalAccountId(currentUser)) || currentUser, true);
-                    if (tab) setTab(tab);
+                    const u = resolveAccountById(canonicalAccountId(currentUser)) || currentUser;
+                    try { patchDirectorOrderAckBadges(); } catch (_) {}
+                    if (typeof softRefreshDashboard === 'function') {
+                        softRefreshDashboard(u, { stores: ['headOrders', 'orderAcks'], reason: 'orders-ui' });
+                    }
                 } catch (_) {}
                 finally { ordersUiRefreshing = false; }
             };
@@ -23835,18 +25414,27 @@
                     }
                 } catch (_) {}
             });
-            window.addEventListener('hongik-portal-synced', () => {
+            window.addEventListener('hongik-portal-synced', (ev) => {
                 if (!currentUser) return;
                 if (dashboardScreen?.classList.contains('hidden-screen')) return;
+                const stores = Array.isArray(ev?.detail?.stores) ? ev.detail.stores.filter(Boolean) : [];
+                const fromRealtime = String(ev?.detail?.source || '').includes('realtime');
+                const orderish = !stores.length || stores.some((s) => s === 'headOrders' || s === 'orderAcks');
+                if (orderish) {
+                    try { patchDirectorOrderAckBadges(); } catch (_) {}
+                }
                 clearTimeout(sharedSyncTimer);
+                const lite = isLiteClient();
+                const delay = lite
+                    ? (fromRealtime || orderish ? 420 : 900)
+                    : (fromRealtime || orderish ? 60 : 280);
                 sharedSyncTimer = setTimeout(() => {
                     const u = resolveAccountById(currentUser.id);
                     if (!u) return;
-                    const tab = document.querySelector('.tab-btn.active')?.dataset?.tab;
-                    openDashboard(u, true);
-                    if (tab) setTab(tab);
-                    if (typeof maybeShowAlertPopups === 'function') maybeShowAlertPopups(u);
-                }, 200);
+                    if (typeof softRefreshDashboard === 'function') {
+                        softRefreshDashboard(u, { stores, reason: 'portal-synced' });
+                    }
+                }, delay);
             });
             window.addEventListener('storage', (e) => {
                 if (!e.key || !isSharedStoreKey(e.key)) return;
@@ -23873,11 +25461,27 @@
                         || e.key === ORDER_ACK_MIRROR || e.key === ORDER_ACK_MIRROR + ':tick'
                         || String(e.key || '').startsWith('hongik-orders-read-');
                     if (orderPulse) orderPopupSnoozed = false;
-                    const tab = document.querySelector('.tab-btn.active')?.dataset?.tab;
-                    openDashboard(u, true);
-                    if (tab) setTab(tab);
-                    if (typeof maybeShowAlertPopups === 'function') maybeShowAlertPopups(u);
-                }, 280);
+                    const storesFromKey = (() => {
+                        const k = String(e.key || '');
+                        if (k.startsWith(ROOM_TT_STORE)) return ['roomTt'];
+                        if (k.startsWith(DAY_SCHEDULES_STORE) || k.startsWith('hongik-day-schedule-')) return ['daySchedules'];
+                        if (k.startsWith(ORDERS_STORE) || k.startsWith('hongik-orders-read-')) return ['headOrders'];
+                        if (k.startsWith(ORDER_ACK_MIRROR)) return ['orderAcks'];
+                        if (k.startsWith(CANCEL_STORE)) return ['classCancels'];
+                        if (k.startsWith(SCHED_CHANGE_STORE)) return ['schedChanges'];
+                        if (k.startsWith(LEAVE_KEY)) return ['leaveRequests'];
+                        if (k.startsWith(SHARED_NOTES_STORE)) return ['sharedNotes'];
+                        if (k.startsWith(SHARED_NOTE_STUDENTS_STORE)) return ['sharedNoteStudents'];
+                        if (k.startsWith(OT_BUNDLE_STORE) || k.startsWith('hongik-ot-')) return ['otReports'];
+                        if (k.startsWith(DORM_STORE)) return ['dormStudents'];
+                        if (k.startsWith(ATTEND_STORE)) return ['attendance'];
+                        if (k.startsWith(FINANCE_STORE)) return ['schoolFinance'];
+                        return null;
+                    })();
+                    if (typeof softRefreshDashboard === 'function') {
+                        softRefreshDashboard(u, { stores: storesFromKey, reason: 'storage:' + e.key });
+                    }
+                }, 380);
             });
 
             // Restore session on refresh → unread head orders pop again

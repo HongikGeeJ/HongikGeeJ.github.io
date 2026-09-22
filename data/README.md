@@ -7,16 +7,34 @@
 | `archives/` | สำรองตารางห้องเรียนรายเดือน (JSON) |
 | `drive/` | `manifest.json` ชี้ไฟล์จาก Google Drive |
 | `images/` | รูปสแกนตาราง / ไฟล์ภาพอื่น ๆ |
-| `photos/` | รูปโปรไฟล์ครู + **Apps Script central sync** (รูป + ข้อมูลร่วมทั้งพอร์ทัล) |
+| `photos/` | รูปโปรไฟล์ครู + **Apps Script central sync** (ทางเลือก) |
+| `supabase/` | **Supabase realtime sync** (แนะนำ) — schema SQL + config ว่าง |
 
 Drive โฟลเดอร์หลัก: https://drive.google.com/drive/folders/1PyqEMeBcTtEujY5qbJTBrg4FzMsMdVDA
 
 ในแท็บ **ตารางห้องเรียน** กด **ซิงก์ Drive** เพื่อดึงจาก `drive/manifest.json` (และ Drive API ถ้าใส่ API key)
 
-## ซิงก์ข้ามเครื่อง (central portal sync)
+## ซิงก์ข้ามเครื่อง (แนะนำ: Supabase)
 
-GitHub Pages เขียนไฟล์ใน repo ไม่ได้ — ต้องมี Apps Script Web App URL กลาง  
-ถ้า `syncUrl` ว่าง พอร์ทัลทำงานแบบ local-only ตามปกติ (ไม่พัง)
+GitHub Pages / aired.sh เขียนไฟล์ใน repo ไม่ได้ — ใช้ Supabase เป็น backend realtime
+
+1. สมัครที่ https://supabase.com → สร้างโปรเจกต์  
+2. รัน SQL จาก `supabase/schema.sql` ใน SQL Editor  
+3. คัดลอก **Project URL** + **anon public** key (ห้ามใช้ service_role)  
+4. ใส่ใน `supabase/supabase-config.json` หรือ Console:
+
+```js
+hongikSetSupabaseConfig({ url: 'https://xxxx.supabase.co', anonKey: 'eyJ...' })
+hongikSupabaseStatus()
+```
+
+รายละเอียดเต็ม (ไทย/EN): ดู `supabase/README.md`
+
+ลำดับ backend: **Supabase** (ถ้ามี config) → **Apps Script** (ถ้ามี syncUrl) → **localStorage อย่างเดียว**
+
+## ซิงก์ข้ามเครื่อง (ทางเลือก: Apps Script)
+
+ถ้า `syncUrl` ว่าง และยังไม่มี Supabase พอร์ทัลทำงานแบบ local-only ตามปกติ (ไม่พัง)
 
 1. เปิด [script.google.com](https://script.google.com) → New project  
 2. วางโค้ดจาก `apps-script/Code.gs` (หรือ `photos/apps-script/Code.gs` — ไฟล์เดียวกัน)  
@@ -43,18 +61,18 @@ hongikSyncPortalNow()
 hongikPushPortalNow()
 ```
 
-### ซิงก์อะไรบ้าง (ผ่าน URL เดียวกัน)
+### ซิงก์อะไรบ้าง (ผ่าน URL / Supabase เดียวกัน)
 
 | store | ใช้ทำอะไร |
 |-------|-----------|
-| `photos` | รูปโปรไฟล์ครู (API แยกใน payload เดียวกัน) |
+| `photos` | รูปโปรไฟล์ครู (API แยกใน payload เดียวกัน — Apps Script เท่านั้นตอนนี้) |
 | `daySchedules` | ตารางสอน/งานวันนี้ของครู |
 | `schedChanges` | กล่องแจ้งหัวหน้าเมื่อเพิ่ม/แก้/ลบคลาส |
 | `roomTt` | ตารางห้องเรียน |
 | `classCancels` | แจ้งยกเลิกคลาส |
 | `headOrders` | คำสั่งหัวหน้า + acks ในแถว |
 | `orderAcks` | กระจก ack ข้ามบัญชี |
-| `sharedNotes` / `sharedNoteStudents` | บันทึกร่วมครู |
+| `sharedNotes` / `sharedNoteStudents` | บันทึกร่วมครู / บันทึกการเรียน |
 | `leaveRequests` | ลา |
 | `directorTodos` | แผนหัวหน้า |
 | `schoolFinance` | การเงินโรงเรียน |
@@ -67,9 +85,10 @@ hongikPushPortalNow()
 | `studentEdits` | แก้ชื่อ/โน้ตนักเรียนในพอร์ทัล |
 | `helpChats` | แชทช่วยเหลือหัวหน้า |
 | `partTime` | พาร์ทไทม์ |
+| `otReports` | รายงาน OT |
 
 ### ไม่ซิงก์ (ตั้งใจ)
 
 รหัสผ่าน, API keys (Drive/Gemini), session/ภาษา, student/sales DB จาก Sheet (มีช่องทางอ่าน Sheet อยู่แล้ว)
 
-รายละเอียดเพิ่ม: ดู `photos/README.md`
+รายละเอียดเพิ่ม: ดู `photos/README.md` และ `supabase/README.md`
