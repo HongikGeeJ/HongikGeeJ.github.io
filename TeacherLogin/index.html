@@ -9907,6 +9907,9 @@
                 orderCancelSendConfirm: '이 지시 전송을 취소할까요? 선생님 화면·팝업에 더 이상 표시되지 않습니다.',
                 orderCancelSendDone: '전송을 취소했습니다',
                 orderCancelledStatus: '전송 취소됨',
+                orderDelete: '삭제',
+                orderDeleteConfirm: '이 지시를 시스템에서 완전히 삭제할까요?\n원장·관리자·선생님 화면에서 모두 사라집니다. 되돌릴 수 없습니다.',
+                orderDeleteDone: '지시를 삭제했습니다',
                 orderEditSave: '수정 저장',
                 orderEditSaved: '수정했습니다',
                 orderRepublishHint: '수정 후 다시 보내면 선생님에게 다시 알림이 갑니다',
@@ -10689,6 +10692,9 @@
                 orderCancelSendConfirm: 'ต้องการยกเลิกการส่งคำสั่งนี้หรือไม่? ครูจะไม่เห็นในป๊อปอัป/รายการอีก',
                 orderCancelSendDone: 'ยกเลิกการส่งแล้ว',
                 orderCancelledStatus: 'ยกเลิกการส่งแล้ว',
+                orderDelete: 'ลบ',
+                orderDeleteConfirm: 'ต้องการลบคำสั่งนี้ออกจากระบบถาวรหรือไม่?\nจะหายจากหน้าจอผู้อำนวยการ แอดมิน และครูทุกคน — กู้คืนไม่ได้',
+                orderDeleteDone: 'ลบคำสั่งแล้ว',
                 orderEditSave: 'บันทึกการแก้ไข',
                 orderEditSaved: 'บันทึกแล้ว',
                 orderRepublishHint: 'แก้ไขแล้วกดส่งอีกครั้ง เพื่อแจ้งครูใหม่',
@@ -11471,6 +11477,9 @@
                 orderCancelSendConfirm: 'Cancel this order? Teachers will no longer see it in popups or lists.',
                 orderCancelSendDone: 'Send cancelled',
                 orderCancelledStatus: 'Send cancelled',
+                orderDelete: 'Delete',
+                orderDeleteConfirm: 'Permanently delete this order from the system?\nIt will disappear for director, admin, and all teachers. This cannot be undone.',
+                orderDeleteDone: 'Order deleted',
                 orderEditSave: 'Save edits',
                 orderEditSaved: 'Saved',
                 orderRepublishHint: 'After editing, send again to notify teachers',
@@ -12355,13 +12364,17 @@
                         const o = list.find((x) => x && String(x.id) === id);
                         if (o) {
                             if (!o.acks || typeof o.acks !== 'object') o.acks = {};
+                            // Never reinflate acks from local READ after a central resend/cancel
+                            // (that made "ส่งอีกครั้ง" look fake on other browsers).
                             if (!o.acks[uid]) {
+                                if (o.resentAt || o.cancelledAt) return;
                                 o.acks[uid] = new Date().toISOString();
                                 changed = true;
                             }
                         }
                         if (!mirror[id] || typeof mirror[id] !== 'object') mirror[id] = {};
                         if (!mirror[id][uid]) {
+                            if (o && (o.resentAt || o.cancelledAt) && !(o.acks && o.acks[uid])) return;
                             mirror[id][uid] = (o && o.acks && o.acks[uid]) || new Date().toISOString();
                             mirrorChanged = true;
                         }
@@ -14835,8 +14848,20 @@
             if (s === 'pending' || s === 'pending_director' || s === 'open') return 1;
             if (s === 'acked_pending_teacher') return 2;
             if (s === 'director_acked' || s === 'acked' || s === 'approved' || s === 'done') return 3;
+            if (s === 'cancelled' || s === 'voided') return 4;
             if (s === 'voided_admin' || s === 'director_skipped' || s === 'cancelled_admin' || s === 'rejected') return 4;
+            if (s === 'deleted') return 5;
             return 0;
+        }
+        /** Latest director/teacher mutation clock for LWW order merges (resend must beat stale acks). */
+        function orderRevisionAt(o) {
+            if (!o) return '';
+            const times = [o.resentAt, o.cancelledAt, o.editedAt, o.updatedAt, o.deletedAt]
+                .map((x) => String(x || ''))
+                .filter(Boolean);
+            if (!times.length) return '';
+            times.sort();
+            return times[times.length - 1];
         }
         function mergePortalListById(localList, remoteList) {
             const map = new Map();
@@ -14859,7 +14884,7 @@
                 String(a.createdAt || a.updatedAt || a.at || '').localeCompare(String(b.createdAt || b.updatedAt || b.at || ''))
             );
         }
-        function mergeOrderRows(localList, remoteList) {
+        function mergeOrderRows(localList, remoteList, { remoteAt = '' } = {}) {
             const map = new Map();
             const ingest = (row) => {
                 if (!row || !row.id) return;
@@ -14869,6 +14894,21 @@
                     map.set(id, { ...row, acks: orderAckMap(row) });
                     return;
                 }
+                const aRev = orderRevisionAt(prev);
+                const bRev = orderRevisionAt(row);
+                // Newer resend/cancel/edit wins wholesale — including cleared acks.
+                // (Union-merge of acks made director resend look local-only.)
+                if (bRev && aRev && bRev > aRev) {
+                    map.set(id, { ...row, acks: orderAckMap(row) });
+                    return;
+                }
+                if (aRev && bRev && aRev > bRev) return;
+                if (bRev && !aRev) {
+                    map.set(id, { ...row, acks: orderAckMap(row) });
+                    return;
+                }
+                if (aRev && !bRev) return;
+                // Same revision clock: union acks (concurrent teacher acknowledges)
                 const mergedAcks = { ...orderAckMap(prev), ...orderAckMap(row) };
                 Object.keys(orderAckMap(row)).forEach((uid) => {
                     const a = String(mergedAcks[uid] || '');
@@ -14885,21 +14925,35 @@
                 let base = prev;
                 if (rRemote > rLocal) base = row;
                 else if (rRemote === rLocal) {
-                    const a = String(prev.updatedAt || prev.createdAt || '');
-                    const b = String(row.updatedAt || row.createdAt || '');
+                    const a = String(prev.updatedAt || prev.createdAt || prev.resentAt || '');
+                    const b = String(row.updatedAt || row.createdAt || row.resentAt || '');
                     if (b >= a) base = row;
                 }
                 map.set(id, { ...base, acks: mergedAcks });
             };
-            (Array.isArray(localList) ? localList : []).forEach(ingest);
-            (Array.isArray(remoteList) ? remoteList : []).forEach(ingest);
+            const remoteArr = Array.isArray(remoteList) ? remoteList : [];
+            const localArr = Array.isArray(localList) ? localList : [];
+            localArr.forEach(ingest);
+            remoteArr.forEach(ingest);
+            const remoteIds = new Set(remoteArr.map((o) => o && String(o.id)).filter(Boolean));
+            // Remote snapshot is authoritative: drop ids missing remotely (hard delete),
+            // unless this device created/edited them after the remote store clock.
+            if (remoteAt || remoteArr.length) {
+                [...map.keys()].forEach((id) => {
+                    if (remoteIds.has(id)) return;
+                    const row = map.get(id);
+                    const rev = orderRevisionAt(row) || String(row?.createdAt || '');
+                    if (remoteAt && rev && rev > String(remoteAt)) return;
+                    map.delete(id);
+                });
+            }
             return [...map.values()].sort((a, b) =>
-                String(a.createdAt || '').localeCompare(String(b.createdAt || ''))
+                String(a.createdAt || a.id || '').localeCompare(String(b.createdAt || b.id || ''))
             );
         }
         function mergeAckMirrorMaps(localMap, remoteMap) {
             const out = {};
-            const ingest = (src) => {
+            const ingestUnion = (src) => {
                 if (!src || typeof src !== 'object') return;
                 Object.keys(src).forEach((oid) => {
                     const row = src[oid];
@@ -14912,8 +14966,30 @@
                     });
                 });
             };
-            ingest(localMap);
-            ingest(remoteMap);
+            ingestUnion(localMap);
+            ingestUnion(remoteMap);
+            // Honor director resend/cancel: shared headOrders.acks is source of truth.
+            // Drop mirror entries that would reinflate cleared acks on the teacher device.
+            try {
+                const orders = loadHeadOrders();
+                const byId = new Map((orders || []).filter((o) => o && o.id).map((o) => [String(o.id), o]));
+                Object.keys(out).forEach((oid) => {
+                    const o = byId.get(String(oid));
+                    if (!o) {
+                        // Order hard-deleted — drop mirror row
+                        delete out[oid];
+                        return;
+                    }
+                    if (!(o.resentAt || o.cancelledAt)) return;
+                    const acks = orderAckMap(o);
+                    const next = {};
+                    Object.keys(acks).forEach((uid) => {
+                        if (acks[uid]) next[uid] = acks[uid];
+                    });
+                    if (Object.keys(next).length) out[oid] = next;
+                    else delete out[oid];
+                });
+            } catch (_) {}
             return out;
         }
         function mergeDaySchedulesMaps(localMap, remoteMap) {
@@ -15175,11 +15251,13 @@
                 }
                 if (name === 'headOrders') {
                     const local = loadHeadOrders();
-                    const merged = mergeOrderRows(local, Array.isArray(remoteData) ? remoteData : []);
+                    const merged = mergeOrderRows(local, Array.isArray(remoteData) ? remoteData : [], { remoteAt });
                     if (JSON.stringify(local) !== JSON.stringify(merged)) {
                         saveHeadOrders(merged, { silent: true, syncRemote: false });
+                        try { reconcileOrderLocalSideEffects(merged); } catch (_) {}
                         return true;
                     }
+                    try { reconcileOrderLocalSideEffects(merged); } catch (_) {}
                     return false;
                 }
                 if (name === 'orderAcks') {
@@ -18152,6 +18230,73 @@
             const s = String(o.status || '').toLowerCase();
             return s === 'cancelled' || s === 'voided' || !!o.cancelledAt;
         }
+        /** After central headOrders apply: drop stale local READ keys + align ack mirror to shared acks. */
+        function reconcileOrderLocalSideEffects(list) {
+            const orders = Array.isArray(list) ? list : loadHeadOrders();
+            try {
+                const mirror = loadOrderAckMirror();
+                let mirrorChanged = false;
+                const liveIds = new Set();
+                orders.forEach((o) => {
+                    if (!o || !o.id) return;
+                    const oid = String(o.id);
+                    liveIds.add(oid);
+                    if (!(o.resentAt || o.cancelledAt)) return;
+                    const acks = orderAckMap(o);
+                    if (!Object.keys(acks).length) {
+                        if (mirror[oid]) {
+                            delete mirror[oid];
+                            mirrorChanged = true;
+                        }
+                        return;
+                    }
+                    const cur = mirror[oid] && typeof mirror[oid] === 'object' ? mirror[oid] : {};
+                    let same = Object.keys(acks).length === Object.keys(cur).length;
+                    if (same) {
+                        same = Object.keys(acks).every((uid) => String(cur[uid] || '') === String(acks[uid] || ''));
+                    }
+                    if (!same) {
+                        mirror[oid] = { ...acks };
+                        mirrorChanged = true;
+                    }
+                });
+                Object.keys(mirror).forEach((oid) => {
+                    if (liveIds.has(String(oid))) return;
+                    delete mirror[oid];
+                    mirrorChanged = true;
+                });
+                if (mirrorChanged) saveOrderAckMirror(mirror, { syncRemote: false });
+            } catch (_) {}
+            try {
+                const u = typeof currentUser !== 'undefined' ? currentUser : null;
+                if (!u) return;
+                const uid = canonicalAccountId(u.id || u);
+                if (!uid) return;
+                let read = [];
+                try { read = JSON.parse(localStorage.getItem(READ_ORDERS_KEY(uid)) || '[]'); } catch { read = []; }
+                const byId = new Map(orders.filter((o) => o && o.id).map((o) => [String(o.id), o]));
+                const next = [];
+                (read || []).forEach((oid) => {
+                    const o = byId.get(String(oid));
+                    if (!o || isOrderCancelled(o)) return;
+                    if (orderAckWhen(o, uid)) next.push(String(oid));
+                });
+                const prevKey = JSON.stringify([...(read || [])].map(String));
+                const nextKey = JSON.stringify(next);
+                if (prevKey !== nextKey) {
+                    localStorage.setItem(READ_ORDERS_KEY(uid), JSON.stringify(next));
+                }
+            } catch (_) {}
+        }
+        function flushHeadOrderStoresNow() {
+            try {
+                if (typeof flushPortalStorePush !== 'function') return;
+                clearTimeout(portalSyncPushTimer);
+                portalSyncPending.add('headOrders');
+                portalSyncPending.add('orderAcks');
+                flushPortalStorePush();
+            } catch (_) {}
+        }
         function unreadOrders(userId) {
             return loadHeadOrders().filter((o) =>
                 o && !isOrderCancelled(o) && orderTargetsUser(o, userId) && !isOrderRead(userId, o.id)
@@ -18163,12 +18308,54 @@
             const list = loadHeadOrders();
             const order = list.find((x) => x && String(x.id) === oid);
             if (!order || isOrderCancelled(order)) return false;
+            const now = new Date().toISOString();
             order.status = 'cancelled';
-            order.cancelledAt = new Date().toISOString();
+            order.cancelledAt = now;
+            order.updatedAt = now;
             saveHeadOrders(list);
+            flushHeadOrderStoresNow();
             try {
                 window.dispatchEvent(new CustomEvent('hongik-orders-changed', {
                     detail: { orderId: oid, action: 'cancel' }
+                }));
+            } catch (_) {}
+            return true;
+        }
+        function deleteHeadOrder(orderId) {
+            const oid = String(orderId || '');
+            if (!oid) return false;
+            const list = loadHeadOrders();
+            const idx = list.findIndex((x) => x && String(x.id) === oid);
+            if (idx < 0) return false;
+            list.splice(idx, 1);
+            // Clear ack mirror for this order
+            try {
+                const mirror = loadOrderAckMirror();
+                if (mirror[oid]) {
+                    delete mirror[oid];
+                    saveOrderAckMirror(mirror);
+                }
+            } catch (_) {}
+            // Clear local READ keys (this device + known aliases)
+            try {
+                const clearKey = (key) => {
+                    try {
+                        const read = JSON.parse(localStorage.getItem(key) || '[]');
+                        localStorage.setItem(key, JSON.stringify((read || []).filter((id) => String(id) !== oid)));
+                    } catch (_) {}
+                };
+                Object.values(ACCOUNTS || {}).forEach((acc) => {
+                    if (!acc || !acc.id) return;
+                    clearKey(READ_ORDERS_KEY(acc.id));
+                });
+                Object.keys(ACCOUNTS || {}).forEach((pass) => clearKey(READ_ORDERS_KEY(pass)));
+                if (currentUser) clearKey(READ_ORDERS_KEY(canonicalAccountId(currentUser)));
+            } catch (_) {}
+            saveHeadOrders(list);
+            flushHeadOrderStoresNow();
+            try {
+                window.dispatchEvent(new CustomEvent('hongik-orders-changed', {
+                    detail: { orderId: oid, action: 'delete' }
                 }));
             } catch (_) {}
             return true;
@@ -18184,8 +18371,11 @@
             const en = String(parts?.en ?? '').trim();
             if (!ko && !th && !en) return false;
             Object.assign(order, stampAllLangText(order, 'text', { ko, th, en }));
-            order.editedAt = new Date().toISOString();
+            const now = new Date().toISOString();
+            order.editedAt = now;
+            order.updatedAt = now;
             saveHeadOrders(list);
+            flushHeadOrderStoresNow();
             return true;
         }
         function isOrderRead(userId, orderId) {
@@ -18222,14 +18412,19 @@
             let read = [];
             try { read = JSON.parse(localStorage.getItem(READ_ORDERS_KEY(uid)) || '[]'); } catch { read = []; }
             const inRead = (read || []).some((id) => String(id) === oid);
-            if (mirrored || inRead) {
-                // Heal order.acks if mirror/READ say acked but shared row was wiped (seed/race)
+            if (mirrored) {
+                // Heal order.acks if mirror says acked but shared row was wiped (seed/race)
                 try {
                     const list = loadHeadOrders();
                     const o = list.find((x) => x && String(x.id) === oid);
                     if (o) {
                         if (!o.acks || typeof o.acks !== 'object' || Array.isArray(o.acks)) o.acks = {};
                         if (!o.acks[uid]) {
+                            // Do not reinflate after director resend/cancel — mirror should have been pruned
+                            if (o.resentAt || o.cancelledAt) {
+                                mirrorClearAck(uid, oid);
+                                return false;
+                            }
                             o.acks[uid] = new Date().toISOString();
                             mirrorSetAck(uid, oid, o.acks[uid]);
                             saveHeadOrders(list, { silent: true });
@@ -18237,6 +18432,14 @@
                     }
                 } catch (_) {}
                 return true;
+            }
+            if (inRead) {
+                // Stale local READ after director resend/unsend — never heal into Supabase.
+                try {
+                    const next = (read || []).filter((id) => String(id) !== oid);
+                    localStorage.setItem(READ_ORDERS_KEY(uid), JSON.stringify(next));
+                } catch (_) {}
+                return false;
             }
             return false;
         }
@@ -18323,6 +18526,7 @@
                     }
                 });
                 o.acks[uid] = o.acks[uid] || now;
+                o.updatedAt = now;
             });
             // Always persist orders when we touched matching rows (or force tick)
             const anyFound = idList.some((oid) => list.some((x) => x && String(x.id) === oid));
@@ -18531,8 +18735,11 @@
                 kept[k] = order.acks[k];
             });
             order.acks = kept;
-            order.resentAt = new Date().toISOString();
+            const now = new Date().toISOString();
+            order.resentAt = now;
+            order.updatedAt = now;
             saveHeadOrders(list);
+            flushHeadOrderStoresNow();
             try {
                 window.dispatchEvent(new CustomEvent('hongik-orders-changed', {
                     detail: { orderId: oid, action: wasCancelled ? 'republish' : 'resend' }
@@ -23037,6 +23244,7 @@
                                 </div>
                             </div>` : '';
                         const cancelBtn = cancelled ? '' : `<button type="button" class="soft-btn ghost" data-order-cancel="${o.id}" title="${t('orderCancelSend')}" style="padding:.42rem .9rem !important;font-size:.82rem !important">${t('orderCancelSend')}</button>`;
+                        const deleteBtn = `<button type="button" class="soft-btn ghost" data-order-delete="${o.id}" title="${t('orderDelete')}" style="padding:.42rem .9rem !important;font-size:.82rem !important;color:#b91c1c">${t('orderDelete')}</button>`;
                         const statusBadge = cancelled
                             ? `<span class="badge" style="background:#ffedd5;color:#9a3412;margin-right:.35rem">${t('orderCancelledStatus')}</span>`
                             : '';
@@ -23044,8 +23252,9 @@
                             <div>${statusBadge}<strong>${orderText(o)}</strong><div class="text-xs text-slate-500">${o.time} · ${o.from}</div></div>
                             ${rows ? `<div style="display:flex;flex-wrap:wrap;gap:.1rem;margin-top:.35rem">${rows}</div>` : ''}
                             ${editBlock}
-                            <div style="display:flex;justify-content:flex-end;align-items:center;gap:.55rem;margin-top:.55rem">
+                            <div style="display:flex;justify-content:flex-end;align-items:center;gap:.55rem;margin-top:.55rem;flex-wrap:wrap">
                                 <span class="text-xs text-slate-500" data-order-resend-msg="${o.id}"></span>
+                                ${deleteBtn}
                                 ${cancelBtn}
                                 <button type="button" class="soft-btn" data-order-resend="${o.id}" ${orderCdActive ? 'disabled aria-disabled="true" data-cd-active="1"' : ''} title="${orderBtnLabel}" style="padding:.42rem .9rem !important;font-size:.82rem !important;box-shadow:0 6px 14px rgba(194,65,12,.28)">${orderBtnLabel}</button>
                             </div>
@@ -23578,9 +23787,12 @@
                         time,
                         date: todayKey(),
                         targets: target === 'all' ? ['all'] : [target],
-                        acks: {}
+                        acks: {},
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
                     });
                     saveHeadOrders(orders);
+                    flushHeadOrderStoresNow();
                     document.getElementById('assign-msg').textContent = t('saved');
                     ['assign-text-ko', 'assign-text-th', 'assign-text-en'].forEach((id) => {
                         const el = document.getElementById(id);
@@ -23630,6 +23842,26 @@
                         setTab('orders');
                         const msg2 = document.querySelector(`[data-order-resend-msg="${oid}"]`);
                         if (msg2) msg2.textContent = ok ? t('orderCancelSendDone') : t('none');
+                    });
+                });
+                // director: permanently delete head order (all roles / all views)
+                document.querySelectorAll('[data-order-delete]').forEach((btn) => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const oid = btn.getAttribute('data-order-delete');
+                        if (!oid) return;
+                        if (!confirm(t('orderDeleteConfirm'))) return;
+                        const ok = deleteHeadOrder(oid);
+                        openDashboard(resolveAccountById(user.id), true);
+                        setTab('orders');
+                        if (ok) {
+                            const msg = document.querySelector(`[data-order-resend-msg="${oid}"]`);
+                            // row may already be gone; toast via assign-msg if present
+                            const assignMsg = document.getElementById('assign-msg');
+                            if (assignMsg) assignMsg.textContent = t('orderDeleteDone');
+                            else if (msg) msg.textContent = t('orderDeleteDone');
+                        }
                     });
                 });
                 // director: edit cancelled order text before republish
@@ -26398,6 +26630,7 @@
                 const fromRealtime = String(ev?.detail?.source || '').includes('realtime');
                 const orderish = !stores.length || stores.some((s) => s === 'headOrders' || s === 'orderAcks');
                 if (orderish) {
+                    try { orderPopupSnoozed = false; } catch (_) {}
                     try { patchDirectorOrderAckBadges(); } catch (_) {}
                 }
                 clearTimeout(sharedSyncTimer);
