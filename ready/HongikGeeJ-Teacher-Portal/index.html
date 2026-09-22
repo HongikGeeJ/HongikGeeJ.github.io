@@ -17836,6 +17836,7 @@
             if (!code) return null;
             const pws = loadPasswords();
             for (const [id, pw] of Object.entries(pws)) {
+                if (pw == null || pw === '') continue;
                 if (String(pw) === code) {
                     if (isAccountDeleted(id)) return null;
                     const entry = Object.entries(ACCOUNTS).find(([, a]) => a.id === id);
@@ -17847,7 +17848,7 @@
             if (!base) return null;
             if (isAccountDeleted(base.id)) return null;
             const custom = pws[base.id];
-            if (custom != null && String(custom) !== code) return null;
+            if (custom != null && custom !== '' && String(custom) !== code) return null;
             return { id: base.id, account: mergeAccount(base, code), blocked: isAccountBlocked(base.id) };
         }
 
@@ -18952,7 +18953,8 @@
 
             applySchoolLogo();
             applyStaticI18n();
-            setLangVisibility(false);
+            document.getElementById('lang-switch')?.classList.remove('hidden-lang');
+            document.getElementById('dash-lang')?.classList.remove('show');
             try { ensureStudentDbSeeded(); } catch (_) {}
 
             const dashLang = document.getElementById('dash-lang');
@@ -19113,10 +19115,10 @@
                 const floatEl = document.getElementById('lang-switch');
                 const mini = document.getElementById('dash-lang');
                 if (loggedIn) {
-                    floatEl.classList.add('hidden-lang');
+                    floatEl?.classList.add('hidden-lang');
                     mini?.classList.add('show');
                 } else {
-                    floatEl.classList.remove('hidden-lang');
+                    floatEl?.classList.remove('hidden-lang');
                     mini?.classList.remove('show');
                     closeDashLangMenu();
                     closeAllModals();
