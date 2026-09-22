@@ -1047,6 +1047,22 @@
             box-shadow: 0 14px 28px rgba(234, 88, 12, .42);
             filter: brightness(1.02);
         }
+        #ot-refresh-sheet-btn.soft-btn {
+            font-size: .92rem !important;
+            padding: .7rem 1.05rem !important;
+            background: linear-gradient(95deg, #0f766e 0%, #0d9488 55%, #14b8a6 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 8px 18px rgba(13, 148, 136, .28);
+        }
+        #ot-refresh-sheet-btn.soft-btn:hover {
+            filter: brightness(1.04);
+            box-shadow: 0 12px 22px rgba(13, 148, 136, .34);
+        }
+        #ot-refresh-sheet-btn.soft-btn:disabled {
+            opacity: .65;
+            cursor: wait;
+            filter: none;
+        }
         @media (min-width: 900px) {
             .stat-grid.work-stats { grid-template-columns: repeat(5, minmax(0,1fr)); }
         }
@@ -3888,6 +3904,11 @@
             border-left-width: 5px;
             background: #fff;
             animation: orderItemIn .45s ease both;
+        }
+        /* softRefresh while open: update DOM without replaying enter / popIn */
+        #sched-alert-modal .sched-alert-card.no-pop,
+        #sched-alert-modal.open.is-settled .modal-box {
+            animation: none !important;
         }
         #sched-alert-modal .sched-alert-card.is-off {
             border-left-color: #64748b;
@@ -7016,9 +7037,10 @@
             #order-modal .order-sakura,
             #attend-modal .order-sakura,
             #attend-modal .attend-sparkles,
-            #sched-alert-modal .order-sakura,
             #cancel-alert-modal .order-sakura,
             #cancel-ack-modal .order-sakura { display: none !important; }
+            /* Keep schedule-alert sakura on lite — only this modal (cancel/order stay stripped) */
+            #sched-alert-modal .order-sakura { display: block !important; }
             #order-modal.open .modal-box,
             #attend-modal.open .modal-box {
                 animation: riseIn .2s ease both !important;
@@ -8902,8 +8924,14 @@
                 setPhotoSyncMsg(msg, 'warn');
                 return;
             }
-            const errBit = r.error ? ` (${r.error})` : '';
-            const msg = ((typeof t === 'function' ? t('photoSavedCloudFail') : '') || 'Saved locally · cloud sync failed') + errBit;
+            const rawErr = String(r.error || '');
+            const needsPhotosSql = /portal_stores_store_name_check|store_name_check/i.test(rawErr)
+                || (/photos/i.test(rawErr) && /check constraint/i.test(rawErr));
+            const hint = needsPhotosSql
+                ? ((typeof t === 'function' ? t('photoSavedNeedSql') : '') || ' · run data/supabase/FIX-RUN-IN-SQL-EDITOR.sql in Supabase SQL Editor')
+                : '';
+            const errBit = rawErr && !needsPhotosSql ? ` (${rawErr})` : (needsPhotosSql ? '' : (rawErr ? ` (${rawErr})` : ''));
+            const msg = ((typeof t === 'function' ? t('photoSavedCloudFail') : '') || 'Saved locally · cloud sync failed') + hint + errBit;
             showAppToast(msg, 'err');
             setPhotoSyncMsg(msg, 'err');
         }
@@ -9427,6 +9455,7 @@
         let orderPopupIdx = 0;
         let orderPopupSnoozed = false; // dismissed with × / backdrop until tab change
         let attendPopupSnoozed = false; // dismissed with × / backdrop until tab change
+        let schedAlertPopupSnoozed = false; // dismissed with × / backdrop until tab change
         let pendingSelfPw = null;
         let cropState = { x: 0, y: 0, scale: 1, dragging: false, startX: 0, startY: 0, baseX: 0, baseY: 0, naturalW: 0, naturalH: 0 };
 
@@ -9709,6 +9738,7 @@
                 photoSavedCloud: 'Supabase에 동기화됨 · 다른 계정도 바로 보입니다',
                 photoSavedLocalOnly: '이 PC에만 저장됨 · Supabase/중앙 동기화가 없습니다 (data/supabase/README.md)',
                 photoSavedCloudFail: '이 PC에는 저장됨 · 클라우드 동기화 실패',
+                photoSavedNeedSql: ' · Supabase SQL Editor에서 FIX-RUN-IN-SQL-EDITOR.sql 실행 필요',
                 leaveRequest: '휴가/연차 신청',
                 leaveFrom: '시작일',
                 leaveTo: '종료일',
@@ -9973,12 +10003,17 @@
                 otPayClickHint: '이름을 누르면 OT 상세(날짜·시간·과목)를 볼 수 있습니다',
                 otPayBack: 'OT 목록으로',
                 otPayDetail: '이번 달 OT 상세',
-                otPayLinked: '교사 직접 신고분만 집계 · 출석/시간표 자동 반영 없음',
+                otPayLinked: '시트 OT 표기 + 교사 신고 · 출석 자동 없음',
                 otLookback: '최근 8개월 조회',
                 otPickMonth: '월 선택',
                 otReportBadge: '교사 신고',
+                otSheetBadge: '시트 OT',
                 otAutoBadge: '출석 자동',
                 otFromRoomTt: '시간표+출석',
+                otRefreshSheet: 'Refresh การรายงาน OT',
+                otRefreshSheetOk: '시트 OT를 새로고침했습니다',
+                otRefreshSheetFail: '시트 OT 동기화 실패',
+                otRefreshSheetBusy: '시트에서 OT 불러오는 중…',
                 otSepSummary: '이번 달 OT 요약',
                 otEmptyReport: '아직 신고된 OT가 없습니다',
                 otNoSelfOthers: '본인 OT만 확인할 수 있습니다',
@@ -10485,6 +10520,7 @@
                 photoSavedCloud: 'ซิงก์ขึ้น Supabase แล้ว · บัญชีอื่นเห็นได้ทันที',
                 photoSavedLocalOnly: 'บันทึกบนเครื่องนี้เท่านั้น · ยังไม่ได้เชื่อม Supabase (ดู data/supabase/README.md)',
                 photoSavedCloudFail: 'บันทึกในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
+                photoSavedNeedSql: ' · รัน FIX-RUN-IN-SQL-EDITOR.sql ใน Supabase SQL Editor',
                 leaveRequest: 'ขอลางาน/หยุด',
                 leaveFrom: 'ตั้งแต่วันที่',
                 leaveTo: 'ถึงวันที่',
@@ -10749,12 +10785,17 @@
                 otPayClickHint: 'คลิกชื่อคุณครูเพื่อดูรายละเอียด OT (วัน · ชม. · วิชา)',
                 otPayBack: 'กลับรายการ OT',
                 otPayDetail: 'รายละเอียด OT เดือนนี้',
-                otPayLinked: 'นับเฉพาะที่คุณครูแจ้งเอง · ไม่ดึงจากเช็คชื่อหรือตารางสอน',
+                otPayLinked: 'นับจากชีตที่มี OT + ที่ครูแจ้งเอง · ไม่ดึงอัตโนมัติจากเช็คชื่อ',
                 otLookback: 'ย้อนหลัง 8 เดือน',
                 otPickMonth: 'เลือกเดือน',
                 otReportBadge: 'ครูแจ้งเอง',
+                otSheetBadge: 'OT จากชีต',
                 otAutoBadge: 'อัตโนมัติจากเช็คชื่อ',
                 otFromRoomTt: 'ตารางสอน+เช็คชื่อ',
+                otRefreshSheet: 'Refresh การรายงาน OT',
+                otRefreshSheetOk: 'รีเฟรช OT จากชีตแล้ว',
+                otRefreshSheetFail: 'ซิงก์ OT จากชีตไม่สำเร็จ',
+                otRefreshSheetBusy: 'กำลังดึง OT จากชีต…',
                 otSepSummary: 'สรุป OT เดือนนี้',
                 otEmptyReport: 'ยังไม่มีรายงาน OT',
                 otNoSelfOthers: 'ดูได้เฉพาะ OT ของตัวเอง',
@@ -11261,6 +11302,7 @@
                 photoSavedCloud: 'Synced via Supabase · other accounts see it immediately',
                 photoSavedLocalOnly: 'Saved on this PC only · Supabase not connected (see data/supabase/README.md)',
                 photoSavedCloudFail: 'Saved locally · cloud sync failed',
+                photoSavedNeedSql: ' · run data/supabase/FIX-RUN-IN-SQL-EDITOR.sql in Supabase SQL Editor',
                 leaveRequest: 'Leave request',
                 leaveFrom: 'From',
                 leaveTo: 'To',
@@ -11525,12 +11567,17 @@
                 otPayClickHint: 'Tap a teacher to see OT details (date · hours · subject)',
                 otPayBack: 'Back to OT list',
                 otPayDetail: 'OT details this month',
-                otPayLinked: 'Teacher self-reports only · not from attendance or timetable',
+                otPayLinked: 'Sheet OT marks + teacher reports · no auto attendance OT',
                 otLookback: 'Last 8 months',
                 otPickMonth: 'Pick month',
                 otReportBadge: 'Teacher report',
+                otSheetBadge: 'Sheet OT',
                 otAutoBadge: 'Auto from attendance',
                 otFromRoomTt: 'Timetable + attendance',
+                otRefreshSheet: 'Refresh การรายงาน OT',
+                otRefreshSheetOk: 'OT refreshed from sheet',
+                otRefreshSheetFail: 'Sheet OT sync failed',
+                otRefreshSheetBusy: 'Fetching OT from sheet…',
                 otSepSummary: 'This month OT summary',
                 otEmptyReport: 'No OT reports yet',
                 otNoSelfOthers: 'You can only view your own OT',
@@ -14063,9 +14110,12 @@
             const m = mins % 60;
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
         }
-        /** OT after 19:00 — DEPRECATED auto path (attendance/room-tt). Kept unused; pay board uses teacher reports only. */
+        /** OT after 19:00 — DEPRECATED auto path (attendance/room-tt). Kept unused; pay board uses teacher reports + sheet OT. */
         function computeAutoOtByTeacher(db) {
             return { taehyun: [], eunha: [], sua: [] };
+        }
+        function isSheetOt(o) {
+            return !!(o && (o.source === 'sheet' || o.fromSheet));
         }
         function isTeacherReportedOt(o) {
             if (!o) return false;
@@ -14076,17 +14126,24 @@
         }
         function stripAutoOtForTeacher(teacherId) {
             const cur = loadOT(teacherId) || [];
-            const manual = cur.filter(isTeacherReportedOt).map((o) => (o.source ? o : { ...o, source: 'report' }));
+            const manual = cur.filter(isTeacherReportedOt).map((o) => {
+                if (isSheetOt(o)) return { ...o, source: 'sheet', fromSheet: true, auto: false };
+                return o.source ? o : { ...o, source: 'report' };
+            });
             const sameLen = manual.length === cur.length;
-            const sameSrc = sameLen && cur.every((o, i) => (o.source || 'report') === (manual[i].source || 'report') && !o.auto);
+            const sameSrc = sameLen && cur.every((o, i) => {
+                const a = manual[i];
+                return (o.source || 'report') === (a.source || 'report') && !o.auto === !a.auto;
+            });
             if (!sameLen || !sameSrc) saveOT(teacherId, manual);
             return manual;
         }
         function mergeAutoOtForTeacher(teacherId, autoList) {
-            // No longer merge attendance/room-tt OT — keep teacher reports only
+            // No longer merge attendance/room-tt OT — keep teacher reports + sheet OT only
             return stripAutoOtForTeacher(teacherId);
         }
         const OT_REPORT_ONLY_MIG = 'hongik-ot-report-only-v1';
+        let otSheetSyncState = { status: '', at: '', error: '', counts: {} };
         function ensureAutoOtSynced() {
             try {
                 ['taehyun', 'eunha', 'sua'].forEach((id) => stripAutoOtForTeacher(id));
@@ -14110,6 +14167,7 @@
         }
         function otSourceBadge(o) {
             if (!o) return '';
+            if (isSheetOt(o)) return `<span class="ot-tag" style="background:#ccfbf1;color:#0f766e">${t('otSheetBadge')}</span>`;
             if (o.source === 'room-tt' || o.source === 'roomtt') return `<span class="ot-tag" style="background:#e0e7ff;color:#3730a3">${t('otFromRoomTt')}</span>`;
             if (o.auto || o.source === 'attendance') return `<span class="ot-tag" style="background:#dcfce7;color:#166534">${t('otAutoBadge')}</span>`;
             return `<span class="ot-tag" style="background:#ffedd5;color:#9a3412">${t('otReportBadge')}</span>`;
@@ -14135,6 +14193,216 @@
             }
             return opts.join('');
         }
+        function otRangeFromHours(hours) {
+            const h = Math.max(0.5, Math.min(3, Number(hours) || 0));
+            const mins = Math.round(h * 60);
+            const start = OT_START_MIN;
+            const end = Math.min(OT_END_MIN, start + mins);
+            return { start: hmFromMin(start), end: hmFromMin(end), hours: Math.round(((end - start) / 60) * 100) / 100 };
+        }
+        function teacherIdFromOtZoneLabel(raw) {
+            const s = String(raw || '').trim();
+            if (!s) return null;
+            if (/태현|taehyun/i.test(s)) return 'taehyun';
+            if (/은하|은나|eunha|eunna/i.test(s)) return 'eunha';
+            if (/수아|sua/i.test(s)) return 'sua';
+            return null;
+        }
+        function isOtTeacherZoneCell(cell) {
+            const s = String(cell || '').trim();
+            if (!s || s.length > 40) return false;
+            if (!/쌤|선생님|ครู/.test(s) && !/태현|은하|은나|수아|taehyun|eunha|sua/i.test(s)) return false;
+            return !!teacherIdFromOtZoneLabel(s);
+        }
+        function parseOtHoursToken(raw) {
+            const s = String(raw || '').trim();
+            if (!s) return null;
+            let m = s.match(/\(\s*(\d{1,2})\s*\)\s*(\d+(?:\.\d+)?)\s*hrs?\.?\s*\.?OT/i);
+            if (m) return { hours: Number(m[2]), tagMonth: Number(m[1]), hasOt: true };
+            m = s.match(/(\d+(?:\.\d+)?)\s*hrs?\.?\s*\.?OT/i);
+            if (m) return { hours: Number(m[1]), tagMonth: null, hasOt: true };
+            if (/^\s*OT\s*$/i.test(s) || /^[^0-9A-Za-z가-힣]*OT[^0-9A-Za-z가-힣]*$/i.test(s)) {
+                return { hours: null, tagMonth: null, hasOt: true };
+            }
+            m = s.match(/^[\(\s]*(\d+(?:\.\d+)?)\s*hrs?\.?\s*[\)]?$/i);
+            if (m) return { hours: Number(m[1]), tagMonth: null, hasOt: false };
+            m = s.match(/^(\d+(?:\.\d+)?)\s*(?:ชม\.?|h(?:ou)?rs?\.?)$/i);
+            if (m) return { hours: Number(m[1]), tagMonth: null, hasOt: false };
+            return null;
+        }
+        function findOtDateInColumn(rows, rowIdx, colIdx, sheetYear, sheetMonth) {
+            for (let r = rowIdx - 1; r >= 0; r--) {
+                const row = rows[r] || [];
+                const a = String(row[0] ?? '').trim();
+                const b = String(row[1] ?? '').trim();
+                const dk = parseSheetDateCell(row[colIdx], sheetYear, sheetMonth);
+                if (dk) return dk;
+                if (isCourseHeaderCell(a) || isCourseHeaderCell(b) || isOtTeacherZoneCell(a) || isOtTeacherZoneCell(b)) break;
+            }
+            return '';
+        }
+        function findOtCourseNear(rows, rowIdx) {
+            for (let r = rowIdx; r >= Math.max(0, rowIdx - 20); r--) {
+                const row = rows[r] || [];
+                const a = String(row[0] ?? '').trim();
+                const b = String(row[1] ?? '').trim();
+                if (isCourseHeaderCell(a)) return a.replace(/\s+/g, ' ').trim();
+                if (isCourseHeaderCell(b)) return b.replace(/\s+/g, ' ').trim();
+            }
+            return '';
+        }
+        function findOtHoursBelow(rows, rowIdx, colIdx) {
+            for (let dr = 1; dr <= 5; dr++) {
+                const cell = (rows[rowIdx + dr] || [])[colIdx];
+                const tok = parseOtHoursToken(cell);
+                if (tok && tok.hours != null && tok.hours > 0) return tok.hours;
+                const n = Number(String(cell ?? '').trim());
+                if (Number.isFinite(n) && n > 0 && n <= 8) return n;
+            }
+            return null;
+        }
+        /** Parse teaching-schedule workbook OT marks → per-teacher entries. */
+        function parseHongikOtWorkbook(wb) {
+            if (!wb || typeof XLSX === 'undefined') throw new Error('SheetJS missing');
+            const byTeacher = { taehyun: [], eunha: [], sua: [] };
+            const seen = new Set();
+            const skippedSheets = [];
+            (wb.SheetNames || []).forEach((name) => {
+                const ym = sheetMonthFromName(name);
+                if (!ym) return;
+                const rows = sheetRowsFromWorkbook(wb, name);
+                if (!rows.length) return;
+                let zoneId = null;
+                rows.forEach((row, ri) => {
+                    if (!row || !row.length) return;
+                    for (let ci = 0; ci < Math.min(4, row.length); ci++) {
+                        if (isOtTeacherZoneCell(row[ci])) {
+                            zoneId = teacherIdFromOtZoneLabel(row[ci]) || zoneId;
+                        }
+                    }
+                    const maxC = Math.min(row.length, 40);
+                    for (let ci = 0; ci < maxC; ci++) {
+                        const raw = row[ci];
+                        const tok = parseOtHoursToken(raw);
+                        if (!tok || !tok.hasOt) continue;
+                        if (tok.tagMonth != null && tok.tagMonth !== ym.month) continue;
+                        let hours = tok.hours;
+                        if (hours == null || !(hours > 0)) hours = findOtHoursBelow(rows, ri, ci);
+                        if (!(hours > 0)) continue;
+                        const date = findOtDateInColumn(rows, ri, ci, ym.year, ym.month);
+                        if (!date || !String(date).startsWith(`${ym.year}-${String(ym.month).padStart(2, '0')}`)) continue;
+                        const course = findOtCourseNear(rows, ri);
+                        let teacherId = zoneId;
+                        if (!teacherId) {
+                            const inferred = inferTeachersFromCourse(course).filter(isOtEligibleTeacher);
+                            teacherId = inferred[0] || 'taehyun';
+                        }
+                        if (!isOtEligibleTeacher(teacherId)) continue;
+                        const range = otRangeFromHours(hours);
+                        if (!(range.hours > 0)) continue;
+                        const dedupe = `${teacherId}|${date}|${range.start}|${range.end}|sheet`;
+                        if (seen.has(dedupe)) continue;
+                        seen.add(dedupe);
+                        const subject = course
+                            ? `OT · ${course}`.slice(0, 120)
+                            : `OT · ${ym.month}/${ym.year} · ${hours}h`;
+                        const entry = stampLangText({
+                            id: `OTS${Math.abs(hashStr(dedupe)).toString(16).slice(0, 10)}`,
+                            date,
+                            start: range.start,
+                            end: range.end,
+                            source: 'sheet',
+                            fromSheet: true,
+                            auto: false,
+                            sheetMonth: `${ym.year}-${String(ym.month).padStart(2, '0')}`,
+                            sheetHours: hours,
+                            sheetCell: String(raw ?? '').trim(),
+                            sheetName: String(name || '').trim()
+                        }, 'subject', subject);
+                        byTeacher[teacherId].push(entry);
+                    }
+                });
+            });
+            ['taehyun', 'eunha', 'sua'].forEach((id) => {
+                byTeacher[id].sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.start).localeCompare(String(b.start)));
+            });
+            return {
+                byTeacher,
+                counts: {
+                    taehyun: byTeacher.taehyun.length,
+                    eunha: byTeacher.eunha.length,
+                    sua: byTeacher.sua.length,
+                    total: byTeacher.taehyun.length + byTeacher.eunha.length + byTeacher.sua.length
+                },
+                liveSyncedAt: new Date().toISOString(),
+                sourceId: STUDENT_SHEET_ID,
+                skippedSheets
+            };
+        }
+        async function fetchOtFromGoogleSheet() {
+            if (typeof XLSX === 'undefined') throw new Error('SheetJS not loaded');
+            const url = STUDENT_SHEET_XLSX + '&_ts=' + Date.now();
+            const res = await fetch(url, { mode: 'cors', credentials: 'omit', cache: 'no-store' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const buf = await res.arrayBuffer();
+            if (!buf || buf.byteLength < 1000) throw new Error('empty workbook');
+            const wb = XLSX.read(new Uint8Array(buf), { type: 'array', cellDates: true });
+            return parseHongikOtWorkbook(wb);
+        }
+        function applyOtFromSheet(payload) {
+            if (!payload || !payload.byTeacher) return false;
+            let changed = false;
+            ['taehyun', 'eunha', 'sua'].forEach((id) => {
+                const cur = loadOT(id) || [];
+                const keep = cur.filter((o) => isTeacherReportedOt(o) && !isSheetOt(o));
+                const sheetItems = Array.isArray(payload.byTeacher[id]) ? payload.byTeacher[id] : [];
+                const next = keep.concat(sheetItems).sort((a, b) =>
+                    String(a.date).localeCompare(String(b.date)) || String(a.start || '').localeCompare(String(b.start || ''))
+                );
+                const same = next.length === cur.length && next.every((o, i) => {
+                    const c = cur[i] || {};
+                    return o.date === c.date && o.start === c.start && o.end === c.end && (o.source || '') === (c.source || '');
+                });
+                if (!same) {
+                    saveOT(id, next);
+                    changed = true;
+                }
+            });
+            return changed;
+        }
+        async function syncOTFromSheet({ force = false, silent = false } = {}) {
+            otSheetSyncState = { ...otSheetSyncState, status: 'syncing', error: '' };
+            try {
+                const payload = await fetchOtFromGoogleSheet();
+                const changed = applyOtFromSheet(payload) || force;
+                otSheetSyncState = {
+                    status: 'ok',
+                    at: payload.liveSyncedAt || new Date().toISOString(),
+                    error: '',
+                    counts: payload.counts || {}
+                };
+                try { ensureAutoOtSynced(); } catch (_) {}
+                if (currentUser) {
+                    try {
+                        if (typeof softRefreshDashboard === 'function') softRefreshDashboard({ stores: ['otReports'] });
+                    } catch (_) {}
+                }
+                if (!silent) console.info('OT sheet sync', payload.counts);
+                return { ok: true, changed, counts: payload.counts || {} };
+            } catch (err) {
+                otSheetSyncState = {
+                    ...otSheetSyncState,
+                    status: 'error',
+                    error: String(err?.message || err || 'sync failed')
+                };
+                if (!silent) console.warn('OT sheet sync', err);
+                return { ok: false, changed: false, error: otSheetSyncState.error, counts: {} };
+            }
+        }
+        try {
+            window.hongikSyncOTFromSheet = (opts) => syncOTFromSheet(opts || {});
+            window.hongikOtSheetSyncStatus = () => ({ ...otSheetSyncState });
+        } catch (_) {}
         function lineChartSvg(bars) {
             const w = 420, h = 140, padX = 22, padTop = 18, padBot = 14;
             const max = Math.max(1, ...bars.map(b => b.score));
@@ -16706,8 +16974,13 @@
         function closeModalFast(modalOrId) {
             const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
             if (!modal) return;
-            // × / Escape / closeAllModals — snooze attendance until tab/page change
+            // × / Escape / closeAllModals — snooze until tab/page change
             if (modal.id === 'attend-modal') attendPopupSnoozed = true;
+            if (modal.id === 'sched-alert-modal') {
+                schedAlertPopupSnoozed = true;
+                modal.classList.remove('is-settled');
+                delete modal.dataset.schedAlertSig;
+            }
             armModalPointerShield(isLiteClient() ? 700 : 480);
             modal.classList.add('is-closing');
             modal.classList.remove('open');
@@ -18365,6 +18638,7 @@
                 currentUser = null;
                 orderPopupSnoozed = false;
                 attendPopupSnoozed = false;
+                schedAlertPopupSnoozed = false;
                 orderPopupIdx = 0;
                 dashboardScreen.classList.add('hidden-screen');
                 loginScreen.classList.remove('hidden-screen');
@@ -18570,10 +18844,11 @@
                 const stableId = canonicalAccountId(user) || (user && user.id);
                 currentUser = user ? { ...user, id: stableId } : user;
                 try { ensureAutoOtSynced(); } catch (_) {}
-                // Fresh login / session restore: allow one head-order / attend popup; keepTab refreshes keep snooze
+                // Fresh login / session restore: allow one head-order / attend / sched-alert popup; keepTab refreshes keep snooze
                 if (!keepTab) {
                     orderPopupSnoozed = false;
                     attendPopupSnoozed = false;
+                    schedAlertPopupSnoozed = false;
                 }
                 loginScreen.classList.add('hidden-screen');
                 dashboardScreen.classList.remove('hidden-screen');
@@ -20776,6 +21051,7 @@
                     const hrs = otPaidHours(o.start, o.end);
                     const pay = otPayBaht(o.start, o.end);
                     const key = `${o.date}|${o.start}|${o.end}|${o.id || ''}`;
+                    const canDel = !isSheetOt(o);
                     return `<div class="ot-card">
                         <div>
                             ${otSourceBadge(o)}
@@ -20783,7 +21059,7 @@
                             <div class="meta">${o.start}–${o.end} · ${pickLangText(o, 'subject') || o.subject || ''}</div>
                             <div class="meta">${t('otHours')}: ${hrs}h · ${t('otPay')}: ${t('baht')}${pay.toLocaleString()}</div>
                         </div>
-                        <button type="button" class="sched-del" data-ot-del-key="${key.replace(/"/g, '')}">${t('delete')}</button>
+                        ${canDel ? `<button type="button" class="sched-del" data-ot-del-key="${key.replace(/"/g, '')}">${t('delete')}</button>` : ''}
                     </div>`;
                 }).join('') : `<p class="empty-note">${t('noOt')}</p>`;
                 listEl.innerHTML = rows;
@@ -20795,9 +21071,12 @@
                 listEl.querySelectorAll('[data-ot-del-key]').forEach((btn) => {
                     btn.addEventListener('click', () => {
                         const key = btn.dataset.otDelKey || '';
-                        const list = loadOT(user.id).filter(isTeacherReportedOt);
-                        const next = list.filter((o) => `${o.date}|${o.start}|${o.end}|${o.id || ''}` !== key);
-                        if (next.length === list.length) return;
+                        const all = loadOT(user.id) || [];
+                        const next = all.filter((o) => {
+                            if (isSheetOt(o)) return true;
+                            return `${o.date}|${o.start}|${o.end}|${o.id || ''}` !== key;
+                        });
+                        if (next.length === all.length) return;
                         saveOT(user.id, next);
                         renderTeacherOtBoard(user);
                     });
@@ -22393,7 +22672,9 @@
                     <div id="textbook-board"></div>
                     ${eligible ? `<div class="admin-actions" style="margin-top:1rem">
                         <button type="button" class="soft-btn" id="ot-add-btn">${t('otAdd')}</button>
+                        <button type="button" class="soft-btn" id="ot-refresh-sheet-btn">${t('otRefreshSheet')}</button>
                     </div>
+                    <p class="text-xs text-slate-500" id="ot-sheet-sync-msg" style="margin:.35rem 0 0"></p>
                     <h3 class="mt-3" style="margin-top:2.85rem">${t('otTitle')}</h3>
                     <p class="text-xs text-slate-500 mb-2">${t('otPayLinked')} · ${t('otLookback')} · ${t('otNoSelfOthers')}</p>
                     <label class="text-xs" style="font-weight:700;color:#64748b;display:block;margin-bottom:.55rem">${t('otPickMonth')}
@@ -23426,10 +23707,34 @@
 
                 // class students expand / add / delete — removed with ตารางสอน tab
 
-                // OT — open report popup (auto OT cannot be deleted)
+                // OT — open report popup / refresh from teaching schedule sheet
                 const otAdd = document.getElementById('ot-add-btn');
                 if (otAdd) {
                     otAdd.addEventListener('click', () => openOtModal());
+                }
+                const otRefresh = document.getElementById('ot-refresh-sheet-btn');
+                if (otRefresh) {
+                    otRefresh.addEventListener('click', async () => {
+                        const msg = document.getElementById('ot-sheet-sync-msg');
+                        otRefresh.disabled = true;
+                        if (msg) msg.textContent = t('otRefreshSheetBusy');
+                        try {
+                            const res = await syncOTFromSheet({ force: true, silent: false });
+                            if (msg) {
+                                msg.textContent = res.ok
+                                    ? `${t('otRefreshSheetOk')} · ${res.counts?.total || 0}`
+                                    : `${t('otRefreshSheetFail')}${res.error ? ': ' + res.error : ''}`;
+                            }
+                            if (res.ok && currentUser) {
+                                try { renderTeacherOtBoard(currentUser); } catch (_) {}
+                                try { if (document.getElementById('ot-pay-board')) renderOtPayBoard(currentUser); } catch (_) {}
+                            }
+                        } catch (e) {
+                            if (msg) msg.textContent = `${t('otRefreshSheetFail')}: ${String(e?.message || e)}`;
+                        } finally {
+                            otRefresh.disabled = false;
+                        }
+                    });
                 }
 
                 updateClassStatus();
@@ -24540,10 +24845,11 @@
                 currentTab = id;
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
                 document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === id));
-                // Changing page/tab allows head-order / attend popup to show again
+                // Changing page/tab allows head-order / attend / sched-alert popup to show again
                 if (prevTab !== id) {
                     orderPopupSnoozed = false;
                     attendPopupSnoozed = false;
+                    schedAlertPopupSnoozed = false;
                 }
                 if (currentUser) maybeShowAlertPopups(currentUser);
                 if (id === 'orders' && currentUser && currentUser.role === 'director') {
@@ -24555,13 +24861,15 @@
 
             function fillSakura(el, count = 10) {
                 if (!el) return;
-                if (isLiteClient()) { el.innerHTML = ''; return; }
+                // lite: keep sched-alert petals (CSS restores layer); strip other modal FX
+                if (isLiteClient() && el.id !== 'sched-alert-sakura') { el.innerHTML = ''; return; }
                 el.innerHTML = '';
                 const attend = el.id === 'attend-sakura';
                 const slowModal = el.id === 'sched-alert-sakura'
                     || el.id === 'cancel-alert-sakura'
                     || el.id === 'cancel-ack-sakura';
-                const n = attend ? Math.min(count, 12) : count;
+                const n = attend ? Math.min(count, 12)
+                    : (isLiteClient() && el.id === 'sched-alert-sakura' ? Math.min(count, 7) : count);
                 for (let i = 0; i < n; i++) {
                     const s = document.createElement('span');
                     const size = Math.random();
@@ -24904,15 +25212,58 @@
                 reopenModal(modal);
             }
 
+            function schedAlertTeacherLabel(c) {
+                const tid = c && c.teacherId;
+                if (tid) {
+                    const u = resolveAccountById(tid, { allowBlocked: true });
+                    if (u) {
+                        const full = displayName(u);
+                        if (full) return full;
+                    }
+                    const short = shortTeacherLabel(tid);
+                    if (short) return short;
+                    const fixed = TEACHER_DISPLAY[tid];
+                    if (fixed) return fixed[lang] || fixed.ko || '';
+                }
+                return (c && (c.teacherName || c.teacherId)) || '—';
+            }
+
+            function dismissSchedAlertPopupOnly() {
+                // Hide until user changes tab/page — then may show again if still pending
+                schedAlertPopupSnoozed = true;
+                const modal = document.getElementById('sched-alert-modal');
+                if (modal) {
+                    modal.classList.remove('is-settled');
+                    delete modal.dataset.schedAlertSig;
+                    closeModalFast(modal);
+                }
+            }
+
             function maybeShowSchedAlertPopup(user) {
                 const modal = document.getElementById('sched-alert-modal');
                 const check = document.getElementById('sched-alert-check');
                 const confirmBtn = document.getElementById('sched-alert-confirm');
                 const listEl = document.getElementById('sched-alert-list');
                 if (!modal || !listEl || !user || user.role !== 'director') return;
+                // User closed with × / backdrop — stay quiet until they change tabs
+                if (schedAlertPopupSnoozed) {
+                    modal.classList.remove('open');
+                    modal.classList.remove('is-settled');
+                    return;
+                }
                 pruneNonFirstSchedAlerts();
                 const pending = pendingDirectorSchedChanges();
-                if (!pending.length) { modal.classList.remove('open'); return; }
+                if (!pending.length) {
+                    modal.classList.remove('open');
+                    modal.classList.remove('is-settled');
+                    delete modal.dataset.schedAlertSig;
+                    return;
+                }
+                const wasOpen = modal.classList.contains('open');
+                const sig = pending.map(c => `${c.id || ''}:${c.action || ''}:${c.updatedAt || c.createdAt || ''}`).join('|') + `|${lang}`;
+                // Already open + same payload — do NOT remount / reopen (softRefresh bounce)
+                if (wasOpen && modal.dataset.schedAlertSig === sig) return;
+                modal.dataset.schedAlertSig = sig;
                 listEl.innerHTML = pending.map(c => {
                     const isOff = c.action === 'dayoff' || c.classType === 'dayoff';
                     const isUndoOff = c.action === 'undodayoff';
@@ -24941,7 +25292,8 @@
                         : (isOff ? t('schedActionDayOff')
                         : (isEdit ? t('schedActionEdit')
                         : (isDelete ? t('schedActionDelete') : t('schedActionAdd')))));
-                    const cardClass = isOff || isUndoOff ? 'is-off' : (isDelete ? 'is-add' : 'is-add');
+                    const cardClass = (isOff || isUndoOff ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
+                    const teaLbl = schedAlertTeacherLabel(c);
                     const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                     return `<div class="sched-alert-card ${cardClass}">
                         <div class="sched-alert-kind">
@@ -24950,7 +25302,7 @@
                         </div>
                         <p class="sched-alert-summary">${esc(summary)}</p>
                         <dl class="sched-alert-dl">
-                            <div><dt>${esc(t('schedAlertLblTeacher'))}</dt><dd>${esc(c.teacherName || c.teacherId || '—')}</dd></div>
+                            <div><dt>${esc(t('schedAlertLblTeacher'))}</dt><dd>${esc(teaLbl)}</dd></div>
                             <div><dt>${esc(t('schedAlertLblDate'))}</dt><dd>${esc(c.date || '—')}</dd></div>
                             ${(isOff || isUndoOff) ? '' : `<div><dt>${esc(t('schedAlertLblTime'))}</dt><dd>${esc(time)}</dd></div>`}
                             <div><dt>${esc(t('schedAlertLblSubject'))}</dt><dd>${esc(subject)}</dd></div>
@@ -24959,11 +25311,20 @@
                         </dl>
                     </div>`;
                 }).join('');
+                applyStaticI18n();
+                if (wasOpen) {
+                    // Quiet content update — keep checkbox / sakura; no reopenModal remount
+                    modal.classList.add('is-settled');
+                    return;
+                }
                 if (check) check.checked = false;
                 if (confirmBtn) confirmBtn.disabled = true;
-                applyStaticI18n();
                 fillSakura(document.getElementById('sched-alert-sakura'));
                 reopenModal(modal);
+                // After first open animation finishes, block popIn on later softRefresh class toggles
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => modal.classList.add('is-settled'));
+                });
             }
 
             function maybeShowCancelAckPopup(user, pending) {
@@ -25661,12 +26022,19 @@
                     }
                 });
                 saveSchedChanges(list);
-                schedAlertModal?.classList.remove('open');
+                schedAlertPopupSnoozed = false;
+                if (schedAlertModal) {
+                    schedAlertModal.classList.remove('open', 'is-settled');
+                    delete schedAlertModal.dataset.schedAlertSig;
+                }
                 openDashboard(resolveAccountById(currentUser.id), true);
             });
-            document.getElementById('sched-alert-x')?.addEventListener('click', () => schedAlertModal?.classList.remove('open'));
+            document.getElementById('sched-alert-x')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                dismissSchedAlertPopupOnly();
+            });
             schedAlertModal?.addEventListener('click', (e) => {
-                if (e.target === schedAlertModal) schedAlertModal.classList.remove('open');
+                if (e.target === schedAlertModal) dismissSchedAlertPopupOnly();
             });
 
             const dayOffConfirmModal = document.getElementById('sched-dayoff-confirm-modal');
