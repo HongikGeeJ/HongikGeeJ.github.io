@@ -6363,8 +6363,9 @@
             color: #065f46;
             background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 55%, #6ee7b7 140%);
             border: 1.5px solid #059669; border-radius: 999px;
-            padding: .38rem .78rem .38rem .7rem;
+            padding: .38rem .85rem .38rem .7rem;
             cursor: pointer; font-family: inherit; line-height: 1.15;
+            white-space: nowrap; flex-shrink: 0;
             box-shadow:
                 0 1px 0 rgba(255,255,255,.55) inset,
                 0 2px 6px rgba(5, 150, 105, .22),
@@ -9479,7 +9480,7 @@
                 tabRooms: '교실 시간표',
                 roomTtTitle: '교실 시간표',
                 roomTtHint: '월~일 · 30분 · 교실 3개 · 8개월 보관 · 6개월 미리보기 · 날짜 범위 클릭 = 월간 보기',
-                roomTtLive: '실시간',
+                roomTtLive: '시간표 실시간 업데이트',
                 roomTtThisWeek: '이번 주',
                 roomTtPickMonth: '월 선택',
                 roomTtLookback: '보관 8개월 · 미리보기 6개월',
@@ -9487,7 +9488,7 @@
                 roomTtMonthHint: '수업을 눌러 선택한 뒤 다른 날짜를 누르면 이동합니다 · 날짜를 누르면 그 주로 이동합니다',
                 roomTtMonthMoveHint: '이동할 날짜를 눌러 주세요 (같은 교실·시간 유지)',
                 roomTtMonthMoved: '월간 보기에서 이동했습니다',
-                roomTtRefresh: '실시간 새로고침',
+                roomTtRefresh: '시간표 실시간 업데이트',
                 roomTtRefreshOk: '시간표를 새로고침했습니다',
                 roomTtRefreshBusy: '동기화 중…',
                 roomTtExport: '월 내보내기',
@@ -10265,7 +10266,7 @@
                 tabRooms: 'ตารางห้องเรียน',
                 roomTtTitle: 'ตารางห้องเรียน',
                 roomTtHint: 'จ–อา · ทุก 30 นาที · 3 ห้อง · ย้อนหลัง 8 เดือน · ล่วงหน้า 6 เดือน · กดช่วงวันที่ = ดูเดือนใหญ่',
-                roomTtLive: 'เรียลไทม์',
+                roomTtLive: 'อัปเดตตารางแบบเรียลไทม์',
                 roomTtThisWeek: 'สัปดาห์นี้',
                 roomTtPickMonth: 'เลือกเดือน',
                 roomTtLookback: 'เก็บ 8 เดือน · ดูล่วงหน้า 6 เดือน',
@@ -10273,7 +10274,7 @@
                 roomTtMonthHint: 'กดคลาสเพื่อเลือก แล้วกดวันอื่นเพื่อย้าย · กดวันที่เพื่อไปสัปดาห์นั้น',
                 roomTtMonthMoveHint: 'กดวันที่ต้องการย้ายไป (คงห้องและเวลาเดิม)',
                 roomTtMonthMoved: 'ย้ายจากมุมมองเดือนแล้ว',
-                roomTtRefresh: 'รีเฟรชเรียลไทม์',
+                roomTtRefresh: 'อัปเดตตารางแบบเรียลไทม์',
                 roomTtRefreshOk: 'รีเฟรชตารางแล้ว',
                 roomTtRefreshBusy: 'กำลังซิงก์…',
                 roomTtExport: 'ส่งออกเดือนนี้',
@@ -11051,7 +11052,7 @@
                 tabRooms: 'Room timetable',
                 roomTtTitle: 'Room timetable',
                 roomTtHint: 'Mon–Sun · 30-min · 3 rooms · 8-mo archive · 6-mo look-ahead · tap date range = month view',
-                roomTtLive: 'Live',
+                roomTtLive: 'Update timetable live',
                 roomTtThisWeek: 'This week',
                 roomTtPickMonth: 'Pick month',
                 roomTtLookback: '8 mo stored · 6 mo ahead',
@@ -11059,7 +11060,7 @@
                 roomTtMonthHint: 'Tap a class then another day to move · tap a day to open that week',
                 roomTtMonthMoveHint: 'Tap the destination day (keeps room & time)',
                 roomTtMonthMoved: 'Moved from month view',
-                roomTtRefresh: 'Refresh live',
+                roomTtRefresh: 'Update timetable live',
                 roomTtRefreshOk: 'Timetable refreshed',
                 roomTtRefreshBusy: 'Syncing…',
                 roomTtExport: 'Export month',
