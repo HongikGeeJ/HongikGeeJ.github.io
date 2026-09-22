@@ -52,11 +52,17 @@ Until those are filled, the portal keeps working with **localStorage** (and opti
 
 3. Click **Run** (should succeed with no errors)
 
+4. **Also run once** (profile photos / Storage):
+
+   **`data/supabase/storage-photos.sql`**
+
+   This adds `photos` to `portal_stores` and creates public bucket `teacher-photos` with anon read/write (same trust model as the rest of the portal).
+
 This creates:
 
 | Table | Purpose |
 |-------|---------|
-| `portal_stores` | Main realtime sync (same stores as Apps Script: daySchedules, roomTt, attendance, sharedNotes, …) |
+| `portal_stores` | Main realtime sync (schedules, roomTt, attendance, sharedNotes, **photos**, …) |
 | `students` | Student profiles |
 | `student_learning_records` | Per-lesson learning / daily study records |
 | `learning_notes` | Shared teaching notes |
@@ -64,6 +70,7 @@ This creates:
 | `room_bookings` | Room timetable blocks |
 | `attendance_marks` | Attendance marks |
 | `daily_reports` | OT / leave / cancel / orders-style reports |
+| Storage `teacher-photos` | High-quality profile JPEGs (public URLs) |
 
 ### 3) Copy Project URL + anon key
 
@@ -87,9 +94,11 @@ Priority when saving / syncing portal stores:
 2. Else **Apps Script** if `data/photos/sync-config.json` `syncUrl` is set  
 3. Else **localStorage only** (no crash)
 
-Live site to use now (works offline-per-PC until Supabase keys are filled):
+**Profile photos:** upload JPEG → Supabase Storage bucket `teacher-photos` (public URL) + `portal_stores.photos` index so every role sees the same avatar (profiles + room timetable). Quality stays high (~720px JPEG q≈0.92). If Storage is not created yet, photos still sync as data URLs inside `portal_stores.photos` after you run `storage-photos.sql` step 1 (allow `photos` store name).
 
-**https://aired.sh/p/9yQyacaO7F**
+Live site:
+
+**https://hongikgeej.github.io/TeacherLogin/**
 
 ---
 

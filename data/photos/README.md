@@ -1,16 +1,22 @@
 # ซิงก์พอร์ทัลกลาง (central sync)
 
 พอร์ทัลเก็บข้อมูลใน `localStorage` บนเครื่องนั้น ๆ  
-**GitHub Pages เป็น static — เบราว์เซอร์เขียนไฟล์ใน repo ไม่ได้** จึงต้องมี endpoint เขียนได้ (Apps Script)
+**GitHub Pages เป็น static — เบราว์เซอร์เขียนไฟล์ใน repo ไม่ได้** จึงต้องมี backend เขียนได้
 
-ถ้ายังไม่มี **sync URL** → บันทึกบนเครื่องนั้นเท่านั้น (graceful degrade) · ไม่ error
+**แนะนำ: Supabase** (ตั้งค่าแล้วใน `data/supabase/supabase-config.json`) — รูปโปรไฟล์ขึ้น Storage + `portal_stores.photos`  
+ดูขั้นตอน SQL ครั้งเดียว: `data/supabase/storage-photos.sql` และ `data/supabase/README.md`
+
+ทางเลือกสำรอง: Apps Script Web App (`syncUrl`) ด้านล่าง
+
+ถ้ายังไม่มี **Supabase หรือ sync URL** → บันทึกบนเครื่องนั้นเท่านั้น (graceful degrade) · ไม่ error
 
 ## ชั้นการทำงาน
 
 | ชั้น | ทำงานอย่างไร |
 |------|----------------|
 | เครื่องเดียวกัน / แท็บอื่น | ทันที ผ่าน `localStorage` + `:tick` + storage event |
-| ข้ามคอมพิวเตอร์ | Apps Script Web App — POST ตอนบันทึก · GET + poll ~15 วินาทีตอนล็อกอิน |
+| ข้ามคอมพิวเตอร์ (แนะนำ) | **Supabase** — Storage รูป + Realtime `portal_stores` |
+| ข้ามคอมพิวเตอร์ (สำรอง) | Apps Script Web App — POST ตอนบันทึก · GET + poll |
 | `photos.json` ใน repo | อ่านอย่างเดียว (seed รูปหลัง deploy) |
 
 ## ตั้งค่าซิงก์ข้ามเครื่อง (ทำครั้งเดียว)

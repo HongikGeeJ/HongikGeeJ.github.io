@@ -6587,8 +6587,14 @@
             outline: none;
         }
         .room-tt-booked .rt-name {
+            display: flex; align-items: center; gap: .28rem;
             font-size: .68rem; font-weight: 850; line-height: 1.15;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .room-tt-booked .rt-avatar {
+            width: 15px; height: 15px; border-radius: 50%; object-fit: cover;
+            flex-shrink: 0; border: 1px solid rgba(15,23,42,.12);
+            background: #fff;
         }
         .room-tt-booked .rt-subj {
             font-size: .58rem; font-weight: 650; opacity: .88;
@@ -8654,8 +8660,72 @@
         function photoEntryDataUrl(entry) {
             if (!entry) return '';
             if (typeof entry === 'string') return entry;
-            if (typeof entry === 'object' && typeof entry.dataUrl === 'string') return entry.dataUrl;
+            if (typeof entry === 'object') {
+                if (typeof entry.dataUrl === 'string' && entry.dataUrl) return entry.dataUrl;
+                if (typeof entry.url === 'string' && entry.url) return entry.url;
+            }
             return '';
+        }
+        function photoEntryPublicUrl(entry) {
+            if (!entry || typeof entry !== 'object') {
+                if (typeof entry === 'string' && /^https?:\/\//i.test(entry)) return entry;
+                return '';
+            }
+            if (typeof entry.url === 'string' && entry.url) return entry.url;
+            if (typeof entry.dataUrl === 'string' && /^https?:\/\//i.test(entry.dataUrl)) return entry.dataUrl;
+            return '';
+        }
+        const TEACHER_PHOTOS_BUCKET = 'teacher-photos';
+        function dataUrlToBlob(dataUrl) {
+            const m = String(dataUrl || '').match(/^data:([^;]+);base64,(.+)$/);
+            if (!m) return null;
+            const mime = m[1] || 'image/jpeg';
+            const bin = atob(m[2]);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return new Blob([bytes], { type: mime });
+        }
+        function collectPhotosPortalPayload() {
+            const store = loadPhotosStore();
+            const meta = loadPhotosMeta();
+            const photos = {};
+            Object.keys(store).forEach((id) => {
+                const entry = store[id];
+                const publicUrl = photoEntryPublicUrl(entry);
+                const dataUrl = photoEntryDataUrl(entry);
+                const updatedAt = String(meta[id] || photoEntryUpdatedAt(entry) || new Date().toISOString());
+                if (publicUrl) {
+                    photos[id] = { url: publicUrl, updatedAt };
+                } else if (dataUrl) {
+                    // Fallback when Storage upload unavailable — still sync via portal_stores
+                    photos[id] = { dataUrl, updatedAt };
+                }
+            });
+            return { version: 1, updatedAt: new Date().toISOString(), source: 'portal', photos };
+        }
+        async function uploadTeacherPhotoToStorage(sb, userId, dataUrl) {
+            if (!sb || !userId || !dataUrl) return '';
+            const blob = dataUrlToBlob(dataUrl);
+            if (!blob) throw new Error('invalid photo dataUrl');
+            const path = `${String(userId).replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+            const { error } = await sb.storage.from(TEACHER_PHOTOS_BUCKET).upload(path, blob, {
+                upsert: true,
+                contentType: blob.type || 'image/jpeg',
+                cacheControl: '60'
+            });
+            if (error) throw new Error(error.message || 'storage upload failed');
+            const { data } = sb.storage.from(TEACHER_PHOTOS_BUCKET).getPublicUrl(path);
+            const base = String(data?.publicUrl || '').trim();
+            if (!base) throw new Error('no public URL from storage');
+            return base + (base.includes('?') ? '&' : '?') + 'v=' + Date.now();
+        }
+        async function hasSupabasePhotoBackend() {
+            try {
+                const sb = await ensureSupabaseClient();
+                return !!sb;
+            } catch (_) {
+                return false;
+            }
         }
         function photoEntryUpdatedAt(entry) {
             if (!entry || typeof entry !== 'object') return '';
@@ -8667,12 +8737,18 @@
             const src = raw.photos && typeof raw.photos === 'object' ? raw.photos : raw;
             Object.keys(src).forEach((id) => {
                 if (!id || id === 'version' || id === 'updatedAt' || id === 'photos' || id === 'source' || id === 'note') return;
-                const dataUrl = photoEntryDataUrl(src[id]);
-                if (!dataUrl) return;
-                out[id] = {
-                    dataUrl,
-                    updatedAt: photoEntryUpdatedAt(src[id]) || ''
-                };
+                const entry = src[id];
+                const display = photoEntryDataUrl(entry);
+                if (!display) return;
+                const publicUrl = photoEntryPublicUrl(entry);
+                const updatedAt = photoEntryUpdatedAt(entry) || '';
+                if (publicUrl && display.startsWith('data:')) {
+                    out[id] = { dataUrl: display, url: publicUrl, updatedAt };
+                } else if (publicUrl) {
+                    out[id] = { url: publicUrl, updatedAt };
+                } else {
+                    out[id] = { dataUrl: display, updatedAt };
+                }
             });
             return out;
         }
@@ -8807,8 +8883,13 @@
                 setPhotoSyncMsg(msg, 'ok');
                 return;
             }
-            if (r.skipped && (r.reason === 'no-sync-url' || !getPhotosSyncUrl())) {
-                const msg = (typeof t === 'function' ? t('photoSavedLocalOnly') : '') || 'Saved on this PC only · set photos sync URL for other computers';
+            const noBackend = r.skipped && (
+                r.reason === 'no-sync-url'
+                || r.reason === 'no-sync-backend'
+                || (!getPhotosSyncUrl() && !(supabaseCfgCache && isSupabaseConfigReady(supabaseCfgCache)))
+            );
+            if (noBackend) {
+                const msg = (typeof t === 'function' ? t('photoSavedLocalOnly') : '') || 'Saved on this PC only · set Supabase or photos sync URL';
                 showAppToast(msg, 'warn');
                 setPhotoSyncMsg(msg, 'warn');
                 return;
@@ -8845,9 +8926,11 @@
             setTimeout(() => URL.revokeObjectURL(a.href), 1500);
             return payload;
         }
-        function compressPhotoDataUrl(dataUrl, { maxSide = 160, quality = 0.68 } = {}) {
+        function compressPhotoDataUrl(dataUrl, { maxSide = 720, quality = 0.92 } = {}) {
             return new Promise((resolve) => {
                 if (!dataUrl || typeof dataUrl !== 'string') return resolve('');
+                // Already a remote URL — keep as-is (no re-encode)
+                if (/^https?:\/\//i.test(dataUrl)) return resolve(dataUrl);
                 const img = new Image();
                 img.onload = () => {
                     try {
@@ -8859,10 +8942,15 @@
                         canvas.width = w;
                         canvas.height = h;
                         const ctx = canvas.getContext('2d');
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
                         ctx.drawImage(img, 0, 0, w, h);
-                        let out = canvas.toDataURL('image/jpeg', quality);
-                        if (out.length > 90000 && quality > 0.5) {
-                            out = canvas.toDataURL('image/jpeg', 0.55);
+                        // Soft cap only for extreme sizes (localStorage); prefer Storage for sync
+                        let q = quality;
+                        let out = canvas.toDataURL('image/jpeg', q);
+                        if (out.length > 900000 && q > 0.82) {
+                            q = 0.85;
+                            out = canvas.toDataURL('image/jpeg', q);
                         }
                         resolve(out);
                     } catch (_) {
@@ -8885,7 +8973,9 @@
                 const remoteAt = photoEntryUpdatedAt(entry) || '';
                 const localAt = String(meta[id] || '');
                 const localUrl = photoEntryDataUrl(store[id]);
-                if (localUrl === dataUrl) {
+                const remotePublic = photoEntryPublicUrl(entry);
+                const localPublic = photoEntryPublicUrl(store[id]);
+                if (localUrl === dataUrl && (!remotePublic || remotePublic === localPublic)) {
                     if (remoteAt && remoteAt !== localAt) {
                         meta[id] = remoteAt;
                         changed = true;
@@ -8893,7 +8983,14 @@
                     return;
                 }
                 if (localUrl && localAt && remoteAt && localAt > remoteAt) return;
-                store[id] = dataUrl;
+                const next = remotePublic
+                    ? (dataUrl.startsWith('data:')
+                        ? { dataUrl, url: remotePublic, updatedAt: remoteAt || new Date().toISOString() }
+                        : { url: remotePublic, updatedAt: remoteAt || new Date().toISOString() })
+                    : (dataUrl.startsWith('data:')
+                        ? { dataUrl, updatedAt: remoteAt || new Date().toISOString() }
+                        : dataUrl);
+                store[id] = next;
                 meta[id] = remoteAt || new Date().toISOString();
                 try { localStorage.setItem(PHOTO_KEY(id), dataUrl); } catch (_) {}
                 changed = true;
@@ -8912,6 +9009,13 @@
             try {
                 if (currentUser?.role === 'director' && typeof renderOverviewBoardRef === 'function') {
                     renderOverviewBoardRef(resolveAccountById(currentUser.id) || currentUser);
+                }
+            } catch (_) {}
+            try {
+                if (currentUser && document.getElementById('room-tt-board') && typeof renderRoomTimetableBoard === 'function') {
+                    const roomModalOpen = document.getElementById('room-tt-modal')?.classList.contains('open');
+                    const monthModalOpen = document.getElementById('room-tt-month-modal')?.classList.contains('open');
+                    if (!roomModalOpen && !monthModalOpen) renderRoomTimetableBoard(currentUser);
                 }
             } catch (_) {}
         }
@@ -8942,14 +9046,102 @@
             return normalizePhotosMap(data);
         }
         async function pushUserPhotoRemote(userId, dataUrl, updatedAt) {
+            if (!userId) return { ok: false, skipped: true, reason: 'no-user' };
+            const at = updatedAt || new Date().toISOString();
+
+            // Prefer Supabase Storage + portal_stores photos map
+            try {
+                await loadSupabaseConfig();
+            } catch (_) {}
+            const sb = typeof ensureSupabaseClient === 'function' ? await ensureSupabaseClient() : null;
+            if (sb) {
+                try {
+                    let publicUrl = '';
+                    let storageErr = '';
+                    if (dataUrl && String(dataUrl).startsWith('data:')) {
+                        try {
+                            publicUrl = await uploadTeacherPhotoToStorage(sb, userId, dataUrl);
+                        } catch (stErr) {
+                            storageErr = String(stErr?.message || stErr || 'storage upload failed');
+                            // Continue — portal_stores can still hold dataUrl until Storage is set up
+                        }
+                    } else if (dataUrl && /^https?:\/\//i.test(dataUrl)) {
+                        publicUrl = dataUrl;
+                    } else if (!dataUrl) {
+                        try {
+                            const path = `${String(userId).replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+                            await sb.storage.from(TEACHER_PHOTOS_BUCKET).remove([path]);
+                        } catch (_) {}
+                    }
+                    const store = loadPhotosStore();
+                    const meta = loadPhotosMeta();
+                    if (dataUrl || publicUrl) {
+                        const localData = (dataUrl && String(dataUrl).startsWith('data:')) ? dataUrl : '';
+                        store[userId] = publicUrl
+                            ? (localData
+                                ? { dataUrl: localData, url: publicUrl, updatedAt: at }
+                                : { url: publicUrl, updatedAt: at })
+                            : { dataUrl: dataUrl, updatedAt: at };
+                        meta[userId] = at;
+                        try { localStorage.setItem(PHOTO_KEY(userId), photoEntryDataUrl(store[userId])); } catch (_) {}
+                    } else {
+                        delete store[userId];
+                        delete meta[userId];
+                        try { localStorage.removeItem(PHOTO_KEY(userId)); } catch (_) {}
+                    }
+                    savePhotosMeta(meta);
+                    savePhotosStore(store);
+
+                    // Upsert photos blob (URLs preferred; dataUrl fallback if Storage missing)
+                    const payload = collectPhotosPortalPayload();
+                    const { error } = await sb.rpc('upsert_portal_store', {
+                        p_name: 'photos',
+                        p_data: payload,
+                        p_updated_at: at
+                    });
+                    if (error) {
+                        const { error: upErr } = await sb.from('portal_stores').upsert({
+                            store_name: 'photos',
+                            data: payload,
+                            updated_at: at
+                        }, { onConflict: 'store_name' });
+                        if (upErr) throw new Error(upErr.message || 'photos portal upsert failed');
+                    }
+                    if (typeof queuePortalStorePush === 'function') queuePortalStorePush('photos');
+                    photosSyncState = {
+                        status: 'ok',
+                        at: new Date().toISOString(),
+                        error: storageErr || '',
+                        source: publicUrl ? 'supabase' : 'supabase-portal'
+                    };
+                    return {
+                        ok: true,
+                        source: publicUrl ? 'supabase' : 'supabase-portal',
+                        url: publicUrl || '',
+                        storageWarning: storageErr || ''
+                    };
+                } catch (err) {
+                    photosSyncState = {
+                        ...photosSyncState,
+                        status: 'error',
+                        error: String(err?.message || err || 'supabase photo push failed'),
+                        source: 'supabase'
+                    };
+                    // Fall through to Apps Script if configured
+                }
+            }
+
             const url = getPhotosSyncUrl();
-            if (!url || !userId) {
+            if (!url) {
                 photosSyncState = {
                     ...photosSyncState,
                     status: 'local-only',
-                    error: 'no-sync-url',
+                    error: sb ? (photosSyncState.error || 'supabase-photo-failed') : 'no-sync-url',
                     source: 'localStorage'
                 };
+                if (sb && photosSyncState.error) {
+                    return { ok: false, error: photosSyncState.error, source: 'supabase' };
+                }
                 return { ok: false, skipped: true, reason: 'no-sync-url' };
             }
             try {
@@ -8962,7 +9154,7 @@
                         action: 'set',
                         userId,
                         dataUrl: dataUrl || '',
-                        updatedAt: updatedAt || new Date().toISOString()
+                        updatedAt: at
                     })
                 });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -8982,14 +9174,25 @@
             }
         }
         async function maybeBackfillLocalPhotosToCloud() {
-            const url = getPhotosSyncUrl();
-            if (!url || photosBackfillInFlight) return;
+            if (photosBackfillInFlight) return;
             try {
                 if (localStorage.getItem(PHOTOS_BACKFILL_FLAG) === '1') return;
             } catch (_) {}
+            let sb = null;
+            try {
+                await loadSupabaseConfig();
+                sb = typeof ensureSupabaseClient === 'function' ? await ensureSupabaseClient() : null;
+            } catch (_) {}
+            const url = getPhotosSyncUrl();
+            if (!sb && !url) return;
             const store = loadPhotosStore();
             const meta = loadPhotosMeta();
-            const ids = Object.keys(store).filter((id) => photoEntryDataUrl(store[id]));
+            const ids = Object.keys(store).filter((id) => {
+                const entry = store[id];
+                // Skip if already has a public Storage/CDN URL
+                if (photoEntryPublicUrl(entry)) return false;
+                return !!photoEntryDataUrl(entry);
+            });
             if (!ids.length) {
                 try { localStorage.setItem(PHOTOS_BACKFILL_FLAG, '1'); } catch (_) {}
                 return;
@@ -9012,6 +9215,29 @@
             let lastErr = '';
             try {
                 await loadPhotosSyncConfig();
+                try { await loadSupabaseConfig(); } catch (_) {}
+
+                const sb = typeof ensureSupabaseClient === 'function' ? await ensureSupabaseClient() : null;
+                if (sb) {
+                    try {
+                        const { data, error } = await sb
+                            .from('portal_stores')
+                            .select('store_name, data, updated_at')
+                            .eq('store_name', 'photos')
+                            .maybeSingle();
+                        if (error) throw new Error(error.message || 'photos select failed');
+                        if (data?.data) {
+                            changed = mergePhotosFromRemote(normalizePhotosMap(data.data), { source: 'supabase' }) || changed;
+                        }
+                        photosSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'supabase' };
+                        maybeBackfillLocalPhotosToCloud();
+                        if (changed) refreshPhotosUi();
+                        return { ok: true, changed, source: 'supabase' };
+                    } catch (err) {
+                        lastErr = String(err?.message || err || 'supabase photos fetch failed');
+                    }
+                }
+
                 const url = getPhotosSyncUrl();
                 if (url) {
                     try {
@@ -9026,21 +9252,22 @@
                 try {
                     const map = await fetchPhotosFromLocalJson();
                     changed = mergePhotosFromRemote(map, { source: 'photos.json' }) || changed;
-                    if (!getPhotosSyncUrl()) {
+                    if (!getPhotosSyncUrl() && !sb) {
                         photosSyncState = {
                             status: changed || photosSyncState.status === 'ok' ? 'ok' : 'local-only',
                             at: new Date().toISOString(),
-                            error: getPhotosSyncUrl() ? '' : 'no-sync-url',
+                            error: 'no-sync-url',
                             source: 'photos.json+localStorage'
                         };
                     }
                 } catch (err) {
-                    if (!getPhotosSyncUrl()) lastErr = String(err?.message || err || 'photos.json missing');
+                    if (!getPhotosSyncUrl() && !sb) lastErr = String(err?.message || err || 'photos.json missing');
                 }
                 if (changed) refreshPhotosUi();
+                const hasBackend = !!(sb || getPhotosSyncUrl());
                 if (lastErr && (photosSyncState.status === 'syncing' || !changed)) {
-                    photosSyncState = { ...photosSyncState, status: getPhotosSyncUrl() ? 'error' : 'local-only', error: lastErr };
-                } else if (!getPhotosSyncUrl()) {
+                    photosSyncState = { ...photosSyncState, status: hasBackend ? 'error' : 'local-only', error: lastErr };
+                } else if (!hasBackend) {
                     photosSyncState = {
                         status: 'local-only',
                         at: new Date().toISOString(),
@@ -9077,7 +9304,11 @@
                 return getPhotosSyncUrl();
             };
             window.hongikDownloadPhotosJson = downloadPhotosJsonSeed;
-            window.hongikPhotosSyncStatus = () => ({ ...photosSyncState, url: getPhotosSyncUrl() || '' });
+            window.hongikPhotosSyncStatus = () => ({
+                ...photosSyncState,
+                url: getPhotosSyncUrl() || '',
+                supabase: !!(supabaseCfgCache && typeof isSupabaseConfigReady === 'function' && isSupabaseConfigReady(supabaseCfgCache))
+            });
         } catch (_) {}
         const DATA_KEY = 'hongik-account-data-v2';
         const SCHEDULE_KEY = (id, date) => `hongik-day-schedule-${id}-${date}`;
@@ -9467,8 +9698,8 @@
                 noComp: '보유 없음',
                 zoom: '확대/축소',
                 savePhoto: '사진 저장',
-                photoSavedCloud: '클라우드에 동기화됨 · 다른 PC에서도 곧 보입니다',
-                photoSavedLocalOnly: '이 PC에만 저장됨 · 중앙 동기화 URL이 없습니다 (data/photos/README.md)',
+                photoSavedCloud: 'Supabase에 동기화됨 · 다른 계정도 바로 보입니다',
+                photoSavedLocalOnly: '이 PC에만 저장됨 · Supabase/중앙 동기화가 없습니다 (data/supabase/README.md)',
                 photoSavedCloudFail: '이 PC에는 저장됨 · 클라우드 동기화 실패',
                 leaveRequest: '휴가/연차 신청',
                 leaveFrom: '시작일',
@@ -10243,8 +10474,8 @@
                 noComp: 'ไม่มีวันชดเชย',
                 zoom: 'ซูม',
                 savePhoto: 'บันทึกรูป',
-                photoSavedCloud: 'ซิงก์ขึ้นคลาวด์แล้ว · เครื่องอื่นจะเห็นภายใน ~20 วินาที',
-                photoSavedLocalOnly: 'บันทึกบนเครื่องนี้เท่านั้น · ยังไม่มี URL ซิงก์กลาง (ดู data/photos/README.md)',
+                photoSavedCloud: 'ซิงก์ขึ้น Supabase แล้ว · บัญชีอื่นเห็นได้ทันที',
+                photoSavedLocalOnly: 'บันทึกบนเครื่องนี้เท่านั้น · ยังไม่ได้เชื่อม Supabase (ดู data/supabase/README.md)',
                 photoSavedCloudFail: 'บันทึกในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
                 leaveRequest: 'ขอลางาน/หยุด',
                 leaveFrom: 'ตั้งแต่วันที่',
@@ -11019,8 +11250,8 @@
                 noComp: 'None held',
                 zoom: 'Zoom',
                 savePhoto: 'Save photo',
-                photoSavedCloud: 'Synced to cloud · other PCs will see it within ~20s',
-                photoSavedLocalOnly: 'Saved on this PC only · no central sync URL (see data/photos/README.md)',
+                photoSavedCloud: 'Synced via Supabase · other accounts see it immediately',
+                photoSavedLocalOnly: 'Saved on this PC only · Supabase not connected (see data/supabase/README.md)',
                 photoSavedCloudFail: 'Saved locally · cloud sync failed',
                 leaveRequest: 'Leave request',
                 leaveFrom: 'From',
@@ -14055,11 +14286,11 @@
             'headOrders', 'orderAcks', 'sharedNotes', 'sharedNoteStudents',
             'leaveRequests', 'directorTodos', 'schoolFinance', 'dormStudents',
             'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
-            'studentEdits', 'helpChats', 'partTime', 'otReports'
+            'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos'
         ];
         const PORTAL_PUSH_URGENT = new Set([
             'headOrders', 'orderAcks', 'helpChats', 'classCancels',
-            'leaveRequests', 'daySchedules', 'roomTt', 'schedChanges'
+            'leaveRequests', 'daySchedules', 'roomTt', 'schedChanges', 'photos'
         ]);
 
         const SUPABASE_CONFIG_JSON = 'data/supabase/supabase-config.json';
@@ -14577,6 +14808,7 @@
             if (name === 'helpChats') return loadHelpChats();
             if (name === 'partTime') return loadPartTime();
             if (name === 'otReports') return ensureOtBundleHydrated();
+            if (name === 'photos') return collectPhotosPortalPayload();
             return null;
         }
         function applyPortalStoreFromRemote(name, entry) {
@@ -14772,6 +15004,14 @@
                         return true;
                     }
                     return false;
+                }
+                if (name === 'photos') {
+                    const map = normalizePhotosMap(remoteData);
+                    const changed = mergePhotosFromRemote(map, { source: 'supabase-portal' });
+                    if (changed) {
+                        try { refreshPhotosUi(); } catch (_) {}
+                    }
+                    return changed;
                 }
             } finally {
                 portalSyncApplying = false;
@@ -18405,6 +18645,13 @@
                     if (document.getElementById('overview-board') && (all || has('attendance') || has('photos') || has('otReports'))) {
                         renderOverviewBoard(user);
                     }
+                    if (has('photos') && document.getElementById('room-tt-board')) {
+                        const roomModalOpen = document.getElementById('room-tt-modal')?.classList.contains('open');
+                        const monthModalOpen = document.getElementById('room-tt-month-modal')?.classList.contains('open');
+                        if (!roomModalOpen && !monthModalOpen && !roomTtMonthBusy && !roomTtMonthPick && !roomTtRangePick) {
+                            try { renderRoomTimetableBoard(user); } catch (_) {}
+                        }
+                    }
                     if (document.getElementById('dorm-board') && (all || has('dormStudents'))) renderDormBoard(user);
                     if (document.getElementById('study-pause-board') && (all || has('studyPauses'))) renderStudyPauseBoard(user);
                     if (document.getElementById('textbook-board') && (all || has('textbooks'))) renderTextbookBoard(user);
@@ -19681,11 +19928,15 @@
                             const mine = slot.teacherId === user.id;
                             const subj = cleanClassTitleDisplay(pickLangText(slot, 'title') || slot.title || '');
                             const stuN = Array.isArray(slot.students) ? slot.students.length : 0;
+                            const teaLabel = shortTeacherLabel(slot.teacherId) || slot.teacherName || '';
+                            const showAv = !slot.isBreak && slot.teacherId !== 'break' && slot.teacherId !== 'parttime';
+                            const avSrc = showAv ? (typeof getDisplayPhoto === 'function' ? getDisplayPhoto(slot.teacherId) : '') : '';
+                            const avHtml = avSrc ? `<img class="rt-avatar" src="${avSrc}" alt="" width="15" height="15">` : '';
                             body += `<div class="room-tt-cell${colCls}${merged ? ' is-span-host' : ''}" style="grid-column:${col};grid-row:${row} / span ${span}">
                                 <button type="button" class="room-tt-booked${mine ? ' is-mine' : ''}${slot.isBreak ? ' is-break' : ''}${merged ? ' is-merged' : ''}"
                                     data-rt-edit="${esc(slot.id)}"
                                     style="background:${c.bg};border-color:${c.border};color:${c.accent}">
-                                    <span class="rt-name">${esc(shortTeacherLabel(slot.teacherId) || slot.teacherName || '')}</span>
+                                    <span class="rt-name">${avHtml}${esc(teaLabel)}</span>
                                     <span class="rt-subj">${esc(subj)}</span>
                                     <span class="rt-subj" style="opacity:.8">${esc(slot.start)}–${esc(slot.end)}${stuN ? ` · ${stuN}` : ''}</span>
                                 </button>
@@ -25579,10 +25830,12 @@
             document.getElementById('crop-save').addEventListener('click', async () => {
                 if (!currentUser) return;
                 const img = document.getElementById('crop-img');
-                const size = 260;
+                const size = 720;
                 const canvas = document.createElement('canvas');
                 canvas.width = size; canvas.height = size;
                 const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
                 ctx.beginPath();
                 ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
                 ctx.closePath();
@@ -25590,11 +25843,14 @@
                 const base = Math.max(size / cropState.naturalW, size / cropState.naturalH);
                 const drawW = cropState.naturalW * base * cropState.scale;
                 const drawH = cropState.naturalH * base * cropState.scale;
-                const dx = size/2 + cropState.x - drawW/2;
-                const dy = size/2 + cropState.y - drawH/2;
+                // Scale pan offsets from on-screen crop stage (260) to export canvas
+                const stageSize = 260;
+                const panScale = size / stageSize;
+                const dx = size/2 + cropState.x * panScale - drawW/2;
+                const dy = size/2 + cropState.y * panScale - drawH/2;
                 ctx.drawImage(img, dx, dy, drawW, drawH);
-                const raw = canvas.toDataURL('image/jpeg', 0.88);
-                const out = await compressPhotoDataUrl(raw, { maxSide: 160, quality: 0.68 });
+                const raw = canvas.toDataURL('image/jpeg', 0.95);
+                const out = await compressPhotoDataUrl(raw, { maxSide: 720, quality: 0.92 });
                 const pushResult = await setUserPhoto(currentUser.id, out);
                 loadPhoto(currentUser.id);
                 document.getElementById('crop-ui').classList.add('hidden');

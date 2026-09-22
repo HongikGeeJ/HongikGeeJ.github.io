@@ -372,7 +372,7 @@
         .dc-c {
             position: absolute; width: 88px; height: 88px;
             background-repeat: no-repeat; background-size: contain;
-            background-image: url('assets/dancheong/corner-flower.svg?v=cluster4');
+            background-image: url('assets/dancheong/corner-flower.svg?v=cluster5');
             opacity: .97;
             filter: drop-shadow(0 1px 2px rgba(200,140,160,.14));
             will-change: transform, filter;
@@ -465,6 +465,23 @@
                     drop-shadow(0 0 9px rgba(244,160,184,.18))
                     brightness(1.04);
             }
+        }
+        /* Mobile / lite: smaller angle, no glow pulse — still visibly swaying */
+        @keyframes dcSwayTlLite {
+            0%, 100% { transform: rotate(-1.6deg); }
+            50% { transform: rotate(1.8deg); }
+        }
+        @keyframes dcSwayTrLite {
+            0%, 100% { transform: scaleX(-1) rotate(-1.6deg); }
+            50% { transform: scaleX(-1) rotate(1.8deg); }
+        }
+        @keyframes dcSwayBlLite {
+            0%, 100% { transform: scaleY(-1) rotate(-1.6deg); }
+            50% { transform: scaleY(-1) rotate(1.8deg); }
+        }
+        @keyframes dcSwayBrLite {
+            0%, 100% { transform: scale(-1) rotate(-1.6deg); }
+            50% { transform: scale(-1) rotate(1.8deg); }
         }
         @media (prefers-reduced-motion: reduce) {
             .dc-c {
@@ -1353,7 +1370,7 @@
         }
         .dash-shell.theme-teacher-a > *:not(.taehyun-fx):not(.dc-corners) { position: relative; z-index: 1; }
         .dash-shell.theme-teacher-a > .dc-corners { position: absolute; z-index: 520; }
-        .dash-shell.theme-teacher-a > .dash-header { z-index: 500 !important; overflow: visible !important; }
+        .dash-shell.theme-teacher-a > .dash-header { z-index: 500 !important; overflow: hidden !important; }
         .dash-shell.theme-teacher-a > .taehyun-banner { z-index: 5; }
         .dash-shell.theme-teacher-a > .dash-tabs { z-index: 4; }
         .dash-shell.theme-teacher-a > .dash-body { z-index: 3; }
@@ -1632,25 +1649,75 @@
             50% { transform: scale(1.14); opacity: 1; }
         }
 
-        /* floating hangul glyphs */
-        .taehyun-fx .hangul-float {
+        /* floating hangul glyphs (shell + header) */
+        .taehyun-fx .hangul-float-layer,
+        .dash-header-fx .hangul-float-layer,
+        .taehyun-fx .sakura-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .taehyun-fx .hangul-float,
+        .dash-header-fx .hangul-float {
             position: absolute;
             font-weight: 800;
-            color: rgba(167,139,250,.28);
+            color: rgba(167,139,250,.42);
             user-select: none;
             animation: taeHangulDrift linear infinite;
-            text-shadow: 0 4px 18px rgba(244,114,182,.12);
+            text-shadow: 0 4px 18px rgba(244,114,182,.16);
+            z-index: 1;
+            pointer-events: none;
+            will-change: transform, opacity;
+            top: auto;
+            bottom: -0.35em;
+        }
+        .taehyun-fx .hangul-float.c2,
+        .dash-header-fx .hangul-float.c2 { color: rgba(244,114,182,.44); }
+        .taehyun-fx .hangul-float.c3,
+        .dash-header-fx .hangul-float.c3 { color: rgba(74,222,128,.4); }
+        .taehyun-fx .hangul-float.c4,
+        .dash-header-fx .hangul-float.c4 { color: rgba(56,189,248,.42); }
+        .taehyun-fx .hangul-float.c5,
+        .dash-header-fx .hangul-float.c5 { color: rgba(250,204,21,.44); }
+        @keyframes taeHangulDrift {
+            0% { transform: translate3d(0, 8px, 0) rotate(-10deg); opacity: 0; }
+            12% { opacity: .88; }
+            88% { opacity: .7; }
+            100% { transform: translate3d(28px, -118px, 0) rotate(14deg); opacity: 0; }
+        }
+
+        /* Header-local Hangul FX — behind identity/controls, never steals clicks */
+        .dash-header-fx {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: inherit;
+        }
+        .dash-header > .dash-identity,
+        .dash-header > .header-actions {
+            position: relative;
             z-index: 1;
         }
-        .taehyun-fx .hangul-float.c2 { color: rgba(244,114,182,.3); }
-        .taehyun-fx .hangul-float.c3 { color: rgba(74,222,128,.26); }
-        .taehyun-fx .hangul-float.c4 { color: rgba(56,189,248,.28); }
-        .taehyun-fx .hangul-float.c5 { color: rgba(250,204,21,.3); }
-        @keyframes taeHangulDrift {
-            0% { transform: translateY(110%) translateX(0) rotate(-10deg); opacity: 0; }
-            10% { opacity: .9; }
-            90% { opacity: .75; }
-            100% { transform: translateY(-35%) translateX(36px) rotate(14deg); opacity: 0; }
+        .dash-header-fx .hangul-mark {
+            position: absolute;
+            right: 3.5%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: clamp(1.55rem, 4.2vw, 2.35rem);
+            font-weight: 900;
+            letter-spacing: -.04em;
+            writing-mode: vertical-rl;
+            line-height: 1;
+            user-select: none;
+            opacity: .18;
+            color: #4a6fa5;
+            animation: hangulFloatCharm 9.5s ease-in-out infinite;
+            pointer-events: none;
+            will-change: transform, opacity;
         }
 
         .theme-teacher-a .dash-header {
@@ -1662,7 +1729,7 @@
                 rgba(125,211,252,.1)) !important;
             position: relative;
             z-index: 500 !important;
-            overflow: visible !important;
+            overflow: hidden !important;
             padding: .8rem 1.1rem .85rem 1.45rem !important;
         }
         .theme-teacher-a .dash-header::before {
@@ -1901,27 +1968,15 @@
             color: #be123c !important;
         }
         .taehyun-fx .hangul-mark {
-            position: absolute;
-            right: 4%;
-            top: 38%;
-            font-size: clamp(3.2rem, 11vw, 5.8rem);
-            font-weight: 900;
-            letter-spacing: -.05em;
-            writing-mode: vertical-rl;
-            line-height: 1;
-            user-select: none;
-            opacity: .12;
-            color: #4a6fa5;
-            animation: hangulFloatCharm 9.5s ease-in-out infinite;
-            will-change: transform, opacity;
-            pointer-events: none;
+            /* Large watermark lives in header FX now; keep shell mark subtle/off-body */
+            display: none;
         }
         @keyframes hangulFloatCharm {
-            0%   { opacity: .11; transform: translateY(0)    rotate(-1.2deg) scale(1); }
-            25%  { opacity: .18; transform: translateY(-16px) rotate(1deg)   scale(1.025); }
-            50%  { opacity: .14; transform: translateY(6px)  rotate(-0.6deg) scale(1); }
-            75%  { opacity: .2;  transform: translateY(-10px) rotate(0.8deg) scale(1.015); }
-            100% { opacity: .11; transform: translateY(0)    rotate(-1.2deg) scale(1); }
+            0%   { opacity: .14; transform: translateY(-50%) rotate(-1.2deg) scale(1); }
+            25%  { opacity: .24; transform: translateY(calc(-50% - 10px)) rotate(1deg) scale(1.03); }
+            50%  { opacity: .18; transform: translateY(calc(-50% + 4px)) rotate(-0.6deg) scale(1); }
+            75%  { opacity: .26; transform: translateY(calc(-50% - 6px)) rotate(0.8deg) scale(1.02); }
+            100% { opacity: .14; transform: translateY(-50%) rotate(-1.2deg) scale(1); }
         }
         .taehyun-fx .seal {
             display: none !important;
@@ -2198,7 +2253,7 @@
         }
         .dash-shell.theme-director > *:not(.taehyun-fx):not(.dc-corners) { position: relative; z-index: 1; }
         .dash-shell.theme-director > .dc-corners { position: absolute; z-index: 520; }
-        .dash-shell.theme-director > .dash-header { z-index: 500 !important; overflow: visible !important; }
+        .dash-shell.theme-director > .dash-header { z-index: 500 !important; overflow: hidden !important; }
         .dash-shell.theme-director > .taehyun-fx { position: absolute; z-index: 0; pointer-events: none; display: block; }
         .theme-director .dash-header {
             background: linear-gradient(180deg, #e8eef5 0%, #dde5ee 55%, #d5dee8 100%) !important;
@@ -2313,18 +2368,22 @@
             background-size: 220% 100% !important;
             opacity: .9;
         }
-        .theme-director .taehyun-fx .hangul-float { color: rgba(30,58,95,.22); text-shadow: none; }
-        .theme-director .taehyun-fx .hangul-float.c2 { color: rgba(51,65,85,.24); }
-        .theme-director .taehyun-fx .hangul-float.c3 { color: rgba(71,85,105,.2); }
-        .theme-director .taehyun-fx .hangul-float.c4 { color: rgba(30,58,95,.18); }
-        .theme-director .taehyun-fx .hangul-float.c5 { color: rgba(15,23,42,.2); }
-        .theme-director .taehyun-fx .hangul-mark {
+        .theme-director .taehyun-fx .hangul-float,
+        .theme-director .dash-header-fx .hangul-float { color: rgba(30,58,95,.34); text-shadow: none; }
+        .theme-director .taehyun-fx .hangul-float.c2,
+        .theme-director .dash-header-fx .hangul-float.c2 { color: rgba(51,65,85,.36); }
+        .theme-director .taehyun-fx .hangul-float.c3,
+        .theme-director .dash-header-fx .hangul-float.c3 { color: rgba(71,85,105,.32); }
+        .theme-director .taehyun-fx .hangul-float.c4,
+        .theme-director .dash-header-fx .hangul-float.c4 { color: rgba(30,58,95,.3); }
+        .theme-director .taehyun-fx .hangul-float.c5,
+        .theme-director .dash-header-fx .hangul-float.c5 { color: rgba(15,23,42,.34); }
+        .theme-director .dash-header-fx .hangul-mark {
             color: #1e3a5f;
-            opacity: .14;
-            font-size: clamp(2.6rem, 8.5vw, 4.8rem);
-            letter-spacing: .12em;
+            opacity: .2;
+            font-size: clamp(1.4rem, 3.8vw, 2.1rem);
+            letter-spacing: .1em;
             right: 3%;
-            top: 22%;
             animation: hangulFloatCharm 11s cubic-bezier(.45,.05,.55,.95) infinite;
         }
         .theme-director .taehyun-fx .seal {
@@ -2814,7 +2873,7 @@
             gap: .55rem;
         }
         @media (max-width: 900px) {
-            #order-modal .modal-box { width: min(94vw, 980px); max-height: min(78vh, 720px); }
+            #order-modal .modal-box { width: min(94vw, 980px); max-height: min(55vh, 520px); }
         }
         #order-modal .order-modal-top {
             display: flex;
@@ -3380,7 +3439,7 @@
         }
 
         /* Urgent room-TT re-auth (cancel / change) — alarming vs soft teach-pop */
-        #room-tt-reauth-modal { z-index: 120; }
+        #room-tt-reauth-modal { z-index: 20010; }
         #room-tt-reauth-modal.open {
             animation: roomTtReauthBackdrop .2s ease both;
         }
@@ -4443,10 +4502,12 @@
         .pt-back:hover { color: #0f172a; }
 
         .modal {
-            position: fixed; inset: 0; z-index: 90; background: rgba(15,23,42,.48);
+            /* Above .header-actions (10040) / .lang-mini (10050) so backdrop owns all taps */
+            position: fixed; inset: 0; z-index: 20000; background: rgba(15,23,42,.48);
             display: none; align-items: center; justify-content: center; padding: 1rem;
             pointer-events: none;
             will-change: opacity;
+            touch-action: manipulation;
         }
         .modal.open { display: flex; pointer-events: auto; animation: modalBackdropIn .18s ease both; }
         .modal.is-closing {
@@ -4464,9 +4525,27 @@
             background: #fff; border-radius: 1.4rem; padding: 1.25rem; width: min(420px,100%);
             box-shadow: 0 24px 60px rgba(0,0,0,.25); animation: riseIn .22s ease both;
             position: relative;
+            pointer-events: auto;
+        }
+        /* While any .modal.open: freeze dashboard chrome (logout / lang / camera) */
+        body.modal-open #dash-shell,
+        body.modal-open #dashboard-screen,
+        body.modal-open #help-fab,
+        body.modal-open #lang-switch,
+        body.modal-open .help-panel,
+        body.modal-open .header-actions,
+        body.modal-open #logout-btn {
+            pointer-events: none !important;
+        }
+        body.modal-open {
+            overflow: hidden;
+        }
+        body.modal-open .modal.open,
+        body.modal-open .modal.open .modal-box {
+            pointer-events: auto !important;
         }
         #access-block-modal {
-            z-index: 120;
+            z-index: 20010;
             background: rgba(80, 0, 10, .72);
         }
         #access-block-modal.open {
@@ -6231,7 +6310,7 @@
         #photo-sync-msg.is-err { color: #be123c; }
         #app-toast {
             position: fixed; left: 50%; bottom: 1.35rem; transform: translateX(-50%) translateY(120%);
-            z-index: 12000; max-width: min(92vw, 420px); padding: .72rem 1rem;
+            z-index: 21000; max-width: min(92vw, 420px); padding: .72rem 1rem;
             border-radius: 14px; font-size: .84rem; font-weight: 700; line-height: 1.35;
             color: #0f172a; background: #fff; border: 1px solid #e2e8f0;
             box-shadow: 0 12px 32px rgba(15, 23, 42, .16);
@@ -6508,8 +6587,14 @@
             outline: none;
         }
         .room-tt-booked .rt-name {
+            display: flex; align-items: center; gap: .28rem;
             font-size: .68rem; font-weight: 850; line-height: 1.15;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .room-tt-booked .rt-avatar {
+            width: 15px; height: 15px; border-radius: 50%; object-fit: cover;
+            flex-shrink: 0; border: 1px solid rgba(15,23,42,.12);
+            background: #fff;
         }
         .room-tt-booked .rt-subj {
             font-size: .58rem; font-weight: 650; opacity: .88;
@@ -6831,13 +6916,33 @@
             .login-sea-wave { animation: none !important; will-change: auto; opacity: .7; }
             .login-sea-sparkles span { animation: none !important; }
             .login-sea-sparkles span:nth-child(n+5) { display: none; }
-            .petal, .leaf, .sakura, .hangul-float, .ko-cloud, .crane-bird,
+            /* Dashboard FX static on lite; keep a light Hangul drift in the header */
+            .sakura, .ko-cloud, .crane-bird,
             .dir-ink-dot, .soft-star, .ink-splash {
                 animation: none !important;
                 will-change: auto;
                 filter: none !important;
             }
-            .petal, .leaf { opacity: .35; }
+            .taehyun-fx .hangul-float {
+                animation: none !important;
+                will-change: auto;
+                filter: none !important;
+                opacity: .4;
+            }
+            .dash-header-fx .hangul-float {
+                animation: taeHangulDrift linear infinite !important;
+                will-change: transform, opacity;
+                opacity: .7;
+            }
+            .dash-header-fx .hangul-mark {
+                animation: hangulFloatCharm 11s ease-in-out infinite !important;
+                will-change: transform, opacity;
+            }
+            .petal, .leaf {
+                will-change: auto;
+                filter: none !important;
+                opacity: .58;
+            }
             .petal:nth-child(n+9), .leaf:nth-child(n+4) { display: none; }
             .panel, .dash-shell {
                 backdrop-filter: none !important;
@@ -6865,15 +6970,41 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: scale(-1); }
-            .dc-c { animation: none !important; will-change: auto; filter: none !important; }
+            /*
+              Login panel corners must keep sway on mobile/iPad — do not kill .dc-c.
+              Use lighter keyframes (no glow pulse). Dash-shell corners stay static.
+            */
+            .dc-c {
+                will-change: auto;
+                filter: drop-shadow(0 1px 2px rgba(200,140,160,.14));
+            }
+            #login-screen .panel > .dc-corners .dc-c.tl {
+                animation: dcSwayTlLite 7.2s ease-in-out infinite;
+            }
+            #login-screen .panel > .dc-corners .dc-c.tr {
+                animation: dcSwayTrLite 7.8s ease-in-out infinite;
+                animation-delay: -1.6s;
+            }
+            #login-screen .panel > .dc-corners .dc-c.bl {
+                animation: dcSwayBlLite 7.5s ease-in-out infinite;
+                animation-delay: -3.1s;
+            }
+            #login-screen .panel > .dc-corners .dc-c.br {
+                animation: dcSwayBrLite 8.1s ease-in-out infinite;
+                animation-delay: -4.4s;
+            }
+            .dash-shell > .dc-corners .dc-c {
+                animation: none !important;
+            }
             .dash-shell.theme-teacher-a::before,
             .dash-shell.theme-teacher-a::after,
             .taehyun-fx .dancheong-rail,
             .logo-wrap::before {
                 animation: none !important;
             }
-            .taehyun-fx .sakura:nth-child(n+8),
-            .taehyun-fx .hangul-float:nth-child(n+6),
+            .taehyun-fx .sakura-layer .sakura:nth-child(n+8),
+            .taehyun-fx .hangul-float-layer .hangul-float:nth-child(n+4),
+            .dash-header-fx .hangul-float-layer .hangul-float:nth-child(n+6),
             .taehyun-fx .crane-bird.c2,
             .taehyun-fx .ink-splash:nth-of-type(n+3) { display: none; }
             #order-modal .order-sakura,
@@ -6891,23 +7022,45 @@
             #attend-modal-clock,
             #attend-modal.open .attend-bell,
             #order-modal.open .order-bell { animation: none !important; }
-            .modal { will-change: auto; padding: max(.5rem, env(safe-area-inset-top)) .65rem max(.65rem, env(safe-area-inset-bottom)); align-items: flex-end; }
-            @media (min-height: 700px) {
-                .modal { align-items: center; }
+            #attend-modal.open .modal-box::before,
+            .modal-box.teach-pop::before { display: none !important; animation: none !important; }
+            /* Half-height sheet: keep clear of header logout / lang taps */
+            .modal {
+                will-change: auto;
+                z-index: 20000;
+                padding:
+                    max(4.5rem, calc(env(safe-area-inset-top, 0px) + 3.25rem))
+                    .65rem
+                    max(.65rem, env(safe-area-inset-bottom));
+                align-items: flex-end;
+                justify-content: center;
             }
-            .modal-box {
-                max-height: min(92dvh, calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1rem));
+            @media (min-height: 780px) {
+                .modal { align-items: center; padding-top: max(1rem, env(safe-area-inset-top, 0px)); }
+            }
+            .modal-box,
+            .modal-box.teach-pop {
+                max-height: min(52vh, 52dvh, 480px) !important;
+                overflow-x: hidden;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 overscroll-behavior: contain;
             }
             #order-modal .modal-box {
                 width: min(100%, 96vw) !important;
-                max-height: min(88dvh, 760px) !important;
-                padding: 1rem 1rem .95rem !important;
+                max-height: min(52vh, 52dvh, 480px) !important;
+                padding: .9rem .9rem .85rem !important;
+                display: flex !important;
+                flex-direction: column;
+                gap: .45rem;
             }
             #order-modal #order-modal-list {
-                max-height: min(46dvh, 380px);
+                flex: 1 1 auto;
+                min-height: 0;
+                max-height: none;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
             }
             #order-modal #order-modal-x,
             #attend-modal .modal-x {
@@ -6920,13 +7073,27 @@
             }
             #attend-modal .modal-box {
                 width: min(100%, 96vw);
-                max-height: min(90dvh, 780px);
-                overflow-y: auto;
+                max-height: min(52vh, 52dvh, 480px) !important;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
                 -webkit-overflow-scrolling: touch;
-                padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+                padding-bottom: max(.85rem, env(safe-area-inset-bottom, 0px));
             }
             #attend-modal-list.attend-list {
-                max-height: min(48dvh, 420px);
+                flex: 1 1 auto;
+                min-height: 0;
+                max-height: none;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
+            #sched-alert-modal .modal-box,
+            #cancel-alert-modal .modal-box,
+            #cancel-ack-modal .modal-box,
+            #leave-modal .modal-box,
+            #access-block-modal .modal-box {
+                max-height: min(52vh, 52dvh, 480px) !important;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 overscroll-behavior: contain;
@@ -7059,7 +7226,8 @@
             #attend-modal .attend-sparkles { display: none !important; }
         }
         html.lite-fx.page-hidden .bg-stage *,
-        html.lite-fx.page-hidden .taehyun-fx * {
+        html.lite-fx.page-hidden .taehyun-fx *,
+        html.lite-fx.page-hidden .dash-header-fx * {
             animation-play-state: paused !important;
         }
     </style>
@@ -7127,6 +7295,7 @@
             </div>
             <div class="taehyun-fx" id="taehyun-fx" aria-hidden="true"></div>
             <header class="dash-header">
+                <div class="dash-header-fx" id="dash-header-fx" aria-hidden="true"></div>
                 <div class="dash-identity flex items-center min-w-0">
                     <div class="dash-brand">
                         <img src="" data-school-logo="1" alt="" class="dash-logo">
@@ -8468,6 +8637,12 @@
             window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener?.('change', applyLiteClientClass);
             document.addEventListener('visibilitychange', () => {
                 document.documentElement.classList.toggle('page-hidden', document.hidden);
+                try {
+                    if (typeof restartPortalPollTimer === 'function') restartPortalPollTimer();
+                    if (!document.hidden && currentUser && typeof syncPortalStoresFromCentral === 'function') {
+                        syncPortalStoresFromCentral({ silent: true });
+                    }
+                } catch (_) {}
             });
         } catch (_) {}
         let photosSyncTimer = null;
@@ -8485,8 +8660,72 @@
         function photoEntryDataUrl(entry) {
             if (!entry) return '';
             if (typeof entry === 'string') return entry;
-            if (typeof entry === 'object' && typeof entry.dataUrl === 'string') return entry.dataUrl;
+            if (typeof entry === 'object') {
+                if (typeof entry.dataUrl === 'string' && entry.dataUrl) return entry.dataUrl;
+                if (typeof entry.url === 'string' && entry.url) return entry.url;
+            }
             return '';
+        }
+        function photoEntryPublicUrl(entry) {
+            if (!entry || typeof entry !== 'object') {
+                if (typeof entry === 'string' && /^https?:\/\//i.test(entry)) return entry;
+                return '';
+            }
+            if (typeof entry.url === 'string' && entry.url) return entry.url;
+            if (typeof entry.dataUrl === 'string' && /^https?:\/\//i.test(entry.dataUrl)) return entry.dataUrl;
+            return '';
+        }
+        const TEACHER_PHOTOS_BUCKET = 'teacher-photos';
+        function dataUrlToBlob(dataUrl) {
+            const m = String(dataUrl || '').match(/^data:([^;]+);base64,(.+)$/);
+            if (!m) return null;
+            const mime = m[1] || 'image/jpeg';
+            const bin = atob(m[2]);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return new Blob([bytes], { type: mime });
+        }
+        function collectPhotosPortalPayload() {
+            const store = loadPhotosStore();
+            const meta = loadPhotosMeta();
+            const photos = {};
+            Object.keys(store).forEach((id) => {
+                const entry = store[id];
+                const publicUrl = photoEntryPublicUrl(entry);
+                const dataUrl = photoEntryDataUrl(entry);
+                const updatedAt = String(meta[id] || photoEntryUpdatedAt(entry) || new Date().toISOString());
+                if (publicUrl) {
+                    photos[id] = { url: publicUrl, updatedAt };
+                } else if (dataUrl) {
+                    // Fallback when Storage upload unavailable — still sync via portal_stores
+                    photos[id] = { dataUrl, updatedAt };
+                }
+            });
+            return { version: 1, updatedAt: new Date().toISOString(), source: 'portal', photos };
+        }
+        async function uploadTeacherPhotoToStorage(sb, userId, dataUrl) {
+            if (!sb || !userId || !dataUrl) return '';
+            const blob = dataUrlToBlob(dataUrl);
+            if (!blob) throw new Error('invalid photo dataUrl');
+            const path = `${String(userId).replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+            const { error } = await sb.storage.from(TEACHER_PHOTOS_BUCKET).upload(path, blob, {
+                upsert: true,
+                contentType: blob.type || 'image/jpeg',
+                cacheControl: '60'
+            });
+            if (error) throw new Error(error.message || 'storage upload failed');
+            const { data } = sb.storage.from(TEACHER_PHOTOS_BUCKET).getPublicUrl(path);
+            const base = String(data?.publicUrl || '').trim();
+            if (!base) throw new Error('no public URL from storage');
+            return base + (base.includes('?') ? '&' : '?') + 'v=' + Date.now();
+        }
+        async function hasSupabasePhotoBackend() {
+            try {
+                const sb = await ensureSupabaseClient();
+                return !!sb;
+            } catch (_) {
+                return false;
+            }
         }
         function photoEntryUpdatedAt(entry) {
             if (!entry || typeof entry !== 'object') return '';
@@ -8498,12 +8737,18 @@
             const src = raw.photos && typeof raw.photos === 'object' ? raw.photos : raw;
             Object.keys(src).forEach((id) => {
                 if (!id || id === 'version' || id === 'updatedAt' || id === 'photos' || id === 'source' || id === 'note') return;
-                const dataUrl = photoEntryDataUrl(src[id]);
-                if (!dataUrl) return;
-                out[id] = {
-                    dataUrl,
-                    updatedAt: photoEntryUpdatedAt(src[id]) || ''
-                };
+                const entry = src[id];
+                const display = photoEntryDataUrl(entry);
+                if (!display) return;
+                const publicUrl = photoEntryPublicUrl(entry);
+                const updatedAt = photoEntryUpdatedAt(entry) || '';
+                if (publicUrl && display.startsWith('data:')) {
+                    out[id] = { dataUrl: display, url: publicUrl, updatedAt };
+                } else if (publicUrl) {
+                    out[id] = { url: publicUrl, updatedAt };
+                } else {
+                    out[id] = { dataUrl: display, updatedAt };
+                }
             });
             return out;
         }
@@ -8638,8 +8883,13 @@
                 setPhotoSyncMsg(msg, 'ok');
                 return;
             }
-            if (r.skipped && (r.reason === 'no-sync-url' || !getPhotosSyncUrl())) {
-                const msg = (typeof t === 'function' ? t('photoSavedLocalOnly') : '') || 'Saved on this PC only · set photos sync URL for other computers';
+            const noBackend = r.skipped && (
+                r.reason === 'no-sync-url'
+                || r.reason === 'no-sync-backend'
+                || (!getPhotosSyncUrl() && !(supabaseCfgCache && isSupabaseConfigReady(supabaseCfgCache)))
+            );
+            if (noBackend) {
+                const msg = (typeof t === 'function' ? t('photoSavedLocalOnly') : '') || 'Saved on this PC only · set Supabase or photos sync URL';
                 showAppToast(msg, 'warn');
                 setPhotoSyncMsg(msg, 'warn');
                 return;
@@ -8676,9 +8926,11 @@
             setTimeout(() => URL.revokeObjectURL(a.href), 1500);
             return payload;
         }
-        function compressPhotoDataUrl(dataUrl, { maxSide = 160, quality = 0.68 } = {}) {
+        function compressPhotoDataUrl(dataUrl, { maxSide = 720, quality = 0.92 } = {}) {
             return new Promise((resolve) => {
                 if (!dataUrl || typeof dataUrl !== 'string') return resolve('');
+                // Already a remote URL — keep as-is (no re-encode)
+                if (/^https?:\/\//i.test(dataUrl)) return resolve(dataUrl);
                 const img = new Image();
                 img.onload = () => {
                     try {
@@ -8690,10 +8942,15 @@
                         canvas.width = w;
                         canvas.height = h;
                         const ctx = canvas.getContext('2d');
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
                         ctx.drawImage(img, 0, 0, w, h);
-                        let out = canvas.toDataURL('image/jpeg', quality);
-                        if (out.length > 90000 && quality > 0.5) {
-                            out = canvas.toDataURL('image/jpeg', 0.55);
+                        // Soft cap only for extreme sizes (localStorage); prefer Storage for sync
+                        let q = quality;
+                        let out = canvas.toDataURL('image/jpeg', q);
+                        if (out.length > 900000 && q > 0.82) {
+                            q = 0.85;
+                            out = canvas.toDataURL('image/jpeg', q);
                         }
                         resolve(out);
                     } catch (_) {
@@ -8716,7 +8973,9 @@
                 const remoteAt = photoEntryUpdatedAt(entry) || '';
                 const localAt = String(meta[id] || '');
                 const localUrl = photoEntryDataUrl(store[id]);
-                if (localUrl === dataUrl) {
+                const remotePublic = photoEntryPublicUrl(entry);
+                const localPublic = photoEntryPublicUrl(store[id]);
+                if (localUrl === dataUrl && (!remotePublic || remotePublic === localPublic)) {
                     if (remoteAt && remoteAt !== localAt) {
                         meta[id] = remoteAt;
                         changed = true;
@@ -8724,7 +8983,14 @@
                     return;
                 }
                 if (localUrl && localAt && remoteAt && localAt > remoteAt) return;
-                store[id] = dataUrl;
+                const next = remotePublic
+                    ? (dataUrl.startsWith('data:')
+                        ? { dataUrl, url: remotePublic, updatedAt: remoteAt || new Date().toISOString() }
+                        : { url: remotePublic, updatedAt: remoteAt || new Date().toISOString() })
+                    : (dataUrl.startsWith('data:')
+                        ? { dataUrl, updatedAt: remoteAt || new Date().toISOString() }
+                        : dataUrl);
+                store[id] = next;
                 meta[id] = remoteAt || new Date().toISOString();
                 try { localStorage.setItem(PHOTO_KEY(id), dataUrl); } catch (_) {}
                 changed = true;
@@ -8743,6 +9009,13 @@
             try {
                 if (currentUser?.role === 'director' && typeof renderOverviewBoardRef === 'function') {
                     renderOverviewBoardRef(resolveAccountById(currentUser.id) || currentUser);
+                }
+            } catch (_) {}
+            try {
+                if (currentUser && document.getElementById('room-tt-board') && typeof renderRoomTimetableBoard === 'function') {
+                    const roomModalOpen = document.getElementById('room-tt-modal')?.classList.contains('open');
+                    const monthModalOpen = document.getElementById('room-tt-month-modal')?.classList.contains('open');
+                    if (!roomModalOpen && !monthModalOpen) renderRoomTimetableBoard(currentUser);
                 }
             } catch (_) {}
         }
@@ -8773,14 +9046,102 @@
             return normalizePhotosMap(data);
         }
         async function pushUserPhotoRemote(userId, dataUrl, updatedAt) {
+            if (!userId) return { ok: false, skipped: true, reason: 'no-user' };
+            const at = updatedAt || new Date().toISOString();
+
+            // Prefer Supabase Storage + portal_stores photos map
+            try {
+                await loadSupabaseConfig();
+            } catch (_) {}
+            const sb = typeof ensureSupabaseClient === 'function' ? await ensureSupabaseClient() : null;
+            if (sb) {
+                try {
+                    let publicUrl = '';
+                    let storageErr = '';
+                    if (dataUrl && String(dataUrl).startsWith('data:')) {
+                        try {
+                            publicUrl = await uploadTeacherPhotoToStorage(sb, userId, dataUrl);
+                        } catch (stErr) {
+                            storageErr = String(stErr?.message || stErr || 'storage upload failed');
+                            // Continue — portal_stores can still hold dataUrl until Storage is set up
+                        }
+                    } else if (dataUrl && /^https?:\/\//i.test(dataUrl)) {
+                        publicUrl = dataUrl;
+                    } else if (!dataUrl) {
+                        try {
+                            const path = `${String(userId).replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+                            await sb.storage.from(TEACHER_PHOTOS_BUCKET).remove([path]);
+                        } catch (_) {}
+                    }
+                    const store = loadPhotosStore();
+                    const meta = loadPhotosMeta();
+                    if (dataUrl || publicUrl) {
+                        const localData = (dataUrl && String(dataUrl).startsWith('data:')) ? dataUrl : '';
+                        store[userId] = publicUrl
+                            ? (localData
+                                ? { dataUrl: localData, url: publicUrl, updatedAt: at }
+                                : { url: publicUrl, updatedAt: at })
+                            : { dataUrl: dataUrl, updatedAt: at };
+                        meta[userId] = at;
+                        try { localStorage.setItem(PHOTO_KEY(userId), photoEntryDataUrl(store[userId])); } catch (_) {}
+                    } else {
+                        delete store[userId];
+                        delete meta[userId];
+                        try { localStorage.removeItem(PHOTO_KEY(userId)); } catch (_) {}
+                    }
+                    savePhotosMeta(meta);
+                    savePhotosStore(store);
+
+                    // Upsert photos blob (URLs preferred; dataUrl fallback if Storage missing)
+                    const payload = collectPhotosPortalPayload();
+                    const { error } = await sb.rpc('upsert_portal_store', {
+                        p_name: 'photos',
+                        p_data: payload,
+                        p_updated_at: at
+                    });
+                    if (error) {
+                        const { error: upErr } = await sb.from('portal_stores').upsert({
+                            store_name: 'photos',
+                            data: payload,
+                            updated_at: at
+                        }, { onConflict: 'store_name' });
+                        if (upErr) throw new Error(upErr.message || 'photos portal upsert failed');
+                    }
+                    if (typeof queuePortalStorePush === 'function') queuePortalStorePush('photos');
+                    photosSyncState = {
+                        status: 'ok',
+                        at: new Date().toISOString(),
+                        error: storageErr || '',
+                        source: publicUrl ? 'supabase' : 'supabase-portal'
+                    };
+                    return {
+                        ok: true,
+                        source: publicUrl ? 'supabase' : 'supabase-portal',
+                        url: publicUrl || '',
+                        storageWarning: storageErr || ''
+                    };
+                } catch (err) {
+                    photosSyncState = {
+                        ...photosSyncState,
+                        status: 'error',
+                        error: String(err?.message || err || 'supabase photo push failed'),
+                        source: 'supabase'
+                    };
+                    // Fall through to Apps Script if configured
+                }
+            }
+
             const url = getPhotosSyncUrl();
-            if (!url || !userId) {
+            if (!url) {
                 photosSyncState = {
                     ...photosSyncState,
                     status: 'local-only',
-                    error: 'no-sync-url',
+                    error: sb ? (photosSyncState.error || 'supabase-photo-failed') : 'no-sync-url',
                     source: 'localStorage'
                 };
+                if (sb && photosSyncState.error) {
+                    return { ok: false, error: photosSyncState.error, source: 'supabase' };
+                }
                 return { ok: false, skipped: true, reason: 'no-sync-url' };
             }
             try {
@@ -8793,7 +9154,7 @@
                         action: 'set',
                         userId,
                         dataUrl: dataUrl || '',
-                        updatedAt: updatedAt || new Date().toISOString()
+                        updatedAt: at
                     })
                 });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -8813,14 +9174,25 @@
             }
         }
         async function maybeBackfillLocalPhotosToCloud() {
-            const url = getPhotosSyncUrl();
-            if (!url || photosBackfillInFlight) return;
+            if (photosBackfillInFlight) return;
             try {
                 if (localStorage.getItem(PHOTOS_BACKFILL_FLAG) === '1') return;
             } catch (_) {}
+            let sb = null;
+            try {
+                await loadSupabaseConfig();
+                sb = typeof ensureSupabaseClient === 'function' ? await ensureSupabaseClient() : null;
+            } catch (_) {}
+            const url = getPhotosSyncUrl();
+            if (!sb && !url) return;
             const store = loadPhotosStore();
             const meta = loadPhotosMeta();
-            const ids = Object.keys(store).filter((id) => photoEntryDataUrl(store[id]));
+            const ids = Object.keys(store).filter((id) => {
+                const entry = store[id];
+                // Skip if already has a public Storage/CDN URL
+                if (photoEntryPublicUrl(entry)) return false;
+                return !!photoEntryDataUrl(entry);
+            });
             if (!ids.length) {
                 try { localStorage.setItem(PHOTOS_BACKFILL_FLAG, '1'); } catch (_) {}
                 return;
@@ -8843,6 +9215,29 @@
             let lastErr = '';
             try {
                 await loadPhotosSyncConfig();
+                try { await loadSupabaseConfig(); } catch (_) {}
+
+                const sb = typeof ensureSupabaseClient === 'function' ? await ensureSupabaseClient() : null;
+                if (sb) {
+                    try {
+                        const { data, error } = await sb
+                            .from('portal_stores')
+                            .select('store_name, data, updated_at')
+                            .eq('store_name', 'photos')
+                            .maybeSingle();
+                        if (error) throw new Error(error.message || 'photos select failed');
+                        if (data?.data) {
+                            changed = mergePhotosFromRemote(normalizePhotosMap(data.data), { source: 'supabase' }) || changed;
+                        }
+                        photosSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'supabase' };
+                        maybeBackfillLocalPhotosToCloud();
+                        if (changed) refreshPhotosUi();
+                        return { ok: true, changed, source: 'supabase' };
+                    } catch (err) {
+                        lastErr = String(err?.message || err || 'supabase photos fetch failed');
+                    }
+                }
+
                 const url = getPhotosSyncUrl();
                 if (url) {
                     try {
@@ -8857,21 +9252,22 @@
                 try {
                     const map = await fetchPhotosFromLocalJson();
                     changed = mergePhotosFromRemote(map, { source: 'photos.json' }) || changed;
-                    if (!getPhotosSyncUrl()) {
+                    if (!getPhotosSyncUrl() && !sb) {
                         photosSyncState = {
                             status: changed || photosSyncState.status === 'ok' ? 'ok' : 'local-only',
                             at: new Date().toISOString(),
-                            error: getPhotosSyncUrl() ? '' : 'no-sync-url',
+                            error: 'no-sync-url',
                             source: 'photos.json+localStorage'
                         };
                     }
                 } catch (err) {
-                    if (!getPhotosSyncUrl()) lastErr = String(err?.message || err || 'photos.json missing');
+                    if (!getPhotosSyncUrl() && !sb) lastErr = String(err?.message || err || 'photos.json missing');
                 }
                 if (changed) refreshPhotosUi();
+                const hasBackend = !!(sb || getPhotosSyncUrl());
                 if (lastErr && (photosSyncState.status === 'syncing' || !changed)) {
-                    photosSyncState = { ...photosSyncState, status: getPhotosSyncUrl() ? 'error' : 'local-only', error: lastErr };
-                } else if (!getPhotosSyncUrl()) {
+                    photosSyncState = { ...photosSyncState, status: hasBackend ? 'error' : 'local-only', error: lastErr };
+                } else if (!hasBackend) {
                     photosSyncState = {
                         status: 'local-only',
                         at: new Date().toISOString(),
@@ -8908,7 +9304,11 @@
                 return getPhotosSyncUrl();
             };
             window.hongikDownloadPhotosJson = downloadPhotosJsonSeed;
-            window.hongikPhotosSyncStatus = () => ({ ...photosSyncState, url: getPhotosSyncUrl() || '' });
+            window.hongikPhotosSyncStatus = () => ({
+                ...photosSyncState,
+                url: getPhotosSyncUrl() || '',
+                supabase: !!(supabaseCfgCache && typeof isSupabaseConfigReady === 'function' && isSupabaseConfigReady(supabaseCfgCache))
+            });
         } catch (_) {}
         const DATA_KEY = 'hongik-account-data-v2';
         const SCHEDULE_KEY = (id, date) => `hongik-day-schedule-${id}-${date}`;
@@ -9298,8 +9698,8 @@
                 noComp: '보유 없음',
                 zoom: '확대/축소',
                 savePhoto: '사진 저장',
-                photoSavedCloud: '클라우드에 동기화됨 · 다른 PC에서도 곧 보입니다',
-                photoSavedLocalOnly: '이 PC에만 저장됨 · 중앙 동기화 URL이 없습니다 (data/photos/README.md)',
+                photoSavedCloud: 'Supabase에 동기화됨 · 다른 계정도 바로 보입니다',
+                photoSavedLocalOnly: '이 PC에만 저장됨 · Supabase/중앙 동기화가 없습니다 (data/supabase/README.md)',
                 photoSavedCloudFail: '이 PC에는 저장됨 · 클라우드 동기화 실패',
                 leaveRequest: '휴가/연차 신청',
                 leaveFrom: '시작일',
@@ -10074,8 +10474,8 @@
                 noComp: 'ไม่มีวันชดเชย',
                 zoom: 'ซูม',
                 savePhoto: 'บันทึกรูป',
-                photoSavedCloud: 'ซิงก์ขึ้นคลาวด์แล้ว · เครื่องอื่นจะเห็นภายใน ~20 วินาที',
-                photoSavedLocalOnly: 'บันทึกบนเครื่องนี้เท่านั้น · ยังไม่มี URL ซิงก์กลาง (ดู data/photos/README.md)',
+                photoSavedCloud: 'ซิงก์ขึ้น Supabase แล้ว · บัญชีอื่นเห็นได้ทันที',
+                photoSavedLocalOnly: 'บันทึกบนเครื่องนี้เท่านั้น · ยังไม่ได้เชื่อม Supabase (ดู data/supabase/README.md)',
                 photoSavedCloudFail: 'บันทึกในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
                 leaveRequest: 'ขอลางาน/หยุด',
                 leaveFrom: 'ตั้งแต่วันที่',
@@ -10850,8 +11250,8 @@
                 noComp: 'None held',
                 zoom: 'Zoom',
                 savePhoto: 'Save photo',
-                photoSavedCloud: 'Synced to cloud · other PCs will see it within ~20s',
-                photoSavedLocalOnly: 'Saved on this PC only · no central sync URL (see data/photos/README.md)',
+                photoSavedCloud: 'Synced via Supabase · other accounts see it immediately',
+                photoSavedLocalOnly: 'Saved on this PC only · Supabase not connected (see data/supabase/README.md)',
                 photoSavedCloudFail: 'Saved locally · cloud sync failed',
                 leaveRequest: 'Leave request',
                 leaveFrom: 'From',
@@ -13886,11 +14286,11 @@
             'headOrders', 'orderAcks', 'sharedNotes', 'sharedNoteStudents',
             'leaveRequests', 'directorTodos', 'schoolFinance', 'dormStudents',
             'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
-            'studentEdits', 'helpChats', 'partTime', 'otReports'
+            'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos'
         ];
         const PORTAL_PUSH_URGENT = new Set([
             'headOrders', 'orderAcks', 'helpChats', 'classCancels',
-            'leaveRequests', 'daySchedules', 'roomTt', 'schedChanges'
+            'leaveRequests', 'daySchedules', 'roomTt', 'schedChanges', 'photos'
         ]);
 
         const SUPABASE_CONFIG_JSON = 'data/supabase/supabase-config.json';
@@ -14007,7 +14407,9 @@
         function currentPortalPollMs() {
             const base = supabaseRealtimeReady ? PORTAL_SYNC_MS_REALTIME : PORTAL_SYNC_MS_FALLBACK;
             if (!isLiteClient()) return base;
-            return supabaseRealtimeReady ? Math.max(base, 90000) : Math.max(base, 22000);
+            // Mobile/iPad: faster backup poll while visible (was slower than desktop)
+            if (document.hidden) return Math.max(base * 2, 60000);
+            return supabaseRealtimeReady ? 16000 : 4500;
         }
         function restartPortalPollTimer() {
             PORTAL_SYNC_MS = currentPortalPollMs();
@@ -14406,6 +14808,7 @@
             if (name === 'helpChats') return loadHelpChats();
             if (name === 'partTime') return loadPartTime();
             if (name === 'otReports') return ensureOtBundleHydrated();
+            if (name === 'photos') return collectPhotosPortalPayload();
             return null;
         }
         function applyPortalStoreFromRemote(name, entry) {
@@ -14601,6 +15004,14 @@
                         return true;
                     }
                     return false;
+                }
+                if (name === 'photos') {
+                    const map = normalizePhotosMap(remoteData);
+                    const changed = mergePhotosFromRemote(map, { source: 'supabase-portal' });
+                    if (changed) {
+                        try { refreshPhotosUi(); } catch (_) {}
+                    }
+                    return changed;
                 }
             } finally {
                 portalSyncApplying = false;
@@ -16236,13 +16647,63 @@
             if (type === 'other') return t('leaveTypeOther');
             return '';
         }
+        function syncModalOpenLock() {
+            const open = !!document.querySelector('.modal.open');
+            if (syncModalOpenLock._wasOpen && !open) armModalPointerShield(isLiteClient() ? 700 : 480);
+            syncModalOpenLock._wasOpen = open;
+            document.body.classList.toggle('modal-open', open);
+            const shell = document.getElementById('dash-shell');
+            if (shell) {
+                if (open) shell.setAttribute('inert', '');
+                else shell.removeAttribute('inert');
+            }
+            const helpFab = document.getElementById('help-fab');
+            if (helpFab) {
+                if (open) helpFab.setAttribute('inert', '');
+                else helpFab.removeAttribute('inert');
+            }
+            const langFloat = document.getElementById('lang-switch');
+            if (langFloat) {
+                if (open) langFloat.setAttribute('inert', '');
+                else langFloat.removeAttribute('inert');
+            }
+        }
+        syncModalOpenLock._wasOpen = false;
+        /** After × closes on pointerdown, block the synthetic click from hitting logout/lang behind. */
+        let modalPointerShieldUntil = 0;
+        function armModalPointerShield(ms) {
+            modalPointerShieldUntil = Math.max(modalPointerShieldUntil, performance.now() + (ms || 480));
+        }
+        document.addEventListener('click', (e) => {
+            if (performance.now() >= modalPointerShieldUntil) return;
+            const hit = e.target?.closest?.(
+                '#logout-btn, .header-actions, #help-fab, #dash-lang, .lang-mini-toggle, .lang-btn, .profile-edit-btn, .profile-btn, #profile-input'
+            );
+            if (!hit) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }, true);
+        document.addEventListener('pointerup', (e) => {
+            if (performance.now() >= modalPointerShieldUntil) return;
+            const hit = e.target?.closest?.(
+                '#logout-btn, .header-actions, #help-fab, #dash-lang, .lang-mini-toggle, .lang-btn, .profile-edit-btn, .profile-btn, #profile-input'
+            );
+            if (!hit) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }, true);
+
         function closeModalFast(modalOrId) {
             const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
             if (!modal) return;
             // × / Escape / closeAllModals — snooze attendance until tab/page change
             if (modal.id === 'attend-modal') attendPopupSnoozed = true;
+            armModalPointerShield(isLiteClient() ? 700 : 480);
             modal.classList.add('is-closing');
             modal.classList.remove('open');
+            syncModalOpenLock();
             const box = modal.querySelector('.modal-box');
             if (box) {
                 box.style.animation = 'none';
@@ -16270,6 +16731,7 @@
             applySchoolLogo(modal);
             applyStaticI18n();
             modal.classList.add('open');
+            syncModalOpenLock();
         }
 
         function getAttendanceDay(dateKey) {
@@ -17869,7 +18331,15 @@
             function closeAllModals() {
                 document.querySelectorAll('.modal.open, .modal.is-closing').forEach((m) => closeModalFast(m));
                 document.getElementById('crop-ui')?.classList.add('hidden');
+                syncModalOpenLock();
             }
+
+            // Keep body.modal-open / inert in sync for every .modal class toggle
+            const modalLockObserver = new MutationObserver(() => syncModalOpenLock());
+            document.querySelectorAll('.modal').forEach((m) => {
+                modalLockObserver.observe(m, { attributes: true, attributeFilter: ['class'] });
+            });
+            syncModalOpenLock();
 
             // Instant ×: hide on pointerdown so it feels immediate on web/mobile
             document.addEventListener('pointerdown', (e) => {
@@ -17877,6 +18347,8 @@
                 if (!btn) return;
                 const modal = btn.closest('.modal');
                 if (!modal || !modal.classList.contains('open')) return;
+                e.preventDefault();
+                e.stopPropagation();
                 closeModalFast(modal);
             }, true);
 
@@ -18173,6 +18645,13 @@
                     if (document.getElementById('overview-board') && (all || has('attendance') || has('photos') || has('otReports'))) {
                         renderOverviewBoard(user);
                     }
+                    if (has('photos') && document.getElementById('room-tt-board')) {
+                        const roomModalOpen = document.getElementById('room-tt-modal')?.classList.contains('open');
+                        const monthModalOpen = document.getElementById('room-tt-month-modal')?.classList.contains('open');
+                        if (!roomModalOpen && !monthModalOpen && !roomTtMonthBusy && !roomTtMonthPick && !roomTtRangePick) {
+                            try { renderRoomTimetableBoard(user); } catch (_) {}
+                        }
+                    }
                     if (document.getElementById('dorm-board') && (all || has('dormStudents'))) renderDormBoard(user);
                     if (document.getElementById('study-pause-board') && (all || has('studyPauses'))) renderStudyPauseBoard(user);
                     if (document.getElementById('textbook-board') && (all || has('textbooks'))) renderTextbookBoard(user);
@@ -18203,10 +18682,10 @@
                     softRefreshDeferred = { user, stores, reason };
                     return;
                 }
-                // Mobile/iPad: coalesce rapid sync-driven refreshes (clock + poll + realtime)
+                // Mobile/iPad: short coalesce so UI stays snappy without stacking remounts
                 if (isLiteClient() && (reason === 'portal-synced' || String(reason || '').startsWith('storage:'))) {
                     const now = Date.now();
-                    const minGap = 1100;
+                    const minGap = 420;
                     if (now - softRefreshLastAt < minGap) {
                         softRefreshDeferred = { user, stores, reason };
                         if (!softRefreshThrottleTimer) {
@@ -18220,7 +18699,7 @@
                                     stores: pending.stores,
                                     reason: pending.reason || 'throttled'
                                 });
-                            }, minGap - (now - softRefreshLastAt) + 40);
+                            }, minGap - (now - softRefreshLastAt) + 20);
                         }
                         return;
                     }
@@ -18260,37 +18739,53 @@
                 }
 
                 softRefreshBusy = true;
-                try {
-                    // Data-only: never remount theme FX / never wipe #tab-panels (that caused global flicker)
-                    refreshMountedDataBoards(user, { stores });
+                const runSoftRefreshPaint = () => {
+                    try {
+                        // Data-only: never remount theme FX / never wipe #tab-panels (that caused global flicker)
+                        refreshMountedDataBoards(user, { stores });
 
-                    // Director panels baked into renderPanels (orders / leave / cancels) — refresh shell only when needed & idle
-                    // Never rebuild "today" schedule form shell on sync (that flashed 종료 시간 inputs)
-                    const shellStores = ['headOrders', 'orderAcks', 'leaveRequests', 'classCancels', 'schedChanges', 'directorTodos'];
-                    const orderOnly = !!(stores && stores.length && stores.every((s) => s === 'headOrders' || s === 'orderAcks'));
-                    const needShell = !stores || !stores.length || stores.some((s) => shellStores.includes(s));
-                    const directorShellTab = user.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab);
-                    // Order ack: patch pills in place (no remount flicker). Other shell stores remount when idle on that tab.
-                    if (needShell && directorShellTab && typeof renderPanels === 'function') {
-                        if (orderOnly) {
-                            try { patchDirectorOrderAckBadges(); } catch (_) {}
-                        } else {
-                            renderPanels(user);
-                            setTab(currentTab);
+                        // Director panels baked into renderPanels (orders / leave / cancels) — refresh shell only when needed & idle
+                        // Never rebuild "today" schedule form shell on sync (that flashed 종료 시간 inputs)
+                        const shellStores = ['headOrders', 'orderAcks', 'leaveRequests', 'classCancels', 'schedChanges', 'directorTodos'];
+                        const orderOnly = !!(stores && stores.length && stores.every((s) => s === 'headOrders' || s === 'orderAcks'));
+                        const needShell = !stores || !stores.length || stores.some((s) => shellStores.includes(s));
+                        const directorShellTab = user.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab);
+                        // Order ack: patch pills in place (no remount flicker). Other shell stores remount when idle on that tab.
+                        if (needShell && directorShellTab && typeof renderPanels === 'function') {
+                            if (orderOnly) {
+                                try { patchDirectorOrderAckBadges(); } catch (_) {}
+                            } else {
+                                renderPanels(user);
+                                setTab(currentTab);
+                            }
+                        }
+                        try { maybeShowAlertPopups(user); } catch (_) {}
+                    } finally {
+                        softRefreshBusy = false;
+                        if (softRefreshDeferred) {
+                            const pending = softRefreshDeferred;
+                            softRefreshDeferred = null;
+                            if (!isDashboardUiBusy()) {
+                                softRefreshDashboard(pending.user || user, { stores: pending.stores, reason: pending.reason || 'deferred' });
+                            } else {
+                                softRefreshDeferred = pending;
+                            }
                         }
                     }
-                    try { maybeShowAlertPopups(user); } catch (_) {}
-                } finally {
-                    softRefreshBusy = false;
-                }
-                if (softRefreshDeferred) {
-                    const pending = softRefreshDeferred;
-                    softRefreshDeferred = null;
-                    if (!isDashboardUiBusy()) {
-                        softRefreshDashboard(pending.user || user, { stores: pending.stores, reason: pending.reason || 'deferred' });
-                    } else {
-                        softRefreshDeferred = pending;
+                };
+                // Don't block touch/UI thread on mobile sync paints
+                if (isLiteClient()) {
+                    try {
+                        if (typeof requestAnimationFrame === 'function') {
+                            requestAnimationFrame(() => setTimeout(runSoftRefreshPaint, 0));
+                        } else {
+                            setTimeout(runSoftRefreshPaint, 0);
+                        }
+                    } catch (_) {
+                        runSoftRefreshPaint();
                     }
+                } else {
+                    runSoftRefreshPaint();
                 }
             };
 
@@ -18375,7 +18870,38 @@
                         softScene.innerHTML = '';
                     }
                 }
-                if (!fx) return;
+                const headerFx = document.getElementById('dash-header-fx');
+                const paintHeaderHangul = (glyphs, markText, sizeBase, sizeStep) => {
+                    if (!headerFx) return;
+                    const headerGlyphs = lite ? glyphs.slice(0, 5) : glyphs;
+                    const hangul = headerGlyphs.map((ch, i) => {
+                        const left = 6 + (i * 9) % 86;
+                        const size = (sizeBase + (i % 4) * sizeStep).toFixed(2);
+                        const delay = (i * 0.7).toFixed(1);
+                        const dur = ((lite ? 14 : 10) + (i % 5) * 1.5).toFixed(1);
+                        const cls = `c${(i % 5) + 1}`;
+                        return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
+                    }).join('');
+                    headerFx.innerHTML = `
+                        <div class="hangul-float-layer">${hangul}</div>
+                        <span class="hangul-mark">${markText}</span>`;
+                };
+                if (!fx) {
+                    if (user.id === 'taehyun') {
+                        paintHeaderHangul(
+                            lite ? ['태', '현', '홍', '익', '빛'] : ['태', '현', '홍', '익', '한', '국', '빛', '길', '꿈', '힘', '정', '성', '학', '원'],
+                            '태현', 0.95, 0.22
+                        );
+                    } else if (user.role === 'director') {
+                        paintHeaderHangul(
+                            lite ? ['원', '장', '홍', '익', '학'] : ['원', '장', '홍', '익', '학', '원', '정', '성', '한', '국', '빛', '길', '힘', '덕'],
+                            '혹익 지제이', 0.88, 0.18
+                        );
+                    } else if (headerFx) {
+                        headerFx.innerHTML = '';
+                    }
+                    return;
+                }
                 if (user.id === 'taehyun') {
                     const glyphs = lite
                         ? ['태', '현', '홍', '익', '빛']
@@ -18388,6 +18914,7 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
+                    paintHeaderHangul(glyphs, '태현', 0.95, 0.22);
                     const petalKinds = ['pink', 'purple', 'green', 'yellow'];
                     const petalCount = lite ? 6 : 22;
                     const petals = Array.from({ length: petalCount }, (_, i) => {
@@ -18489,9 +19016,8 @@
                         ${clouds}
                         <span class="crane-bird" style="top:26%;left:-10%"></span>
                         ${lite ? '' : '<span class="crane-bird c2" style="top:48%;left:-15%"></span>'}
-                        <span class="hangul-mark">태현</span>
-                        ${hangul}
-                        ${petals}`;
+                        <div class="hangul-float-layer">${hangul}</div>
+                        <div class="sakura-layer">${petals}</div>`;
                     if (celestialTimer) clearInterval(celestialTimer);
                     if (!lite) {
                         celestialTimer = setInterval(() => {
@@ -18515,6 +19041,7 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
+                    paintHeaderHangul(glyphs, '혹익 지제이', 0.88, 0.18);
                     const dots = Array.from({ length: lite ? 4 : 14 }, (_, i) => {
                         const left = 6 + (i * 6.8) % 90;
                         const delay = (i * 0.7).toFixed(1);
@@ -18538,11 +19065,11 @@
                         ${clouds}
                         <span class="crane-bird" style="top:22%;left:-10%"></span>
                         ${lite ? '' : '<span class="crane-bird c2" style="top:44%;left:-18%"></span>'}
-                        <span class="hangul-mark">혹익 지제이</span>
-                        ${hangul}
+                        <div class="hangul-float-layer">${hangul}</div>
                         ${dots}`;
                     return;
                 }
+                if (headerFx) headerFx.innerHTML = '';
                 fx.innerHTML = '';
             }
 
@@ -19401,11 +19928,15 @@
                             const mine = slot.teacherId === user.id;
                             const subj = cleanClassTitleDisplay(pickLangText(slot, 'title') || slot.title || '');
                             const stuN = Array.isArray(slot.students) ? slot.students.length : 0;
+                            const teaLabel = shortTeacherLabel(slot.teacherId) || slot.teacherName || '';
+                            const showAv = !slot.isBreak && slot.teacherId !== 'break' && slot.teacherId !== 'parttime';
+                            const avSrc = showAv ? (typeof getDisplayPhoto === 'function' ? getDisplayPhoto(slot.teacherId) : '') : '';
+                            const avHtml = avSrc ? `<img class="rt-avatar" src="${avSrc}" alt="" width="15" height="15">` : '';
                             body += `<div class="room-tt-cell${colCls}${merged ? ' is-span-host' : ''}" style="grid-column:${col};grid-row:${row} / span ${span}">
                                 <button type="button" class="room-tt-booked${mine ? ' is-mine' : ''}${slot.isBreak ? ' is-break' : ''}${merged ? ' is-merged' : ''}"
                                     data-rt-edit="${esc(slot.id)}"
                                     style="background:${c.bg};border-color:${c.border};color:${c.accent}">
-                                    <span class="rt-name">${esc(shortTeacherLabel(slot.teacherId) || slot.teacherName || '')}</span>
+                                    <span class="rt-name">${avHtml}${esc(teaLabel)}</span>
                                     <span class="rt-subj">${esc(subj)}</span>
                                     <span class="rt-subj" style="opacity:.8">${esc(slot.start)}–${esc(slot.end)}${stuN ? ` · ${stuN}` : ''}</span>
                                 </button>
@@ -24157,6 +24688,7 @@
                 }
                 modal.classList.add('open');
                 applySchoolLogo(modal);
+                syncModalOpenLock();
             }
 
             function maybeShowAlertPopups(user) {
@@ -25298,10 +25830,12 @@
             document.getElementById('crop-save').addEventListener('click', async () => {
                 if (!currentUser) return;
                 const img = document.getElementById('crop-img');
-                const size = 260;
+                const size = 720;
                 const canvas = document.createElement('canvas');
                 canvas.width = size; canvas.height = size;
                 const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
                 ctx.beginPath();
                 ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
                 ctx.closePath();
@@ -25309,11 +25843,14 @@
                 const base = Math.max(size / cropState.naturalW, size / cropState.naturalH);
                 const drawW = cropState.naturalW * base * cropState.scale;
                 const drawH = cropState.naturalH * base * cropState.scale;
-                const dx = size/2 + cropState.x - drawW/2;
-                const dy = size/2 + cropState.y - drawH/2;
+                // Scale pan offsets from on-screen crop stage (260) to export canvas
+                const stageSize = 260;
+                const panScale = size / stageSize;
+                const dx = size/2 + cropState.x * panScale - drawW/2;
+                const dy = size/2 + cropState.y * panScale - drawH/2;
                 ctx.drawImage(img, dx, dy, drawW, drawH);
-                const raw = canvas.toDataURL('image/jpeg', 0.88);
-                const out = await compressPhotoDataUrl(raw, { maxSide: 160, quality: 0.68 });
+                const raw = canvas.toDataURL('image/jpeg', 0.95);
+                const out = await compressPhotoDataUrl(raw, { maxSide: 720, quality: 0.92 });
                 const pushResult = await setUserPhoto(currentUser.id, out);
                 loadPhoto(currentUser.id);
                 document.getElementById('crop-ui').classList.add('hidden');

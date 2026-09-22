@@ -14,11 +14,22 @@ create table if not exists public.portal_stores (
       'headOrders', 'orderAcks', 'sharedNotes', 'sharedNoteStudents',
       'leaveRequests', 'directorTodos', 'schoolFinance', 'dormStudents',
       'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
-      'studentEdits', 'helpChats', 'partTime', 'otReports'
+      'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos'
     )),
   data jsonb,
   updated_at timestamptz not null default now()
 );
+
+-- If portal_stores already existed without 'photos', widen the check (safe to re-run):
+alter table public.portal_stores drop constraint if exists portal_stores_store_name_check;
+alter table public.portal_stores add constraint portal_stores_store_name_check
+  check (store_name in (
+    'daySchedules', 'schedChanges', 'roomTt', 'classCancels',
+    'headOrders', 'orderAcks', 'sharedNotes', 'sharedNoteStudents',
+    'leaveRequests', 'directorTodos', 'schoolFinance', 'dormStudents',
+    'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
+    'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos'
+  ));
 
 comment on table public.portal_stores is
   'LWW JSON blobs mirroring Apps Script STORE_KEYS — primary realtime sync surface.';
