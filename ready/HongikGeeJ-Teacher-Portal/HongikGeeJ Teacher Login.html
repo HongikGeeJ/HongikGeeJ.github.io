@@ -702,11 +702,12 @@
             50% { transform: scale(1.08); opacity: 1; }
         }
 
+        /* Pinned to viewport (not login scroll); z below .modal (20000) */
         .lang-float {
             position: fixed;
-            top: 12px;
-            right: 12px;
-            z-index: 10000;
+            top: max(12px, env(safe-area-inset-top, 0px));
+            right: max(12px, env(safe-area-inset-right, 0px));
+            z-index: 10050;
             display: flex;
             gap: .4rem;
             padding: .35rem;
@@ -716,6 +717,11 @@
             border: 1px solid rgba(255, 255, 255, 0.95);
             border-radius: 999px;
             box-shadow: 0 8px 24px rgba(80, 90, 120, 0.14);
+            /* Own layer so iOS keyboard scroll of login content does not drag the pill */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            will-change: top;
+            pointer-events: auto;
         }
         .lang-btn {
             width: 36px;
@@ -7024,19 +7030,16 @@
             #order-modal.open .order-bell { animation: none !important; }
             #attend-modal.open .modal-box::before,
             .modal-box.teach-pop::before { display: none !important; animation: none !important; }
-            /* Half-height sheet: keep clear of header logout / lang taps */
+            /* Half-height sheet, vertical center (clear of header logout / lang) */
             .modal {
                 will-change: auto;
                 z-index: 20000;
                 padding:
-                    max(4.5rem, calc(env(safe-area-inset-top, 0px) + 3.25rem))
+                    max(3.25rem, calc(env(safe-area-inset-top, 0px) + 2.5rem))
                     .65rem
-                    max(.65rem, env(safe-area-inset-bottom));
-                align-items: flex-end;
+                    max(.75rem, env(safe-area-inset-bottom, 0px));
+                align-items: center;
                 justify-content: center;
-            }
-            @media (min-height: 780px) {
-                .modal { align-items: center; padding-top: max(1rem, env(safe-area-inset-top, 0px)); }
             }
             .modal-box,
             .modal-box.teach-pop {
@@ -7202,7 +7205,12 @@
             .content-card::after { width: 24px; height: 24px; opacity: .7; }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
             .login-sea { height: min(96px, 16vh); }
-            .lang-float { top: max(.65rem, env(safe-area-inset-top, 0px)); right: max(.55rem, env(safe-area-inset-right, 0px)); }
+            .lang-float {
+                top: max(.65rem, env(safe-area-inset-top, 0px));
+                right: max(.55rem, env(safe-area-inset-right, 0px));
+                position: fixed !important;
+                z-index: 10050;
+            }
             .lang-btn { min-width: 44px; min-height: 44px; }
             .enter-btn { min-height: 48px; }
             .pass-input { min-height: 48px; font-size: 1.05rem; }
@@ -18397,7 +18405,34 @@
                     mini?.classList.remove('open');
                     closeAllModals();
                 }
+                pinLangFloatViewport();
             }
+
+            /** Keep login flag pill glued to the visible top on iOS/Android keyboard / vv scroll. */
+            function pinLangFloatViewport() {
+                const el = document.getElementById('lang-switch');
+                if (!el) return;
+                if (el.classList.contains('hidden-lang') || !window.visualViewport) {
+                    el.style.removeProperty('top');
+                    return;
+                }
+                const y = Math.max(0, Math.round(window.visualViewport.offsetTop || 0));
+                el.style.top = `calc(${y}px + max(12px, env(safe-area-inset-top, 0px)))`;
+            }
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', pinLangFloatViewport, { passive: true });
+                window.visualViewport.addEventListener('scroll', pinLangFloatViewport, { passive: true });
+                window.addEventListener('orientationchange', () => setTimeout(pinLangFloatViewport, 50), { passive: true });
+            }
+            window.addEventListener('focusin', (e) => {
+                if (e.target && (e.target.id === 'passcode' || e.target.classList?.contains('pass-input'))) {
+                    requestAnimationFrame(pinLangFloatViewport);
+                    setTimeout(pinLangFloatViewport, 120);
+                    setTimeout(pinLangFloatViewport, 320);
+                }
+            });
+            window.addEventListener('focusout', () => setTimeout(pinLangFloatViewport, 80));
+            pinLangFloatViewport();
 
             function tickClock() {
                 if (document.hidden) return;
