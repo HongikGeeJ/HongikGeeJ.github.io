@@ -1370,7 +1370,7 @@
         }
         .dash-shell.theme-teacher-a > *:not(.taehyun-fx):not(.dc-corners) { position: relative; z-index: 1; }
         .dash-shell.theme-teacher-a > .dc-corners { position: absolute; z-index: 520; }
-        .dash-shell.theme-teacher-a > .dash-header { z-index: 500 !important; overflow: visible !important; }
+        .dash-shell.theme-teacher-a > .dash-header { z-index: 500 !important; overflow: hidden !important; }
         .dash-shell.theme-teacher-a > .taehyun-banner { z-index: 5; }
         .dash-shell.theme-teacher-a > .dash-tabs { z-index: 4; }
         .dash-shell.theme-teacher-a > .dash-body { z-index: 3; }
@@ -1649,25 +1649,75 @@
             50% { transform: scale(1.14); opacity: 1; }
         }
 
-        /* floating hangul glyphs */
-        .taehyun-fx .hangul-float {
+        /* floating hangul glyphs (shell + header) */
+        .taehyun-fx .hangul-float-layer,
+        .dash-header-fx .hangul-float-layer,
+        .taehyun-fx .sakura-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .taehyun-fx .hangul-float,
+        .dash-header-fx .hangul-float {
             position: absolute;
             font-weight: 800;
-            color: rgba(167,139,250,.28);
+            color: rgba(167,139,250,.42);
             user-select: none;
             animation: taeHangulDrift linear infinite;
-            text-shadow: 0 4px 18px rgba(244,114,182,.12);
+            text-shadow: 0 4px 18px rgba(244,114,182,.16);
+            z-index: 1;
+            pointer-events: none;
+            will-change: transform, opacity;
+            top: auto;
+            bottom: -0.35em;
+        }
+        .taehyun-fx .hangul-float.c2,
+        .dash-header-fx .hangul-float.c2 { color: rgba(244,114,182,.44); }
+        .taehyun-fx .hangul-float.c3,
+        .dash-header-fx .hangul-float.c3 { color: rgba(74,222,128,.4); }
+        .taehyun-fx .hangul-float.c4,
+        .dash-header-fx .hangul-float.c4 { color: rgba(56,189,248,.42); }
+        .taehyun-fx .hangul-float.c5,
+        .dash-header-fx .hangul-float.c5 { color: rgba(250,204,21,.44); }
+        @keyframes taeHangulDrift {
+            0% { transform: translate3d(0, 8px, 0) rotate(-10deg); opacity: 0; }
+            12% { opacity: .88; }
+            88% { opacity: .7; }
+            100% { transform: translate3d(28px, -118px, 0) rotate(14deg); opacity: 0; }
+        }
+
+        /* Header-local Hangul FX — behind identity/controls, never steals clicks */
+        .dash-header-fx {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: inherit;
+        }
+        .dash-header > .dash-identity,
+        .dash-header > .header-actions {
+            position: relative;
             z-index: 1;
         }
-        .taehyun-fx .hangul-float.c2 { color: rgba(244,114,182,.3); }
-        .taehyun-fx .hangul-float.c3 { color: rgba(74,222,128,.26); }
-        .taehyun-fx .hangul-float.c4 { color: rgba(56,189,248,.28); }
-        .taehyun-fx .hangul-float.c5 { color: rgba(250,204,21,.3); }
-        @keyframes taeHangulDrift {
-            0% { transform: translateY(110%) translateX(0) rotate(-10deg); opacity: 0; }
-            10% { opacity: .9; }
-            90% { opacity: .75; }
-            100% { transform: translateY(-35%) translateX(36px) rotate(14deg); opacity: 0; }
+        .dash-header-fx .hangul-mark {
+            position: absolute;
+            right: 3.5%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: clamp(1.55rem, 4.2vw, 2.35rem);
+            font-weight: 900;
+            letter-spacing: -.04em;
+            writing-mode: vertical-rl;
+            line-height: 1;
+            user-select: none;
+            opacity: .18;
+            color: #4a6fa5;
+            animation: hangulFloatCharm 9.5s ease-in-out infinite;
+            pointer-events: none;
+            will-change: transform, opacity;
         }
 
         .theme-teacher-a .dash-header {
@@ -1679,7 +1729,7 @@
                 rgba(125,211,252,.1)) !important;
             position: relative;
             z-index: 500 !important;
-            overflow: visible !important;
+            overflow: hidden !important;
             padding: .8rem 1.1rem .85rem 1.45rem !important;
         }
         .theme-teacher-a .dash-header::before {
@@ -1918,27 +1968,15 @@
             color: #be123c !important;
         }
         .taehyun-fx .hangul-mark {
-            position: absolute;
-            right: 4%;
-            top: 38%;
-            font-size: clamp(3.2rem, 11vw, 5.8rem);
-            font-weight: 900;
-            letter-spacing: -.05em;
-            writing-mode: vertical-rl;
-            line-height: 1;
-            user-select: none;
-            opacity: .12;
-            color: #4a6fa5;
-            animation: hangulFloatCharm 9.5s ease-in-out infinite;
-            will-change: transform, opacity;
-            pointer-events: none;
+            /* Large watermark lives in header FX now; keep shell mark subtle/off-body */
+            display: none;
         }
         @keyframes hangulFloatCharm {
-            0%   { opacity: .11; transform: translateY(0)    rotate(-1.2deg) scale(1); }
-            25%  { opacity: .18; transform: translateY(-16px) rotate(1deg)   scale(1.025); }
-            50%  { opacity: .14; transform: translateY(6px)  rotate(-0.6deg) scale(1); }
-            75%  { opacity: .2;  transform: translateY(-10px) rotate(0.8deg) scale(1.015); }
-            100% { opacity: .11; transform: translateY(0)    rotate(-1.2deg) scale(1); }
+            0%   { opacity: .14; transform: translateY(-50%) rotate(-1.2deg) scale(1); }
+            25%  { opacity: .24; transform: translateY(calc(-50% - 10px)) rotate(1deg) scale(1.03); }
+            50%  { opacity: .18; transform: translateY(calc(-50% + 4px)) rotate(-0.6deg) scale(1); }
+            75%  { opacity: .26; transform: translateY(calc(-50% - 6px)) rotate(0.8deg) scale(1.02); }
+            100% { opacity: .14; transform: translateY(-50%) rotate(-1.2deg) scale(1); }
         }
         .taehyun-fx .seal {
             display: none !important;
@@ -2215,7 +2253,7 @@
         }
         .dash-shell.theme-director > *:not(.taehyun-fx):not(.dc-corners) { position: relative; z-index: 1; }
         .dash-shell.theme-director > .dc-corners { position: absolute; z-index: 520; }
-        .dash-shell.theme-director > .dash-header { z-index: 500 !important; overflow: visible !important; }
+        .dash-shell.theme-director > .dash-header { z-index: 500 !important; overflow: hidden !important; }
         .dash-shell.theme-director > .taehyun-fx { position: absolute; z-index: 0; pointer-events: none; display: block; }
         .theme-director .dash-header {
             background: linear-gradient(180deg, #e8eef5 0%, #dde5ee 55%, #d5dee8 100%) !important;
@@ -2330,18 +2368,22 @@
             background-size: 220% 100% !important;
             opacity: .9;
         }
-        .theme-director .taehyun-fx .hangul-float { color: rgba(30,58,95,.22); text-shadow: none; }
-        .theme-director .taehyun-fx .hangul-float.c2 { color: rgba(51,65,85,.24); }
-        .theme-director .taehyun-fx .hangul-float.c3 { color: rgba(71,85,105,.2); }
-        .theme-director .taehyun-fx .hangul-float.c4 { color: rgba(30,58,95,.18); }
-        .theme-director .taehyun-fx .hangul-float.c5 { color: rgba(15,23,42,.2); }
-        .theme-director .taehyun-fx .hangul-mark {
+        .theme-director .taehyun-fx .hangul-float,
+        .theme-director .dash-header-fx .hangul-float { color: rgba(30,58,95,.34); text-shadow: none; }
+        .theme-director .taehyun-fx .hangul-float.c2,
+        .theme-director .dash-header-fx .hangul-float.c2 { color: rgba(51,65,85,.36); }
+        .theme-director .taehyun-fx .hangul-float.c3,
+        .theme-director .dash-header-fx .hangul-float.c3 { color: rgba(71,85,105,.32); }
+        .theme-director .taehyun-fx .hangul-float.c4,
+        .theme-director .dash-header-fx .hangul-float.c4 { color: rgba(30,58,95,.3); }
+        .theme-director .taehyun-fx .hangul-float.c5,
+        .theme-director .dash-header-fx .hangul-float.c5 { color: rgba(15,23,42,.34); }
+        .theme-director .dash-header-fx .hangul-mark {
             color: #1e3a5f;
-            opacity: .14;
-            font-size: clamp(2.6rem, 8.5vw, 4.8rem);
-            letter-spacing: .12em;
+            opacity: .2;
+            font-size: clamp(1.4rem, 3.8vw, 2.1rem);
+            letter-spacing: .1em;
             right: 3%;
-            top: 22%;
             animation: hangulFloatCharm 11s cubic-bezier(.45,.05,.55,.95) infinite;
         }
         .theme-director .taehyun-fx .seal {
@@ -6868,12 +6910,27 @@
             .login-sea-wave { animation: none !important; will-change: auto; opacity: .7; }
             .login-sea-sparkles span { animation: none !important; }
             .login-sea-sparkles span:nth-child(n+5) { display: none; }
-            /* Dashboard FX static on lite; login petals/leaves keep soft fall */
-            .sakura, .hangul-float, .ko-cloud, .crane-bird,
+            /* Dashboard FX static on lite; keep a light Hangul drift in the header */
+            .sakura, .ko-cloud, .crane-bird,
             .dir-ink-dot, .soft-star, .ink-splash {
                 animation: none !important;
                 will-change: auto;
                 filter: none !important;
+            }
+            .taehyun-fx .hangul-float {
+                animation: none !important;
+                will-change: auto;
+                filter: none !important;
+                opacity: .4;
+            }
+            .dash-header-fx .hangul-float {
+                animation: taeHangulDrift linear infinite !important;
+                will-change: transform, opacity;
+                opacity: .7;
+            }
+            .dash-header-fx .hangul-mark {
+                animation: hangulFloatCharm 11s ease-in-out infinite !important;
+                will-change: transform, opacity;
             }
             .petal, .leaf {
                 will-change: auto;
@@ -6939,8 +6996,9 @@
             .logo-wrap::before {
                 animation: none !important;
             }
-            .taehyun-fx .sakura:nth-child(n+8),
-            .taehyun-fx .hangul-float:nth-child(n+6),
+            .taehyun-fx .sakura-layer .sakura:nth-child(n+8),
+            .taehyun-fx .hangul-float-layer .hangul-float:nth-child(n+4),
+            .dash-header-fx .hangul-float-layer .hangul-float:nth-child(n+6),
             .taehyun-fx .crane-bird.c2,
             .taehyun-fx .ink-splash:nth-of-type(n+3) { display: none; }
             #order-modal .order-sakura,
@@ -7162,7 +7220,8 @@
             #attend-modal .attend-sparkles { display: none !important; }
         }
         html.lite-fx.page-hidden .bg-stage *,
-        html.lite-fx.page-hidden .taehyun-fx * {
+        html.lite-fx.page-hidden .taehyun-fx *,
+        html.lite-fx.page-hidden .dash-header-fx * {
             animation-play-state: paused !important;
         }
     </style>
@@ -7230,6 +7289,7 @@
             </div>
             <div class="taehyun-fx" id="taehyun-fx" aria-hidden="true"></div>
             <header class="dash-header">
+                <div class="dash-header-fx" id="dash-header-fx" aria-hidden="true"></div>
                 <div class="dash-identity flex items-center min-w-0">
                     <div class="dash-brand">
                         <img src="" data-school-logo="1" alt="" class="dash-logo">
@@ -18563,7 +18623,38 @@
                         softScene.innerHTML = '';
                     }
                 }
-                if (!fx) return;
+                const headerFx = document.getElementById('dash-header-fx');
+                const paintHeaderHangul = (glyphs, markText, sizeBase, sizeStep) => {
+                    if (!headerFx) return;
+                    const headerGlyphs = lite ? glyphs.slice(0, 5) : glyphs;
+                    const hangul = headerGlyphs.map((ch, i) => {
+                        const left = 6 + (i * 9) % 86;
+                        const size = (sizeBase + (i % 4) * sizeStep).toFixed(2);
+                        const delay = (i * 0.7).toFixed(1);
+                        const dur = ((lite ? 14 : 10) + (i % 5) * 1.5).toFixed(1);
+                        const cls = `c${(i % 5) + 1}`;
+                        return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
+                    }).join('');
+                    headerFx.innerHTML = `
+                        <div class="hangul-float-layer">${hangul}</div>
+                        <span class="hangul-mark">${markText}</span>`;
+                };
+                if (!fx) {
+                    if (user.id === 'taehyun') {
+                        paintHeaderHangul(
+                            lite ? ['태', '현', '홍', '익', '빛'] : ['태', '현', '홍', '익', '한', '국', '빛', '길', '꿈', '힘', '정', '성', '학', '원'],
+                            '태현', 0.95, 0.22
+                        );
+                    } else if (user.role === 'director') {
+                        paintHeaderHangul(
+                            lite ? ['원', '장', '홍', '익', '학'] : ['원', '장', '홍', '익', '학', '원', '정', '성', '한', '국', '빛', '길', '힘', '덕'],
+                            '혹익 지제이', 0.88, 0.18
+                        );
+                    } else if (headerFx) {
+                        headerFx.innerHTML = '';
+                    }
+                    return;
+                }
                 if (user.id === 'taehyun') {
                     const glyphs = lite
                         ? ['태', '현', '홍', '익', '빛']
@@ -18576,6 +18667,7 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
+                    paintHeaderHangul(glyphs, '태현', 0.95, 0.22);
                     const petalKinds = ['pink', 'purple', 'green', 'yellow'];
                     const petalCount = lite ? 6 : 22;
                     const petals = Array.from({ length: petalCount }, (_, i) => {
@@ -18677,9 +18769,8 @@
                         ${clouds}
                         <span class="crane-bird" style="top:26%;left:-10%"></span>
                         ${lite ? '' : '<span class="crane-bird c2" style="top:48%;left:-15%"></span>'}
-                        <span class="hangul-mark">태현</span>
-                        ${hangul}
-                        ${petals}`;
+                        <div class="hangul-float-layer">${hangul}</div>
+                        <div class="sakura-layer">${petals}</div>`;
                     if (celestialTimer) clearInterval(celestialTimer);
                     if (!lite) {
                         celestialTimer = setInterval(() => {
@@ -18703,6 +18794,7 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
+                    paintHeaderHangul(glyphs, '혹익 지제이', 0.88, 0.18);
                     const dots = Array.from({ length: lite ? 4 : 14 }, (_, i) => {
                         const left = 6 + (i * 6.8) % 90;
                         const delay = (i * 0.7).toFixed(1);
@@ -18726,11 +18818,11 @@
                         ${clouds}
                         <span class="crane-bird" style="top:22%;left:-10%"></span>
                         ${lite ? '' : '<span class="crane-bird c2" style="top:44%;left:-18%"></span>'}
-                        <span class="hangul-mark">혹익 지제이</span>
-                        ${hangul}
+                        <div class="hangul-float-layer">${hangul}</div>
                         ${dots}`;
                     return;
                 }
+                if (headerFx) headerFx.innerHTML = '';
                 fx.innerHTML = '';
             }
 

@@ -1651,7 +1651,8 @@
 
         /* floating hangul glyphs (shell + header) */
         .taehyun-fx .hangul-float-layer,
-        .dash-header-fx .hangul-float-layer {
+        .dash-header-fx .hangul-float-layer,
+        .taehyun-fx .sakura-layer {
             position: absolute;
             inset: 0;
             pointer-events: none;
@@ -7219,7 +7220,8 @@
             #attend-modal .attend-sparkles { display: none !important; }
         }
         html.lite-fx.page-hidden .bg-stage *,
-        html.lite-fx.page-hidden .taehyun-fx * {
+        html.lite-fx.page-hidden .taehyun-fx *,
+        html.lite-fx.page-hidden .dash-header-fx * {
             animation-play-state: paused !important;
         }
     </style>
@@ -18621,7 +18623,38 @@
                         softScene.innerHTML = '';
                     }
                 }
-                if (!fx) return;
+                const headerFx = document.getElementById('dash-header-fx');
+                const paintHeaderHangul = (glyphs, markText, sizeBase, sizeStep) => {
+                    if (!headerFx) return;
+                    const headerGlyphs = lite ? glyphs.slice(0, 5) : glyphs;
+                    const hangul = headerGlyphs.map((ch, i) => {
+                        const left = 6 + (i * 9) % 86;
+                        const size = (sizeBase + (i % 4) * sizeStep).toFixed(2);
+                        const delay = (i * 0.7).toFixed(1);
+                        const dur = ((lite ? 14 : 10) + (i % 5) * 1.5).toFixed(1);
+                        const cls = `c${(i % 5) + 1}`;
+                        return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
+                    }).join('');
+                    headerFx.innerHTML = `
+                        <div class="hangul-float-layer">${hangul}</div>
+                        <span class="hangul-mark">${markText}</span>`;
+                };
+                if (!fx) {
+                    if (user.id === 'taehyun') {
+                        paintHeaderHangul(
+                            lite ? ['태', '현', '홍', '익', '빛'] : ['태', '현', '홍', '익', '한', '국', '빛', '길', '꿈', '힘', '정', '성', '학', '원'],
+                            '태현', 0.95, 0.22
+                        );
+                    } else if (user.role === 'director') {
+                        paintHeaderHangul(
+                            lite ? ['원', '장', '홍', '익', '학'] : ['원', '장', '홍', '익', '학', '원', '정', '성', '한', '국', '빛', '길', '힘', '덕'],
+                            '혹익 지제이', 0.88, 0.18
+                        );
+                    } else if (headerFx) {
+                        headerFx.innerHTML = '';
+                    }
+                    return;
+                }
                 if (user.id === 'taehyun') {
                     const glyphs = lite
                         ? ['태', '현', '홍', '익', '빛']
@@ -18634,6 +18667,7 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
+                    paintHeaderHangul(glyphs, '태현', 0.95, 0.22);
                     const petalKinds = ['pink', 'purple', 'green', 'yellow'];
                     const petalCount = lite ? 6 : 22;
                     const petals = Array.from({ length: petalCount }, (_, i) => {
@@ -18735,9 +18769,8 @@
                         ${clouds}
                         <span class="crane-bird" style="top:26%;left:-10%"></span>
                         ${lite ? '' : '<span class="crane-bird c2" style="top:48%;left:-15%"></span>'}
-                        <span class="hangul-mark">태현</span>
-                        ${hangul}
-                        ${petals}`;
+                        <div class="hangul-float-layer">${hangul}</div>
+                        <div class="sakura-layer">${petals}</div>`;
                     if (celestialTimer) clearInterval(celestialTimer);
                     if (!lite) {
                         celestialTimer = setInterval(() => {
@@ -18761,6 +18794,7 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
+                    paintHeaderHangul(glyphs, '혹익 지제이', 0.88, 0.18);
                     const dots = Array.from({ length: lite ? 4 : 14 }, (_, i) => {
                         const left = 6 + (i * 6.8) % 90;
                         const delay = (i * 0.7).toFixed(1);
@@ -18784,11 +18818,11 @@
                         ${clouds}
                         <span class="crane-bird" style="top:22%;left:-10%"></span>
                         ${lite ? '' : '<span class="crane-bird c2" style="top:44%;left:-18%"></span>'}
-                        <span class="hangul-mark">혹익 지제이</span>
-                        ${hangul}
+                        <div class="hangul-float-layer">${hangul}</div>
                         ${dots}`;
                     return;
                 }
+                if (headerFx) headerFx.innerHTML = '';
                 fx.innerHTML = '';
             }
 
