@@ -1731,9 +1731,10 @@
             transform: translateY(-50%);
             font-size: clamp(1.55rem, 4.2vw, 2.35rem);
             font-weight: 900;
-            letter-spacing: -.04em;
-            writing-mode: vertical-rl;
+            letter-spacing: .06em;
+            writing-mode: horizontal-tb;
             line-height: 1;
+            white-space: nowrap;
             user-select: none;
             opacity: .18;
             color: #4a6fa5;
@@ -19463,7 +19464,7 @@
                     } else if (user.role === 'director') {
                         paintHeaderHangul(
                             lite ? ['원', '장', '홍', '익', '학'] : ['원', '장', '홍', '익', '학', '원', '정', '성', '한', '국', '빛', '길', '힘', '덕'],
-                            '혹익 지제이', 0.88, 0.18
+                            '홍익지제이', 0.88, 0.18
                         );
                     } else if (headerFx) {
                         headerFx.innerHTML = '';
@@ -19609,7 +19610,7 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
-                    paintHeaderHangul(glyphs, '혹익 지제이', 0.88, 0.18);
+                    paintHeaderHangul(glyphs, '홍익지제이', 0.88, 0.18);
                     const dots = Array.from({ length: lite ? 4 : 14 }, (_, i) => {
                         const left = 6 + (i * 6.8) % 90;
                         const delay = (i * 0.7).toFixed(1);

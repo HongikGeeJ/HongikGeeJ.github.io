@@ -702,12 +702,12 @@
             50% { transform: scale(1.08); opacity: 1; }
         }
 
-        /* Pinned to viewport (not login scroll); z below .modal (20000) */
+        /* Pinned to viewport (not login scroll); above dash chrome, below .modal (20000) */
         .lang-float {
             position: fixed;
             top: max(12px, env(safe-area-inset-top, 0px));
             right: max(12px, env(safe-area-inset-right, 0px));
-            z-index: 10050;
+            z-index: 12000;
             display: flex;
             gap: .4rem;
             padding: .35rem;
@@ -1007,7 +1007,7 @@
             margin-left: auto;
             padding-left: .25rem;
             position: relative;
-            z-index: 10040;
+            z-index: 12000;
             overflow: visible;
             display: flex !important;
             flex-wrap: nowrap !important;
@@ -1392,7 +1392,8 @@
         }
         .dash-shell.theme-teacher-a > *:not(.taehyun-fx):not(.dc-corners) { position: relative; z-index: 1; }
         .dash-shell.theme-teacher-a > .dc-corners { position: absolute; z-index: 520; }
-        .dash-shell.theme-teacher-a > .dash-header { z-index: 500 !important; overflow: hidden !important; }
+        /* overflow visible so #dash-lang-menu can extend below header (FX clips itself) */
+        .dash-shell.theme-teacher-a > .dash-header { z-index: 500 !important; overflow: visible !important; }
         .dash-shell.theme-teacher-a > .taehyun-banner { z-index: 5; }
         .dash-shell.theme-teacher-a > .dash-tabs { z-index: 4; }
         .dash-shell.theme-teacher-a > .dash-body { z-index: 3; }
@@ -1719,10 +1720,14 @@
             overflow: hidden;
             border-radius: inherit;
         }
-        .dash-header > .dash-identity,
-        .dash-header > .header-actions {
+        .dash-header > .dash-identity {
             position: relative;
             z-index: 1;
+        }
+        .dash-header > .header-actions {
+            position: relative;
+            /* Above identity / FX; keep lang menu free of sibling traps */
+            z-index: 5;
         }
         .dash-header-fx .hangul-mark {
             position: absolute;
@@ -1731,9 +1736,10 @@
             transform: translateY(-50%);
             font-size: clamp(1.55rem, 4.2vw, 2.35rem);
             font-weight: 900;
-            letter-spacing: -.04em;
-            writing-mode: vertical-rl;
+            letter-spacing: .06em;
+            writing-mode: horizontal-tb;
             line-height: 1;
+            white-space: nowrap;
             user-select: none;
             opacity: .18;
             color: #4a6fa5;
@@ -1751,7 +1757,7 @@
                 rgba(125,211,252,.1)) !important;
             position: relative;
             z-index: 500 !important;
-            overflow: hidden !important;
+            overflow: visible !important;
             padding: .8rem 1.1rem .85rem 1.45rem !important;
         }
         .theme-teacher-a .dash-header::before {
@@ -2275,7 +2281,7 @@
         }
         .dash-shell.theme-director > *:not(.taehyun-fx):not(.dc-corners) { position: relative; z-index: 1; }
         .dash-shell.theme-director > .dc-corners { position: absolute; z-index: 520; }
-        .dash-shell.theme-director > .dash-header { z-index: 500 !important; overflow: hidden !important; }
+        .dash-shell.theme-director > .dash-header { z-index: 500 !important; overflow: visible !important; }
         .dash-shell.theme-director > .taehyun-fx { position: absolute; z-index: 0; pointer-events: none; display: block; }
         .theme-director .dash-header {
             background: linear-gradient(180deg, #e8eef5 0%, #dde5ee 55%, #d5dee8 100%) !important;
@@ -4529,7 +4535,7 @@
         .pt-back:hover { color: #0f172a; }
 
         .modal {
-            /* Above .header-actions (10040) / .lang-mini (10050) so backdrop owns all taps */
+            /* Above .header-actions / .lang-mini (12000) so backdrop owns all taps */
             position: fixed; inset: 0; z-index: 20000; background: rgba(15,23,42,.48);
             display: none; align-items: center; justify-content: center; padding: 1rem;
             pointer-events: none;
@@ -5390,9 +5396,27 @@
         .lang-mini {
             position: relative;
             display: none;
-            z-index: 10050;
+            /* Above dash tabs/body/cards/help (~930); under .modal (20000) / #app-toast (21000) */
+            z-index: 12000;
         }
         .lang-mini.show { display: block; }
+        .lang-mini.open,
+        .lang-mini:focus-within {
+            z-index: 12050;
+        }
+        /* Elevate whole header stacking when menu is open so siblings cannot cover it */
+        .dash-header:has(.lang-mini.open),
+        .dash-header:has(.lang-mini:focus-within) {
+            z-index: 12000 !important;
+            overflow: visible !important;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .dash-header:has(.lang-mini:hover:not(.just-picked)) {
+                z-index: 12000 !important;
+                overflow: visible !important;
+            }
+            .lang-mini:hover:not(.just-picked) { z-index: 12050; }
+        }
         .lang-mini-toggle {
             width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e2e8f0;
             background: #fff; padding: 0; cursor: pointer; overflow: hidden;
@@ -5402,7 +5426,6 @@
         }
         .lang-mini-toggle:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
         .lang-mini-toggle img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; display: block; }
-        /* Single dropdown — only opens via .is-open (no hover duplicate) */
         .lang-mini-menu {
             position: absolute;
             top: calc(100% + 8px);
@@ -5415,13 +5438,22 @@
             opacity: 0; visibility: hidden;
             pointer-events: none;
             transition: opacity .15s ease, visibility .15s ease, transform .15s ease;
-            z-index: 10060;
+            z-index: 12100;
             min-width: 44px;
         }
         .lang-mini-menu.is-open {
             opacity: 1; visibility: visible;
             pointer-events: auto;
             transform: translateX(-50%) translateY(0);
+        }
+        /* Desktop: open on hover / keyboard focus without requiring click */
+        @media (hover: hover) and (pointer: fine) {
+            .lang-mini:hover:not(.just-picked) .lang-mini-menu,
+            .lang-mini:focus-within:not(.just-picked) .lang-mini-menu {
+                opacity: 1; visibility: visible;
+                pointer-events: auto;
+                transform: translateX(-50%) translateY(0);
+            }
         }
         .lang-mini-menu .lang-btn { width: 34px; height: 34px; }
         .lang-mini-menu .lang-btn img { width: 26px; height: 26px; }
@@ -7232,7 +7264,7 @@
                 top: max(.65rem, env(safe-area-inset-top, 0px));
                 right: max(.55rem, env(safe-area-inset-right, 0px));
                 position: fixed !important;
-                z-index: 10050;
+                z-index: 12000;
             }
             .lang-btn { min-width: 44px; min-height: 44px; }
             .enter-btn { min-height: 48px; }
@@ -18819,8 +18851,20 @@
             const dashLang = document.getElementById('dash-lang');
             const dashLangMenu = document.getElementById('dash-lang-menu');
             const dashLangToggle = document.getElementById('dash-lang-toggle');
+            let dashLangLeaveTimer = null;
+            const isFinePointerHover = () => {
+                try {
+                    return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+                } catch (_) {
+                    return false;
+                }
+            };
             function openDashLangMenu() {
                 if (!dashLangMenu || !dashLang) return;
+                if (dashLangLeaveTimer) {
+                    clearTimeout(dashLangLeaveTimer);
+                    dashLangLeaveTimer = null;
+                }
                 // reset any leftover fixed positioning from older builds
                 dashLangMenu.style.top = '';
                 dashLangMenu.style.left = '';
@@ -18831,11 +18875,17 @@
                 }
                 dashLang.classList.add('open');
                 dashLangMenu.classList.add('is-open');
+                dashLangToggle?.setAttribute('aria-expanded', 'true');
             }
             function closeDashLangMenu() {
                 if (!dashLangMenu || !dashLang) return;
+                if (dashLangLeaveTimer) {
+                    clearTimeout(dashLangLeaveTimer);
+                    dashLangLeaveTimer = null;
+                }
                 dashLang.classList.remove('open');
                 dashLangMenu.classList.remove('is-open');
+                dashLangToggle?.setAttribute('aria-expanded', 'false');
                 if (dashLangMenu.parentElement !== dashLang) {
                     dashLang.appendChild(dashLangMenu);
                 }
@@ -18845,10 +18895,30 @@
                     e.stopPropagation();
                     setLang(btn.dataset.lang);
                     closeDashLangMenu();
+                    // Snap closed even if pointer still over the widget
+                    dashLang?.classList.add('just-picked');
                 });
+            });
+            // Desktop: hover opens; touch/coarse: tap toggles (hover unreliable)
+            dashLang?.addEventListener('mouseenter', () => {
+                if (!isFinePointerHover()) return;
+                if (dashLang.classList.contains('just-picked')) return;
+                openDashLangMenu();
+            });
+            dashLang?.addEventListener('mouseleave', () => {
+                dashLang.classList.remove('just-picked');
+                if (!isFinePointerHover()) return;
+                if (dashLangLeaveTimer) clearTimeout(dashLangLeaveTimer);
+                dashLangLeaveTimer = setTimeout(() => closeDashLangMenu(), 160);
             });
             dashLangToggle?.addEventListener('click', (e) => {
                 e.stopPropagation();
+                if (isFinePointerHover()) {
+                    // Hover-primary: ensure open; leave / language select closes
+                    dashLang?.classList.remove('just-picked');
+                    openDashLangMenu();
+                    return;
+                }
                 if (dashLangMenu?.classList.contains('is-open')) closeDashLangMenu();
                 else openDashLangMenu();
             });
@@ -18857,6 +18927,11 @@
                 if (dashLang.contains(e.target)) return;
                 closeDashLangMenu();
             });
+            document.addEventListener('touchstart', (e) => {
+                if (!dashLang || !dashLangMenu?.classList.contains('is-open')) return;
+                if (dashLang.contains(e.target)) return;
+                closeDashLangMenu();
+            }, { passive: true });
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     closeDashLangMenu();
@@ -18864,6 +18939,8 @@
                     if (openModal) closeModalFast(openModal);
                 }
             });
+            dashLangToggle?.setAttribute('aria-expanded', 'false');
+            dashLangToggle?.setAttribute('aria-haspopup', 'true');
 
             let statusDismissedKey = '';
 
@@ -18934,7 +19011,7 @@
                 } else {
                     floatEl.classList.remove('hidden-lang');
                     mini?.classList.remove('show');
-                    mini?.classList.remove('open');
+                    closeDashLangMenu();
                     closeAllModals();
                 }
                 pinLangFloatViewport();
@@ -19463,7 +19540,7 @@
                     } else if (user.role === 'director') {
                         paintHeaderHangul(
                             lite ? ['원', '장', '홍', '익', '학'] : ['원', '장', '홍', '익', '학', '원', '정', '성', '한', '국', '빛', '길', '힘', '덕'],
-                            '혹익 지제이', 0.88, 0.18
+                            '홍익지제이', 0.88, 0.18
                         );
                     } else if (headerFx) {
                         headerFx.innerHTML = '';
@@ -19609,7 +19686,7 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
-                    paintHeaderHangul(glyphs, '혹익 지제이', 0.88, 0.18);
+                    paintHeaderHangul(glyphs, '홍익지제이', 0.88, 0.18);
                     const dots = Array.from({ length: lite ? 4 : 14 }, (_, i) => {
                         const left = 6 + (i * 6.8) % 90;
                         const delay = (i * 0.7).toFixed(1);
