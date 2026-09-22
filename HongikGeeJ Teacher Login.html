@@ -10006,7 +10006,8 @@
                 otPayClickHint: '이름을 누르면 OT 상세(날짜·시간·과목)를 볼 수 있습니다',
                 otPayBack: 'OT 목록으로',
                 otPayDetail: '이번 달 OT 상세',
-                otPayLinked: '시트 OT 표기 + 교사 신고 · 출석 자동 없음',
+                otPayLinked: '시트 주황 hrs.OT + 교사 신고 · 초록=출석 체크(OT 아님) · 열 날짜 기준((08)/(09) 아님)',
+                otSheetRules: '열 헤더 날짜로 집계 · (08)/(09) 아님 · 초록 톤=출석 체크, OT 시간 아님',
                 otLookback: '최근 8개월 조회',
                 otPickMonth: '월 선택',
                 otReportBadge: '교사 신고',
@@ -10791,7 +10792,8 @@
                 otPayClickHint: 'คลิกชื่อคุณครูเพื่อดูรายละเอียด OT (วัน · ชม. · วิชา)',
                 otPayBack: 'กลับรายการ OT',
                 otPayDetail: 'รายละเอียด OT เดือนนี้',
-                otPayLinked: 'นับจากชีตที่มี OT + ที่ครูแจ้งเอง · ไม่ดึงอัตโนมัติจากเช็คชื่อ',
+                otPayLinked: 'นับจากช่องส้ม hrs.OT บนชีต + ที่ครูแจ้งเอง · โทนเขียว = เช็คเข้าเรียน ไม่ใช่ชม. OT · นับตามวันที่หัวคอลัมน์ ไม่ใช่เลขในวงเล็บ (08)/(09)',
+                otSheetRules: 'นับตามวันที่หัวคอลัมน์ ไม่ใช่เลขในวงเล็บ (08)/(09) · โทนเขียว = เช็คเข้าเรียน ไม่ใช่ชม. OT',
                 otLookback: 'ย้อนหลัง 8 เดือน',
                 otPickMonth: 'เลือกเดือน',
                 otReportBadge: 'ครูแจ้งเอง',
@@ -11576,7 +11578,8 @@
                 otPayClickHint: 'Tap a teacher to see OT details (date · hours · subject)',
                 otPayBack: 'Back to OT list',
                 otPayDetail: 'OT details this month',
-                otPayLinked: 'Sheet OT marks + teacher reports · no auto attendance OT',
+                otPayLinked: 'Orange sheet hrs.OT + teacher reports · green = attendance check (not OT) · use column-header date, not (08)/(09)',
+                otSheetRules: 'Attribute by column-header date, not (08)/(09) · green tone = attendance check, not OT hours',
                 otLookback: 'Last 8 months',
                 otPickMonth: 'Pick month',
                 otReportBadge: 'Teacher report',
@@ -14294,8 +14297,9 @@
             return null;
         }
         /** Parse teaching-schedule workbook OT marks → per-teacher entries.
-         *  Month of record = column date (D/M), NOT the (MM) prefix in cells like (08)3hrs.OT.
-         *  Prefix is kept as metadata only — visible OT on a month tab under a Sept date counts for Sept. */
+         *  Only orange-style cells matching hrs.OT / OT tokens count (not green attendance checks).
+         *  Month of record = column-header date (D/M), NOT the (MM) prefix in cells like (08)3hrs.OT.
+         *  Prefix is metadata only — e.g. (08)3hrs.OT under 5/9 on the Sept tab counts for September. */
         function parseHongikOtWorkbook(wb) {
             if (!wb || typeof XLSX === 'undefined') throw new Error('SheetJS missing');
             const byTeacher = { taehyun: [], eunha: [], sua: [] };
@@ -21268,7 +21272,8 @@
                 board.innerHTML = `
                     <div class="ot-pay-panel" style="margin-top:0">
                         <h3 class="ot-pay-head"><i class="ph ph-currency-circle-dollar"></i> ${t('payThisMonth')}</h3>
-                        <p class="ot-pay-sub text-xs mb-2">${t('payThisMonthHint')} · ${t('otPayLinked')}</p>
+                        <p class="ot-pay-sub text-xs mb-1">${t('payThisMonthHint')} · ${t('otPayLinked')}</p>
+                        <p class="ot-pay-sub text-xs mb-2">${t('otSheetRules')}</p>
                         ${monthBar}
                         <p class="admin-label" style="margin:.35rem 0 .4rem">${t('otLookback')}</p>
                         <div class="pay-ok-board" style="grid-template-columns:repeat(auto-fill,minmax(7.5rem,1fr));gap:.45rem;margin-bottom:.85rem">${monthOverview}</div>
@@ -22929,7 +22934,8 @@
                     </div>
                     <p class="text-xs text-slate-500" id="ot-sheet-sync-msg" style="margin:.35rem 0 0"></p>
                     <h3 class="mt-3" style="margin-top:2.85rem">${t('otTitle')}</h3>
-                    <p class="text-xs text-slate-500 mb-2">${t('otPayLinked')} · ${t('otLookback')} · ${t('otNoSelfOthers')}</p>
+                    <p class="text-xs text-slate-500 mb-1">${t('otPayLinked')} · ${t('otLookback')} · ${t('otNoSelfOthers')}</p>
+                    <p class="text-xs text-slate-500 mb-2">${t('otSheetRules')}</p>
                     <label class="text-xs" style="font-weight:700;color:#64748b;display:block;margin-bottom:.55rem">${t('otPickMonth')}
                         <select id="teacher-ot-month-sel" class="sched-select" style="margin-left:.35rem">${otMonthOptionsHtml(ym)}</select>
                     </label>
