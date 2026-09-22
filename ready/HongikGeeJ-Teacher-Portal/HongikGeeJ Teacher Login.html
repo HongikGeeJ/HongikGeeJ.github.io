@@ -14230,16 +14230,35 @@
             if (m) return { hours: Number(m[1]), tagMonth: null, hasOt: false };
             return null;
         }
+        function isOtNoiseCell(val) {
+            if (val === true || val === false) return true;
+            const s = String(val ?? '').trim();
+            if (!s) return true;
+            if (/^(TRUE|FALSE|1|0|1\.0|0\.0)$/i.test(s)) return true;
+            if (/^(จบคอร์ส|เลื่อน|ขาด|New course|Night Class|September|추석)$/i.test(s)) return true;
+            if (/^\d+(?:\.\d+)?\s*hrs?\.?$/i.test(s)) return true;
+            return false;
+        }
         function findOtDateInColumn(rows, rowIdx, colIdx, sheetYear, sheetMonth) {
+            const preferPrefix = `${sheetYear}-${String(sheetMonth).padStart(2, '0')}`;
+            let fallback = '';
             for (let r = rowIdx - 1; r >= 0; r--) {
                 const row = rows[r] || [];
                 const a = String(row[0] ?? '').trim();
                 const b = String(row[1] ?? '').trim();
-                const dk = parseSheetDateCell(row[colIdx], sheetYear, sheetMonth);
-                if (dk) return dk;
+                const cell = row[colIdx];
+                if (isOtNoiseCell(cell)) {
+                    if (isCourseHeaderCell(a) || isCourseHeaderCell(b) || isOtTeacherZoneCell(a) || isOtTeacherZoneCell(b)) break;
+                    continue;
+                }
+                const dk = parseSheetDateCell(cell, sheetYear, sheetMonth);
+                if (dk) {
+                    if (String(dk).startsWith(preferPrefix)) return dk;
+                    if (!fallback) fallback = dk;
+                }
                 if (isCourseHeaderCell(a) || isCourseHeaderCell(b) || isOtTeacherZoneCell(a) || isOtTeacherZoneCell(b)) break;
             }
-            return '';
+            return fallback || '';
         }
         function findOtCourseNear(rows, rowIdx) {
             for (let r = rowIdx; r >= Math.max(0, rowIdx - 20); r--) {
@@ -14261,17 +14280,21 @@
             }
             return null;
         }
-        /** Parse teaching-schedule workbook OT marks → per-teacher entries. */
+        /** Parse teaching-schedule workbook OT marks → per-teacher entries.
+         *  Month of record = column date (D/M), NOT the (MM) prefix in cells like (08)3hrs.OT.
+         *  Prefix is kept as metadata only — visible OT on a month tab under a Sept date counts for Sept. */
         function parseHongikOtWorkbook(wb) {
             if (!wb || typeof XLSX === 'undefined') throw new Error('SheetJS missing');
             const byTeacher = { taehyun: [], eunha: [], sua: [] };
             const seen = new Set();
+            const foundRows = [];
             const skippedSheets = [];
             (wb.SheetNames || []).forEach((name) => {
                 const ym = sheetMonthFromName(name);
                 if (!ym) return;
                 const rows = sheetRowsFromWorkbook(wb, name);
                 if (!rows.length) return;
+                const monthPrefix = `${ym.year}-${String(ym.month).padStart(2, '0')}`;
                 let zoneId = null;
                 rows.forEach((row, ri) => {
                     if (!row || !row.length) return;
@@ -14285,12 +14308,12 @@
                         const raw = row[ci];
                         const tok = parseOtHoursToken(raw);
                         if (!tok || !tok.hasOt) continue;
-                        if (tok.tagMonth != null && tok.tagMonth !== ym.month) continue;
+                        // Do NOT skip when tok.tagMonth !== sheet month — e.g. (08)3hrs.OT under 5/9 on the Sept tab.
                         let hours = tok.hours;
                         if (hours == null || !(hours > 0)) hours = findOtHoursBelow(rows, ri, ci);
                         if (!(hours > 0)) continue;
                         const date = findOtDateInColumn(rows, ri, ci, ym.year, ym.month);
-                        if (!date || !String(date).startsWith(`${ym.year}-${String(ym.month).padStart(2, '0')}`)) continue;
+                        if (!date || !String(date).startsWith(monthPrefix)) continue;
                         const course = findOtCourseNear(rows, ri);
                         let teacherId = zoneId;
                         if (!teacherId) {
@@ -14314,12 +14337,21 @@
                             source: 'sheet',
                             fromSheet: true,
                             auto: false,
-                            sheetMonth: `${ym.year}-${String(ym.month).padStart(2, '0')}`,
+                            sheetMonth: monthPrefix,
                             sheetHours: hours,
+                            sheetTagMonth: tok.tagMonth,
                             sheetCell: String(raw ?? '').trim(),
                             sheetName: String(name || '').trim()
                         }, 'subject', subject);
                         byTeacher[teacherId].push(entry);
+                        foundRows.push({
+                            teacher: teacherId,
+                            date,
+                            hours,
+                            cell: String(raw ?? '').trim(),
+                            tagMonth: tok.tagMonth,
+                            sheet: String(name || '').trim()
+                        });
                     }
                 });
             });
@@ -14334,6 +14366,7 @@
                     sua: byTeacher.sua.length,
                     total: byTeacher.taehyun.length + byTeacher.eunha.length + byTeacher.sua.length
                 },
+                foundRows,
                 liveSyncedAt: new Date().toISOString(),
                 sourceId: STUDENT_SHEET_ID,
                 skippedSheets
@@ -14387,8 +14420,12 @@
                         if (typeof softRefreshDashboard === 'function') softRefreshDashboard({ stores: ['otReports'] });
                     } catch (_) {}
                 }
-                if (!silent) console.info('OT sheet sync', payload.counts);
-                return { ok: true, changed, counts: payload.counts || {} };
+                if (!silent) {
+                    console.info('OT sheet sync', payload.counts);
+                    const sept = (payload.foundRows || []).filter((r) => String(r.date || '').startsWith('2026-09'));
+                    if (sept.length) console.info('OT September rows', sept);
+                }
+                return { ok: true, changed, counts: payload.counts || {}, foundRows: payload.foundRows || [] };
             } catch (err) {
                 otSheetSyncState = {
                     ...otSheetSyncState,
@@ -23722,7 +23759,7 @@
                             const res = await syncOTFromSheet({ force: true, silent: false });
                             if (msg) {
                                 msg.textContent = res.ok
-                                    ? `${t('otRefreshSheetOk')} · ${res.counts?.total || 0}`
+                                    ? `${t('otRefreshSheetOk')} · ${res.counts?.total || 0}${(res.foundRows || []).length ? ` (${(res.foundRows || []).filter((r) => String(r.date || '').startsWith('2026-09')).length} Sep)` : ''}`
                                     : `${t('otRefreshSheetFail')}${res.error ? ': ' + res.error : ''}`;
                             }
                             if (res.ok && currentUser) {
