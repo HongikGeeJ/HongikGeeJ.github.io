@@ -1,10 +1,12 @@
--- Hongik GeeJ — teacher profile photos (one-time)
--- Run in: Supabase Dashboard → SQL Editor → New query → Run
--- Prefer the copy-paste file: data/supabase/FIX-RUN-IN-SQL-EDITOR.sql
--- Requires: schema.sql already applied (portal_stores + RLS).
+-- ═══════════════════════════════════════════════════════════
+-- COPY-PASTE THIS ENTIRE FILE into Supabase SQL Editor → Run
+-- Project: qoxdpqlzbbsluxzqchuq
+-- Fixes: portal_stores_store_name_check blocking store_name = 'photos'
+-- Also creates Storage bucket teacher-photos + anon policies
 -- Safe to re-run.
+-- ═══════════════════════════════════════════════════════════
 
--- 1) Allow 'photos' in portal_stores (URL index / dataUrl fallback)
+-- 1) Widen CHECK to match PORTAL_STORE_IDS (includes photos)
 alter table public.portal_stores drop constraint if exists portal_stores_store_name_check;
 alter table public.portal_stores add constraint portal_stores_store_name_check
   check (store_name in (
@@ -15,7 +17,7 @@ alter table public.portal_stores add constraint portal_stores_store_name_check
     'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos'
   ));
 
--- 2) Public Storage bucket for high-quality JPEGs (avatars)
+-- 2) Public Storage bucket for profile JPEGs
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'teacher-photos',
@@ -29,7 +31,7 @@ on conflict (id) do update
       file_size_limit = excluded.file_size_limit,
       allowed_mime_types = excluded.allowed_mime_types;
 
--- 3) RLS on storage.objects — same trust model as portal_stores (anon R/W)
+-- 3) Storage RLS — same trust model as portal_stores (anon R/W)
 drop policy if exists teacher_photos_anon_select on storage.objects;
 create policy teacher_photos_anon_select on storage.objects
   for select to anon, authenticated
@@ -51,7 +53,7 @@ create policy teacher_photos_anon_delete on storage.objects
   for delete to anon, authenticated
   using (bucket_id = 'teacher-photos');
 
--- Optional: confirm realtime still includes portal_stores
+-- 4) Realtime publication (no-op if already added)
 do $$
 begin
   begin

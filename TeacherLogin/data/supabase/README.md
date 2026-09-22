@@ -52,9 +52,9 @@ Until those are filled, the portal keeps working with **localStorage** (and opti
 
 3. Click **Run** (should succeed with no errors)
 
-4. **Also run once** (profile photos / Storage):
+4. **Also run once** (profile photos / Storage) — **required if photo upload shows `portal_stores_store_name_check`**:
 
-   **`data/supabase/storage-photos.sql`**
+   **`data/supabase/FIX-RUN-IN-SQL-EDITOR.sql`** (same content as `storage-photos.sql`)
 
    This adds `photos` to `portal_stores` and creates public bucket `teacher-photos` with anon read/write (same trust model as the rest of the portal).
 

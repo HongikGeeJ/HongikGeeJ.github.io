@@ -8908,8 +8908,14 @@
                 setPhotoSyncMsg(msg, 'warn');
                 return;
             }
-            const errBit = r.error ? ` (${r.error})` : '';
-            const msg = ((typeof t === 'function' ? t('photoSavedCloudFail') : '') || 'Saved locally · cloud sync failed') + errBit;
+            const rawErr = String(r.error || '');
+            const needsPhotosSql = /portal_stores_store_name_check|store_name_check/i.test(rawErr)
+                || (/photos/i.test(rawErr) && /check constraint/i.test(rawErr));
+            const hint = needsPhotosSql
+                ? ((typeof t === 'function' ? t('photoSavedNeedSql') : '') || ' · run data/supabase/FIX-RUN-IN-SQL-EDITOR.sql in Supabase SQL Editor')
+                : '';
+            const errBit = rawErr && !needsPhotosSql ? ` (${rawErr})` : (needsPhotosSql ? '' : (rawErr ? ` (${rawErr})` : ''));
+            const msg = ((typeof t === 'function' ? t('photoSavedCloudFail') : '') || 'Saved locally · cloud sync failed') + hint + errBit;
             showAppToast(msg, 'err');
             setPhotoSyncMsg(msg, 'err');
         }
@@ -9716,6 +9722,7 @@
                 photoSavedCloud: 'Supabase에 동기화됨 · 다른 계정도 바로 보입니다',
                 photoSavedLocalOnly: '이 PC에만 저장됨 · Supabase/중앙 동기화가 없습니다 (data/supabase/README.md)',
                 photoSavedCloudFail: '이 PC에는 저장됨 · 클라우드 동기화 실패',
+                photoSavedNeedSql: ' · Supabase SQL Editor에서 FIX-RUN-IN-SQL-EDITOR.sql 실행 필요',
                 leaveRequest: '휴가/연차 신청',
                 leaveFrom: '시작일',
                 leaveTo: '종료일',
@@ -10492,6 +10499,7 @@
                 photoSavedCloud: 'ซิงก์ขึ้น Supabase แล้ว · บัญชีอื่นเห็นได้ทันที',
                 photoSavedLocalOnly: 'บันทึกบนเครื่องนี้เท่านั้น · ยังไม่ได้เชื่อม Supabase (ดู data/supabase/README.md)',
                 photoSavedCloudFail: 'บันทึกในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
+                photoSavedNeedSql: ' · รัน FIX-RUN-IN-SQL-EDITOR.sql ใน Supabase SQL Editor',
                 leaveRequest: 'ขอลางาน/หยุด',
                 leaveFrom: 'ตั้งแต่วันที่',
                 leaveTo: 'ถึงวันที่',
@@ -11268,6 +11276,7 @@
                 photoSavedCloud: 'Synced via Supabase · other accounts see it immediately',
                 photoSavedLocalOnly: 'Saved on this PC only · Supabase not connected (see data/supabase/README.md)',
                 photoSavedCloudFail: 'Saved locally · cloud sync failed',
+                photoSavedNeedSql: ' · run data/supabase/FIX-RUN-IN-SQL-EDITOR.sql in Supabase SQL Editor',
                 leaveRequest: 'Leave request',
                 leaveFrom: 'From',
                 leaveTo: 'To',

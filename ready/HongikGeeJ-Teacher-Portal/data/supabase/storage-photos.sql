@@ -1,5 +1,6 @@
 -- Hongik GeeJ — teacher profile photos (one-time)
 -- Run in: Supabase Dashboard → SQL Editor → New query → Run
+-- Prefer the copy-paste file: data/supabase/FIX-RUN-IN-SQL-EDITOR.sql
 -- Requires: schema.sql already applied (portal_stores + RLS).
 -- Safe to re-run.
 
