@@ -3380,7 +3380,7 @@
         }
 
         /* Urgent room-TT re-auth (cancel / change) — alarming vs soft teach-pop */
-        #room-tt-reauth-modal { z-index: 120; }
+        #room-tt-reauth-modal { z-index: 20010; }
         #room-tt-reauth-modal.open {
             animation: roomTtReauthBackdrop .2s ease both;
         }
@@ -4443,10 +4443,12 @@
         .pt-back:hover { color: #0f172a; }
 
         .modal {
-            position: fixed; inset: 0; z-index: 90; background: rgba(15,23,42,.48);
+            /* Above .header-actions (10040) / .lang-mini (10050) so backdrop owns all taps */
+            position: fixed; inset: 0; z-index: 20000; background: rgba(15,23,42,.48);
             display: none; align-items: center; justify-content: center; padding: 1rem;
             pointer-events: none;
             will-change: opacity;
+            touch-action: manipulation;
         }
         .modal.open { display: flex; pointer-events: auto; animation: modalBackdropIn .18s ease both; }
         .modal.is-closing {
@@ -4464,9 +4466,21 @@
             background: #fff; border-radius: 1.4rem; padding: 1.25rem; width: min(420px,100%);
             box-shadow: 0 24px 60px rgba(0,0,0,.25); animation: riseIn .22s ease both;
             position: relative;
+            pointer-events: auto;
+        }
+        /* While any .modal.open: freeze dashboard chrome (logout / lang / camera) */
+        body.modal-open #dash-shell,
+        body.modal-open #dashboard-screen,
+        body.modal-open #help-fab,
+        body.modal-open #lang-switch,
+        body.modal-open .help-panel {
+            pointer-events: none !important;
+        }
+        body.modal-open {
+            overflow: hidden;
         }
         #access-block-modal {
-            z-index: 120;
+            z-index: 20010;
             background: rgba(80, 0, 10, .72);
         }
         #access-block-modal.open {
@@ -6231,7 +6245,7 @@
         #photo-sync-msg.is-err { color: #be123c; }
         #app-toast {
             position: fixed; left: 50%; bottom: 1.35rem; transform: translateX(-50%) translateY(120%);
-            z-index: 12000; max-width: min(92vw, 420px); padding: .72rem 1rem;
+            z-index: 21000; max-width: min(92vw, 420px); padding: .72rem 1rem;
             border-radius: 14px; font-size: .84rem; font-weight: 700; line-height: 1.35;
             color: #0f172a; background: #fff; border: 1px solid #e2e8f0;
             box-shadow: 0 12px 32px rgba(15, 23, 42, .16);
@@ -16236,13 +16250,63 @@
             if (type === 'other') return t('leaveTypeOther');
             return '';
         }
+        function syncModalOpenLock() {
+            const open = !!document.querySelector('.modal.open');
+            if (syncModalOpenLock._wasOpen && !open) armModalPointerShield(480);
+            syncModalOpenLock._wasOpen = open;
+            document.body.classList.toggle('modal-open', open);
+            const shell = document.getElementById('dash-shell');
+            if (shell) {
+                if (open) shell.setAttribute('inert', '');
+                else shell.removeAttribute('inert');
+            }
+            const helpFab = document.getElementById('help-fab');
+            if (helpFab) {
+                if (open) helpFab.setAttribute('inert', '');
+                else helpFab.removeAttribute('inert');
+            }
+            const langFloat = document.getElementById('lang-switch');
+            if (langFloat) {
+                if (open) langFloat.setAttribute('inert', '');
+                else langFloat.removeAttribute('inert');
+            }
+        }
+        syncModalOpenLock._wasOpen = false;
+        /** After × closes on pointerdown, block the synthetic click from hitting logout/lang behind. */
+        let modalPointerShieldUntil = 0;
+        function armModalPointerShield(ms) {
+            modalPointerShieldUntil = Math.max(modalPointerShieldUntil, performance.now() + (ms || 480));
+        }
+        document.addEventListener('click', (e) => {
+            if (performance.now() >= modalPointerShieldUntil) return;
+            const hit = e.target?.closest?.(
+                '#logout-btn, .header-actions, #help-fab, #dash-lang, .lang-mini-toggle, .lang-btn, .profile-edit-btn, .profile-btn, #profile-input'
+            );
+            if (!hit) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }, true);
+        document.addEventListener('pointerup', (e) => {
+            if (performance.now() >= modalPointerShieldUntil) return;
+            const hit = e.target?.closest?.(
+                '#logout-btn, .header-actions, #help-fab, #dash-lang, .lang-mini-toggle, .lang-btn, .profile-edit-btn, .profile-btn, #profile-input'
+            );
+            if (!hit) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }, true);
+
         function closeModalFast(modalOrId) {
             const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
             if (!modal) return;
             // × / Escape / closeAllModals — snooze attendance until tab/page change
             if (modal.id === 'attend-modal') attendPopupSnoozed = true;
+            armModalPointerShield(480);
             modal.classList.add('is-closing');
             modal.classList.remove('open');
+            syncModalOpenLock();
             const box = modal.querySelector('.modal-box');
             if (box) {
                 box.style.animation = 'none';
@@ -16270,6 +16334,7 @@
             applySchoolLogo(modal);
             applyStaticI18n();
             modal.classList.add('open');
+            syncModalOpenLock();
         }
 
         function getAttendanceDay(dateKey) {
@@ -17869,7 +17934,15 @@
             function closeAllModals() {
                 document.querySelectorAll('.modal.open, .modal.is-closing').forEach((m) => closeModalFast(m));
                 document.getElementById('crop-ui')?.classList.add('hidden');
+                syncModalOpenLock();
             }
+
+            // Keep body.modal-open / inert in sync for every .modal class toggle
+            const modalLockObserver = new MutationObserver(() => syncModalOpenLock());
+            document.querySelectorAll('.modal').forEach((m) => {
+                modalLockObserver.observe(m, { attributes: true, attributeFilter: ['class'] });
+            });
+            syncModalOpenLock();
 
             // Instant ×: hide on pointerdown so it feels immediate on web/mobile
             document.addEventListener('pointerdown', (e) => {
@@ -17877,6 +17950,8 @@
                 if (!btn) return;
                 const modal = btn.closest('.modal');
                 if (!modal || !modal.classList.contains('open')) return;
+                e.preventDefault();
+                e.stopPropagation();
                 closeModalFast(modal);
             }, true);
 
@@ -24157,6 +24232,7 @@
                 }
                 modal.classList.add('open');
                 applySchoolLogo(modal);
+                syncModalOpenLock();
             }
 
             function maybeShowAlertPopups(user) {
