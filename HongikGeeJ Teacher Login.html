@@ -2814,7 +2814,7 @@
             gap: .55rem;
         }
         @media (max-width: 900px) {
-            #order-modal .modal-box { width: min(94vw, 980px); max-height: min(78vh, 720px); }
+            #order-modal .modal-box { width: min(94vw, 980px); max-height: min(55vh, 520px); }
         }
         #order-modal .order-modal-top {
             display: flex;
@@ -4473,11 +4473,17 @@
         body.modal-open #dashboard-screen,
         body.modal-open #help-fab,
         body.modal-open #lang-switch,
-        body.modal-open .help-panel {
+        body.modal-open .help-panel,
+        body.modal-open .header-actions,
+        body.modal-open #logout-btn {
             pointer-events: none !important;
         }
         body.modal-open {
             overflow: hidden;
+        }
+        body.modal-open .modal.open,
+        body.modal-open .modal.open .modal-box {
+            pointer-events: auto !important;
         }
         #access-block-modal {
             z-index: 20010;
@@ -6905,23 +6911,45 @@
             #attend-modal-clock,
             #attend-modal.open .attend-bell,
             #order-modal.open .order-bell { animation: none !important; }
-            .modal { will-change: auto; padding: max(.5rem, env(safe-area-inset-top)) .65rem max(.65rem, env(safe-area-inset-bottom)); align-items: flex-end; }
-            @media (min-height: 700px) {
-                .modal { align-items: center; }
+            #attend-modal.open .modal-box::before,
+            .modal-box.teach-pop::before { display: none !important; animation: none !important; }
+            /* Half-height sheet: keep clear of header logout / lang taps */
+            .modal {
+                will-change: auto;
+                z-index: 20000;
+                padding:
+                    max(4.5rem, calc(env(safe-area-inset-top, 0px) + 3.25rem))
+                    .65rem
+                    max(.65rem, env(safe-area-inset-bottom));
+                align-items: flex-end;
+                justify-content: center;
             }
-            .modal-box {
-                max-height: min(92dvh, calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1rem));
+            @media (min-height: 780px) {
+                .modal { align-items: center; padding-top: max(1rem, env(safe-area-inset-top, 0px)); }
+            }
+            .modal-box,
+            .modal-box.teach-pop {
+                max-height: min(52vh, 52dvh, 480px) !important;
+                overflow-x: hidden;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 overscroll-behavior: contain;
             }
             #order-modal .modal-box {
                 width: min(100%, 96vw) !important;
-                max-height: min(88dvh, 760px) !important;
-                padding: 1rem 1rem .95rem !important;
+                max-height: min(52vh, 52dvh, 480px) !important;
+                padding: .9rem .9rem .85rem !important;
+                display: flex !important;
+                flex-direction: column;
+                gap: .45rem;
             }
             #order-modal #order-modal-list {
-                max-height: min(46dvh, 380px);
+                flex: 1 1 auto;
+                min-height: 0;
+                max-height: none;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
             }
             #order-modal #order-modal-x,
             #attend-modal .modal-x {
@@ -6934,13 +6962,27 @@
             }
             #attend-modal .modal-box {
                 width: min(100%, 96vw);
-                max-height: min(90dvh, 780px);
-                overflow-y: auto;
+                max-height: min(52vh, 52dvh, 480px) !important;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
                 -webkit-overflow-scrolling: touch;
-                padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+                padding-bottom: max(.85rem, env(safe-area-inset-bottom, 0px));
             }
             #attend-modal-list.attend-list {
-                max-height: min(48dvh, 420px);
+                flex: 1 1 auto;
+                min-height: 0;
+                max-height: none;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
+            #sched-alert-modal .modal-box,
+            #cancel-alert-modal .modal-box,
+            #cancel-ack-modal .modal-box,
+            #leave-modal .modal-box,
+            #access-block-modal .modal-box {
+                max-height: min(52vh, 52dvh, 480px) !important;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 overscroll-behavior: contain;
@@ -8482,6 +8524,12 @@
             window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener?.('change', applyLiteClientClass);
             document.addEventListener('visibilitychange', () => {
                 document.documentElement.classList.toggle('page-hidden', document.hidden);
+                try {
+                    if (typeof restartPortalPollTimer === 'function') restartPortalPollTimer();
+                    if (!document.hidden && currentUser && typeof syncPortalStoresFromCentral === 'function') {
+                        syncPortalStoresFromCentral({ silent: true });
+                    }
+                } catch (_) {}
             });
         } catch (_) {}
         let photosSyncTimer = null;
@@ -14021,7 +14069,9 @@
         function currentPortalPollMs() {
             const base = supabaseRealtimeReady ? PORTAL_SYNC_MS_REALTIME : PORTAL_SYNC_MS_FALLBACK;
             if (!isLiteClient()) return base;
-            return supabaseRealtimeReady ? Math.max(base, 90000) : Math.max(base, 22000);
+            // Mobile/iPad: faster backup poll while visible (was slower than desktop)
+            if (document.hidden) return Math.max(base * 2, 60000);
+            return supabaseRealtimeReady ? 16000 : 4500;
         }
         function restartPortalPollTimer() {
             PORTAL_SYNC_MS = currentPortalPollMs();
@@ -16252,7 +16302,7 @@
         }
         function syncModalOpenLock() {
             const open = !!document.querySelector('.modal.open');
-            if (syncModalOpenLock._wasOpen && !open) armModalPointerShield(480);
+            if (syncModalOpenLock._wasOpen && !open) armModalPointerShield(isLiteClient() ? 700 : 480);
             syncModalOpenLock._wasOpen = open;
             document.body.classList.toggle('modal-open', open);
             const shell = document.getElementById('dash-shell');
@@ -16303,7 +16353,7 @@
             if (!modal) return;
             // × / Escape / closeAllModals — snooze attendance until tab/page change
             if (modal.id === 'attend-modal') attendPopupSnoozed = true;
-            armModalPointerShield(480);
+            armModalPointerShield(isLiteClient() ? 700 : 480);
             modal.classList.add('is-closing');
             modal.classList.remove('open');
             syncModalOpenLock();
@@ -18278,10 +18328,10 @@
                     softRefreshDeferred = { user, stores, reason };
                     return;
                 }
-                // Mobile/iPad: coalesce rapid sync-driven refreshes (clock + poll + realtime)
+                // Mobile/iPad: short coalesce so UI stays snappy without stacking remounts
                 if (isLiteClient() && (reason === 'portal-synced' || String(reason || '').startsWith('storage:'))) {
                     const now = Date.now();
-                    const minGap = 1100;
+                    const minGap = 420;
                     if (now - softRefreshLastAt < minGap) {
                         softRefreshDeferred = { user, stores, reason };
                         if (!softRefreshThrottleTimer) {
@@ -18295,7 +18345,7 @@
                                     stores: pending.stores,
                                     reason: pending.reason || 'throttled'
                                 });
-                            }, minGap - (now - softRefreshLastAt) + 40);
+                            }, minGap - (now - softRefreshLastAt) + 20);
                         }
                         return;
                     }
@@ -18335,37 +18385,53 @@
                 }
 
                 softRefreshBusy = true;
-                try {
-                    // Data-only: never remount theme FX / never wipe #tab-panels (that caused global flicker)
-                    refreshMountedDataBoards(user, { stores });
+                const runSoftRefreshPaint = () => {
+                    try {
+                        // Data-only: never remount theme FX / never wipe #tab-panels (that caused global flicker)
+                        refreshMountedDataBoards(user, { stores });
 
-                    // Director panels baked into renderPanels (orders / leave / cancels) — refresh shell only when needed & idle
-                    // Never rebuild "today" schedule form shell on sync (that flashed 종료 시간 inputs)
-                    const shellStores = ['headOrders', 'orderAcks', 'leaveRequests', 'classCancels', 'schedChanges', 'directorTodos'];
-                    const orderOnly = !!(stores && stores.length && stores.every((s) => s === 'headOrders' || s === 'orderAcks'));
-                    const needShell = !stores || !stores.length || stores.some((s) => shellStores.includes(s));
-                    const directorShellTab = user.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab);
-                    // Order ack: patch pills in place (no remount flicker). Other shell stores remount when idle on that tab.
-                    if (needShell && directorShellTab && typeof renderPanels === 'function') {
-                        if (orderOnly) {
-                            try { patchDirectorOrderAckBadges(); } catch (_) {}
-                        } else {
-                            renderPanels(user);
-                            setTab(currentTab);
+                        // Director panels baked into renderPanels (orders / leave / cancels) — refresh shell only when needed & idle
+                        // Never rebuild "today" schedule form shell on sync (that flashed 종료 시간 inputs)
+                        const shellStores = ['headOrders', 'orderAcks', 'leaveRequests', 'classCancels', 'schedChanges', 'directorTodos'];
+                        const orderOnly = !!(stores && stores.length && stores.every((s) => s === 'headOrders' || s === 'orderAcks'));
+                        const needShell = !stores || !stores.length || stores.some((s) => shellStores.includes(s));
+                        const directorShellTab = user.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab);
+                        // Order ack: patch pills in place (no remount flicker). Other shell stores remount when idle on that tab.
+                        if (needShell && directorShellTab && typeof renderPanels === 'function') {
+                            if (orderOnly) {
+                                try { patchDirectorOrderAckBadges(); } catch (_) {}
+                            } else {
+                                renderPanels(user);
+                                setTab(currentTab);
+                            }
+                        }
+                        try { maybeShowAlertPopups(user); } catch (_) {}
+                    } finally {
+                        softRefreshBusy = false;
+                        if (softRefreshDeferred) {
+                            const pending = softRefreshDeferred;
+                            softRefreshDeferred = null;
+                            if (!isDashboardUiBusy()) {
+                                softRefreshDashboard(pending.user || user, { stores: pending.stores, reason: pending.reason || 'deferred' });
+                            } else {
+                                softRefreshDeferred = pending;
+                            }
                         }
                     }
-                    try { maybeShowAlertPopups(user); } catch (_) {}
-                } finally {
-                    softRefreshBusy = false;
-                }
-                if (softRefreshDeferred) {
-                    const pending = softRefreshDeferred;
-                    softRefreshDeferred = null;
-                    if (!isDashboardUiBusy()) {
-                        softRefreshDashboard(pending.user || user, { stores: pending.stores, reason: pending.reason || 'deferred' });
-                    } else {
-                        softRefreshDeferred = pending;
+                };
+                // Don't block touch/UI thread on mobile sync paints
+                if (isLiteClient()) {
+                    try {
+                        if (typeof requestAnimationFrame === 'function') {
+                            requestAnimationFrame(() => setTimeout(runSoftRefreshPaint, 0));
+                        } else {
+                            setTimeout(runSoftRefreshPaint, 0);
+                        }
+                    } catch (_) {
+                        runSoftRefreshPaint();
                     }
+                } else {
+                    runSoftRefreshPaint();
                 }
             };
 
