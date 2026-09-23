@@ -354,17 +354,17 @@
             overflow: visible;
         }
         .dash-shell > .dc-corners .dc-c {
-            /* Shell corners ≤40px — all accounts; never crowd header/tabs */
-            width: 40px;
-            height: 40px;
-            opacity: .9;
+            /* ~3× prior 40px shell blooms — all accounts */
+            width: 120px;
+            height: 120px;
+            opacity: .92;
         }
-        /* Top corners: compact kiss so logo / actions stay clear */
+        /* Top corners: still large, tucked so logo / actions stay clear */
         .dash-shell > .dc-corners .dc-c.tl,
         .dash-shell > .dc-corners .dc-c.tr {
-            width: 32px;
-            height: 32px;
-            opacity: .88;
+            width: 96px;
+            height: 96px;
+            opacity: .9;
         }
         .dash-shell > .dc-corners .dc-c.tl { top: 2px; left: 2px; }
         .dash-shell > .dc-corners .dc-c.tr {
@@ -373,9 +373,9 @@
         /* Bottom pair: distinct asset — fully inside shell edge */
         .dash-shell > .dc-corners .dc-c.bl,
         .dash-shell > .dc-corners .dc-c.br {
-            width: 40px;
-            height: 40px;
-            opacity: .88;
+            width: 120px;
+            height: 120px;
+            opacity: .9;
         }
         .dash-shell > .dc-corners .dc-c.bl { top: auto; bottom: 2px; left: 2px; }
         .dash-shell > .dc-corners .dc-c.br {
@@ -383,17 +383,17 @@
         }
         @media (max-width: 720px) {
             .dash-shell > .dc-corners .dc-c {
-                width: 36px; height: 36px; opacity: .88;
+                width: 108px; height: 108px; opacity: .9;
             }
             .dash-shell > .dc-corners .dc-c.tl,
             .dash-shell > .dc-corners .dc-c.tr {
-                width: 28px; height: 28px;
+                width: 84px; height: 84px;
             }
             .dash-shell > .dc-corners .dc-c.tl { top: 2px; left: 2px; }
             .dash-shell > .dc-corners .dc-c.tr { top: 2px; left: 100%; }
             .dash-shell > .dc-corners .dc-c.bl,
             .dash-shell > .dc-corners .dc-c.br {
-                width: 36px; height: 36px;
+                width: 108px; height: 108px;
             }
             .dash-shell > .dc-corners .dc-c.bl { top: auto; bottom: 2px; left: 2px; }
             .dash-shell > .dc-corners .dc-c.br { top: auto; bottom: 2px; left: 100%; }
@@ -508,7 +508,7 @@
             .dc-c.bl { transform: none; }
             .dc-c.br { transform: scaleX(-1); }
         }
-        /* Dashboard card edge décor only (all roles): modest ~32px blooms.
+        /* Dashboard card edge décor (all roles): ~3× prior ~42px (=126px) blooms.
            Horizontal edge-sparkles rails removed. Pseudos stay
            pointer-events:none so they cannot cover tabs / header / cards.
            Scoped under .dash-shell so login .panel is never affected. */
@@ -518,24 +518,24 @@
             background-color: #fff;
             background-image: none;
             pointer-events: auto;
-            /* Extra TL pad so h3 / icons clear corner blooms on every tab */
-            padding-top: 2.65rem;
-            padding-left: 1.75rem;
-            padding-right: 1.35rem;
-            padding-bottom: 2.35rem;
+            /* Large TL pad so h3 / icons clear 3× corner blooms on every tab */
+            padding-top: 7.5rem;
+            padding-left: 7.25rem;
+            padding-right: 1.75rem;
+            padding-bottom: 5.5rem;
         }
         .dash-shell .content-card::before,
         .dash-shell .content-card::after {
             content: '';
             position: absolute;
-            width: 42px; height: 42px;
+            width: 126px; height: 126px;
             pointer-events: none !important;
             /* Under card content so blooms never cover text/icons */
             z-index: 0;
             background-repeat: no-repeat;
             background-size: contain;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom13');
-            opacity: .88;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom14');
+            opacity: .9;
             /*
               SVG authored for TL (outer L at 0,0). Always pin that vertex with
               transform-origin: 0 0, then place top-left on each corner and flip —
@@ -554,10 +554,10 @@
         }
         /* Bottom-right: peach/cream spray — fully inside white edge */
         .dash-shell .content-card::after {
-            width: 46px; height: 36px;
+            width: 138px; height: 108px;
             top: auto; left: auto;
             right: 2px; bottom: 2px;
-            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom5');
+            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom6');
             transform: none;
             transform-origin: 100% 100%;
             animation: cardBloomSwayBrIn 5.2s ease-in-out infinite;
@@ -733,18 +733,18 @@
             65% { transform: translate(-1px, -1px) rotate(1.2deg) scale(1.015); }
         }
         .dash-shell .content-card.compact-card {
-            padding-top: 2.35rem;
-            padding-left: 1.55rem;
-            padding-right: 1.2rem;
-            padding-bottom: 2.05rem;
+            padding-top: 6.75rem;
+            padding-left: 6.5rem;
+            padding-right: 1.5rem;
+            padding-bottom: 4.75rem;
         }
         .dash-shell .content-card.compact-card::before,
         .dash-shell .content-card.compact-card::after {
-            width: 38px; height: 38px; opacity: .86;
+            width: 114px; height: 114px; opacity: .88;
         }
         .dash-shell .content-card.compact-card::before { top: 2px; left: 2px; }
         .dash-shell .content-card.compact-card::after {
-            width: 42px; height: 32px;
+            width: 126px; height: 96px;
             top: auto; left: auto; right: 2px; bottom: 2px;
             transform: none;
         }
@@ -783,16 +783,16 @@
             #login-screen .panel > .dc-corners .dc-c.bl { top: auto; bottom: 2px; left: 2px; }
             #login-screen .panel > .dc-corners .dc-c.br { top: auto; bottom: 2px; left: 100%; right: auto; }
             .dash-shell .content-card {
-                padding-top: 2.45rem;
-                padding-left: 1.55rem;
-                padding-right: 1.15rem;
-                padding-bottom: 2.15rem;
+                padding-top: 6.5rem;
+                padding-left: 6.25rem;
+                padding-right: 1.25rem;
+                padding-bottom: 4.5rem;
             }
             .dash-shell .content-card::before,
-            .dash-shell .content-card::after { width: 36px; height: 36px; opacity: .86; }
+            .dash-shell .content-card::after { width: 108px; height: 108px; opacity: .88; }
             .dash-shell .content-card::before { top: 2px; left: 2px; }
             .dash-shell .content-card::after {
-                width: 40px; height: 30px;
+                width: 120px; height: 90px;
                 top: auto; left: auto; right: 2px; bottom: 2px;
                 transform: none;
             }
@@ -843,8 +843,8 @@
         @media (min-width: 1100px) {
             .dash-body { padding: 1.35rem 1.85rem 1.75rem; }
             .dash-header { padding-left: 1.5rem; padding-right: 1.5rem; }
-            .content-card { padding: 2.65rem 1.55rem 2.35rem 1.85rem; }
-            .content-card.compact-card { padding: 2.35rem 1.4rem 2.1rem 1.65rem; }
+            .content-card { padding: 7.5rem 1.85rem 5.5rem 7.5rem; }
+            .content-card.compact-card { padding: 6.75rem 1.6rem 4.75rem 6.5rem; }
             .tab-panel[data-panel="rooms"] .room-tt-wrap { max-height: none; }
         }
         @media (min-width: 1400px) {
@@ -1478,8 +1478,8 @@
         .stat-card .k { font-size: .72rem; font-weight: 700; color: #64748b; }
         .stat-card .v { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-top: .2rem; }
         .stat-card .h { font-size: .75rem; color: #94a3b8; margin-top: .15rem; }
-        /* Vertical/left pad clears corner blooms so titles never sit under décor */
-        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 2.65rem 1.35rem 2.35rem 1.75rem; margin-bottom: .85rem; }
+        /* Vertical/left pad clears 3× corner blooms so titles never sit under décor */
+        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 7.5rem 1.5rem 5.5rem 7.25rem; margin-bottom: .85rem; }
         .content-card h3 { margin: 0; font-size: 1.12rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: .4rem; }
         .item-row { display: flex; justify-content: space-between; gap: .75rem; padding: .7rem 0; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
         .item-row:last-child { border-bottom: none; }
@@ -3040,20 +3040,20 @@
         */
         .theme-teacher-c .content-card {
             background-image: none;
-            padding-top: 2.55rem;
-            padding-left: 1.7rem;
-            padding-bottom: 2.25rem;
+            padding-top: 7.25rem;
+            padding-left: 7rem;
+            padding-bottom: 5.25rem;
         }
         .theme-teacher-c .content-card.compact-card {
-            padding-top: 2.25rem;
-            padding-left: 1.5rem;
-            padding-bottom: 1.95rem;
+            padding-top: 6.5rem;
+            padding-left: 6.25rem;
+            padding-bottom: 4.5rem;
         }
         @media (max-width: 480px) {
             .theme-teacher-c .content-card {
-                padding-top: 2.35rem;
-                padding-left: 1.5rem;
-                padding-bottom: 2.05rem;
+                padding-top: 6.25rem;
+                padding-left: 6rem;
+                padding-bottom: 4.25rem;
             }
         }
 
@@ -9471,10 +9471,10 @@
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
             box-shadow: 0 1px 0 rgba(15, 23, 42, .04) !important;
-            /* Extra top/left pad so TL bloom clears ตารางห้องเรียน title */
-            padding-top: 2.55rem !important;
-            padding-left: 1.75rem !important;
-            padding-bottom: 1.35rem !important;
+            /* Extra top/left pad so 3× TL bloom clears ตารางห้อง title */
+            padding-top: 7.5rem !important;
+            padding-left: 7.25rem !important;
+            padding-bottom: 4.5rem !important;
         }
         .tab-panel[data-panel="rooms"] > .content-card > h3 {
             font-size: 1.42rem;
@@ -9483,8 +9483,8 @@
             letter-spacing: -.02em;
             margin: 0 0 .55rem;
             gap: .5rem;
-            /* Nudge title past modest TL bloom */
-            padding-left: .35rem;
+            /* Title sits past large TL bloom via card padding */
+            padding-left: 0;
         }
         .tab-panel[data-panel="rooms"] > .content-card > h3 .ph {
             font-size: 1.35em;
@@ -10000,12 +10000,12 @@
             .stat-grid, .stat-grid.work-stats { grid-template-columns: 1fr; }
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
-            .content-card { padding: 2.45rem 1.15rem 2.15rem 1.55rem; margin-bottom: .7rem; }
+            .content-card { padding: 6.5rem 1.25rem 4.5rem 6.25rem; margin-bottom: .7rem; }
             .dash-shell .content-card::before,
-            .dash-shell .content-card::after { width: 36px; height: 36px; opacity: .86; pointer-events: none !important; }
+            .dash-shell .content-card::after { width: 108px; height: 108px; opacity: .88; pointer-events: none !important; }
             .dash-shell .content-card::before { top: 2px; left: 2px; }
             .dash-shell .content-card::after {
-                width: 40px; height: 30px;
+                width: 120px; height: 90px;
                 top: auto; left: auto; right: 2px; bottom: 2px;
                 transform: none;
             }
