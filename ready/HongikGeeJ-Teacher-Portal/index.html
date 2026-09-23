@@ -11560,7 +11560,7 @@
                 ptCalcHint: '시급 ฿300 · 시간×주×300으로 계산·월별 저장',
                 ptCalcChipRate: '시급 ฿300',
                 ptCalcChipFormula: '시간×주×300',
-                ptCalcChipLookback: '10/2026–12/2027',
+                ptCalcChipLookback: '9/2026–12/2027',
                 ptCalcChipAuto: '창 밖 기록 자동 정리',
                 ptHistory: '수업 기록',
                 ptEditRecord: '기록 수정',
@@ -11576,7 +11576,7 @@
                 ptAddRecord: '선생님 항목 추가',
                 ptNoRecords: '이달 기록 없음',
                 ptPickMonth: '월 선택',
-                ptLookback: '2026.10–2027.12 · 창 밖 기록 자동 정리',
+                ptLookback: '2026.9–2027.12 · 창 밖 기록 자동 정리',
                 ptViewOnly: '조회 전용'
             },
             th: {
@@ -12441,7 +12441,7 @@
                 ptCalcHint: 'อัตรา ฿300/ชม. · คำนวณ ชม.×สัปดาห์×300 แล้วบันทึกรายเดือน',
                 ptCalcChipRate: 'อัตรา ฿300/ชม.',
                 ptCalcChipFormula: 'ชม.×สัปดาห์×300',
-                ptCalcChipLookback: '10/2026–12/2027',
+                ptCalcChipLookback: '9/2026–12/2027',
                 ptCalcChipAuto: 'ลบนอกช่วงอัตโนมัติ',
                 ptHistory: 'ประวัติการสอน',
                 ptEditRecord: 'แก้ไขรายการ',
@@ -12457,7 +12457,7 @@
                 ptAddRecord: 'เพิ่มรายการคุณครู',
                 ptNoRecords: 'ยังไม่มีรายการเดือนนี้',
                 ptPickMonth: 'เลือกเดือน',
-                ptLookback: 'ต.ค. 2026 – ธ.ค. 2027 · ลบนอกช่วงอัตโนมัติ',
+                ptLookback: 'ก.ย. 2026 – ธ.ค. 2027 · ลบนอกช่วงอัตโนมัติ',
                 ptViewOnly: 'ดูอย่างเดียว'
             },
             en: {
@@ -13322,7 +13322,7 @@
                 ptCalcHint: '฿300/hr · hours × weeks × 300, saved by month',
                 ptCalcChipRate: '฿300/hr',
                 ptCalcChipFormula: 'hr × wk × 300',
-                ptCalcChipLookback: '10/2026–12/2027',
+                ptCalcChipLookback: '9/2026–12/2027',
                 ptCalcChipAuto: 'auto-prune outside window',
                 ptHistory: 'Teaching history',
                 ptEditRecord: 'Edit entry',
@@ -13338,7 +13338,7 @@
                 ptAddRecord: 'Add teacher entry',
                 ptNoRecords: 'No records this month',
                 ptPickMonth: 'Pick month',
-                ptLookback: 'Oct 2026 – Dec 2027 · auto-prune outside window',
+                ptLookback: 'Sep 2026 – Dec 2027 · auto-prune outside window',
                 ptViewOnly: 'View only'
             }
         };
@@ -24601,6 +24601,8 @@
                     byDate[d].push(r);
                 });
                 const today = todayKey();
+                const head = ptMonthHeading(ym);
+                const headingHtml = `<h3 class="pt-cal-heading">${esc(head.title)}<span class="pt-cal-ym">${esc(head.ymShort)}</span></h3>`;
                 const dows = lang === 'th'
                     ? ['อา','จ','อ','พ','พฤ','ศ','ส']
                     : lang === 'en'
@@ -24620,6 +24622,7 @@
                     const cls = [
                         'pt-cal-cell',
                         i % 7 === 0 ? 'sun' : '',
+                        dayRecs.length ? 'has-entries' : '',
                         dateStr === today ? 'today' : ''
                     ].filter(Boolean).join(' ');
                     const addBtn = canEdit
@@ -24637,7 +24640,7 @@
                         <div class="pt-cal-pills">${pills}${more}</div>
                     </div>`);
                 }
-                return `<div class="pt-cal"><div class="pt-cal-grid">${dowHtml}${cells.join('')}</div></div>`;
+                return `<div class="pt-cal">${headingHtml}<div class="pt-cal-grid">${dowHtml}${cells.join('')}</div></div>`;
             }
             function renderPartTimeApp(user) {
                 const mounts = [...document.querySelectorAll('.pt-app')];
