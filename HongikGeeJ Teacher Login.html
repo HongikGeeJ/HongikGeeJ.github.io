@@ -532,6 +532,69 @@
             40% { transform: scale(-1.04) rotate(1.6deg); }
             75% { transform: scale(-1.02) rotate(2.3deg); }
         }
+        /*
+          Eunha only (#dash-shell.is-eunha-shin): content-card corner blooms → Shin décor.
+          TL = cheek circle, BR = pajama sit. Other accounts keep corner-bloom.svg.
+        */
+        .dash-shell.is-eunha-shin .content-card::before,
+        .dash-shell.is-eunha-shin .content-card::after {
+            opacity: 1;
+            pointer-events: none !important;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+            will-change: transform;
+            filter:
+                drop-shadow(0 1px 1px rgba(255, 255, 255, .9))
+                drop-shadow(0 3px 8px rgba(236, 120, 160, .28))
+                drop-shadow(0 1px 3px rgba(15, 23, 42, .12));
+        }
+        .dash-shell.is-eunha-shin .content-card::before {
+            width: 46px;
+            height: 46px;
+            top: -8px;
+            left: -8px;
+            background-image: url('assets/decor/shinchan-cheek.png?v=cheek1');
+            transform: none;
+            transform-origin: 35% 75%;
+            animation: eunhaShinCheekBob 3.5s ease-in-out infinite;
+        }
+        .dash-shell.is-eunha-shin .content-card::after {
+            width: 54px;
+            height: 68px;
+            top: calc(100% - 4px);
+            left: calc(100% - 8px);
+            bottom: auto;
+            right: auto;
+            background-image: url('assets/decor/shinchan-pajamas.png?v=pj1');
+            /* Do not mirror — character faces naturally into the card */
+            transform: none;
+            transform-origin: 70% 100%;
+            animation: eunhaShinPajamaSway 3.8s ease-in-out infinite;
+            animation-delay: .35s;
+        }
+        .dash-shell.is-eunha-shin .content-card.compact-card::before {
+            width: 38px;
+            height: 38px;
+            top: -6px;
+            left: -6px;
+        }
+        .dash-shell.is-eunha-shin .content-card.compact-card::after {
+            width: 44px;
+            height: 56px;
+            top: calc(100% - 2px);
+            left: calc(100% - 6px);
+        }
+        @keyframes eunhaShinCheekBob {
+            0%, 100% { transform: translateY(0) rotate(-2.2deg) scale(1); }
+            40% { transform: translateY(-2.5px) rotate(2deg) scale(1.045); }
+            70% { transform: translateY(-1px) rotate(1deg) scale(1.02); }
+        }
+        @keyframes eunhaShinPajamaSway {
+            0%, 100% { transform: translate(0, 0) rotate(-2.5deg) scale(1); }
+            35% { transform: translate(-1.5px, -2px) rotate(2.2deg) scale(1.03); }
+            65% { transform: translate(1px, -1px) rotate(1.2deg) scale(1.015); }
+        }
         .content-card.compact-card::before,
         .content-card.compact-card::after {
             width: 26px; height: 26px; opacity: .82;
@@ -558,6 +621,11 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: scale(-1); }
+            .dash-shell.is-eunha-shin .content-card::before,
+            .dash-shell.is-eunha-shin .content-card::after {
+                animation: none !important;
+                transform: none !important;
+            }
         }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.45rem; }
@@ -569,6 +637,15 @@
             .content-card::before,
             .content-card::after { width: 24px; height: 24px; opacity: .7; }
             .content-card { background-size: min(100%, 320px) 40px; }
+            .dash-shell.is-eunha-shin .content-card::before {
+                width: 36px; height: 36px; opacity: 1;
+                top: -6px; left: -6px;
+            }
+            .dash-shell.is-eunha-shin .content-card::after {
+                width: 42px; height: 54px; opacity: 1;
+                top: calc(100% - 2px); left: calc(100% - 6px);
+                transform: none;
+            }
         }
         .dash-shell {
             width: 100%;
@@ -8740,6 +8817,10 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: scale(-1); }
+            .dash-shell.is-eunha-shin .content-card::before,
+            .dash-shell.is-eunha-shin .content-card::after {
+                transform: none !important;
+            }
             /*
               Login panel corners must keep sway on mobile/iPad — do not kill .dc-c.
               Use lighter keyframes (no glow pulse). Dash-shell corners stay static.
@@ -8968,6 +9049,15 @@
             .content-card { padding: 3rem .85rem; margin-bottom: .7rem; }
             .content-card::before,
             .content-card::after { width: 24px; height: 24px; opacity: .7; pointer-events: none !important; }
+            .dash-shell.is-eunha-shin .content-card::before {
+                width: 38px; height: 38px; opacity: 1;
+                top: -6px; left: -6px;
+            }
+            .dash-shell.is-eunha-shin .content-card::after {
+                width: 44px; height: 56px; opacity: 1;
+                top: calc(100% - 2px); left: calc(100% - 6px);
+                transform: none;
+            }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
             .login-sea { height: min(96px, 16vh); }
             .lang-float {
@@ -8998,6 +9088,11 @@
             .header-shin-wrap.is-play .header-shin-decor,
             .header-shin-wrap.is-sync-pulse::before {
                 animation: none !important;
+            }
+            .dash-shell.is-eunha-shin .content-card::before,
+            .dash-shell.is-eunha-shin .content-card::after {
+                animation: none !important;
+                transform: none !important;
             }
             .header-shin-bubble { transition: none !important; }
             #order-modal .order-sakura,
@@ -15592,6 +15687,74 @@
         /** นักเรียนเลื่อนคลาส releases room occupancy (others may book over) while keeping the record. */
         function roomTtReleasesOccupancy(block) {
             return normalizeClassStatus(block?.classStatus) === 'student_postponed';
+        }
+        /** Cancelled / occupancy-released statuses must not drive the 「คาบถัดไป」 banner. */
+        function classStatusSkipsNextBanner(status) {
+            const v = normalizeClassStatus(status);
+            return v === 'cancelled' || v === 'student_postponed';
+        }
+        /**
+         * Live classes for the next/now banner: prefer hongik-room-timetable-v2 for this teacher,
+         * then manual day-schedule rows that are not room-backed. Excludes cancelled / released.
+         */
+        function listTeacherClassesForStatusBanner(userId) {
+            const tid = String(userId || '');
+            if (!tid) return [];
+            const date = todayKey();
+            const byKey = new Map();
+            const roomIds = new Set();
+            listTeacherRoomBlocksForDate(tid, date).forEach((b) => {
+                if (!b || b.isBreak || b.teacherId === 'break') return;
+                if (normalizeClassType(b.classType) === 'dayoff') return;
+                if (classStatusSkipsNextBanner(b.classStatus)) return;
+                roomIds.add(String(b.id));
+                byKey.set(`room:${b.id}`, {
+                    start: b.start || '',
+                    end: b.end || '',
+                    title: b.title || '',
+                    titleKo: b.titleKo || '',
+                    titleTh: b.titleTh || '',
+                    titleEn: b.titleEn || '',
+                    classType: normalizeClassType(b.classType),
+                    classStatus: normalizeClassStatus(b.classStatus),
+                    roomSlotId: b.id,
+                    fromRoom: true
+                });
+            });
+            const daySched = loadScheduleForDate(tid, date);
+            // Director cancel-report on a room-linked row still drops that slot from the banner
+            daySched.forEach((it) => {
+                if (!it || !it.cancelled || !it.roomSlotId) return;
+                byKey.delete(`room:${it.roomSlotId}`);
+            });
+            daySched.forEach((it) => {
+                if (!it || it.cancelled) return;
+                if (it.kind === 'dayoff' || it.classType === 'dayoff') return;
+                if (classStatusSkipsNextBanner(it.classStatus)) return;
+                if (it.roomSlotId) {
+                    // Room TT is source of truth when the block still exists
+                    if (roomIds.has(String(it.roomSlotId)) || getRoomBlockById(it.roomSlotId)) return;
+                }
+                if (it.fromRoom && it.roomSlotId) return;
+                const key = it.roomSlotId
+                    ? `room:${it.roomSlotId}`
+                    : `day:${it.start}|${it.end}|${pickLangText(it, 'title') || it.title || ''}`;
+                if (byKey.has(key)) return;
+                byKey.set(key, {
+                    start: it.start || '',
+                    end: it.end || '',
+                    title: it.title || '',
+                    titleKo: it.titleKo || '',
+                    titleTh: it.titleTh || '',
+                    titleEn: it.titleEn || '',
+                    classType: normalizeClassType(it.classType),
+                    classStatus: normalizeClassStatus(it.classStatus),
+                    roomSlotId: it.roomSlotId || '',
+                    fromRoom: !!it.fromRoom
+                });
+            });
+            return [...byKey.values()].sort((a, b) => String(a.start || '').localeCompare(String(b.start || ''))
+                || String(a.end || '').localeCompare(String(b.end || '')));
         }
         function canEditClassStatus(user, block) {
             if (!user) return false;
@@ -23208,7 +23371,10 @@
                     bar.classList.remove('show');
                     return;
                 }
-                const list = loadDaySchedule(currentUser.id).filter(it => !it.cancelled && it.kind !== 'dayoff' && it.classType !== 'dayoff');
+                // Live room TT (hongik-room-timetable-v2) + non-room day rows; skips ยกเลิก / occupancy-released
+                const list = (typeof listTeacherClassesForStatusBanner === 'function')
+                    ? listTeacherClassesForStatusBanner(currentUser.id)
+                    : [];
                 if (!list.length) { bar.classList.remove('show'); return; }
                 const now = minutesNow();
                 let current = null;
@@ -23216,6 +23382,7 @@
                 for (const item of list) {
                     const s = parseHM(item.start);
                     const e = parseHM(item.end);
+                    if (!Number.isFinite(s) || !Number.isFinite(e) || e <= s) continue;
                     if (now >= s && now < e) { current = item; break; }
                     if (now < s && (!upcoming || s < parseHM(upcoming.start))) upcoming = item;
                 }
@@ -23224,13 +23391,13 @@
                 let message = '';
                 if (current) {
                     const curTitle = pickLangText(current, 'title') || current.title || '';
-                    key = `now:${current.start}-${current.end}:${curTitle}`;
+                    key = `now:${current.start}-${current.end}:${curTitle}:${normalizeClassStatus(current.classStatus)}`;
                     message = `${t('nowClass')}: ${curTitle} (${current.start}–${current.end}) · ${leftLabel(parseHM(current.end) - now)}`;
                 } else if (upcoming) {
                     const left = parseHM(upcoming.start) - now;
                     if (left <= 90) {
                         const upTitle = pickLangText(upcoming, 'title') || upcoming.title || '';
-                        key = `next:${upcoming.start}:${upTitle}`;
+                        key = `next:${upcoming.start}:${upTitle}:${normalizeClassStatus(upcoming.classStatus)}`;
                         message = `${t('nextClass')}: ${upTitle} @ ${upcoming.start} · ${leftLabel(left)}`;
                     }
                 }
@@ -23498,6 +23665,10 @@
                         } else if (monthModalOpen && !roomTtMonthPick) {
                             try { renderRoomTtMonthBody(user); } catch (_) {}
                         }
+                    }
+                    // Next-class banner tracks live room TT / day schedule — recompute without remounting today form
+                    if (all || has('roomTt') || has('daySchedules') || has('classCancels')) {
+                        try { updateClassStatus(); } catch (_) {}
                     }
                     if ((has('headOrders') || has('orderAcks')) && document.getElementById('order-board')) {
                         renderOrderBoard(user);
@@ -24699,9 +24870,11 @@
                     if (document.getElementById('week-class-board') && typeof renderWeekClassBoard === 'function') {
                         try { renderWeekClassBoard(user); } catch (_) {}
                     }
+                    try { updateClassStatus(); } catch (_) {}
                 } catch (_) {
                     showAppToast(t('roomTtRefreshOk'), 'warn');
                     try { renderRoomTimetableBoard(user); } catch (_) {}
+                    try { updateClassStatus(); } catch (_) {}
                 } finally {
                     if (btn) {
                         btn.classList.remove('is-loading');
@@ -31558,6 +31731,7 @@
                 const tab = document.querySelector('.tab-btn.active')?.dataset?.tab || 'rooms';
                 openDashboard(resolveAccountById(currentUser.id), true);
                 setTab(tab);
+                try { statusDismissedKey = ''; updateClassStatus(); } catch (_) {}
             };
             document.getElementById('room-tt-modal-x')?.addEventListener('click', closeRoomTtModal);
             document.getElementById('room-tt-modal-cancel')?.addEventListener('click', closeRoomTtModal);
