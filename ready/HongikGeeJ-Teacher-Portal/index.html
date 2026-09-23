@@ -9040,9 +9040,6 @@
                 transform: none;
             }
         }
-        .room-tt-hint {
-            font-size: 1.12rem; color: #64748b; margin: 0; line-height: 1.4;
-        }
         .room-tt-legend {
             display: flex; flex-wrap: wrap; gap: .42rem; margin: 0;
         }
@@ -12796,7 +12793,6 @@
                 tabClasses: '수업 시간표',
                 tabRooms: '교실 시간표',
                 roomTtTitle: '교실 시간표',
-                roomTtHint: '월~일 · 10:00–22:00 · 30분 · 교실 3개 · 8개월 보관 · 6개월 미리보기 · 날짜 범위 클릭 = 월간 보기',
                 roomTtFocusHint: '클릭하면 이 선생님 수업만 강조',
                 roomTtLive: '시간표 실시간 업데이트',
                 roomTtThisWeek: '이번 주',
@@ -13756,7 +13752,6 @@
                 tabClasses: 'ตารางสอน',
                 tabRooms: 'ตารางห้องเรียน',
                 roomTtTitle: 'ตารางห้องเรียน',
-                roomTtHint: 'จ–อา · 10:00–22:00 · ทุก 30 นาที · 3 ห้อง · ย้อนหลัง 8 เดือน · ล่วงหน้า 6 เดือน · กดช่วงวันที่ = ดูเดือนใหญ่',
                 roomTtFocusHint: 'คลิกเพื่อเน้นตารางครูคนนี้',
                 roomTtLive: 'อัปเดตตารางแบบเรียลไทม์',
                 roomTtThisWeek: 'สัปดาห์นี้',
@@ -14716,7 +14711,6 @@
                 tabClasses: 'Class schedule',
                 tabRooms: 'Room timetable',
                 roomTtTitle: 'Room timetable',
-                roomTtHint: 'Mon–Sun · 10:00–22:00 · 30-min · 3 rooms · 8-mo archive · 6-mo look-ahead · tap date range = month view',
                 roomTtFocusHint: 'Click to highlight this teacher’s bookings',
                 roomTtLive: 'Update timetable live',
                 roomTtThisWeek: 'This week',
@@ -17643,6 +17637,7 @@
             localStorage.setItem(ROOM_TT_STORE, JSON.stringify(payload));
             try { localStorage.setItem(ROOM_TT_STORE + ':tick', String(Date.now())); } catch (_) {}
             try { archiveRoomTtMonth(roomTtMonthKeyFromOffset(roomTtWeekOffset), payload); } catch (_) {}
+            // Template week-seeds must not cloud-push (fresh stamps used to beat remote cancels/deletes).
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('roomTt');
         }
         function roomTtWeekMonday(offset = roomTtWeekOffset) {
@@ -17664,10 +17659,11 @@
             const store = loadRoomTimetable();
             let changed = false;
             if (store.seedVer !== ROOM_TT_SEED_VER) {
-                // drop old auto-seeded blocks only; keep user-edited (has students/note or edited flag)
+                // drop old auto-seeded blocks only; keep user-edited / tombstones
                 Object.keys(store.blocks).forEach((id) => {
                     const b = store.blocks[id];
                     if (!b) return;
+                    if (b.deleted) return;
                     const hasUser = (Array.isArray(b.students) && b.students.length) || String(b.note || '').trim() || b.userEdited;
                     if (!hasUser && b.fromTemplate) delete store.blocks[id];
                 });
@@ -17681,6 +17677,7 @@
                 const dow = d.getDay();
                 tmpl.filter(r => r.dow === dow).forEach((row) => {
                     const tKey = roomTtTemplateKey(row);
+                    // Include tombstones so a cleared template slot (e.g. RT…sua) is not re-seeded
                     const exists = Object.values(store.blocks).some(b => b && b.date === date && b.templateKey === tKey);
                     if (exists) return;
                     const id = 'RT' + date.replace(/-/g, '') + row.room + row.start.replace(':', '') + row.teacherId.slice(0, 3);
@@ -17703,12 +17700,14 @@
                         isBreak: !!row.isBreak,
                         fromTemplate: true,
                         templateKey: tKey,
-                        updatedAt: new Date().toISOString()
+                        // Epoch stamp so cloud cancels/deletes always win LWW over local filler seeds
+                        updatedAt: '1970-01-01T00:00:00.000Z'
                     };
                     changed = true;
                 });
             });
-            if (changed) saveRoomTimetable(store);
+            // Local-only: deterministic templates must not push and clobber shared roomTt
+            if (changed) saveRoomTimetable(store, { syncRemote: false });
             return store;
         }
         function roomTtOffsetForDateKey(dateKey) {
@@ -17725,7 +17724,7 @@
             // Seed the week that contains `date` (not only the currently viewed board week)
             const off = roomTtOffsetForDateKey(date);
             const store = ensureRoomTtWeekSeeded(Number.isFinite(off) ? off : roomTtWeekOffset);
-            return Object.values(store.blocks || {}).filter(b => b && b.date === date);
+            return Object.values(store.blocks || {}).filter(b => isRoomTtBlockAlive(b) && b.date === date);
         }
         function listTeacherRoomBlocksForDate(teacherId, date = todayKey()) {
             const tid = String(teacherId || '');
@@ -17771,7 +17770,8 @@
         }
         function getRoomBlockById(id) {
             const store = loadRoomTimetable();
-            return store.blocks[id] || null;
+            const b = store.blocks[id] || null;
+            return isRoomTtBlockAlive(b) ? b : null;
         }
         function upsertDayScheduleFromRoomSlot(slot) {
             if (!slot || !slot.teacherId || !slot.date || slot.isBreak || slot.teacherId === 'break' || slot.teacherId === 'parttime') return;
@@ -17939,13 +17939,31 @@
         function clearRoomSlot({ user, blockId, date, room, start }) {
             if (!user) return { ok: false, msg: t('none') };
             const store = loadRoomTimetable();
-            const existing = blockId ? store.blocks[blockId] : findRoomBlock(date, room, start);
+            const existing = blockId
+                ? (isRoomTtBlockAlive(store.blocks[blockId]) ? store.blocks[blockId] : null)
+                : findRoomBlock(date, room, start);
             if (!existing) return { ok: true };
             const isDirector = user.role === 'director' || user.role === 'admin';
             if (existing.teacherId !== user.id && existing.teacherId !== 'parttime' && !isDirector) {
                 return { ok: false, msg: t('roomTtViewOnly') };
             }
-            delete store.blocks[existing.id];
+            // Tombstone (do not hard-delete) so:
+            // 1) ensureRoomTtWeekSeeded cannot recreate template slots (RT…sua)
+            // 2) merge-before-push cannot resurrect the booking from cloud
+            store.blocks[existing.id] = {
+                id: existing.id,
+                deleted: true,
+                date: existing.date || date || '',
+                room: existing.room || room || '',
+                start: existing.start || start || '',
+                end: existing.end || '',
+                teacherId: existing.teacherId || '',
+                templateKey: existing.templateKey || '',
+                fromTemplate: !!existing.fromTemplate,
+                userEdited: true,
+                updatedAt: new Date().toISOString(),
+                updatedById: user.id || ''
+            };
             saveRoomTimetable(store);
             removeDayScheduleFromRoomSlot(existing);
             return { ok: true, slot: existing };
@@ -20004,12 +20022,35 @@
             let changed = false;
             const outBlocks = {};
             const ids = new Set([...Object.keys(localBlocks), ...Object.keys(remoteBlocks)]);
+            const blockStamp = (b, fallback) => String((b && b.updatedAt) || fallback || '');
+            const preferBlock = (a, b) => {
+                // Newer stamp wins; tombstones / user edits beat bare template seeds on ties
+                const aAt = blockStamp(a);
+                const bAt = blockStamp(b);
+                if (aAt && bAt && aAt !== bAt) return aAt > bAt ? a : b;
+                if (aAt && !bAt) return a;
+                if (bAt && !aAt) return b;
+                const rank = (x) => {
+                    if (!x) return -1;
+                    if (x.deleted) return 3;
+                    if (x.userEdited || isNonNormalClassStatus(x.classStatus)) return 2;
+                    if (x.fromTemplate) return 0;
+                    return 1;
+                };
+                return rank(a) >= rank(b) ? a : b;
+            };
             ids.forEach((id) => {
                 const lb = localBlocks[id];
                 const rb = remoteBlocks[id];
                 if (lb && !rb) {
-                    // Remote missing id: drop if remote store is newer (deleted elsewhere), else keep local create
-                    if (remoteAt && localAt && remoteAt > localAt) {
+                    // Remote missing id: drop if remote store is newer (deleted elsewhere without tombstone)
+                    const lAt = blockStamp(lb, localAt);
+                    if (remoteAt && lAt && remoteAt > lAt) {
+                        changed = true;
+                        return;
+                    }
+                    // Stale template filler must not re-publish after cloud delete
+                    if (remoteAt && localAt && remoteAt > localAt && lb.fromTemplate && !lb.userEdited && !lb.deleted) {
                         changed = true;
                         return;
                     }
@@ -20021,20 +20062,9 @@
                     changed = true;
                     return;
                 }
-                const rAt = String((rb && rb.updatedAt) || remoteAt || '');
-                const lAt = String((lb && lb.updatedAt) || localAt || '');
-                if (rAt && (!lAt || rAt > lAt)) {
-                    outBlocks[id] = rb;
-                    if (JSON.stringify(rb) !== JSON.stringify(lb)) changed = true;
-                } else if (lAt && (!rAt || lAt > rAt)) {
-                    outBlocks[id] = lb;
-                    // local newer — no local apply change; still needed for merge-on-push
-                } else {
-                    // Equal / missing stamps — prefer remote so cancels from other PCs win ties
-                    const preferRemote = JSON.stringify(rb) !== JSON.stringify(lb);
-                    outBlocks[id] = preferRemote ? rb : lb;
-                    if (preferRemote) changed = true;
-                }
+                const winner = preferBlock(lb, rb);
+                outBlocks[id] = winner;
+                if (JSON.stringify(winner) !== JSON.stringify(lb)) changed = true;
             });
             let seedVer = local.seedVer || '';
             if (remote.seedVer && remoteAt && (!localAt || remoteAt >= localAt) && remote.seedVer !== seedVer) {
@@ -26867,7 +26897,6 @@
                             <button type="button" class="soft-btn ghost" id="room-tt-month-open">${esc(t('roomTtMonthOpen'))}</button>
                             <span class="room-tt-lookback">${esc(t('roomTtLookback'))}</span>
                         </div>
-                        <p class="room-tt-hint">${esc(t('roomTtHint'))}</p>
                         <div class="room-tt-legend">${legend}</div>
                         <div class="room-tt-scroll">
                             <div class="room-tt-grid">${headCells}${body}</div>
