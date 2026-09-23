@@ -326,12 +326,17 @@
         .panel > * { position: relative; z-index: 2; }
         .panel > .dc-corners {
             position: absolute; /* must win over .panel > * or % insets collapse */
-            z-index: 1;
+            /* Above .panel > * so BL/BR blooms aren't buried */
+            z-index: 8;
         }
         /* Frame-hugging corner accents — flush to the white border stroke */
         .dc-corners {
             position: absolute; inset: 0; z-index: 1; pointer-events: none !important;
             border-radius: inherit; overflow: visible;
+        }
+        #login-screen .panel > .dc-corners {
+            z-index: 8;
+            overflow: visible;
         }
         .dc-corners .dc-c,
         .dc-corners * {
@@ -427,30 +432,28 @@
             animation: dcSwayTr 8.2s ease-in-out infinite;
             animation-delay: -2.1s;
         }
-        /* Bottom pair: peach/cream arc spray hugging panel border-radius (not flipped top L) */
+        /* Bottom pair: peach/cream — SVG pre-flipped; bottom/left like top corners */
         .dc-c.bl,
         .dc-c.br {
-            background-image: url('assets/dancheong/corner-flower-bottom.svg?v=hug2');
+            background-image: url('assets/dancheong/corner-flower-bottom.svg?v=hug4');
         }
         .dc-c.bl {
-            /* Kiss flush to BL curve (panel radius ~1.6rem); modest ~88px */
-            top: calc(100% + 14px); left: -14px; bottom: auto;
+            top: auto; bottom: -22px; left: -20px;
             width: 88px; height: 88px;
-            transform: scaleY(-1);
+            transform: none; opacity: 1;
             animation: dcBloomBl 6.8s ease-in-out infinite;
             animation-delay: -3.2s;
         }
         .dc-c.br {
-            top: calc(100% + 14px); left: calc(100% + 14px); bottom: auto; right: auto;
+            top: auto; bottom: -22px; left: calc(100% + 20px); right: auto;
             width: 88px; height: 88px;
-            transform: scale(-1);
+            transform: scaleX(-1); opacity: 1;
             animation: dcBloomBr 7.4s ease-in-out infinite;
             animation-delay: -4.8s;
         }
         /*
           Top: rotate sway + soft float (dcSwayTl/Tr).
-          Bottom: gentle bloom pulse + edge drift (dcBloomBl/Br) — distinct motion.
-          No filter/brightness — internal bloom/leaf/petal motion lives in the SVG (SMIL).
+          Bottom: bloom pulse + edge drift (dcBloomBl/Br) — distinct motion.
         */
         @keyframes dcSwayTl {
             0%, 100% { transform: rotate(-2.1deg) translate(0, 0) scale(1); }
@@ -462,20 +465,18 @@
             35% { transform: scaleX(-1) rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
             70% { transform: scaleX(-1) rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
         }
-        /* Bottom: bloom open from corner origin + soft horizontal edge drift (no rotate sway) */
         @keyframes dcBloomBl {
-            0%, 100% { transform: scaleY(-1) translate(0, 0) scale(1); }
-            28% { transform: scaleY(-1) translate(1.4px, 0.5px) scale(1.06); }
-            52% { transform: scaleY(-1) translate(-0.6px, -0.35px) scale(1.02); }
-            78% { transform: scaleY(-1) translate(0.9px, 0.7px) scale(1.045); }
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            28% { transform: translate(1.4px, -0.5px) scale(1.06); }
+            52% { transform: translate(-0.6px, 0.35px) scale(1.02); }
+            78% { transform: translate(0.9px, -0.7px) scale(1.045); }
         }
         @keyframes dcBloomBr {
-            0%, 100% { transform: scale(-1) translate(0, 0) scale(1); }
-            28% { transform: scale(-1) translate(1.4px, 0.5px) scale(1.06); }
-            52% { transform: scale(-1) translate(-0.6px, -0.35px) scale(1.02); }
-            78% { transform: scale(-1) translate(0.9px, 0.7px) scale(1.045); }
+            0%, 100% { transform: scaleX(-1) translate(0, 0) scale(1); }
+            28% { transform: scaleX(-1) translate(1.4px, -0.5px) scale(1.06); }
+            52% { transform: scaleX(-1) translate(-0.6px, 0.35px) scale(1.02); }
+            78% { transform: scaleX(-1) translate(0.9px, -0.7px) scale(1.045); }
         }
-        /* Mobile / lite: quieter — top keeps sway, bottom keeps soft bloom */
         @keyframes dcSwayTlLite {
             0%, 100% { transform: rotate(-1.3deg) scale(1); }
             50% { transform: rotate(1.6deg) scale(1.02); }
@@ -485,12 +486,12 @@
             50% { transform: scaleX(-1) rotate(1.6deg) scale(1.02); }
         }
         @keyframes dcBloomBlLite {
-            0%, 100% { transform: scaleY(-1) scale(1); }
-            50% { transform: scaleY(-1) translate(0.8px, 0.3px) scale(1.035); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: translate(0.8px, -0.3px) scale(1.035); }
         }
         @keyframes dcBloomBrLite {
-            0%, 100% { transform: scale(-1) scale(1); }
-            50% { transform: scale(-1) translate(0.8px, 0.3px) scale(1.035); }
+            0%, 100% { transform: scaleX(-1) scale(1); }
+            50% { transform: scaleX(-1) translate(0.8px, -0.3px) scale(1.035); }
         }
         @media (prefers-reduced-motion: reduce) {
             .dc-c {
@@ -500,8 +501,8 @@
             }
             .dc-c.tl { transform: none; }
             .dc-c.tr { transform: scaleX(-1); }
-            .dc-c.bl { transform: scaleY(-1); }
-            .dc-c.br { transform: scale(-1); }
+            .dc-c.bl { transform: none; }
+            .dc-c.br { transform: scaleX(-1); }
         }
         /* Dashboard card edge décor only (all roles): modest ~32px blooms.
            Horizontal edge-sparkles rails removed. Pseudos stay
@@ -768,8 +769,8 @@
             #login-screen .panel > .dc-corners .dc-c.br { width: 72px; height: 72px; opacity: .95; }
             #login-screen .panel > .dc-corners .dc-c.tl { top: -12px; left: -12px; }
             #login-screen .panel > .dc-corners .dc-c.tr { top: -12px; left: calc(100% + 12px); right: auto; }
-            #login-screen .panel > .dc-corners .dc-c.bl { top: calc(100% + 11px); left: -11px; bottom: auto; }
-            #login-screen .panel > .dc-corners .dc-c.br { top: calc(100% + 11px); left: calc(100% + 11px); bottom: auto; right: auto; }
+            #login-screen .panel > .dc-corners .dc-c.bl { top: auto; bottom: -16px; left: -14px; }
+            #login-screen .panel > .dc-corners .dc-c.br { top: auto; bottom: -16px; left: calc(100% + 14px); right: auto; }
             .dash-shell .content-card {
                 padding-top: 2.45rem;
                 padding-left: 1.55rem;
