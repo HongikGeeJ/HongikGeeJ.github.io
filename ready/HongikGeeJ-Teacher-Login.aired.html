@@ -4651,6 +4651,17 @@
             cursor: pointer; font-family: inherit; font-size: .85rem; padding: 0; margin-bottom: .55rem;
         }
         .pt-back:hover { color: #0f172a; }
+        .pt-calc-table-wrap { overflow-x: auto; margin: .35rem 0 .65rem; border-radius: .9rem; border: 1.5px solid #e2e8f0; }
+        .pt-calc-table { width: 100%; border-collapse: collapse; font-size: .82rem; min-width: 640px; }
+        .pt-calc-table th, .pt-calc-table td { padding: .55rem .6rem; border-bottom: 1px solid #e2e8f0; text-align: left; vertical-align: middle; }
+        .pt-calc-table th { background: #f8fafc; color: #475569; font-weight: 800; white-space: nowrap; }
+        .pt-calc-table tr:last-child td { border-bottom: none; }
+        .pt-calc-preview {
+            margin: .55rem 0 .35rem; padding: .65rem .85rem; border-radius: .85rem;
+            background: linear-gradient(120deg, #fef3c7, #fff7ed); border: 1.5px solid #fcd34d;
+            color: #92400e; font-weight: 800; font-size: .9rem;
+        }
+        .pt-calc-form { margin-bottom: .35rem; }
 
         .modal {
             /* Above .header-actions / .lang-mini (12000) so backdrop owns all taps */
@@ -10301,7 +10312,7 @@
         let notesNav = { view: 'langs', lang: null, student: null };
         let cancelDraftIdx = null;
         let leaveCalYm = null; // 'YYYY-MM' for holiday calendar view
-        let ptNav = { view: 'langs', lang: null, month: null, opened: false };
+        let ptNav = { month: '' };
         let overviewNav = { view: 'list', teacherId: null };
         let emDirNav = { view: 'list', teacherId: null };
         let otPayNav = { view: 'list', teacherId: null, month: '' };
@@ -11182,7 +11193,23 @@
                 ptHours: '시간',
                 ptSaveSession: '수업 저장',
                 ptNoSessions: '등록된 수업 없음',
-                ptBack: '뒤로'
+                ptBack: '뒤로',
+                tabPtCalc: '파트타임 비용',
+                ptCalcTitle: '파트타임 교사 비용 계산',
+                ptCalcHint: '시급 ฿300 · 시간×주×300으로 계산·월별 저장',
+                ptHoursSession: '회당 시간',
+                ptWeeks: '주 수',
+                ptSessionTime: '시간대',
+                ptTotalHours: '총 시간',
+                ptFormula: '공식: 시간 × 주 × ฿300',
+                ptRateFixed: '시급 고정 ฿300',
+                ptCalcTotal: '이달 합계',
+                ptSaveRecord: '계산 결과 저장',
+                ptAddRecord: '새 계산 추가',
+                ptNoRecords: '이달 기록 없음',
+                ptPickMonth: '월 선택',
+                ptLookback: '최근 12개월 · 오래된 기록 자동 삭제',
+                ptViewOnly: '관리자 조회 전용 · 수정은 원장만 가능'
             },
             th: {
                 helloTeacher: 'สวัสดีคุณครู',
@@ -12036,7 +12063,23 @@
                 ptHours: 'ชั่วโมง',
                 ptSaveSession: 'บันทึกคาบสอน',
                 ptNoSessions: 'ยังไม่มีคาบสอน',
-                ptBack: 'ย้อนกลับ'
+                ptBack: 'ย้อนกลับ',
+                tabPtCalc: 'คำนวณพาร์ตไทม์',
+                ptCalcTitle: 'คำนวณค่าใช้จ่ายคุณครูสอนพาร์ตไทม์',
+                ptCalcHint: 'อัตรา ฿300/ชม. · คำนวณ ชม.×สัปดาห์×300 แล้วบันทึกรายเดือน',
+                ptHoursSession: 'ชม./คาบ',
+                ptWeeks: 'จำนวนสัปดาห์',
+                ptSessionTime: 'เวลาสอน',
+                ptTotalHours: 'ชม.รวม',
+                ptFormula: 'สูตร: ชม. × สัปดาห์ × ฿300',
+                ptRateFixed: 'เรทคงที่ ฿300/ชม.',
+                ptCalcTotal: 'รวมเดือนนี้',
+                ptSaveRecord: 'บันทึกผลคำนวณ',
+                ptAddRecord: 'เพิ่มรายการคำนวณ',
+                ptNoRecords: 'ยังไม่มีรายการเดือนนี้',
+                ptPickMonth: 'เลือกเดือน',
+                ptLookback: 'ย้อนหลัง ~1 ปี · ลบรายการเก่าอัตโนมัติ',
+                ptViewOnly: 'แอดมินดูอย่างเดียว · แก้ไขได้เฉพาะผู้อำนวยการ'
             },
             en: {
                 helloTeacher: 'Hello, Teacher',
@@ -12890,7 +12933,23 @@
                 ptHours: 'Hours',
                 ptSaveSession: 'Save session',
                 ptNoSessions: 'No sessions yet',
-                ptBack: 'Back'
+                ptBack: 'Back',
+                tabPtCalc: 'PT expense',
+                ptCalcTitle: 'Part-time teacher expense calculator',
+                ptCalcHint: '฿300/hr · hours × weeks × 300, saved by month',
+                ptHoursSession: 'Hours / session',
+                ptWeeks: 'Weeks',
+                ptSessionTime: 'Session time',
+                ptTotalHours: 'Total hours',
+                ptFormula: 'Formula: hours × weeks × ฿300',
+                ptRateFixed: 'Fixed rate ฿300/hr',
+                ptCalcTotal: 'Month total',
+                ptSaveRecord: 'Save calculation',
+                ptAddRecord: 'Add calculation',
+                ptNoRecords: 'No records this month',
+                ptPickMonth: 'Pick month',
+                ptLookback: '~1 year lookback · older records auto-pruned',
+                ptViewOnly: 'Admin view-only · director can edit'
             }
         };
 
@@ -16832,18 +16891,21 @@
             return { data: next, changed: JSON.stringify(local) !== JSON.stringify(next) };
         }
         function mergePartTimeData(localData, remoteData) {
-            const local = localData && typeof localData === 'object' ? localData : defaultPartTime();
+            const local = prunePartTimeData(localData && typeof localData === 'object' ? localData : defaultPartTime());
             const remote = remoteData && typeof remoteData === 'object' ? remoteData : null;
             if (!remote) return { data: local, changed: false };
-            const teachers = mergePortalListById(local.teachers || [], remote.teachers || []);
-            const sessions = mergePortalListById(local.sessions || [], remote.sessions || []);
+            const remoteN = prunePartTimeData(remote);
+            const teachers = mergePortalListById(local.teachers || [], remoteN.teachers || []);
+            const sessions = mergePortalListById(local.sessions || [], remoteN.sessions || []);
+            const records = mergePortalListById(local.records || [], remoteN.records || []);
             const localAt = String(local.updatedAt || '');
-            const remoteAt = String(remote.updatedAt || '');
-            const next = {
+            const remoteAt = String(remoteN.updatedAt || remote.updatedAt || '');
+            const next = prunePartTimeData({
                 teachers,
                 sessions,
+                records,
                 updatedAt: remoteAt && remoteAt > localAt ? remoteAt : (localAt || remoteAt || new Date().toISOString())
-            };
+            });
             return { data: next, changed: JSON.stringify(local) !== JSON.stringify(next) };
         }
         function mergeLwwObject(localData, remoteData, remoteAt) {
@@ -19059,16 +19121,37 @@
             });
         }
         function defaultPartTime() {
-            return { teachers: [], sessions: [] };
+            return { teachers: [], sessions: [], records: [] };
+        }
+        function normalizePartTimeData(raw) {
+            const base = raw && typeof raw === 'object' ? raw : {};
+            return {
+                teachers: Array.isArray(base.teachers) ? base.teachers : [],
+                sessions: Array.isArray(base.sessions) ? base.sessions : [],
+                records: Array.isArray(base.records) ? base.records : [],
+                updatedAt: base.updatedAt || ''
+            };
+        }
+        function ptMonthCutoffKey(months = 12) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - months);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        }
+        function prunePartTimeData(data) {
+            const cutoff = ptMonthCutoffKey(12);
+            const next = normalizePartTimeData(data);
+            next.sessions = (next.sessions || []).filter((s) => String(s.date || '').slice(0, 7) >= cutoff);
+            next.records = (next.records || []).filter((r) => {
+                const ym = String(r.date || r.month || '').slice(0, 7);
+                return ym >= cutoff;
+            });
+            return next;
         }
         function loadPartTime() {
             try {
                 const raw = JSON.parse(localStorage.getItem(PT_STORE) || 'null');
                 if (raw && typeof raw === 'object') {
-                    return {
-                        teachers: Array.isArray(raw.teachers) ? raw.teachers : [],
-                        sessions: Array.isArray(raw.sessions) ? raw.sessions : []
-                    };
+                    return prunePartTimeData(raw);
                 }
             } catch (_) {}
             const d = defaultPartTime();
@@ -19076,12 +19159,28 @@
             return d;
         }
         function savePartTime(data, { syncRemote = true } = {}) {
+            const pruned = prunePartTimeData(data || defaultPartTime());
             localStorage.setItem(PT_STORE, JSON.stringify({
-                teachers: data.teachers || [],
-                sessions: data.sessions || [],
+                teachers: pruned.teachers || [],
+                sessions: pruned.sessions || [],
+                records: pruned.records || [],
                 updatedAt: new Date().toISOString()
             }));
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('partTime');
+        }
+        function ptRecordPay(hours, weeks) {
+            const h = Math.max(0, Number(hours) || 0);
+            const w = Math.max(0, Number(weeks) || 0);
+            return Math.round(h * w * PT_RATE);
+        }
+        function ptLookbackMonthKeys(n = 12) {
+            return otLookbackMonthKeys(n);
+        }
+        function ptRecordsForMonth(ym) {
+            return (loadPartTime().records || [])
+                .filter((r) => String(r.date || r.month || '').startsWith(ym))
+                .slice()
+                .sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')) || String(a.teacherName || '').localeCompare(String(b.teacherName || '')));
         }
         function ptHours(start, end) {
             const s = parseHM(start);
@@ -21231,6 +21330,9 @@
                     }
                     if (typeof renderDirectorEmergencyBoard === 'function' && document.getElementById('em-dir-board') && (all || has('accountData') || has('photos'))) {
                         renderDirectorEmergencyBoard(user);
+                    }
+                    if (typeof renderPartTimeApp === 'function' && document.getElementById('pt-app') && (all || has('partTime'))) {
+                        renderPartTimeApp(user);
                     }
                 } catch (_) {}
             }
@@ -23809,231 +23911,181 @@
 
             function renderPartTimeApp(user) {
                 const app = document.getElementById('pt-app');
-                if (!app || !user || user.role !== 'director') return;
+                if (!app || !user) return;
+                const canView = user.role === 'director' || user.role === 'admin';
+                if (!canView) { app.innerHTML = ''; return; }
+                const canEdit = user.role === 'director';
                 const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
-                const go = (next) => {
-                    ptNav = { ...ptNav, ...next, opened: true };
-                    renderPartTimeApp(user);
-                };
-
-                if (!ptNav.opened) {
-                    const koN = ptSessionsForLang('ko').length;
-                    const enN = ptSessionsForLang('en').length;
-                    app.innerHTML = `
-                        <button type="button" class="job-app-notice" id="pt-open-btn" style="margin-top:.55rem">
-                            <div>
-                                <div class="dn-title"><i class="ph ph-clock-afternoon" style="color:#7c3aed"></i> ${t('ptTitle')}</div>
-                                <div class="dn-meta">${t('ptHint')}</div>
-                                <div class="dn-meta" style="margin-top:.3rem">${t('ptLangKo')} ${koN} · ${t('ptLangEn')} ${enN} · ${t('ptClick')}</div>
-                            </div>
-                            <span class="dn-count">${t('ptOpen')}</span>
-                        </button>`;
-                    document.getElementById('pt-open-btn')?.addEventListener('click', () => {
-                        ptNav.opened = true;
-                        ptNav.view = 'langs';
-                        renderPartTimeApp(user);
-                    });
-                    return;
-                }
-
-                if (ptNav.view === 'langs') {
-                    const koN = ptSessionsForLang('ko').length;
-                    const enN = ptSessionsForLang('en').length;
-                    app.innerHTML = `
-                        <button type="button" class="job-app-back" id="pt-collapse-btn"><i class="ph ph-caret-left"></i> ${t('ptCollapse')}</button>
-                        <h3 style="margin:0 0 .35rem"><i class="ph ph-clock-afternoon" style="color:var(--accent)"></i> ${t('ptTitle')}</h3>
-                        <p class="text-xs text-slate-500 mb-2">${t('ptHint')}</p>
-                        <p class="text-sm text-slate-500 mb-2">${t('ptPickLang')}</p>
-                        <div class="pt-lang-grid">
-                            <button type="button" class="pt-lang-card ko" data-pt-lang="ko">
-                                <span>🇰🇷</span>
-                                <div class="pt-title">${t('ptLangKo')}</div>
-                                <div class="pt-sub">${koN} sessions · ${ptTeachersForLang('ko').length} teachers</div>
-                            </button>
-                            <button type="button" class="pt-lang-card en" data-pt-lang="en">
-                                <span>🇬🇧</span>
-                                <div class="pt-title">${t('ptLangEn')}</div>
-                                <div class="pt-sub">${enN} sessions · ${ptTeachersForLang('en').length} teachers</div>
-                            </button>
-                        </div>`;
-                    document.getElementById('pt-collapse-btn')?.addEventListener('click', () => {
-                        ptNav = { view: 'langs', lang: null, month: null, opened: false };
-                        renderPartTimeApp(user);
-                    });
-                    app.querySelectorAll('[data-pt-lang]').forEach((btn) => {
-                        btn.addEventListener('click', () => go({ view: 'months', lang: btn.dataset.ptLang, month: null }));
-                    });
-                    return;
-                }
-
-                const langKey = ptNav.lang || 'ko';
-                const langLabel = langKey === 'en' ? t('ptLangEn') : t('ptLangKo');
-
-                if (ptNav.view === 'months') {
-                    const months = ptMonthsForLang(langKey);
-                    const rows = months.map((ym) => {
-                        const sess = ptSessionsForLang(langKey).filter(s => String(s.date).startsWith(ym));
-                        const pay = sess.filter(s => s.attended).reduce((n, s) => n + ptPayBaht(s.start, s.end), 0);
-                        const has = sess.length > 0;
-                        return `<button type="button" class="pt-month-btn" data-pt-month="${ym}">
-                            <strong>${ym}</strong>
-                            <div class="text-xs text-slate-500 mt-0.5">${has ? `${t('ptHasWork')} · ${sess.length}` : t('ptNoMonth')} · ${t('baht')}${pay.toLocaleString()}</div>
-                        </button>`;
-                    }).join('');
-                    app.innerHTML = `
-                        <button type="button" class="pt-back" id="pt-back-langs"><i class="ph ph-caret-left"></i> ${t('ptBack')}</button>
-                        <h3 style="margin:.2rem 0 .55rem">${t('ptMonths')} · ${langLabel}</h3>
-                        ${rows}
-                        <p class="admin-label">${t('ptAddTeacher')}</p>
-                        <div class="sched-form">
-                            <div>
-                                <label class="sched-label">${t('ptTeacherName')}</label>
-                                <input type="text" id="pt-tea-name" class="sched-text">
-                            </div>
-                            <div>
-                                <label class="sched-label">${t('ptLinkAccount')}</label>
-                                <input type="text" id="pt-tea-account" class="sched-text" placeholder="e.g. pt-kim">
-                            </div>
-                        </div>
-                        <div class="admin-actions">
-                            <button type="button" class="soft-btn" id="pt-tea-add">${t('ptAddTeacher')}</button>
-                            <span id="pt-tea-msg" class="text-xs text-slate-500"></span>
-                        </div>
-                        <p class="text-xs text-slate-400 mt-2">${ptTeachersForLang(langKey).map(x => esc(x.name) + (x.accountId ? ` → ${esc(x.accountId)}` : '')).join(' · ') || t('none')}</p>`;
-                    document.getElementById('pt-back-langs')?.addEventListener('click', () => go({ view: 'langs', lang: null, month: null }));
-                    app.querySelectorAll('[data-pt-month]').forEach((btn) => {
-                        btn.addEventListener('click', () => go({ view: 'month', month: btn.dataset.ptMonth }));
-                    });
-                    document.getElementById('pt-tea-add')?.addEventListener('click', () => {
-                        const name = (document.getElementById('pt-tea-name')?.value || '').trim();
-                        const accountId = (document.getElementById('pt-tea-account')?.value || '').trim();
-                        const msg = document.getElementById('pt-tea-msg');
-                        if (!name) { if (msg) msg.textContent = t('ptTeacherName'); return; }
-                        const data = loadPartTime();
-                        data.teachers.push({ id: 'PT' + Date.now(), name, lang: langKey, accountId, createdAt: new Date().toISOString() });
-                        savePartTime(data);
-                        if (msg) msg.textContent = t('saved');
-                        go({ view: 'months', lang: langKey });
-                    });
-                    return;
-                }
-
-                // month detail
-                const ym = ptNav.month || todayKey().slice(0, 7);
-                const teachers = ptTeachersForLang(langKey);
-                const sessions = ptSessionsForLang(langKey)
-                    .filter(s => String(s.date).startsWith(ym))
-                    .sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.start).localeCompare(String(b.start)));
-                let paySum = 0;
+                if (!ptNav.month) ptNav.month = todayKey().slice(0, 7);
+                const ym = ptNav.month;
+                const months = ptLookbackMonthKeys(12);
+                if (!months.includes(ym)) ptNav.month = months[0] || todayKey().slice(0, 7);
+                const monthSel = months.map((m) => {
+                    const [y, mo] = m.split('-').map(Number);
+                    const label = lang === 'th' ? `${mo}/${y}` : lang === 'en' ? m : `${y}년 ${mo}월`;
+                    return `<option value="${m}"${m === ym ? ' selected' : ''}>${label}</option>`;
+                }).join('');
+                const records = ptRecordsForMonth(ym);
                 let hrsSum = 0;
-                const sessionHtml = sessions.length ? sessions.map((s) => {
-                    const hrs = ptHours(s.start, s.end);
-                    const pay = s.attended ? ptPayBaht(s.start, s.end) : 0;
-                    if (s.attended) { paySum += pay; hrsSum += hrs; }
-                    return `<div class="pt-session-card">
-                        <div class="flex justify-between gap-2 items-start">
-                            <div>
-                                <strong>${esc(s.date)} · ${esc(s.start)}–${esc(s.end)}</strong>
-                                <div class="text-sm text-slate-600 mt-0.5">${esc(pickLangText(s, 'subject') || s.subject || '')}</div>
-                                <div class="text-xs text-slate-500">${t('teacherOf')}: ${esc(ptTeacherName(s.teacherId))} · ${hrs}${t('ptHours')} · ${t('baht')}${pay.toLocaleString()}</div>
-                            </div>
-                            <button type="button" class="attend-row${s.attended ? ' on' : ''}" data-pt-attend="${s.id}" style="width:auto;padding:.4rem .55rem">
-                                <span class="box" style="width:22px;height:22px;font-size:.75rem"><i class="ph-bold ph-check"></i></span>
-                                <span class="astatus" style="margin:0">${s.attended ? t('attendPresent') : t('attendAbsent')}</span>
-                            </button>
-                        </div>
-                        <div class="admin-actions" style="margin-top:.45rem">
-                            <button type="button" class="sched-del" data-pt-del="${s.id}">${t('delete')}</button>
-                        </div>
-                    </div>`;
-                }).join('') : `<p class="empty-note">${t('ptNoSessions')}</p>`;
+                let paySum = 0;
+                const rows = records.length ? records.map((r) => {
+                    const hrs = Number(r.totalHours) || (Number(r.hours) * Number(r.weeks || 1));
+                    const pay = Number(r.totalBaht) || Math.round(hrs * PT_RATE);
+                    hrsSum += hrs;
+                    paySum += pay;
+                    const timeLbl = (r.start && r.end) ? `${esc(r.start)}–${esc(r.end)}` : `${Number(r.hours) || 0}${t('ptHours')}`;
+                    const delBtn = canEdit
+                        ? `<button type="button" class="sched-del" data-pt-del="${esc(r.id)}">${t('delete')}</button>`
+                        : '';
+                    return `<tr data-pt-row="${esc(r.id)}">
+                        <td>${esc(r.teacherName || '—')}</td>
+                        <td>${esc(r.date || '—')}</td>
+                        <td>${timeLbl}</td>
+                        <td>${Number(r.hours) || 0}</td>
+                        <td>${Number(r.weeks) || 1}</td>
+                        <td>${hrs}</td>
+                        <td>${t('baht')}${pay.toLocaleString()}</td>
+                        <td>${delBtn}</td>
+                    </tr>`;
+                }).join('') : `<tr><td colspan="8" class="empty-note" style="text-align:center;padding:1rem">${t('ptNoRecords')}</td></tr>`;
 
-                const teaOpts = teachers.length
-                    ? teachers.map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('')
-                    : `<option value="">${t('ptAddTeacher')}</option>`;
-
-                app.innerHTML = `
-                    <button type="button" class="pt-back" id="pt-back-months"><i class="ph ph-caret-left"></i> ${t('ptBack')}</button>
-                    <h3 style="margin:.2rem 0 .35rem">${langLabel} · ${ym}</h3>
-                    <p class="text-xs text-slate-500 mb-2">${t('ptAttend')} · ${t('ptPayHint')}</p>
-                    ${sessionHtml}
-                    <div class="pt-pay-box">
-                        <span>${t('ptPay')} (${hrsSum}${t('ptHours')})</span>
-                        <span>${t('baht')}${paySum.toLocaleString()}</span>
-                    </div>
-                    <p class="admin-label mt-3">${t('ptAddSession')}</p>
-                    <div class="sched-form">
+                const formHtml = canEdit ? `
+                    <p class="admin-label" style="margin-top:1rem">${t('ptAddRecord')}</p>
+                    <p class="text-xs text-slate-500 mb-2">${t('ptFormula')} · ${t('ptRateFixed')}</p>
+                    <div class="sched-form pt-calc-form">
+                        <div>
+                            <label class="sched-label">${t('ptTeacherName')}</label>
+                            <input type="text" id="pt-calc-name" class="sched-text" placeholder="${t('ptTeacherName')}">
+                        </div>
                         <div>
                             <label class="sched-label">${t('otDate')}</label>
-                            <input type="date" id="pt-sess-date" class="sched-text" value="${ym}-01">
-                        </div>
-                        <div>
-                            <label class="sched-label">${t('teacherOf')}</label>
-                            <select id="pt-sess-teacher" class="sched-select">${teaOpts}</select>
+                            <input type="date" id="pt-calc-date" class="sched-text" value="${ym}-01">
                         </div>
                         <div>
                             <label class="sched-label">${t('timeStart')}</label>
-                            <select id="pt-sess-start" class="sched-select">${timeOptions('10:00')}</select>
+                            <select id="pt-calc-start" class="sched-select">${timeOptions('18:00')}</select>
                         </div>
                         <div>
                             <label class="sched-label">${t('timeEnd')}</label>
-                            <select id="pt-sess-end" class="sched-select">${timeOptions('12:00')}</select>
+                            <select id="pt-calc-end" class="sched-select">${timeOptions('20:00')}</select>
                         </div>
-                        <div class="full">
-                            <label class="sched-label">${t('ptSubject')}</label>
-                            <input type="text" id="pt-sess-subject" class="sched-text" placeholder="${t('ptSubject')}">
+                        <div>
+                            <label class="sched-label">${t('ptHoursSession')}</label>
+                            <input type="number" id="pt-calc-hours" class="sched-text" min="0" step="0.5" placeholder="2">
+                        </div>
+                        <div>
+                            <label class="sched-label">${t('ptWeeks')}</label>
+                            <input type="number" id="pt-calc-weeks" class="sched-text" min="1" step="1" value="4">
                         </div>
                     </div>
+                    <div class="pt-calc-preview" id="pt-calc-preview">${t('ptFormula')}</div>
                     <div class="admin-actions">
-                        <button type="button" class="soft-btn" id="pt-sess-save">${t('ptSaveSession')}</button>
-                        <span id="pt-sess-msg" class="text-xs text-slate-500"></span>
-                    </div>`;
+                        <button type="button" class="soft-btn" id="pt-calc-save">${t('ptSaveRecord')}</button>
+                        <span id="pt-calc-msg" class="text-xs text-slate-500"></span>
+                    </div>` : `<p class="text-xs" style="color:#64748b;margin-top:.75rem;font-weight:700">${t('ptViewOnly')}</p>`;
 
-                document.getElementById('pt-back-months')?.addEventListener('click', () => go({ view: 'months', month: null }));
-                app.querySelectorAll('[data-pt-attend]').forEach((btn) => {
-                    btn.addEventListener('click', () => {
-                        const id = btn.dataset.ptAttend;
+                app.innerHTML = `
+                    <div class="pt-calc-head">
+                        <h3 style="margin:0 0 .35rem"><i class="ph ph-calculator" style="color:var(--accent)"></i> ${t('ptCalcTitle')}</h3>
+                        <p class="text-xs text-slate-500 mb-2">${t('ptCalcHint')} · ${t('ptLookback')}</p>
+                        <label class="text-xs" style="font-weight:700;color:#64748b;display:block;margin-bottom:.55rem">${t('ptPickMonth')}
+                            <select id="pt-calc-month" class="sched-select" style="margin-left:.35rem">${monthSel}</select>
+                        </label>
+                    </div>
+                    <div class="pt-calc-table-wrap">
+                        <table class="pt-calc-table">
+                            <thead>
+                                <tr>
+                                    <th>${t('ptTeacherName')}</th>
+                                    <th>${t('otDate')}</th>
+                                    <th>${t('ptSessionTime')}</th>
+                                    <th>${t('ptHoursSession')}</th>
+                                    <th>${t('ptWeeks')}</th>
+                                    <th>${t('ptTotalHours')}</th>
+                                    <th>${t('ptPay')}</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                    <div class="pt-pay-box">
+                        <span>${t('ptCalcTotal')} (${hrsSum}${t('ptHours')})</span>
+                        <span>${t('baht')}${paySum.toLocaleString()}</span>
+                    </div>
+                    ${formHtml}`;
+
+                document.getElementById('pt-calc-month')?.addEventListener('change', (e) => {
+                    ptNav.month = e.target.value;
+                    renderPartTimeApp(user);
+                });
+                const syncPreview = () => {
+                    const preview = document.getElementById('pt-calc-preview');
+                    if (!preview) return;
+                    const start = document.getElementById('pt-calc-start')?.value || '';
+                    const end = document.getElementById('pt-calc-end')?.value || '';
+                    let hours = Number(document.getElementById('pt-calc-hours')?.value);
+                    if (!(hours > 0) && start && end) hours = ptHours(start, end);
+                    const weeks = Math.max(1, Number(document.getElementById('pt-calc-weeks')?.value) || 1);
+                    const h = Number(hours) > 0 ? Number(hours) : 0;
+                    const totalH = Math.round(h * weeks * 100) / 100;
+                    const pay = Math.round(totalH * PT_RATE);
+                    preview.textContent = `${h} × ${weeks} × ฿${PT_RATE} = ฿${pay.toLocaleString()} (${totalH}${t('ptHours')})`;
+                };
+                ['pt-calc-start', 'pt-calc-end', 'pt-calc-hours', 'pt-calc-weeks'].forEach((id) => {
+                    document.getElementById(id)?.addEventListener('input', syncPreview);
+                    document.getElementById(id)?.addEventListener('change', syncPreview);
+                });
+                syncPreview();
+                if (canEdit) {
+                    app.querySelectorAll('[data-pt-del]').forEach((btn) => {
+                        btn.addEventListener('click', () => {
+                            const data = loadPartTime();
+                            data.records = (data.records || []).filter((x) => x.id !== btn.dataset.ptDel);
+                            savePartTime(data);
+                            renderPartTimeApp(user);
+                        });
+                    });
+                    document.getElementById('pt-calc-save')?.addEventListener('click', () => {
+                        const msg = document.getElementById('pt-calc-msg');
+                        const teacherName = (document.getElementById('pt-calc-name')?.value || '').trim();
+                        const date = document.getElementById('pt-calc-date')?.value || '';
+                        const start = document.getElementById('pt-calc-start')?.value || '';
+                        const end = document.getElementById('pt-calc-end')?.value || '';
+                        let hours = Number(document.getElementById('pt-calc-hours')?.value);
+                        const weeks = Math.max(1, Math.round(Number(document.getElementById('pt-calc-weeks')?.value) || 1));
+                        if (!teacherName) { if (msg) msg.textContent = t('ptTeacherName'); return; }
+                        if (!date) { if (msg) msg.textContent = t('otDate'); return; }
+                        if (!(hours > 0)) {
+                            if (start && end && end > start) hours = ptHours(start, end);
+                        }
+                        if (!(hours > 0)) { if (msg) msg.textContent = t('ptHoursSession'); return; }
+                        hours = Math.round(Number(hours) * 100) / 100;
+                        const totalHours = Math.round(hours * weeks * 100) / 100;
+                        const totalBaht = Math.round(totalHours * PT_RATE);
                         const data = loadPartTime();
-                        const item = data.sessions.find(x => x.id === id);
-                        if (!item) return;
-                        item.attended = !item.attended;
+                        if (!Array.isArray(data.records)) data.records = [];
+                        data.records.push({
+                            id: 'PR' + Date.now(),
+                            teacherName,
+                            date,
+                            start: start || '',
+                            end: end || '',
+                            hours,
+                            weeks,
+                            totalHours,
+                            totalBaht,
+                            rate: PT_RATE,
+                            createdBy: user.id,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                        });
                         savePartTime(data);
-                        go({ view: 'month', month: ym });
+                        ptNav.month = String(date).slice(0, 7);
+                        if (msg) msg.textContent = t('saved');
+                        renderPartTimeApp(user);
                     });
-                });
-                app.querySelectorAll('[data-pt-del]').forEach((btn) => {
-                    btn.addEventListener('click', () => {
-                        const data = loadPartTime();
-                        data.sessions = data.sessions.filter(x => x.id !== btn.dataset.ptDel);
-                        savePartTime(data);
-                        go({ view: 'month', month: ym });
-                    });
-                });
-                document.getElementById('pt-sess-save')?.addEventListener('click', () => {
-                    const msg = document.getElementById('pt-sess-msg');
-                    const teacherId = document.getElementById('pt-sess-teacher')?.value || '';
-                    const date = document.getElementById('pt-sess-date')?.value || '';
-                    const start = document.getElementById('pt-sess-start')?.value || '';
-                    const end = document.getElementById('pt-sess-end')?.value || '';
-                    const subject = (document.getElementById('pt-sess-subject')?.value || '').trim();
-                    if (!teachers.length) { if (msg) msg.textContent = t('ptAddTeacher'); return; }
-                    if (!teacherId || !date || !subject) { if (msg) msg.textContent = t('ptSubject'); return; }
-                    if (start >= end) { if (msg) msg.textContent = `${t('timeStart')} < ${t('timeEnd')}`; return; }
-                    if (!String(date).startsWith(ym)) {
-                        // still allow — jump month to session date
-                    }
-                    const data = loadPartTime();
-                    data.sessions.push({
-                        id: 'PS' + Date.now(),
-                        teacherId, lang: langKey, date, start, end,
-                        ...stampLangText({}, 'subject', subject),
-                        attended: true,
-                        createdAt: new Date().toISOString()
-                    });
-                    savePartTime(data);
-                    if (msg) msg.textContent = t('saved');
-                    go({ view: 'month', month: String(date).slice(0, 7) });
-                });
+                }
             }
 
             function renderNotesApp(user) {
@@ -25217,8 +25269,6 @@
                         </div>
                         <span class="dn-count" style="background:#c2410c">${t('baht')}${otGrand.toLocaleString()}</span>
                     </button>
-                    <div class="pt-app" id="pt-app"></div>
-
                     <p class="admin-label">${t('othersSecAccount')}</p>
                     ${selfPasswordFormHtml()}
                 </div></div>`;
@@ -25318,6 +25368,7 @@
                         { id: 'orders', label: t('readStatus'), icon: 'ph-checks' },
                         { id: 'emergency', label: t('tabEmergency'), icon: 'ph-first-aid' },
                         { id: 'students', label: t('tabStudents'), icon: 'ph-users-three' },
+                        { id: 'ptcalc', label: t('tabPtCalc'), icon: 'ph-calculator' },
                         { id: 'others', label: t('tabOthers'), icon: 'ph-dots-three-circle' }
                     ];
                 }
@@ -25334,6 +25385,7 @@
                 if (user.role === 'admin') tabs = [
                     { id: 'school', label: t('adminSchoolTab'), icon: 'ph-chart-bar' },
                     { id: 'students', label: t('tabStudents'), icon: 'ph-users-three' },
+                    { id: 'ptcalc', label: t('tabPtCalc'), icon: 'ph-calculator' },
                     { id: 'admin', label: t('tabAdmin'), icon: 'ph-sliders-horizontal' }
                 ];
                 const pendingLeaveAlertN = user.role === 'director'
@@ -25438,6 +25490,9 @@
                         <p class="text-xs text-slate-500 mt-1 mb-2">${t('allStudentsHint')}</p>
                         <div id="student-db-board"></div>
                     </div></div>
+                    <div class="tab-panel" data-panel="ptcalc"><div class="content-card compact-card">
+                        <div class="pt-app" id="pt-app"></div>
+                    </div></div>
                     <div class="tab-panel active" data-panel="admin"><div class="content-card">
                         ${heading('ph-sliders-horizontal','adminTitle')}
                         <p class="text-xs text-slate-500 mt-1 mb-2">${t('adminPickHint')}</p>
@@ -25459,6 +25514,7 @@
                     if (document.getElementById('ot-pay-board')) renderOtPayBoard(user);
                     if (document.getElementById('sales-stats-board')) renderSalesStatsBoard(user);
                     if (document.getElementById('job-app-board')) renderJobAppBoard(user);
+                    if (document.getElementById('pt-app')) renderPartTimeApp(user);
                     if (adminSelectedId) fillAdminEditor(adminSelectedId);
                     return;
                 }
@@ -25849,6 +25905,9 @@
                     </div></div>`;
                     extra += `<div class="tab-panel" data-panel="otpay"><div class="content-card compact-card">
                         <div id="ot-pay-board"></div>
+                    </div></div>`;
+                    extra += `<div class="tab-panel" data-panel="ptcalc"><div class="content-card compact-card">
+                        <div class="pt-app" id="pt-app"></div>
                     </div></div>`;
                     extra += `<div class="tab-panel" data-panel="orders"><div class="content-card compact-card">
                         <div class="order-board-head">
