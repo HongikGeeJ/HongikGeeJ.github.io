@@ -1,6 +1,8 @@
 <!DOCTYPE html>
+<!-- hongik-build:2026-09-23-pt-cal-heading -->
 <html lang="ko">
 <head>
+<script>/*hongik-sb-embed*/window.__HONGIK_SUPABASE_CONFIG__={"url":"https://qoxdpqlzbbsluxzqchuq.supabase.co","anonKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveGRwcWx6YmJzbHV4enFjaHVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDEzNzYsImV4cCI6MjEwNTU3NzM3Nn0.sVpAV7RF_Q0O7B9YVx2x2DhpDmsvmZestIIkaMV8Sa4"};</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>HongikGeeJ Teacher Login</title>
@@ -6432,14 +6434,86 @@
             margin: .2rem 0 .85rem; border-radius: 1.1rem; border: 1.5px solid #e2e8f0;
             background: #fff; overflow: hidden;
         }
+        /* PT calendar month title — minimal morning-grass, subtle motion */
         .pt-cal-heading {
-            display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem .55rem;
-            padding: .85rem 1rem .25rem; margin: 0;
-            font-size: clamp(1.35rem, 3.2vw, 1.75rem); font-weight: 900;
-            letter-spacing: -0.02em; color: #0f172a; line-height: 1.15;
+            display: flex; align-items: center; justify-content: flex-start;
+            padding: 1rem 1.05rem .7rem; margin: 0;
+            position: relative;
         }
-        .pt-cal-heading .pt-cal-ym {
-            font-size: .88rem; font-weight: 750; color: #64748b; letter-spacing: 0;
+        .pt-cal-heading-inner {
+            position: relative;
+            display: inline-flex; flex-wrap: wrap; align-items: baseline;
+            gap: .2rem .55rem;
+            padding: 0 0 .35rem;
+            animation: ptCalHeadFloat 5.2s ease-in-out infinite;
+        }
+        .pt-cal-heading .pt-cal-month {
+            font-size: clamp(1.42rem, 3.5vw, 1.9rem);
+            font-weight: 900; letter-spacing: -0.03em; line-height: 1.1;
+            background: linear-gradient(
+                115deg,
+                #14532d 0%,
+                #166534 28%,
+                #3f6212 48%,
+                #15803d 68%,
+                #14532d 100%
+            );
+            background-size: 220% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: ptCalHeadShimmer 6.5s ease-in-out infinite;
+        }
+        .pt-cal-heading .pt-cal-year {
+            font-size: clamp(.92rem, 2.1vw, 1.08rem);
+            font-weight: 650; letter-spacing: .06em;
+            color: #65a30d; opacity: .88;
+            font-variant-numeric: tabular-nums;
+        }
+        .pt-cal-heading-inner::after {
+            content: '';
+            position: absolute; left: 0; right: 18%; bottom: 0;
+            height: 2px; border-radius: 999px;
+            background: linear-gradient(
+                90deg,
+                rgba(134, 209, 120, .95) 0%,
+                rgba(187, 247, 208, .55) 55%,
+                transparent 100%
+            );
+            transform-origin: left center;
+            animation:
+                ptCalHeadUnderline 1.05s cubic-bezier(.22, 1, .36, 1) both,
+                ptCalHeadUnderlineSoft 4.4s ease-in-out 1.05s infinite;
+        }
+        @keyframes ptCalHeadFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2.5px); }
+        }
+        @keyframes ptCalHeadShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        @keyframes ptCalHeadUnderline {
+            from { transform: scaleX(0); opacity: 0; }
+            to { transform: scaleX(1); opacity: 1; }
+        }
+        @keyframes ptCalHeadUnderlineSoft {
+            0%, 100% { opacity: .7; filter: brightness(1); }
+            50% { opacity: 1; filter: brightness(1.12); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .pt-cal-heading-inner,
+            .pt-cal-heading .pt-cal-month,
+            .pt-cal-heading-inner::after {
+                animation: none !important;
+            }
+            .pt-cal-heading .pt-cal-month {
+                color: #14532d;
+                background: none;
+                -webkit-background-clip: unset;
+                background-clip: unset;
+            }
+            .pt-cal-heading-inner::after { opacity: .75; transform: none; }
         }
         .pt-cal-grid {
             display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
@@ -24439,15 +24513,19 @@
         }
         function ptMonthHeading(ym) {
             const [y, mo] = String(ym || '').split('-').map(Number);
-            if (!(y > 0) || !(mo >= 1 && mo <= 12)) return { title: ym || '', ymShort: '' };
+            if (!(y > 0) || !(mo >= 1 && mo <= 12)) {
+                return { title: ym || '', month: ym || '', year: '', yearFirst: false, ymShort: '' };
+            }
             const th = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
             const en = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-            const title = lang === 'th'
-                ? `${th[mo - 1]} ${y}`
-                : lang === 'en'
-                    ? `${en[mo - 1]} ${y}`
-                    : `${y}년 ${mo}월`;
-            return { title, ymShort: `${mo}/${y}` };
+            const ymShort = `${mo}/${y}`;
+            if (lang === 'th') {
+                return { title: `${th[mo - 1]} ${y}`, month: th[mo - 1], year: String(y), yearFirst: false, ymShort };
+            }
+            if (lang === 'en') {
+                return { title: `${en[mo - 1]} ${y}`, month: en[mo - 1], year: String(y), yearFirst: false, ymShort };
+            }
+            return { title: `${y}년 ${mo}월`, month: `${mo}월`, year: `${y}년`, yearFirst: true, ymShort };
         }
         function ptYmShortLabel(ym) {
             const [y, mo] = String(ym || '').split('-').map(Number);
@@ -30257,7 +30335,10 @@
                 });
                 const today = todayKey();
                 const head = ptMonthHeading(ym);
-                const headingHtml = `<h3 class="pt-cal-heading">${esc(head.title)}<span class="pt-cal-ym">${esc(head.ymShort)}</span></h3>`;
+                const monthSpan = `<span class="pt-cal-month">${esc(head.month)}</span>`;
+                const yearSpan = head.year ? `<span class="pt-cal-year">${esc(head.year)}</span>` : '';
+                const headingParts = head.yearFirst ? `${yearSpan}${monthSpan}` : `${monthSpan}${yearSpan}`;
+                const headingHtml = `<h3 class="pt-cal-heading"><span class="pt-cal-heading-inner">${headingParts}</span></h3>`;
                 const dows = lang === 'th'
                     ? ['อา','จ','อ','พ','พฤ','ศ','ส']
                     : lang === 'en'
