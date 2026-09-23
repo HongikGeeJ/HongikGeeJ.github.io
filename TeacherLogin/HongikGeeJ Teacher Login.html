@@ -1878,12 +1878,19 @@
             display: grid; place-items: center;
         }
         .profile-btn img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+        /* Beat Tailwind .hidden specificity so empty <img> does not keep display:block */
+        .profile-btn img.hidden { display: none; }
         .profile-btn .ph,
         #profile-placeholder {
             font-size: 1.4rem; color: var(--accent); line-height: 1;
             /* Stay centered inside the circle even when themes override position */
             position: absolute; inset: 0; margin: auto; width: fit-content; height: fit-content;
             display: grid; place-items: center; pointer-events: none;
+        }
+        /* #profile-placeholder { display:grid } beats Tailwind .hidden — hide when photo is set */
+        #profile-placeholder.hidden,
+        .profile-btn .ph.hidden {
+            display: none;
         }
         .profile-edit-btn {
             width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 1px solid #e2e8f0;
@@ -3213,6 +3220,10 @@
             width: fit-content;
             height: fit-content;
             z-index: 1;
+        }
+        .dash-shell.is-eunha-shin #profile-placeholder.hidden,
+        .dash-shell.is-eunha-shin .profile-btn .ph.hidden {
+            display: none;
         }
         @keyframes eunhaProfileStarsTwinkle {
             0%, 100% {
@@ -35853,16 +35864,22 @@
                 const img = document.getElementById('profile-img');
                 const ph = document.getElementById('profile-placeholder');
                 if (!img || !ph) return;
-                // Empty → ph-user placeholder; uploaded photo wins
+                // Empty → ph-user placeholder; uploaded photo wins (login / upload / soft refresh / photo sync)
                 const display = getDisplayPhoto(userId);
                 if (display) {
                     img.src = display;
                     img.classList.remove('hidden');
+                    img.hidden = false;
                     ph.classList.add('hidden');
+                    ph.hidden = true;
+                    ph.setAttribute('aria-hidden', 'true');
                 } else {
                     img.removeAttribute('src');
                     img.classList.add('hidden');
+                    img.hidden = true;
                     ph.classList.remove('hidden');
+                    ph.hidden = false;
+                    ph.removeAttribute('aria-hidden');
                 }
             }
             loadPhotoRef = loadPhoto;
