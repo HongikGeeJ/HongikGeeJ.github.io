@@ -4835,12 +4835,47 @@
             width: 100%; height: 100%; min-height: 2.2rem; padding: .15rem;
             box-sizing: border-box;
         }
-        .room-tt-released-stack .room-tt-booked.is-released,
-        .room-tt-released-stack .room-tt-booked.is-cancelled {
+        .room-tt-released-stack .room-tt-booked.is-released {
             flex: 1; min-height: 1.6rem; font-size: .62rem;
         }
         .room-tt-released-stack .room-tt-plus {
             flex: 0 0 auto; min-height: 1.35rem; font-size: .75rem;
+        }
+        /* Cancelled: one dark-red bookable cell — history tag + prominent + (not a dead red block) */
+        .room-tt-plus.is-cancelled-slot {
+            position: relative;
+            background: linear-gradient(165deg, #7f1d1d 0%, #991b1b 55%, #6b1515 100%);
+            border: 1.5px dashed rgba(252, 165, 165, .55);
+            color: #fecaca;
+            box-shadow: inset 0 1px 0 rgba(254, 202, 202, .18);
+        }
+        .room-tt-plus.is-cancelled-slot:hover,
+        .room-tt-plus.is-cancelled-slot:focus-visible {
+            border-color: #fecaca;
+            color: #fff;
+            background: linear-gradient(165deg, #991b1b 0%, #b91c1c 100%);
+            transform: scale(1.03);
+            box-shadow: inset 0 0 0 1px rgba(254, 202, 202, .4);
+        }
+        .room-tt-plus.is-cancelled-slot .rt-cancel-tag {
+            position: absolute;
+            top: .16rem;
+            left: .18rem;
+            font-size: .5rem;
+            font-weight: 850;
+            line-height: 1.15;
+            padding: .07rem .28rem;
+            border-radius: 999px;
+            background: #fecaca;
+            color: #7f1d1d;
+            border: 1px solid #fca5a5;
+            pointer-events: none;
+            letter-spacing: .01em;
+        }
+        .room-tt-plus.is-cancelled-slot i {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fecaca;
         }
         .week-class-card .cls-run-badge { margin-top: .2rem; }
         .rt-month-chip .cls-run-dot {
@@ -9052,6 +9087,10 @@
             filter: grayscale(.55);
             box-shadow: none;
         }
+        .room-tt-cell.is-past-day .room-tt-plus.is-cancelled-slot {
+            opacity: .52;
+            filter: grayscale(.2) brightness(.95);
+        }
         .room-tt-cell.is-past-day .room-tt-plus:hover,
         .room-tt-cell.is-past-day .room-tt-plus:focus-visible {
             transform: none;
@@ -9064,19 +9103,30 @@
             pointer-events: none !important;
             cursor: default !important;
         }
-        .room-tt-cell.is-past-day .room-tt-booked:not(.is-cancelled):not(.is-break):not(.is-released) {
-            filter: grayscale(.4);
-            opacity: .68;
-            box-shadow: 0 1px 4px rgba(15, 23, 42, .1);
+        /* Finished days: wash booking colors with soft light gray (beats teacher-focus boost) */
+        .room-tt-cell.is-past-day .room-tt-booked:not(.is-cancelled):not(.is-break):not(.is-released),
+        #room-tt-board[data-focus-teacher] .room-tt-cell.is-past-day .room-tt-booked:not(.is-cancelled):not(.is-break):not(.is-released),
+        #room-tt-board[data-focus-teacher="eunha"] .room-tt-cell.is-past-day .room-tt-booked[data-teacher="eunha"],
+        #room-tt-board[data-focus-teacher="taehyun"] .room-tt-cell.is-past-day .room-tt-booked[data-teacher="taehyun"],
+        #room-tt-board[data-focus-teacher="sua"] .room-tt-cell.is-past-day .room-tt-booked[data-teacher="sua"],
+        #room-tt-board[data-focus-teacher="parttime"] .room-tt-cell.is-past-day .room-tt-booked[data-teacher="parttime"] {
+            filter: grayscale(.58) saturate(.38) brightness(1.04) !important;
+            opacity: .62 !important;
+            transform: none !important;
+            /* soft light-gray mix over teacher color */
+            box-shadow: inset 0 0 0 999px rgba(203, 213, 225, .48), 0 1px 3px rgba(15, 23, 42, .06) !important;
         }
-        .room-tt-cell.is-past-day .room-tt-booked.is-released {
-            filter: grayscale(.32);
-            opacity: .74;
+        .room-tt-cell.is-past-day .room-tt-booked.is-released,
+        #room-tt-board[data-focus-teacher] .room-tt-cell.is-past-day .room-tt-booked.is-released {
+            filter: grayscale(.4) !important;
+            opacity: .7 !important;
+            transform: none !important;
+            box-shadow: inset 0 0 0 999px rgba(203, 213, 225, .35) !important;
         }
         .room-tt-cell.is-past-day .room-tt-booked.is-cancelled,
         .room-tt-cell.is-past-day .room-tt-booked.is-break {
             filter: none;
-            opacity: .9;
+            opacity: .88;
         }
         /* Empty slots: soft gray-white pin/watermark; booked colors stay vivid */
         .room-tt-plus {
@@ -26376,7 +26426,7 @@
                 });
 
                 // occupancy map: date|room|half -> block
-                // student_postponed (gray) / cancelled (dark red) keep a record but free the cell for re-booking
+                // student_postponed (gray remnant+plus) / cancelled (dark-red + with ยกเลิก tag) free the cell for re-booking
                 const byCell = {};
                 const releasedByCell = {};
                 Object.values(store.blocks || {}).forEach((b) => {
@@ -26423,19 +26473,28 @@
                                 return;
                             }
                             if (!slot) {
-                                // Free cell — optionally show gray released record + book-over control
-                                const showReleased = releasedSlot && roomTtStartsAt(releasedSlot, bookHalf);
-                                if (!canBook && !showReleased) {
+                                // Free cell — cancelled: dark-red + on every half; student_postponed: gray remnant + plus on start
+                                const rSt = releasedSlot ? normalizeClassStatus(releasedSlot.classStatus) : 'normal';
+                                const cancelledCover = !!releasedSlot && rSt === 'cancelled';
+                                const showReleased = releasedSlot && rSt === 'student_postponed' && roomTtStartsAt(releasedSlot, bookHalf);
+                                if (!canBook && !showReleased && !cancelledCover) {
                                     body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}"><div class="room-tt-plus" style="animation:none;opacity:.55;cursor:default;pointer-events:none;color:rgba(148,163,184,.4)">·</div></div>`;
+                                    return;
+                                }
+                                if (cancelledCover) {
+                                    const rHint = t('roomTtCancelledHint');
+                                    const cancelTag = `<span class="rt-cancel-tag">${esc(t('classStatusCancelled'))}</span>`;
+                                    const canBookCell = canBook && !isPast;
+                                    const cancelPlus = canBookCell
+                                        ? `<button type="button" class="room-tt-plus is-cancelled-slot" data-rt-book="${esc(date)}|${room}|${bookHalf}" title="${esc(rHint)}" aria-label="+">${cancelTag}<i class="ph ph-plus"></i></button>`
+                                        : `<div class="room-tt-plus is-cancelled-slot" aria-hidden="true" title="${esc(isPast ? t('roomTtPastLocked') : rHint)}">${cancelTag}<i class="ph ph-plus"></i></div>`;
+                                    body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">${cancelPlus}</div>`;
                                     return;
                                 }
                                 if (showReleased) {
                                     const rSubj = cleanClassTitleDisplay(pickLangText(releasedSlot, 'title') || releasedSlot.title || '');
                                     const rTea = shortTeacherLabel(releasedSlot.teacherId) || releasedSlot.teacherName || '';
-                                    const rSt = normalizeClassStatus(releasedSlot.classStatus);
-                                    const rCancelled = rSt === 'cancelled';
-                                    const rMod = rCancelled ? 'is-cancelled' : 'is-released';
-                                    const rHint = rCancelled ? t('roomTtCancelledHint') : t('roomTtReleasedHint');
+                                    const rHint = t('roomTtReleasedHint');
                                     const rBadge = classStatusBadgeHtml(releasedSlot.classStatus);
                                     const canBookCell = canBook && !isPast;
                                     const plusBtn = canBookCell
@@ -26444,13 +26503,13 @@
                                             ? `<div class="room-tt-plus" aria-hidden="true" title="${esc(t('roomTtPastLocked'))}"><i class="ph ph-plus"></i></div>`
                                             : '');
                                     const releasedBtn = isPast
-                                        ? `<div class="room-tt-booked ${rMod}" data-teacher="${esc(releasedSlot.teacherId || '')}" title="${esc(rHint)}" aria-disabled="true">
+                                        ? `<div class="room-tt-booked is-released" data-teacher="${esc(releasedSlot.teacherId || '')}" title="${esc(rHint)}" aria-disabled="true">
                                                 <span class="rt-name">${esc(rTea)}</span>
                                                 <span class="rt-subj">${esc(rSubj)}</span>
                                                 <span class="rt-subj" style="opacity:.8">${esc(releasedSlot.start)}–${esc(releasedSlot.end)}</span>
                                                 ${rBadge}
                                             </div>`
-                                        : `<button type="button" class="room-tt-booked ${rMod}"
+                                        : `<button type="button" class="room-tt-booked is-released"
                                                 data-rt-edit="${esc(releasedSlot.id)}"
                                                 data-teacher="${esc(releasedSlot.teacherId || '')}"
                                                 title="${esc(rHint)}">

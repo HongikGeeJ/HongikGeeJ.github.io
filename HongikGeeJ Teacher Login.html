@@ -26426,7 +26426,7 @@
                 });
 
                 // occupancy map: date|room|half -> block
-                // student_postponed (gray) / cancelled (dark red) keep a record but free the cell for re-booking
+                // student_postponed (gray remnant+plus) / cancelled (dark-red + with ยกเลิก tag) free the cell for re-booking
                 const byCell = {};
                 const releasedByCell = {};
                 Object.values(store.blocks || {}).forEach((b) => {
@@ -26473,19 +26473,28 @@
                                 return;
                             }
                             if (!slot) {
-                                // Free cell — optionally show gray released record + book-over control
-                                const showReleased = releasedSlot && roomTtStartsAt(releasedSlot, bookHalf);
-                                if (!canBook && !showReleased) {
+                                // Free cell — cancelled: dark-red + on every half; student_postponed: gray remnant + plus on start
+                                const rSt = releasedSlot ? normalizeClassStatus(releasedSlot.classStatus) : 'normal';
+                                const cancelledCover = !!releasedSlot && rSt === 'cancelled';
+                                const showReleased = releasedSlot && rSt === 'student_postponed' && roomTtStartsAt(releasedSlot, bookHalf);
+                                if (!canBook && !showReleased && !cancelledCover) {
                                     body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}"><div class="room-tt-plus" style="animation:none;opacity:.55;cursor:default;pointer-events:none;color:rgba(148,163,184,.4)">·</div></div>`;
+                                    return;
+                                }
+                                if (cancelledCover) {
+                                    const rHint = t('roomTtCancelledHint');
+                                    const cancelTag = `<span class="rt-cancel-tag">${esc(t('classStatusCancelled'))}</span>`;
+                                    const canBookCell = canBook && !isPast;
+                                    const cancelPlus = canBookCell
+                                        ? `<button type="button" class="room-tt-plus is-cancelled-slot" data-rt-book="${esc(date)}|${room}|${bookHalf}" title="${esc(rHint)}" aria-label="+">${cancelTag}<i class="ph ph-plus"></i></button>`
+                                        : `<div class="room-tt-plus is-cancelled-slot" aria-hidden="true" title="${esc(isPast ? t('roomTtPastLocked') : rHint)}">${cancelTag}<i class="ph ph-plus"></i></div>`;
+                                    body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">${cancelPlus}</div>`;
                                     return;
                                 }
                                 if (showReleased) {
                                     const rSubj = cleanClassTitleDisplay(pickLangText(releasedSlot, 'title') || releasedSlot.title || '');
                                     const rTea = shortTeacherLabel(releasedSlot.teacherId) || releasedSlot.teacherName || '';
-                                    const rSt = normalizeClassStatus(releasedSlot.classStatus);
-                                    const rCancelled = rSt === 'cancelled';
-                                    const rMod = rCancelled ? 'is-cancelled' : 'is-released';
-                                    const rHint = rCancelled ? t('roomTtCancelledHint') : t('roomTtReleasedHint');
+                                    const rHint = t('roomTtReleasedHint');
                                     const rBadge = classStatusBadgeHtml(releasedSlot.classStatus);
                                     const canBookCell = canBook && !isPast;
                                     const plusBtn = canBookCell
@@ -26494,13 +26503,13 @@
                                             ? `<div class="room-tt-plus" aria-hidden="true" title="${esc(t('roomTtPastLocked'))}"><i class="ph ph-plus"></i></div>`
                                             : '');
                                     const releasedBtn = isPast
-                                        ? `<div class="room-tt-booked ${rMod}" data-teacher="${esc(releasedSlot.teacherId || '')}" title="${esc(rHint)}" aria-disabled="true">
+                                        ? `<div class="room-tt-booked is-released" data-teacher="${esc(releasedSlot.teacherId || '')}" title="${esc(rHint)}" aria-disabled="true">
                                                 <span class="rt-name">${esc(rTea)}</span>
                                                 <span class="rt-subj">${esc(rSubj)}</span>
                                                 <span class="rt-subj" style="opacity:.8">${esc(releasedSlot.start)}–${esc(releasedSlot.end)}</span>
                                                 ${rBadge}
                                             </div>`
-                                        : `<button type="button" class="room-tt-booked ${rMod}"
+                                        : `<button type="button" class="room-tt-booked is-released"
                                                 data-rt-edit="${esc(releasedSlot.id)}"
                                                 data-teacher="${esc(releasedSlot.teacherId || '')}"
                                                 title="${esc(rHint)}">
