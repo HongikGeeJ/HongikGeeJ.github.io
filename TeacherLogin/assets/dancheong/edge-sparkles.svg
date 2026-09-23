@@ -1,60 +1,52 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 20" fill="none">
-  <!-- Horizontal sparkle strip for content-card top/bottom edges -->
-  <g fill="#F5D24A">
-    <path d="M36 10 L38.2 8.6 L37.4 11.2 L39.6 10 L37.4 8.8 L38.2 11.4 Z" opacity=".95">
-      <animate attributeName="opacity" values=".45;.95;.45" dur="2.2s" begin="0s" repeatCount="indefinite"/>
-    </path>
-    <path d="M120 7 L121.6 5.9 L121 7.9 L122.6 7 L121 6.1 L121.6 8.1 Z" opacity=".7">
-      <animate attributeName="opacity" values=".3;.85;.3" dur="2.6s" begin=".4s" repeatCount="indefinite"/>
-    </path>
-    <path d="M268 12 L270 10.6 L269.2 13.2 L271.4 12 L269.2 10.8 L270 13.4 Z" opacity=".9">
-      <animate attributeName="opacity" values=".4;.95;.4" dur="2.4s" begin="1s" repeatCount="indefinite"/>
-    </path>
-  </g>
-  <g fill="#B094E8">
-    <path d="M72 8 L74.4 6.4 L73.4 9.4 L75.8 8 L73.4 6.6 L74.4 9.6 Z" opacity=".88">
-      <animate attributeName="opacity" values=".35;.9;.35" dur="2.5s" begin=".2s" repeatCount="indefinite"/>
-    </path>
-    <path d="M210 11 L211.5 9.9 L210.9 12 L212.5 11 L210.9 10 L211.5 12.1 Z" opacity=".75">
-      <animate attributeName="opacity" values=".25;.8;.25" dur="2.8s" begin=".8s" repeatCount="indefinite"/>
-    </path>
-    <path d="M340 9 L342.2 7.5 L341.4 10.2 L343.6 9 L341.4 7.8 L342.2 10.5 Z" opacity=".9">
-      <animate attributeName="opacity" values=".4;.95;.4" dur="2.3s" begin="1.3s" repeatCount="indefinite"/>
-    </path>
-  </g>
-  <g fill="#6BC484">
-    <path d="M96 13 L97.8 11.7 L97.1 14.1 L99 13 L97.1 11.9 L97.8 14.3 Z" opacity=".8">
-      <animate attributeName="opacity" values=".3;.85;.3" dur="2.7s" begin=".6s" repeatCount="indefinite"/>
-    </path>
-    <path d="M176 6 L178.4 4.4 L177.4 7.4 L179.8 6 L177.4 4.6 L178.4 7.6 Z" opacity=".85">
-      <animate attributeName="opacity" values=".35;.9;.35" dur="2.1s" begin="1.1s" repeatCount="indefinite"/>
-    </path>
-    <path d="M310 14 L311.6 12.9 L311 14.9 L312.6 14 L311 13.1 L311.6 15.1 Z" opacity=".7">
-      <animate attributeName="opacity" values=".25;.75;.25" dur="2.9s" begin=".3s" repeatCount="indefinite"/>
-    </path>
-  </g>
-  <g fill="#FFFFFF">
-    <path d="M148 10 L149.4 9.1 L149 10.7 L150.4 10 L149 9.3 L149.4 10.9 Z" opacity=".95" stroke="#E8D44A" stroke-width=".4">
-      <animate attributeName="opacity" values=".4;1;.4" dur="2s" begin=".5s" repeatCount="indefinite"/>
-    </path>
-    <path d="M240 8 L241.8 6.7 L241.1 9.1 L243 8 L241.1 6.9 L241.8 9.3 Z" opacity=".9" stroke="#C4A8F0" stroke-width=".35">
-      <animate attributeName="opacity" values=".35;.95;.35" dur="2.4s" begin="1.5s" repeatCount="indefinite"/>
-    </path>
-    <path d="M370 11 L371.5 9.9 L370.9 12 L372.5 11 L370.9 10 L371.5 12.1 Z" opacity=".85" stroke="#8ED4A0" stroke-width=".35">
-      <animate attributeName="opacity" values=".3;.9;.3" dur="2.6s" begin=".9s" repeatCount="indefinite"/>
-    </path>
-  </g>
-  <!-- Tiny diamond dots -->
-  <circle cx="54" cy="14" r="1.1" fill="#FFE97A" opacity=".7">
-    <animate attributeName="opacity" values=".25;.8;.25" dur="1.8s" begin=".1s" repeatCount="indefinite"/>
+  <!-- Soft sea-tone shimmer rail (content-card top/bottom) — no multi-hue flicker -->
+  <defs>
+    <linearGradient id="seaRail" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7eb6d9" stop-opacity="0"/>
+      <stop offset="18%" stop-color="#7eb6d9" stop-opacity=".42"/>
+      <stop offset="50%" stop-color="#4a6fa5" stop-opacity=".52"/>
+      <stop offset="82%" stop-color="#7eb6d9" stop-opacity=".42"/>
+      <stop offset="100%" stop-color="#7eb6d9" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="seaGlow" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#bae6fd" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#e0f2fe" stop-opacity=".35"/>
+      <stop offset="100%" stop-color="#bae6fd" stop-opacity="0">
+        <animate attributeName="stop-opacity" values="0;.28;0" dur="6s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <linearGradient id="seaShine" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="90" y2="0">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="45%" stop-color="#e8f4fc" stop-opacity=".75"/>
+      <stop offset="55%" stop-color="#ffffff" stop-opacity=".9"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+      <animateTransform attributeName="gradientTransform" type="translate"
+        from="-100 0" to="430 0" dur="6.5s" repeatCount="indefinite"/>
+    </linearGradient>
+  </defs>
+  <!-- Soft under-glow -->
+  <path d="M12 10 C52 6.5 92 13.5 132 10 S212 6.5 252 10 S332 13.5 372 10"
+        stroke="url(#seaGlow)" stroke-width="3.2" stroke-linecap="round" opacity=".55"/>
+  <!-- Gentle wave rail -->
+  <path d="M12 10 C52 6.5 92 13.5 132 10 S212 6.5 252 10 S332 13.5 372 10"
+        stroke="url(#seaRail)" stroke-width="1.15" stroke-linecap="round"/>
+  <!-- Traveling shimmer -->
+  <path d="M12 10 C52 6.5 92 13.5 132 10 S212 6.5 252 10 S332 13.5 372 10"
+        stroke="url(#seaShine)" stroke-width="1.8" stroke-linecap="round" opacity=".7"/>
+  <!-- Soft pearl beads — slow sea-tone breathe only -->
+  <circle cx="68" cy="8.6" r="1.35" fill="#bae6fd">
+    <animate attributeName="opacity" values=".18;.42;.18" dur="5.2s" begin="0s" repeatCount="indefinite"/>
   </circle>
-  <circle cx="190" cy="15" r=".9" fill="#D4C0F0" opacity=".65">
-    <animate attributeName="opacity" values=".2;.75;.2" dur="2.1s" begin=".7s" repeatCount="indefinite"/>
+  <circle cx="148" cy="11.2" r="1.15" fill="#7eb6d9">
+    <animate attributeName="opacity" values=".16;.38;.16" dur="5.8s" begin="1.1s" repeatCount="indefinite"/>
   </circle>
-  <circle cx="290" cy="6" r="1" fill="#A8E0B4" opacity=".7">
-    <animate attributeName="opacity" values=".25;.8;.25" dur="1.9s" begin="1.2s" repeatCount="indefinite"/>
+  <circle cx="228" cy="8.4" r="1.45" fill="#e0f2fe">
+    <animate attributeName="opacity" values=".2;.48;.2" dur="6.2s" begin="2s" repeatCount="indefinite"/>
   </circle>
-  <circle cx="356" cy="15" r=".85" fill="#F5D24A" opacity=".6">
-    <animate attributeName="opacity" values=".2;.7;.2" dur="2.3s" begin=".4s" repeatCount="indefinite"/>
+  <circle cx="308" cy="11.4" r="1.2" fill="#93c5fd">
+    <animate attributeName="opacity" values=".15;.36;.15" dur="5.5s" begin=".7s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="348" cy="9.2" r="1.05" fill="#c7dff0">
+    <animate attributeName="opacity" values=".14;.34;.14" dur="6s" begin="2.8s" repeatCount="indefinite"/>
   </circle>
 </svg>

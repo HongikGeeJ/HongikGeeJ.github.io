@@ -466,17 +466,17 @@
             .dc-c.bl { transform: scaleY(-1); }
             .dc-c.br { transform: scale(-1); }
         }
-        /* Green/white/yellow/purple corner blooms + edge sparkles (all roles) */
+        /* Corner blooms + sea-tone shimmer rail on card edges (all roles) */
         .content-card {
             position: relative;
             overflow: visible;
             background-color: #fff;
             background-image:
-                url('assets/dancheong/edge-sparkles.svg?v=spark1'),
-                url('assets/dancheong/edge-sparkles.svg?v=spark1');
+                url('assets/dancheong/edge-sparkles.svg?v=sea2'),
+                url('assets/dancheong/edge-sparkles.svg?v=sea2');
             background-repeat: no-repeat;
-            background-position: center top 5px, center bottom 5px;
-            background-size: min(100%, 440px) 14px;
+            background-position: center top 4px, center bottom 4px;
+            background-size: min(100%, 460px) 12px;
         }
         .content-card::before,
         .content-card::after {
@@ -540,8 +540,8 @@
         @media (prefers-reduced-motion: reduce) {
             .content-card {
                 background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=spark1'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=spark1');
+                    url('assets/dancheong/edge-sparkles-static.svg?v=sea2'),
+                    url('assets/dancheong/edge-sparkles-static.svg?v=sea2');
             }
             .content-card::before,
             .content-card::after {
@@ -1054,6 +1054,25 @@
         .item-row { display: flex; justify-content: space-between; gap: .75rem; padding: .7rem 0; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
         .item-row:last-child { border-bottom: none; }
         .badge { display: inline-flex; align-items: center; padding: .2rem .55rem; border-radius: 999px; font-size: .72rem; font-weight: 700; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+        .order-board-head {
+            display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
+            gap: .55rem .85rem; margin-bottom: .15rem;
+        }
+        .order-board-head > div:first-child { min-width: 0; }
+        .order-month-bar {
+            display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+            margin-left: auto;
+        }
+        .order-month-label {
+            font-size: .78rem; font-weight: 700; color: #64748b;
+            display: inline-flex; align-items: center; gap: .28rem; white-space: nowrap;
+        }
+        .order-month-label i { color: var(--accent); font-size: .95em; }
+        .order-month-select {
+            min-width: 10rem; max-width: 15rem;
+            padding: .35rem .6rem !important; font-size: .82rem !important;
+            border-radius: .65rem !important; font-weight: 650;
+        }
         .order-list { display: grid; gap: .55rem; margin-top: .35rem; }
         .order-row {
             display: flex; align-items: stretch; gap: .55rem;
@@ -4982,6 +5001,27 @@
             margin-top: .85rem; padding: .85rem; border-radius: .85rem;
             border: 1.5px dashed #86efac; background: #f0fdf4;
         }
+        .student-db-detail-head {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            gap: .65rem; margin: .35rem 0 .2rem;
+        }
+        .student-db-detail-head h3 {
+            margin: 0; color: #0f172a; flex: 1 1 auto; min-width: 0;
+            line-height: 1.35;
+        }
+        .student-db-detail-actions {
+            display: flex; flex-wrap: wrap; gap: .35rem;
+            flex: 0 0 auto; align-items: center; justify-content: flex-end;
+        }
+        .student-db-detail-actions .soft-btn {
+            font-size: .78rem; padding: .35rem .7rem; white-space: nowrap;
+        }
+        .student-db-detail-edit-fields .sched-form { margin-top: .15rem; }
+        .attend-stats-detail.is-editing {
+            outline: 1.5px solid #86efac; outline-offset: 2px;
+            border-radius: .85rem; padding: .55rem .6rem .7rem;
+            background: linear-gradient(180deg, #f0fdf4 0%, #fff 28%);
+        }
         .stu-mark {
             display: inline-flex; align-items: center; gap: .35rem;
             font-size: .78rem; font-weight: 750; padding: .3rem .5rem;
@@ -7537,8 +7577,8 @@
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
                 background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=spark1'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=spark1') !important;
+                    url('assets/dancheong/edge-sparkles-static.svg?v=sea2'),
+                    url('assets/dancheong/edge-sparkles-static.svg?v=sea2') !important;
             }
             .content-card::before,
             .content-card::after {
@@ -10210,9 +10250,12 @@
         let textbookNav = { view: 'list', cat: '' };
         let attendGraphNav = { view: 'list', months: 1 };
         let attendStatsNav = { view: 'list' };
-        let studentDbNav = { view: 'home', month: '', q: '', studentId: null };
+        let studentDbNav = { view: 'home', month: '', q: '', studentId: null, editing: false };
         let weekClassNav = { weekOffset: 0, page: 0, rangeFrom: '', rangeTo: '', opened: false };
         let orderNav = { view: 'list', orderId: null };
+        /** '' = follow calendar current month; otherwise YYYY-MM within retention window */
+        let orderBoardYm = '';
+        const ORDER_RETENTION_MONTHS = 3;
         let leaveInboxOpenId = null;
         /** Director cancel/sched inbox: `cancel:id` | `sched:id` while decide panel open */
         let reportInboxOpenKey = null;
@@ -10348,6 +10391,9 @@
                 headOrders: '원장 지시',
                 headOrdersTitle: '새 알림 · 원장 지시',
                 headOrdersHint: '새 지시 알림입니다 · 지시마다 팝업 1회 · ×로 닫으면 같은 화면에서는 다시 안 뜸 · 다른 탭으로 가면 다시 표시 · 확인하면 그날 종료',
+                orderViewHistory: '이전 달 보기',
+                orderMonthCurrent: '이번 달',
+                orderMonthEmpty: '이 달의 지시가 없습니다',
                 orderPrev: '이전',
                 orderNext: '다음',
                 markRead: '읽음으로 표시',
@@ -10424,6 +10470,8 @@
                 studentDbMonthStudents: '이번 달 학생',
                 studentDbSubjects: '수강 과목',
                 studentDbEdit: '학생 정보 수정',
+                studentDbEditBtn: '수정',
+                studentDbCancelEdit: '취소',
                 studentDbSaveEdit: '저장',
                 studentDbSaved: '저장됨 · 인원 실시간 반영',
                 studentDbNick: '닉네임',
@@ -11187,6 +11235,9 @@
                 headOrders: 'คำสั่งจากหัวหน้า',
                 headOrdersTitle: 'แจ้งเตือนใหม่ · คำสั่งหัวหน้า',
                 headOrdersHint: 'มีแจ้งเตือนใหม่ · คำสั่งละป๊อปอัป 1 ครั้ง · กด × หรือพื้นหลังปิดแล้วจะไม่เด้งซ้ำจนกว่าจะเปลี่ยนแท็บ · กดรับทราบแล้วจบวันนั้น',
+                orderViewHistory: 'ดูย้อนหลัง',
+                orderMonthCurrent: 'เดือนนี้',
+                orderMonthEmpty: 'ไม่มีคำสั่งในเดือนนี้',
                 orderPrev: 'ก่อนหน้า',
                 orderNext: 'ถัดไป',
                 markRead: 'ฉันรับทราบแล้ว',
@@ -11263,6 +11314,8 @@
                 studentDbMonthStudents: 'นักเรียนในเดือนนี้',
                 studentDbSubjects: 'วิชาที่เรียน',
                 studentDbEdit: 'แก้ไขข้อมูลนักเรียน',
+                studentDbEditBtn: 'แก้ไข',
+                studentDbCancelEdit: 'ยกเลิก',
                 studentDbSaveEdit: 'บันทึก',
                 studentDbSaved: 'บันทึกแล้ว · อัปเดตยอดทันที',
                 studentDbNick: 'ชื่อเล่น',
@@ -12026,6 +12079,9 @@
                 headOrders: 'Orders from head',
                 headOrdersTitle: 'New notification · Head order',
                 headOrdersHint: 'You have a new alert · One popup per order · × / backdrop closes it until you change tabs · Acknowledge to clear for today',
+                orderViewHistory: 'View history',
+                orderMonthCurrent: 'This month',
+                orderMonthEmpty: 'No orders in this month',
                 orderPrev: 'Previous',
                 orderNext: 'Next',
                 markRead: 'Mark as read',
@@ -12102,6 +12158,8 @@
                 studentDbMonthStudents: 'Students this month',
                 studentDbSubjects: 'Subjects',
                 studentDbEdit: 'Edit student',
+                studentDbEditBtn: 'Edit',
+                studentDbCancelEdit: 'Cancel',
                 studentDbSaveEdit: 'Save',
                 studentDbSaved: 'Saved · live count updated',
                 studentDbNick: 'Nickname',
@@ -13358,6 +13416,97 @@
             if (o && o.date) return String(o.date).slice(0, 10);
             return '';
         }
+        function currentOrderYm() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        }
+        function orderYmKey(o) {
+            const d = orderDateKey(o);
+            return d ? d.slice(0, 7) : '';
+        }
+        function shiftOrderYm(ym, deltaMonths) {
+            const parts = String(ym || '').split('-').map(Number);
+            const y = parts[0] || new Date().getFullYear();
+            const m = parts[1] || (new Date().getMonth() + 1);
+            const dt = new Date(y, m - 1 + (deltaMonths || 0), 1);
+            return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
+        }
+        /** Oldest YYYY-MM still kept (inclusive). Current + 2 prior = 3 months. */
+        function orderRetentionCutoffYm() {
+            return shiftOrderYm(currentOrderYm(), -(ORDER_RETENTION_MONTHS - 1));
+        }
+        /** [current, current-1, …] within retention window */
+        function orderRetentionYmList() {
+            const cur = currentOrderYm();
+            const out = [];
+            for (let i = 0; i < ORDER_RETENTION_MONTHS; i++) out.push(shiftOrderYm(cur, -i));
+            return out;
+        }
+        function resolveOrderBoardYm() {
+            const allowed = orderRetentionYmList();
+            if (orderBoardYm && allowed.includes(orderBoardYm)) return orderBoardYm;
+            orderBoardYm = '';
+            return allowed[0] || currentOrderYm();
+        }
+        function setOrderBoardYmFromSelect(ym) {
+            const cur = currentOrderYm();
+            const allowed = orderRetentionYmList();
+            const next = String(ym || '');
+            orderBoardYm = (next && next !== cur && allowed.includes(next)) ? next : '';
+            return resolveOrderBoardYm();
+        }
+        function formatOrderYmLabel(ym, { asCurrent = false } = {}) {
+            const parts = String(ym || '').split('-').map(Number);
+            const dt = new Date(parts[0] || 2026, (parts[1] || 1) - 1, 1);
+            let label;
+            if (lang === 'th') label = dt.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+            else if (lang === 'en') label = dt.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            else label = dt.toLocaleDateString('ko-KR', { month: 'long', year: 'numeric' });
+            return asCurrent ? `${t('orderMonthCurrent')} · ${label}` : label;
+        }
+        function orderMonthSelectHtml(selectId) {
+            const effective = resolveOrderBoardYm();
+            const months = orderRetentionYmList();
+            const opts = months.map((ym, i) => {
+                const label = formatOrderYmLabel(ym, { asCurrent: i === 0 });
+                const sel = ym === effective ? ' selected' : '';
+                return `<option value="${ym}"${sel}>${label}</option>`;
+            }).join('');
+            return `<div class="order-month-bar">
+                <label class="order-month-label" for="${selectId}"><i class="ph ph-calendar-blank" aria-hidden="true"></i> ${t('orderViewHistory')}</label>
+                <select id="${selectId}" class="sched-select order-month-select" aria-label="${t('orderViewHistory')}">${opts}</select>
+            </div>`;
+        }
+        function filterOrdersByYm(list, ym) {
+            const target = ym || resolveOrderBoardYm();
+            const cur = currentOrderYm();
+            return (list || []).filter((o) => {
+                if (!o) return false;
+                const oym = orderYmKey(o);
+                if (!oym) return target === cur;
+                return oym === target;
+            });
+        }
+        /** Drop orders older than retention window; push cleaned store when changed. */
+        function purgeStaleHeadOrders({ syncRemote = true } = {}) {
+            try {
+                const cutoff = orderRetentionCutoffYm();
+                const list = loadHeadOrders();
+                if (!Array.isArray(list)) return false;
+                const kept = list.filter((o) => {
+                    const ym = orderYmKey(o);
+                    if (!ym) return true;
+                    return ym >= cutoff;
+                });
+                resolveOrderBoardYm();
+                if (kept.length === list.length) return false;
+                saveHeadOrders(kept, { silent: true, syncRemote });
+                try { reconcileOrderLocalSideEffects(kept); } catch (_) {}
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
         function isOrderToday(o) {
             const d = orderDateKey(o);
             return d && d === todayKey();
@@ -13378,8 +13527,11 @@
             return full.length > 72 ? full.slice(0, 72) + '…' : full;
         }
         function renderTeacherOrderCards(userId) {
-            const list = loadHeadOrders()
-                .filter(o => o && !isOrderCancelled(o) && orderTargetsUser(o, userId))
+            const ym = resolveOrderBoardYm();
+            const list = filterOrdersByYm(
+                loadHeadOrders().filter(o => o && !isOrderCancelled(o) && orderTargetsUser(o, userId)),
+                ym
+            )
                 .slice()
                 .sort((a, b) => {
                     const da = orderDateKey(a) || '';
@@ -16610,13 +16762,17 @@
                 if (name === 'headOrders') {
                     const local = loadHeadOrders();
                     const merged = mergeOrderRows(local, Array.isArray(remoteData) ? remoteData : [], { remoteAt });
-                    if (JSON.stringify(local) !== JSON.stringify(merged)) {
+                    let changed = JSON.stringify(local) !== JSON.stringify(merged);
+                    if (changed) {
                         saveHeadOrders(merged, { silent: true, syncRemote: false });
                         try { reconcileOrderLocalSideEffects(merged); } catch (_) {}
-                        return true;
+                    } else {
+                        try { reconcileOrderLocalSideEffects(merged); } catch (_) {}
                     }
-                    try { reconcileOrderLocalSideEffects(merged); } catch (_) {}
-                    return false;
+                    try {
+                        if (purgeStaleHeadOrders({ syncRemote: true })) changed = true;
+                    } catch (_) {}
+                    return changed;
                 }
                 if (name === 'orderAcks') {
                     const local = loadOrderAckMirror();
@@ -19017,6 +19173,7 @@
         }
         migrateSeedSuaTestOrder();
         migrateOrderAcksFromLocalReads();
+        try { purgeStaleHeadOrders({ syncRemote: true }); } catch (_) {}
         migrateLegacyNotesToShared();
         ensureNoteRosterSeeded();
 
@@ -25237,7 +25394,9 @@
                     const leaves = loadLeaveRequests().slice().reverse();
 
                     const teacherOpts = teachers.map(tea => `<option value="${tea.id}">${displayName(tea)}</option>`).join('');
-                    const orders = loadHeadOrders().slice().reverse();
+                    try { purgeStaleHeadOrders({ syncRemote: true }); } catch (_) {}
+                    const orderYm = resolveOrderBoardYm();
+                    const orders = filterOrdersByYm(loadHeadOrders(), orderYm).slice().reverse();
                     const escAttr = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
                     const readBoard = orders.map(o => {
                         const cancelled = isOrderCancelled(o);
@@ -25308,7 +25467,7 @@
                                 <button type="button" class="soft-btn" data-order-resend="${o.id}" ${orderCdActive ? 'disabled aria-disabled="true" data-cd-active="1"' : ''} title="${orderBtnLabel}" style="padding:.42rem .9rem !important;font-size:.82rem !important;box-shadow:0 6px 14px rgba(194,65,12,.28)">${orderBtnLabel}</button>
                             </div>
                         </div>`;
-                    }).join('') || `<p class="empty-note">${t('noOrders')}</p>`;
+                    }).join('') || `<p class="empty-note">${t('orderMonthEmpty')}</p>`;
 
                     const pendingLeaveN = leaves.filter((L) => L.status === 'pending').length;
                     const leaveInbox = leaves.length ? leaves.map((L) => {
@@ -25523,7 +25682,11 @@
                     extra += `<div class="tab-panel" data-panel="otpay"><div class="content-card compact-card">
                         <div id="ot-pay-board"></div>
                     </div></div>`;
-                    extra += `<div class="tab-panel" data-panel="orders"><div class="content-card compact-card">${heading('ph-checks','readStatus')}
+                    extra += `<div class="tab-panel" data-panel="orders"><div class="content-card compact-card">
+                        <div class="order-board-head">
+                            ${heading('ph-checks','readStatus')}
+                            ${orderMonthSelectHtml('director-order-month-sel')}
+                        </div>
                         <div class="order-quick-compose" id="order-quick-compose">
                             <textarea id="order-quick-text" class="sched-text" rows="2" placeholder="${t('orderQuickPh')}" aria-label="${t('orderQuickPh')}"></textarea>
                             <div class="order-quick-compose-bar">
@@ -25955,6 +26118,11 @@
                     if (e.key !== 'Enter' || (!e.metaKey && !e.ctrlKey)) return;
                     e.preventDefault();
                     document.getElementById('order-quick-send')?.click();
+                });
+                document.getElementById('director-order-month-sel')?.addEventListener('change', (e) => {
+                    setOrderBoardYmFromSelect(e.target.value);
+                    openDashboard(resolveAccountById(user.id), true);
+                    setTab('orders');
                 });
 
                 // director: resend head order to pending teachers
@@ -26628,53 +26796,71 @@
                         : `<p class="empty-note">${t('studentDbEmpty')}</p>`;
                     const backView = studentDbNav.month ? 'month' : 'home';
                     const backLabel = studentDbNav.month ? t('studentDbBackMonths') : t('studentDbBackHome');
-                    board.innerHTML = `
-                        <div class="attend-stats-detail">
-                            <button type="button" class="attend-stats-back" id="student-db-back"><i class="ph ph-caret-left"></i> ${backLabel}</button>
-                            <h3 style="margin:.35rem 0 .2rem;color:#0f172a">${esc(stu.name)}${stu.nick ? ` <span style="color:#64748b;font-size:.9rem">(${esc(stu.nick)})</span>` : ''}</h3>
-                            <p class="text-xs text-slate-500 mb-2">${t('studentDbPeriod')}: ${esc(formatStudentPeriodLabel(period))} · ${t('studentDbPresent')} ${sum.present} · ${t('studentDbAbsent')} ${sum.absent} · ${t('studentDbPostponed')} ${sum.postponed}${studentDbNav.month ? ` · ${esc(formatStudentMonthLabel(studentDbNav.month))}` : ''}</p>
-                            <p class="admin-label" style="margin-top:.35rem">${t('studentDbWithTeacher')}</p>
-                            ${teaHtml}
-                            <p class="admin-label" style="margin-top:.35rem">${t('studentDbSubjects')}</p>
-                            ${courses || `<p class="empty-note">${t('studentDbEmpty')}</p>`}
-                            ${stu.comment ? `<p class="admin-label" style="margin-top:.55rem">${t('studentDbComment')}</p>
-                            <p class="text-sm" style="margin:.2rem 0 .55rem;color:#9a3412;white-space:pre-wrap">${esc(stu.comment)}</p>` : ''}
-                            <p class="admin-label">${t('studentDbAttendTable')} (${detailFiltered.length})</p>
-                            ${marksTable}
-                            <p class="admin-label" style="margin-top:.7rem">${t('studentDbMarks')}</p>
-                            <div style="margin-top:.35rem">${marksHtml}</div>
-                            ${canEdit ? `
-                            <div class="student-db-edit">
-                                <p class="admin-label" style="margin:0 0 .45rem">${t('studentDbEdit')}</p>
+                    const isEditing = !!(canEdit && studentDbNav.editing);
+                    const periodLine = `${t('studentDbPeriod')}: ${esc(formatStudentPeriodLabel(period))} · ${t('studentDbPresent')} ${sum.present} · ${t('studentDbAbsent')} ${sum.absent} · ${t('studentDbPostponed')} ${sum.postponed}${studentDbNav.month ? ` · ${esc(formatStudentMonthLabel(studentDbNav.month))}` : ''}`;
+                    const headActions = canEdit
+                        ? (isEditing
+                            ? `<div class="student-db-detail-actions">
+                                    <button type="button" class="soft-btn ghost" id="stu-edit-cancel">${t('studentDbCancelEdit')}</button>
+                                    <button type="button" class="soft-btn" id="stu-edit-save">${t('studentDbSaveEdit')}</button>
+                                </div>`
+                            : `<div class="student-db-detail-actions">
+                                    <button type="button" class="soft-btn" id="stu-edit-open">${t('studentDbEditBtn')}</button>
+                                </div>`)
+                        : '';
+                    const headTitle = isEditing
+                        ? `<div class="sched-form" style="flex:1;min-width:0;margin:0">
+                                <div>
+                                    <label class="sched-label">${t('studentDbName')}</label>
+                                    <input type="text" id="stu-edit-name" class="sched-text" value="${esc(stu.name || '')}">
+                                </div>
+                                <div>
+                                    <label class="sched-label">${t('studentDbNick')}</label>
+                                    <input type="text" id="stu-edit-nick" class="sched-text" value="${esc(stu.nick || '')}">
+                                </div>
+                            </div>`
+                        : `<h3>${esc(stu.name)}${stu.nick ? ` <span style="color:#64748b;font-size:.9rem">(${esc(stu.nick)})</span>` : ''}</h3>`;
+                    const subjectsBlock = isEditing
+                        ? `<div class="student-db-detail-edit-fields">
                                 <div class="sched-form">
-                                    <div>
-                                        <label class="sched-label">${t('studentDbName')}</label>
-                                        <input type="text" id="stu-edit-name" class="sched-text" value="${esc(stu.name || '')}">
-                                    </div>
-                                    <div>
-                                        <label class="sched-label">${t('studentDbNick')}</label>
-                                        <input type="text" id="stu-edit-nick" class="sched-text" value="${esc(stu.nick || '')}">
-                                    </div>
                                     <div>
                                         <label class="sched-label">${t('studentDbStart')}</label>
                                         <input type="date" id="stu-edit-start" class="sched-text" value="${esc(stu.startDate || '')}">
                                     </div>
                                     <div class="full">
-                                        <label class="sched-label">${t('studentDbComment')}</label>
-                                        <textarea id="stu-edit-comment" class="sched-text" rows="3" placeholder="${esc(t('studentDbCommentPh'))}">${esc(stu.comment || '')}</textarea>
-                                    </div>
-                                    <div class="full">
                                         <label class="sched-label">${t('studentDbSubjects')}</label>
                                         <textarea id="stu-edit-courses" class="sched-text" rows="4" placeholder="${esc(t('studentDbCoursesPh'))}">${esc((stu.courses || []).join('\n'))}</textarea>
                                     </div>
+                                    <div class="full">
+                                        <label class="sched-label">${t('studentDbComment')}</label>
+                                        <textarea id="stu-edit-comment" class="sched-text" rows="3" placeholder="${esc(t('studentDbCommentPh'))}">${esc(stu.comment || '')}</textarea>
+                                    </div>
                                 </div>
-                                <div class="admin-actions">
-                                    <button type="button" class="soft-btn" id="stu-edit-save">${t('studentDbSaveEdit')}</button>
-                                    <span id="stu-edit-msg" class="text-xs text-slate-500"></span>
-                                </div>
-                            </div>` : ''}
+                                <p id="stu-edit-msg" class="text-xs text-slate-500" style="margin:.35rem 0 0"></p>
+                            </div>`
+                        : `${courses || `<p class="empty-note">${t('studentDbEmpty')}</p>`}
+                            ${stu.comment ? `<p class="admin-label" style="margin-top:.55rem">${t('studentDbComment')}</p>
+                            <p class="text-sm" style="margin:.2rem 0 .55rem;color:#9a3412;white-space:pre-wrap">${esc(stu.comment)}</p>` : ''}`;
+                    board.innerHTML = `
+                        <div class="attend-stats-detail${isEditing ? ' is-editing' : ''}">
+                            <button type="button" class="attend-stats-back" id="student-db-back"><i class="ph ph-caret-left"></i> ${backLabel}</button>
+                            <div class="student-db-detail-head">
+                                ${headTitle}
+                                ${headActions}
+                            </div>
+                            <p class="text-xs text-slate-500 mb-2">${periodLine}</p>
+                            <p class="admin-label" style="margin-top:.35rem">${t('studentDbWithTeacher')}</p>
+                            ${teaHtml}
+                            <p class="admin-label" style="margin-top:.35rem">${isEditing ? t('studentDbEdit') : t('studentDbSubjects')}</p>
+                            ${subjectsBlock}
+                            <p class="admin-label">${t('studentDbAttendTable')} (${detailFiltered.length})</p>
+                            ${marksTable}
+                            <p class="admin-label" style="margin-top:.7rem">${t('studentDbMarks')}</p>
+                            <div style="margin-top:.35rem">${marksHtml}</div>
                         </div>`;
-                    document.getElementById('student-db-back')?.addEventListener('click', () => go({ view: backView, studentId: null, ...(backView === 'home' ? { month: '', q: studentDbNav.q || '' } : {}) }));
+                    document.getElementById('student-db-back')?.addEventListener('click', () => go({ view: backView, studentId: null, editing: false, ...(backView === 'home' ? { month: '', q: studentDbNav.q || '' } : {}) }));
+                    document.getElementById('stu-edit-open')?.addEventListener('click', () => go({ view: 'detail', studentId: stu.id, editing: true }));
+                    document.getElementById('stu-edit-cancel')?.addEventListener('click', () => go({ view: 'detail', studentId: stu.id, editing: false }));
                     document.getElementById('stu-edit-save')?.addEventListener('click', () => {
                         const name = (document.getElementById('stu-edit-name')?.value || '').trim();
                         const nick = (document.getElementById('stu-edit-nick')?.value || '').trim();
@@ -26712,7 +26898,7 @@
                         syncLiveStudentCount(computeActiveStudentLive(refreshed, store).count);
                         const msg = document.getElementById('stu-edit-msg');
                         if (msg) msg.textContent = t('studentDbSaved');
-                        go({ view: 'detail', studentId: stu.id });
+                        go({ view: 'detail', studentId: stu.id, editing: false });
                     });
                     return;
                 }
