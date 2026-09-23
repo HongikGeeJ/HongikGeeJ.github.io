@@ -545,16 +545,17 @@
             display: none !important;
         }
         /*
-          Taehyun-only: animated corner-bloom flowers on ALL tab panels
-          (TL head behind framed h3 + fuller BR cluster flush to card corner).
-          Pop in/out (ผุด ๆ โผล่ ๆ) replaces the old sway.
+          Taehyun-only (.theme-teacher-a): minimal sky corner décor on ALL tab panels
+          — soft clouds + stars + light storm, TL + BR (behind framed h3 / content).
+          Soft twinkle (วิ้ง ๆ วับ ๆ): CSS breathe + SVG SMIL star flash.
           !important beats the fold-away width:0/height:0 kill switch.
           z-index:0 keeps framed headings + forms above the décor.
+          Eunha / director / others untouched.
         */
         .dash-shell.theme-teacher-a .tab-panel > .content-card {
             isolation: isolate;
             overflow: visible;
-            /* Nudge content down so TL blooms clear the framed h3 */
+            /* Nudge content so TL sky clears the framed h3 */
             padding-top: 2.65rem !important;
             padding-bottom: 1.9rem !important;
         }
@@ -571,65 +572,63 @@
             content: '' !important;
             display: block !important;
             position: absolute !important;
-            width: 132px !important;
-            height: 132px !important;
+            width: 128px !important;
+            height: 128px !important;
             pointer-events: none !important;
             z-index: 0 !important;
             background-repeat: no-repeat !important;
             background-size: contain !important;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom17') !important;
-            opacity: 0 !important;
-            animation: cardBloomPop 3.8s ease-in-out infinite !important;
+            background-image: url('assets/dancheong/corner-sky.svg?v=sky1') !important;
+            opacity: .82 !important;
+            animation: taeSkyTwinkle 4.2s ease-in-out infinite !important;
             transform-origin: 0 0 !important;
             filter: none !important;
             will-change: transform, opacity;
         }
         .dash-shell.theme-teacher-a .tab-panel > .content-card::before {
-            top: 0 !important;
-            left: 0 !important;
+            top: -4px !important;
+            left: -4px !important;
             right: auto !important;
             bottom: auto !important;
-            transform: scale(.42) !important;
+            transform: scale(1) !important;
         }
         .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
-            /* Fuller BR — same flower décor, mirrored + larger footprint */
-            width: 176px !important;
-            height: 176px !important;
+            /* BR — same sky motif, mirrored + slightly fuller footprint */
+            width: 148px !important;
+            height: 148px !important;
             top: auto !important;
             left: auto !important;
-            right: -2px !important;
-            bottom: -2px !important;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom17') !important;
+            right: -6px !important;
+            bottom: -6px !important;
+            background-image: url('assets/dancheong/corner-sky.svg?v=sky1') !important;
             background-position: bottom right !important;
-            transform: scale(-.42, -.42) !important;
+            transform: scale(-1, -1) !important;
             transform-origin: 100% 100% !important;
-            animation: cardBloomPopBr 3.8s ease-in-out infinite !important;
-            animation-delay: 1.15s !important;
+            animation: taeSkyTwinkleBr 4.2s ease-in-out infinite !important;
+            animation-delay: 1.35s !important;
         }
         .dash-shell.theme-teacher-a .tab-panel > .content-card > * {
             position: relative;
             z-index: 1;
         }
-        /* Pop appear / disappear — staggered TL vs BR */
-        @keyframes cardBloomPop {
-            0%, 6% { opacity: 0; transform: scale(.42); }
-            16% { opacity: .95; transform: scale(1.1); }
-            26%, 44% { opacity: .9; transform: scale(1); }
-            56% { opacity: 0; transform: scale(.36); }
-            100% { opacity: 0; transform: scale(.36); }
+        /* Soft sky twinkle / breathe — staggered TL vs BR */
+        @keyframes taeSkyTwinkle {
+            0%, 100% { opacity: .72; transform: scale(.96); }
+            35% { opacity: .95; transform: scale(1.04); }
+            55% { opacity: .8; transform: scale(1); }
+            75% { opacity: .9; transform: scale(1.02); }
         }
-        @keyframes cardBloomPopBr {
-            0%, 6% { opacity: 0; transform: scale(-.42, -.42); }
-            16% { opacity: .95; transform: scale(-1.1, -1.1); }
-            26%, 44% { opacity: .9; transform: scale(-1, -1); }
-            56% { opacity: 0; transform: scale(-.36, -.36); }
-            100% { opacity: 0; transform: scale(-.36, -.36); }
+        @keyframes taeSkyTwinkleBr {
+            0%, 100% { opacity: .7; transform: scale(-.96, -.96); }
+            35% { opacity: .92; transform: scale(-1.04, -1.04); }
+            55% { opacity: .78; transform: scale(-1, -1); }
+            75% { opacity: .88; transform: scale(-1.02, -1.02); }
         }
         @media (prefers-reduced-motion: reduce) {
             .dash-shell.theme-teacher-a .tab-panel > .content-card::before,
             .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
                 animation: none !important;
-                opacity: .88 !important;
+                opacity: .82 !important;
                 will-change: auto;
             }
             .dash-shell.theme-teacher-a .tab-panel > .content-card::before {
@@ -3532,167 +3531,103 @@
             color: #fff !important;
             border-color: #1e3a5f !important;
         }
-        /* Director · mature aquarium tab rail (ห้องปลา) — .theme-director only */
+        /* Director · formal executive tab rail — .theme-director only */
         .theme-director .dash-tabs {
             position: relative;
             isolation: isolate;
             overflow: hidden;
-            gap: .5rem;
-            padding: .95rem 1.2rem 1.05rem;
-            background:
-                linear-gradient(168deg,
-                    rgba(236, 252, 255, .94) 0%,
-                    rgba(186, 230, 253, .82) 32%,
-                    rgba(103, 232, 249, .38) 62%,
-                    rgba(14, 116, 144, .28) 100%) !important;
-            border-bottom: 1px solid rgba(8, 145, 178, .28) !important;
-            box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, .72),
-                inset 0 -18px 36px rgba(8, 47, 73, .06),
-                0 8px 22px rgba(12, 74, 110, .08);
-            backdrop-filter: blur(16px) saturate(1.15);
-            -webkit-backdrop-filter: blur(16px) saturate(1.15);
+            gap: .4rem;
+            padding: .75rem 1.15rem .8rem;
+            background: linear-gradient(180deg, #e8edf3 0%, #dde3eb 55%, #d4dbe5 100%) !important;
+            border-bottom: 1px solid rgba(30, 58, 95, .22) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
         .theme-director .dash-tabs::before {
             content: '';
             position: absolute;
-            inset: -20% -10%;
-            z-index: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(ellipse 42% 55% at 12% 18%, rgba(255, 255, 255, .55), transparent 58%),
-                radial-gradient(ellipse 36% 48% at 78% 28%, rgba(165, 243, 252, .42), transparent 55%),
-                radial-gradient(ellipse 50% 40% at 48% 110%, rgba(14, 116, 144, .22), transparent 60%),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40' fill='none'%3E%3Cpath d='M8 22c8-10 22-14 34-8 6 3 10 4 16 3 9-1 14-6 22-7 7-1 14 2 18 7-6 1-12 5-14 10-10 2-18-1-24-4-7-4-12-3-18-1-9 3-18 5-26 2-4-1-6-2-8-2z' fill='%230e7490' fill-opacity='.07'/%3E%3Ccircle cx='96' cy='18' r='1.4' fill='%230e7490' fill-opacity='.12'/%3E%3C/svg%3E") 88% 62% / 140px auto no-repeat;
-            animation: dirAquaCaustic 14s ease-in-out infinite;
-            opacity: .95;
-        }
-        .theme-director .dash-tabs::after {
-            content: '';
-            position: absolute;
-            left: 8%;
-            bottom: -6px;
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            z-index: 0;
-            pointer-events: none;
-            background: rgba(255, 255, 255, .55);
-            box-shadow:
-                0 0 0 1.5px rgba(255, 255, 255, .35),
-                42px -18px 0 2px rgba(224, 242, 254, .55),
-                78px 4px 0 1px rgba(255, 255, 255, .4),
-                118px -28px 0 3px rgba(186, 230, 253, .5),
-                168px -8px 0 1.5px rgba(255, 255, 255, .45),
-                220px -36px 0 2.5px rgba(165, 243, 252, .42),
-                280px -12px 0 1px rgba(255, 255, 255, .38),
-                340px -44px 0 2px rgba(224, 242, 254, .48),
-                400px -6px 0 1.5px rgba(255, 255, 255, .42),
-                460px -30px 0 2px rgba(186, 230, 253, .4),
-                520px -16px 0 1px rgba(255, 255, 255, .36),
-                580px -40px 0 2.5px rgba(165, 243, 252, .38);
-            animation: dirAquaBubbles 16s linear infinite;
-            opacity: .85;
-        }
-        .theme-director .dash-tabs > .dir-aqua-ambient {
-            position: absolute;
             inset: 0;
             z-index: 0;
             pointer-events: none;
-            overflow: hidden;
-        }
-        .theme-director .dash-tabs > .dir-aqua-ambient .dir-aqua-b {
-            position: absolute;
-            bottom: -10px;
-            width: var(--s, 6px);
-            height: var(--s, 6px);
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .9), rgba(186, 230, 253, .35) 55%, rgba(14, 116, 144, .15));
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .45);
-            animation: dirAquaRise var(--dur, 11s) ease-in var(--delay, 0s) infinite;
+            background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .14) 50%, transparent 60%);
+            background-size: 220% 100%;
+            animation: dirExecSheen 9s ease-in-out infinite;
             opacity: .55;
-            left: var(--x, 10%);
+        }
+        .theme-director .dash-tabs::after {
+            content: none;
+            display: none;
         }
         .theme-director .dash-tabs > .tab-btn {
             position: relative;
             z-index: 1;
-            color: #0c4a6e;
-            background: rgba(255, 255, 255, .28);
-            border: 1px solid rgba(255, 255, 255, .48);
-            border-radius: .85rem;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4);
-            transition: transform .25s ease, background .25s ease, color .25s ease, box-shadow .25s ease, border-color .25s ease;
+            color: #475569;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: .4rem;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            box-shadow: none;
+            font-weight: 650;
+            transition: color .2s ease, background .2s ease, border-color .2s ease;
         }
         .theme-director .dash-tabs > .tab-btn:hover {
-            background: rgba(255, 255, 255, .58);
-            color: #082f49;
-            transform: translateY(-1px);
-            border-color: rgba(103, 232, 249, .55);
-            box-shadow: 0 6px 16px rgba(8, 47, 73, .1), inset 0 1px 0 rgba(255, 255, 255, .65);
+            background: rgba(255, 255, 255, .45);
+            color: #0f172a;
+            transform: none;
+            border-color: rgba(30, 58, 95, .14);
+            box-shadow: none;
         }
         .theme-director .dash-tabs > .tab-btn.active {
-            color: #082f49 !important;
-            background:
-                linear-gradient(165deg, rgba(255, 255, 255, .95) 0%, rgba(224, 242, 254, .88) 55%, rgba(186, 230, 253, .72) 100%) !important;
-            border-color: rgba(34, 211, 238, .5) !important;
-            box-shadow:
-                0 6px 18px rgba(8, 145, 178, .2),
-                inset 0 1px 0 rgba(255, 255, 255, .95),
-                inset 0 -2px 0 #0e7490 !important;
-            font-weight: 850;
-            overflow: hidden;
+            color: #0f172a !important;
+            background: rgba(255, 255, 255, .72) !important;
+            border-color: rgba(30, 58, 95, .18) !important;
+            box-shadow: none !important;
+            font-weight: 800;
+            overflow: visible;
         }
         .theme-director .dash-tabs > .tab-btn.active::after {
             content: '';
             position: absolute;
-            inset: 0;
+            left: .65rem;
+            right: .65rem;
+            bottom: .12rem;
+            height: 2px;
             z-index: 0;
             pointer-events: none;
-            background: linear-gradient(110deg, transparent 22%, rgba(255, 255, 255, .62) 48%, transparent 70%);
-            transform: translateX(-130%);
-            animation: dirAquaShimmer 3.4s ease-in-out infinite;
+            background: #1e3a5f;
+            border-radius: 1px;
+            transform: none;
+            animation: dirExecUnderline 2.8s ease-in-out infinite;
+            opacity: .92;
         }
         .theme-director .dash-tabs > .tab-btn.active > span {
             position: relative;
             z-index: 1;
         }
         .theme-director .dash-tabs > .tab-btn[data-tab="otpay"] {
-            background: rgba(255, 255, 255, .42);
-            border-color: rgba(14, 116, 144, .42);
-            color: #0e7490;
-            font-weight: 800;
+            background: rgba(255, 255, 255, .35);
+            border-color: rgba(30, 58, 95, .28);
+            color: #1e3a5f;
+            font-weight: 750;
         }
         .theme-director .dash-tabs > .tab-btn[data-tab="otpay"]:hover,
         .theme-director .dash-tabs > .tab-btn[data-tab="otpay"].active {
-            border-color: rgba(8, 145, 178, .55) !important;
-            color: #0c4a6e !important;
+            border-color: rgba(30, 58, 95, .4) !important;
+            color: #0f172a !important;
+            background: rgba(255, 255, 255, .78) !important;
         }
-        @keyframes dirAquaCaustic {
-            0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: .9; }
-            40% { transform: translate3d(1.5%, -1%, 0) scale(1.03); opacity: 1; }
-            70% { transform: translate3d(-1%, 1.2%, 0) scale(1.01); opacity: .92; }
+        @keyframes dirExecSheen {
+            0%, 100% { background-position: 120% 0; opacity: .35; }
+            50% { background-position: -20% 0; opacity: .6; }
         }
-        @keyframes dirAquaBubbles {
-            0% { transform: translate3d(0, 0, 0); opacity: .75; }
-            50% { transform: translate3d(12px, -28px, 0); opacity: .95; }
-            100% { transform: translate3d(0, -56px, 0); opacity: 0; }
-        }
-        @keyframes dirAquaRise {
-            0% { transform: translate3d(0, 8px, 0) scale(.85); opacity: 0; }
-            12% { opacity: .55; }
-            70% { opacity: .4; }
-            100% { transform: translate3d(6px, -72px, 0) scale(1.05); opacity: 0; }
-        }
-        @keyframes dirAquaShimmer {
-            0%, 55% { transform: translateX(-130%); }
-            85%, 100% { transform: translateX(130%); }
+        @keyframes dirExecUnderline {
+            0%, 100% { opacity: .75; }
+            50% { opacity: 1; }
         }
         @media (prefers-reduced-motion: reduce) {
             .theme-director .dash-tabs::before,
-            .theme-director .dash-tabs::after,
-            .theme-director .dash-tabs > .dir-aqua-ambient .dir-aqua-b,
             .theme-director .dash-tabs > .tab-btn.active::after {
                 animation: none !important;
             }
@@ -10790,14 +10725,14 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: none; }
-            /* Taehyun blooms keep pop in/out on lite/mobile (overrides FX kill above). */
+            /* Taehyun sky corners keep soft twinkle on lite/mobile (overrides FX kill above). */
             .dash-shell.theme-teacher-a .tab-panel > .content-card::before {
-                animation: cardBloomPop 3.8s ease-in-out infinite !important;
+                animation: taeSkyTwinkle 4.2s ease-in-out infinite !important;
                 will-change: transform, opacity;
             }
             .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
-                animation: cardBloomPopBr 3.8s ease-in-out infinite !important;
-                animation-delay: 1.15s !important;
+                animation: taeSkyTwinkleBr 4.2s ease-in-out infinite !important;
+                animation-delay: 1.35s !important;
                 will-change: transform, opacity;
             }
             /* Eunha Shin décor keeps slow wobble on mobile/iPad (overrides FX kill above). */
@@ -11058,7 +10993,7 @@
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
             .content-card { padding: 1rem 1.05rem 1.1rem; margin-bottom: .7rem; }
-            /* Taehyun panel blooms: shrink for narrow viewports (keep BR fuller) */
+            /* Taehyun sky corners: shrink for narrow viewports (keep BR fuller) */
             .dash-shell.theme-teacher-a .tab-panel > .content-card {
                 padding-top: 2.15rem !important;
                 padding-bottom: 1.45rem !important;
@@ -22806,6 +22741,7 @@
                             }));
                         } catch (_) {}
                     }
+                    try { publishMissingLoginPasswordsAfterSync(); } catch (_) {}
                     return { ok: true, changed, stores: changedStores, source: 'supabase' };
                 }
 
@@ -22837,6 +22773,7 @@
                         }));
                     } catch (_) {}
                 }
+                try { publishMissingLoginPasswordsAfterSync(); } catch (_) {}
                 return { ok: true, changed, stores: changedStores, source: 'gas' };
             } catch (err) {
                 portalSyncState = {
@@ -32474,17 +32411,7 @@
                     ? loadLeaveRequests().filter((L) => L.status === 'pending').length
                     : 0;
                 const nav = document.getElementById('dash-tabs');
-                const aquaAmbient = user.role === 'director'
-                    ? `<span class="dir-aqua-ambient" aria-hidden="true">
-                        <span class="dir-aqua-b" style="--x:8%;--s:5px;--dur:12s;--delay:0s"></span>
-                        <span class="dir-aqua-b" style="--x:22%;--s:7px;--dur:14s;--delay:1.4s"></span>
-                        <span class="dir-aqua-b" style="--x:41%;--s:4px;--dur:10s;--delay:2.8s"></span>
-                        <span class="dir-aqua-b" style="--x:58%;--s:6px;--dur:13s;--delay:.7s"></span>
-                        <span class="dir-aqua-b" style="--x:74%;--s:5px;--dur:11s;--delay:3.2s"></span>
-                        <span class="dir-aqua-b" style="--x:88%;--s:8px;--dur:15s;--delay:1.9s"></span>
-                    </span>`
-                    : '';
-                nav.innerHTML = aquaAmbient + tabs.map(tb => `
+                nav.innerHTML = tabs.map(tb => `
                     <button type="button" class="tab-btn${tb.id === 'leave' && pendingLeaveAlertN ? ' has-leave-alert' : ''}" data-tab="${tb.id}">
                         <span><i class="ph ${tb.icon} mr-1"></i>${tb.label}${tb.id === 'leave' && pendingLeaveAlertN ? ` · ${pendingLeaveAlertN}` : ''}</span>
                     </button>`).join('');
