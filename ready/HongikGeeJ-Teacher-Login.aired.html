@@ -1097,6 +1097,48 @@
         .content-card h3 { margin: 0; font-size: 1rem; font-weight: 750; color: #0f172a; display: flex; align-items: center; gap: .4rem; }
         .item-row { display: flex; justify-content: space-between; gap: .75rem; padding: .7rem 0; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
         .item-row:last-child { border-bottom: none; }
+        /* Director orders feed: alternate navy / cream so consecutive sends stay distinct */
+        .order-director-feed {
+            display: flex;
+            flex-direction: column;
+            gap: .55rem;
+            margin-top: .35rem;
+        }
+        .order-director-feed > .item-row {
+            padding: .75rem .85rem;
+            border-radius: .85rem;
+            border-bottom: none;
+            border: 1px solid transparent;
+        }
+        .order-director-feed > .item-row:nth-child(odd) {
+            background: #e8eef5;
+            border-color: #d5dee8;
+        }
+        .order-director-feed > .item-row:nth-child(even) {
+            background: #f7f1e8;
+            border-color: #ebe3d6;
+        }
+        .order-feed-head { min-width: 0; }
+        .order-feed-when {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .35rem;
+            font-size: .78rem;
+            font-weight: 750;
+            color: #1e3a5f;
+            margin: 0 0 .4rem;
+            letter-spacing: -.01em;
+        }
+        .order-feed-when .order-feed-dt { color: #1e3a5f; }
+        .order-feed-text {
+            display: block;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
         .badge { display: inline-flex; align-items: center; padding: .2rem .55rem; border-radius: 999px; font-size: .72rem; font-weight: 700; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
         .order-board-head {
             display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
@@ -3000,7 +3042,8 @@
             background: #f59e0b; color: #0f172a; padding: .15rem .45rem; border-radius: .35rem;
         }
         .ot-card .meta { font-size: .78rem; color: #cbd5e1; margin-top: .25rem; }
-        .compact-card { padding: .85rem !important; }
+        /* Vertical pad clears ~70px compact flower rails (overrides prior .85rem all-sides) */
+        .compact-card { padding: 5rem .85rem !important; }
         .compact-card h3 { font-size: 1rem; margin: 0 0 .5rem; }
         /* Ack-status card: minimal quick-compose under title (sticky while list scrolls) */
         .content-card > .order-quick-compose {
@@ -3009,8 +3052,8 @@
             z-index: 5;
             margin: 0 0 .65rem;
             padding: .55rem .6rem .6rem;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: #e8eef5;
+            border: 1px solid #cbd5e1;
             border-radius: .75rem;
             box-shadow: 0 8px 12px -8px rgba(15, 23, 42, .1);
         }
@@ -19145,9 +19188,11 @@
             return [...new Set(out.length ? out : ['eunha'])];
         }
         function teacherDisplayName(id) {
-            const tea = teacherAccounts().find((x) => x.id === id);
+            const tea = teacherAccounts().find((x) => x.id === id) || resolveAccountById(id, { allowBlocked: true });
             if (tea) return displayName(tea);
-            if (id === 'parttime') return lang === 'th' ? 'พาร์ทไทม์' : lang === 'en' ? 'Part-time' : '파트타임';
+            if (id === 'parttime') {
+                return lang === 'th' ? 'คุณครูpart time' : lang === 'en' ? 'Teacher Part time' : '파트타임 선생님';
+            }
             return id || '—';
         }
         function studentTeachersOf(stu) {
@@ -27149,8 +27194,12 @@
                         const statusBadge = cancelled
                             ? `<span class="badge" style="background:#ffedd5;color:#9a3412;margin-right:.35rem">${t('orderCancelledStatus')}</span>`
                             : '';
+                        const whenLine = `${formatOrderDate(o)}${o.from ? ` · ${escAttr(o.from)}` : ''}`;
                         return `<div class="item-row" style="flex-direction:column;align-items:stretch;${cancelled ? 'opacity:.92' : ''}">
-                            <div>${statusBadge}<strong>${orderText(o)}</strong><div class="text-xs text-slate-500">${o.time} · ${o.from}</div></div>
+                            <div class="order-feed-head">
+                                <div class="order-feed-when">${statusBadge}<span class="order-feed-dt">${whenLine}</span></div>
+                                <strong class="order-feed-text">${orderText(o)}</strong>
+                            </div>
                             ${rows ? `<div style="display:flex;flex-wrap:wrap;gap:.1rem;margin-top:.35rem">${rows}</div>` : ''}
                             ${editBlock}
                             <div style="display:flex;justify-content:flex-end;align-items:center;gap:.55rem;margin-top:.55rem;flex-wrap:wrap">
@@ -27394,7 +27443,7 @@
                                 <span id="order-quick-msg" class="text-xs text-slate-500"></span>
                             </div>
                         </div>
-                        ${readBoard}
+                        <div class="order-director-feed">${readBoard}</div>
                     </div></div>`;
                 }
                                 if (user.role === 'accounting') {

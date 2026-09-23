@@ -3042,7 +3042,8 @@
             background: #f59e0b; color: #0f172a; padding: .15rem .45rem; border-radius: .35rem;
         }
         .ot-card .meta { font-size: .78rem; color: #cbd5e1; margin-top: .25rem; }
-        .compact-card { padding: .85rem !important; }
+        /* Vertical pad clears ~70px compact flower rails (overrides prior .85rem all-sides) */
+        .compact-card { padding: 5rem .85rem !important; }
         .compact-card h3 { font-size: 1rem; margin: 0 0 .5rem; }
         /* Ack-status card: minimal quick-compose under title (sticky while list scrolls) */
         .content-card > .order-quick-compose {
@@ -4854,9 +4855,10 @@
         .pt-calc-table th { background: #f8fafc; color: #475569; font-weight: 800; white-space: nowrap; }
         .pt-calc-table tr:last-child td { border-bottom: none; }
         .pt-calc-preview {
-            margin: .55rem 0 .35rem; padding: .65rem .85rem; border-radius: .85rem;
-            background: linear-gradient(120deg, #fef3c7, #fff7ed); border: 1.5px solid #fcd34d;
-            color: #92400e; font-weight: 800; font-size: .9rem;
+            margin: .45rem 0 0; padding: .1rem .15rem 0;
+            background: transparent; border: none; border-radius: 0;
+            color: #94a3b8; font-weight: 600; font-size: .72rem; line-height: 1.35;
+            text-align: center;
         }
         .pt-calc-form { margin-bottom: .35rem; }
         .pt-calc-toolbar {
@@ -4918,6 +4920,24 @@
         .pt-cal-cell.today.has-entries {
             background: linear-gradient(160deg, #ffedd5 0%, #fce7f3 100%);
         }
+        .pt-cal-cell.pt-day-past {
+            background: #cfd8e6;
+            color: #64748b;
+            opacity: .78;
+            box-shadow: inset 0 0 0 1px rgba(100,116,139,.28);
+        }
+        .pt-cal-cell.pt-day-past.has-entries {
+            background: linear-gradient(160deg, #e2d0da 0%, #d9bccb 100%);
+            box-shadow: inset 0 0 0 1px rgba(148,163,184,.4);
+        }
+        .pt-cal-cell.pt-day-past .pt-cal-num {
+            color: #64748b;
+            text-decoration: line-through;
+            text-decoration-thickness: 1px;
+            text-decoration-color: rgba(100,116,139,.5);
+        }
+        .pt-cal-cell.pt-day-past.sun .pt-cal-num { color: #b91c1c; }
+        .pt-cal-cell.pt-day-past .pt-cal-pill { filter: saturate(.7); opacity: .9; }
         .pt-cal-num { font-weight: 850; font-size: .95rem; line-height: 1.2; }
         .pt-cal-add {
             align-self: flex-end; width: 1.55rem; height: 1.55rem; border-radius: .5rem;

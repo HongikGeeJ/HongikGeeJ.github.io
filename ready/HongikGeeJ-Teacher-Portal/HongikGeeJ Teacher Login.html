@@ -3042,7 +3042,8 @@
             background: #f59e0b; color: #0f172a; padding: .15rem .45rem; border-radius: .35rem;
         }
         .ot-card .meta { font-size: .78rem; color: #cbd5e1; margin-top: .25rem; }
-        .compact-card { padding: .85rem !important; }
+        /* Vertical pad clears ~70px compact flower rails (overrides prior .85rem all-sides) */
+        .compact-card { padding: 5rem .85rem !important; }
         .compact-card h3 { font-size: 1rem; margin: 0 0 .5rem; }
         /* Ack-status card: minimal quick-compose under title (sticky while list scrolls) */
         .content-card > .order-quick-compose {
