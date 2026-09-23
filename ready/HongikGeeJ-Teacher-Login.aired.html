@@ -11194,6 +11194,7 @@
                 helpThinking: 'Gemini에게 묻는 중…',
                 helpGeminiErr: 'Gemini에 연결하지 못했습니다. 잠시 후 다시 시도하거나 아래 안내를 참고하세요.',
                 helpGeminiNeedSetup: 'Gemini가 아직 설정되지 않았습니다. 관리자에게 proxy URL 설정을 요청하세요.',
+                helpGeminiNotPublic: 'Gemini Web App이 공개되지 않았습니다. Apps Script에서 Deploy → Who has access: Anyone 으로 재배포하고 GEMINI_API_KEY를 확인하세요.',
                 helpGeminiLocalFallback: '(오프라인 FAQ 안내)',
                 helpGeminiSrc: 'Gemini',
                 helpLocalSrc: '로컬 안내',
@@ -12079,6 +12080,7 @@
                 helpThinking: 'กำลังถาม Gemini…',
                 helpGeminiErr: 'เชื่อมต่อ Gemini ไม่ได้ ลองใหม่อีกครั้ง หรือดูคำแนะนำด้านล่าง',
                 helpGeminiNeedSetup: 'ยังไม่ได้ตั้งค่า Gemini — แจ้งผู้ดูแลใส่ proxy URL (ดู apps-script/gemini-proxy)',
+                helpGeminiNotPublic: 'Web App ของ Gemini ยังไม่เปิดสาธารณะ — ที่ Apps Script กด Deploy ใหม่ เลือก Who has access: Anyone แล้วตรวจ GEMINI_API_KEY',
                 helpGeminiLocalFallback: '(คำตอบสำรองจากคู่มือในเครื่อง)',
                 helpGeminiSrc: 'Gemini',
                 helpLocalSrc: 'คู่มือในเครื่อง',
@@ -12964,6 +12966,7 @@
                 helpThinking: 'Asking Gemini…',
                 helpGeminiErr: 'Could not reach Gemini. Try again, or see the fallback tip below.',
                 helpGeminiNeedSetup: 'Gemini is not configured yet — ask an admin to set the proxy URL.',
+                helpGeminiNotPublic: 'Gemini Web App is not public — redeploy Apps Script with Who has access: Anyone, and set GEMINI_API_KEY.',
                 helpGeminiLocalFallback: '(offline FAQ fallback)',
                 helpGeminiSrc: 'Gemini',
                 helpLocalSrc: 'Local guide',
@@ -21994,6 +21997,74 @@
                 openDashboard(currentUser);
             });
 
+            /** Never leave #tab-panels blank — rebuild + force .active for every role. */
+            function ensureDashboardPanels(user, keepTab = false) {
+                const panelsEl = document.getElementById('tab-panels');
+                if (!panelsEl || !user) return false;
+                const preferred = (keepTab && currentTab) ? currentTab : defaultTabForRole(user);
+                try { renderTabs(user); } catch (_) {}
+                try {
+                    renderPanels(user);
+                } catch (err) {
+                    try { console.warn('[hongik] renderPanels failed', err); } catch (_) {}
+                }
+                if (!panelsEl.querySelector('.tab-panel')) {
+                    const fid = defaultTabForRole(user) || 'today';
+                    const title = (typeof t === 'function' ? (t('todayBoard') || t('todaySchedule') || t('none')) : '') || '—';
+                    panelsEl.innerHTML = `<div class="tab-panel active" data-panel="${fid}"><div class="content-card"><h3>${title}</h3><p class="empty-note">${typeof t === 'function' ? (t('none') || '—') : '—'}</p></div></div>`;
+                    try { renderTabs(user); } catch (_) {}
+                }
+                try {
+                    setTab(resolveDashboardTab(user, preferred));
+                } catch (_) {
+                    try { setTab(defaultTabForRole(user)); } catch (__) {}
+                }
+                if (!panelsEl.querySelector('.tab-panel.active')) {
+                    const first = panelsEl.querySelector('.tab-panel');
+                    if (first) {
+                        const fid = first.dataset.panel || defaultTabForRole(user) || 'today';
+                        currentTab = fid;
+                        first.classList.add('active');
+                        document.querySelectorAll('.tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.tab === fid));
+                    }
+                }
+                return !!panelsEl.querySelector('.tab-panel.active');
+            }
+            /** Login / hard recovery: pull every portal store then soft-refresh boards. */
+            function forceFullPortalReload(user) {
+                if (!user) return Promise.resolve({ ok: false });
+                const u = user;
+                return Promise.resolve()
+                    .then(() => (typeof syncPortalStoresFromCentral === 'function'
+                        ? syncPortalStoresFromCentral({ silent: true })
+                        : null))
+                    .then(() => (typeof syncPhotosFromCentral === 'function'
+                        ? syncPhotosFromCentral({ silent: true })
+                        : null))
+                    .then((photoRes) => {
+                        try {
+                            if (typeof softRefreshDashboard === 'function') {
+                                softRefreshDashboard(u, {
+                                    stores: (typeof PORTAL_STORE_IDS !== 'undefined' ? PORTAL_STORE_IDS.slice() : null),
+                                    reason: 'login-full-pull'
+                                });
+                            }
+                        } catch (_) {}
+                        try { ensureDashboardPanels(u, true); } catch (_) {}
+                        try { refreshPhotosUi(); } catch (_) {}
+                        return { ok: true, photoRes };
+                    })
+                    .catch((err) => {
+                        try { console.warn('[hongik] forceFullPortalReload', err); } catch (_) {}
+                        try { ensureDashboardPanels(u, true); } catch (_) {}
+                        return { ok: false, error: String(err && err.message || err || '') };
+                    });
+            }
+
+            try {
+                window.hongikEnsurePanels = (u) => ensureDashboardPanels(u || currentUser, true);
+                window.hongikForcePortalReload = (u) => forceFullPortalReload(u || currentUser);
+            } catch (_) {}
             openDashboard = function (user, keepTab = false) {
                 const stableId = canonicalAccountId(user) || (user && user.id);
                 currentUser = user ? { ...user, id: stableId } : user;
@@ -22004,81 +22075,77 @@
                     attendPopupSnoozed = false;
                     schedAlertPopupSnoozed = false;
                 }
-                loginScreen.classList.add('hidden-screen');
-                dashboardScreen.classList.remove('hidden-screen');
-                setLangVisibility(true);
-                const shell = document.getElementById('dash-shell') || dashShell;
-                const themeClass = user.theme || (user.id === 'taehyun' ? 'theme-teacher-a' : '');
-                shell.className = 'dash-shell';
-                if (themeClass) shell.classList.add(themeClass);
-                if (user.id === 'taehyun') shell.classList.add('theme-teacher-a');
-                // keepTab: do not remount theme FX (sun/flowers) — remounting replays enter animations = flicker
-                if (!keepTab) mountThemeFx(user);
-                document.getElementById('dash-name').textContent = displayName(user);
-                const chip = document.getElementById('dash-role-chip');
-                const roleText = displayRole(user);
-                if (roleText) {
-                    chip.textContent = roleText;
-                    chip.classList.remove('hidden');
-                } else {
-                    chip.textContent = '';
-                    chip.classList.add('hidden');
-                }
-                document.getElementById('dash-today').textContent = formatToday();
-                applySchoolLogo();
-                applyStaticI18n();
-                const bannerSig = document.getElementById('taehyun-banner-sig');
-                if (bannerSig) bannerSig.textContent = t('taehyunSig');
-                loadPhoto(user.id);
-                renderStats(user);
-                try { renderTabs(user); } catch (_) {}
+                try { loginScreen.classList.add('hidden-screen'); } catch (_) {}
+                try { dashboardScreen.classList.remove('hidden-screen'); } catch (_) {}
+                try { setLangVisibility(true); } catch (_) {}
                 try {
-                    renderPanels(user);
-                } catch (err) {
-                    try { console.warn('[hongik] renderPanels failed', err); } catch (_) {}
-                }
-                // Always activate a valid tab (บอร์ดงานวันนี้ / role-first). keepTab only if still mounted.
-                const preferred = (keepTab && currentTab) ? currentTab : defaultTabForRole(user);
-                try {
-                    setTab(resolveDashboardTab(user, preferred));
-                } catch (_) {
-                    try { setTab(defaultTabForRole(user)); } catch (__) {}
-                }
-                // Soft-refresh / throw mid-render can leave empty #tab-panels — rebuild once
-                try {
-                    const panelsEl = document.getElementById('tab-panels');
-                    if (panelsEl && !panelsEl.querySelector('.tab-panel')) {
-                        renderPanels(user);
-                        setTab(defaultTabForRole(user));
-                    } else if (panelsEl && !panelsEl.querySelector('.tab-panel.active')) {
-                        setTab(defaultTabForRole(user));
+                    const shell = document.getElementById('dash-shell') || dashShell;
+                    const themeClass = user.theme || (user.id === 'taehyun' ? 'theme-teacher-a' : '');
+                    if (shell) {
+                        shell.className = 'dash-shell';
+                        if (themeClass) shell.classList.add(themeClass);
+                        if (user.id === 'taehyun') shell.classList.add('theme-teacher-a');
                     }
                 } catch (_) {}
-                maybeShowAlertPopups(user);
-                tickClock();
+                // keepTab: do not remount theme FX (sun/flowers) — remounting replays enter animations = flicker
+                if (!keepTab) {
+                    try { mountThemeFx(user); } catch (err) {
+                        try { console.warn('[hongik] mountThemeFx failed', err); } catch (_) {}
+                    }
+                }
+                try {
+                    const nameEl = document.getElementById('dash-name');
+                    if (nameEl) nameEl.textContent = displayName(user);
+                    const chip = document.getElementById('dash-role-chip');
+                    const roleText = displayRole(user);
+                    if (chip) {
+                        if (roleText) {
+                            chip.textContent = roleText;
+                            chip.classList.remove('hidden');
+                        } else {
+                            chip.textContent = '';
+                            chip.classList.add('hidden');
+                        }
+                    }
+                    const todayEl = document.getElementById('dash-today');
+                    if (todayEl) todayEl.textContent = formatToday();
+                } catch (_) {}
+                try { applySchoolLogo(); } catch (_) {}
+                try { applyStaticI18n(); } catch (_) {}
+                try {
+                    const bannerSig = document.getElementById('taehyun-banner-sig');
+                    if (bannerSig) bannerSig.textContent = t('taehyunSig');
+                } catch (_) {}
+                try { loadPhoto(user.id); } catch (_) {}
+                try { renderStats(user); } catch (_) {}
+                // Critical: panels + default tab for EVERY role (never blank decorative shell)
+                try { ensureDashboardPanels(user, keepTab); } catch (err) {
+                    try { console.warn('[hongik] ensureDashboardPanels failed', err); } catch (_) {}
+                }
+                try { maybeShowAlertPopups(user); } catch (_) {}
+                try { tickClock(); } catch (_) {}
                 const wantLiveSync = user.role === 'director' || user.role === 'admin' || user.role === 'teacher' || user.role === 'accounting';
                 if (wantLiveSync) {
                     // keepTab soft path: do not stop/restart pollers (restart was re-pulling + full UI rebuild loops)
-                    if (!keepTab || !studentSheetSyncTimer) startStudentSheetLiveSync();
-                    if (!keepTab || !photosSyncTimer) startPhotosLiveSync();
-                    if (!keepTab || !portalSyncTimer) startPortalLiveSync();
-                    if (!keepTab || !systemBackupTimer) startSystemBackupScheduler();
-                    // Header avatar: loadPhoto runs before cloud pull — refresh once stores arrive
+                    try { if (!keepTab || !studentSheetSyncTimer) startStudentSheetLiveSync(); } catch (_) {}
+                    try { if (!keepTab || !photosSyncTimer) startPhotosLiveSync(); } catch (_) {}
+                    try { if (!keepTab || !portalSyncTimer) startPortalLiveSync(); } catch (_) {}
+                    try {
+                        if (typeof startSystemBackupScheduler === 'function') {
+                            if (!keepTab || !systemBackupTimer) startSystemBackupScheduler();
+                        }
+                    } catch (_) {}
+                    // Fresh login: force pull ALL portal stores + softRefresh so every account sees live data
                     if (!keepTab) {
-                        Promise.resolve()
-                            .then(() => (typeof syncPhotosFromCentral === 'function'
-                                ? syncPhotosFromCentral({ silent: true })
-                                : null))
-                            .then(() => {
-                                try { refreshPhotosUi(); } catch (_) {}
-                            })
-                            .catch(() => {});
+                        try { forceFullPortalReload(currentUser || user); } catch (_) {}
                     }
                 } else {
-                    stopStudentSheetLiveSync();
-                    stopPhotosLiveSync();
-                    stopPortalLiveSync();
-                    stopSystemBackupScheduler();
+                    try { stopStudentSheetLiveSync(); } catch (_) {}
+                    try { stopPhotosLiveSync(); } catch (_) {}
+                    try { stopPortalLiveSync(); } catch (_) {}
+                    try {
+                        if (typeof stopSystemBackupScheduler === 'function') stopSystemBackupScheduler();
+                    } catch (_) {}
                 }
                 if (!keepTab) {
                     helpAiLog = [];
@@ -22279,8 +22346,19 @@
                             if (orderOnly) {
                                 try { patchDirectorOrderAckBadges(); } catch (_) {}
                             } else {
-                                renderPanels(currentUser);
-                                setTab(currentTab);
+                                try {
+                                    renderPanels(currentUser);
+                                    setTab(currentTab);
+                                } catch (err) {
+                                    try { console.warn('[hongik] softRefresh renderPanels failed', err); } catch (_) {}
+                                    try { ensureDashboardPanels(currentUser, true); } catch (_) {}
+                                }
+                                try {
+                                    const pe = document.getElementById('tab-panels');
+                                    if (pe && (!pe.querySelector('.tab-panel') || !pe.querySelector('.tab-panel.active'))) {
+                                        ensureDashboardPanels(currentUser, true);
+                                    }
+                                } catch (_) {}
                             }
                         }
                         try { maybeShowAlertPopups(currentUser); } catch (_) {}
@@ -25418,13 +25496,42 @@
             }
             return rows;
         }
+        function parseGeminiProxyPayload(raw) {
+            const text = String(raw || '').trim();
+            if (!text) return { ok: false, error: 'empty_response' };
+            const head = text.slice(0, 1200).toLowerCase();
+            // Apps Script returns Google login / "page not found" HTML when Web App is not Anyone
+            if (
+                head.includes('<!doctype') ||
+                head.includes('<html') ||
+                head.includes('accounts.google.com') ||
+                head.includes('servicelogin') ||
+                head.includes('ไม่พบเพจ') ||
+                head.includes('page not found') ||
+                head.includes('unable to open')
+            ) {
+                return { ok: false, error: 'proxy_not_public' };
+            }
+            try {
+                return JSON.parse(text);
+            } catch (_) {
+                const m = text.match(/\{[\s\S]*\}/);
+                if (m) {
+                    try { return JSON.parse(m[0]); } catch (__) {}
+                }
+                return { ok: false, error: 'bad_json' };
+            }
+        }
         async function askGeminiViaProxy(message, { history, role, roleGuide } = {}) {
             const url = getGeminiProxyUrl();
             if (!url) return { ok: false, error: 'no_proxy' };
+            // text/plain avoids CORS preflight; Apps Script still parses JSON body.
+            // Do NOT use application/json (preflight fails on script.google.com).
             const res = await fetch(url, {
                 method: 'POST',
                 mode: 'cors',
                 credentials: 'omit',
+                redirect: 'follow',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     action: 'geminiChat',
@@ -25435,9 +25542,14 @@
                     roleGuide: roleGuide || helpRoleGuide(currentUser)
                 })
             });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            let data = null;
-            try { data = await res.json(); } catch (_) { data = null; }
+            const raw = await res.text();
+            const data = parseGeminiProxyPayload(raw);
+            if (!res.ok) {
+                if (res.status === 401 || res.status === 403 || data.error === 'proxy_not_public') {
+                    return { ok: false, error: 'proxy_not_public' };
+                }
+                return { ok: false, error: (data && data.error) || ('HTTP ' + res.status), model: data && data.model };
+            }
             if (!data || data.ok === false) {
                 return { ok: false, error: (data && data.error) || 'proxy_error', model: data && data.model };
             }
@@ -25448,6 +25560,7 @@
             const role = currentUser?.role || '';
             const roleGuide = helpRoleGuide(currentUser);
             const history = helpGeminiHistoryForApi(message);
+            // DEFAULT_GEMINI_PROXY_URL in HTML is the fallback when config.json 404s
             if (!getGeminiProxyUrl()) {
                 return { ok: false, error: 'need_setup' };
             }
@@ -25456,7 +25569,11 @@
                 if (viaProxy.ok && viaProxy.text) return viaProxy;
                 return { ok: false, error: viaProxy.error || 'proxy_error', model: viaProxy.model };
             } catch (err) {
-                return { ok: false, error: String(err?.message || err || 'proxy_failed') };
+                const msg = String(err?.message || err || 'proxy_failed');
+                if (/failed to fetch|networkerror|load failed/i.test(msg)) {
+                    return { ok: false, error: 'proxy_not_public' };
+                }
+                return { ok: false, error: msg };
             }
         }
         try {
@@ -25467,6 +25584,28 @@
                 configLoaded: geminiConfigLoaded,
                 via: 'proxy-only'
             });
+            window.hongikGeminiPing = async () => {
+                await loadGeminiConfig({ force: true });
+                const url = getGeminiProxyUrl();
+                if (!url) return { ok: false, error: 'need_setup' };
+                try {
+                    const res = await fetch(url, {
+                        method: 'GET',
+                        mode: 'cors',
+                        credentials: 'omit',
+                        redirect: 'follow',
+                        cache: 'no-store'
+                    });
+                    const raw = await res.text();
+                    const data = parseGeminiProxyPayload(raw);
+                    if (!res.ok || data.error === 'proxy_not_public') {
+                        return { ok: false, error: 'proxy_not_public', status: res.status, url };
+                    }
+                    return { ok: !!data.ok, data, status: res.status, url };
+                } catch (err) {
+                    return { ok: false, error: String(err?.message || err), url };
+                }
+            };
         } catch (_) {}
 
         function helpCanMessageHead(user) {
@@ -25849,7 +25988,12 @@
                     });
                 } else {
                     const setup = gem.error === 'need_setup' || gem.error === 'no_proxy';
-                    const head = setup ? t('helpGeminiNeedSetup') : t('helpGeminiErr');
+                    const notPublic = gem.error === 'proxy_not_public';
+                    const head = setup
+                        ? t('helpGeminiNeedSetup')
+                        : notPublic
+                            ? t('helpGeminiNotPublic')
+                            : t('helpGeminiErr');
                     const body = localAns.text || '';
                     helpAiLog.push({
                         kind: 'ai',
@@ -30524,10 +30668,12 @@
                 sessionStorage.removeItem('hongik-session');
                 document.getElementById('class-status')?.classList.remove('show');
                 statusDismissedKey = '';
-                stopStudentSheetLiveSync();
-                stopPhotosLiveSync();
-                stopPortalLiveSync();
-                stopSystemBackupScheduler();
+                try { stopStudentSheetLiveSync(); } catch (_) {}
+                try { stopPhotosLiveSync(); } catch (_) {}
+                try { stopPortalLiveSync(); } catch (_) {}
+                try {
+                    if (typeof stopSystemBackupScheduler === 'function') stopSystemBackupScheduler();
+                } catch (_) {}
                 showLoginScreen();
                 passcode.focus();
             });
