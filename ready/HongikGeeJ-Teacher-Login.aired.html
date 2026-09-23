@@ -1,6 +1,8 @@
 <!DOCTYPE html>
+<!-- hongik-build:2026-09-22-mobile-ipad-perf -->
 <html lang="ko">
 <head>
+<script>/*hongik-sb-embed*/window.__HONGIK_SUPABASE_CONFIG__={"url":"https://qoxdpqlzbbsluxzqchuq.supabase.co","anonKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveGRwcWx6YmJzbHV4enFjaHVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDEzNzYsImV4cCI6MjEwNTU3NzM3Nn0.sVpAV7RF_Q0O7B9YVx2x2DhpDmsvmZestIIkaMV8Sa4"};</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>HongikGeeJ Teacher Login</title>
@@ -761,6 +763,20 @@
                 eunhaShinWobbleTitle 9.5s ease-in-out infinite,
                 eunhaCheekStarsTwinkle 7.5s ease-in-out infinite,
                 eunhaCheekStarsOrbit 28s linear infinite !important;
+        }
+        /* OT panel: no body title-tail Shin — décor lives in Refresh bar instead */
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="otpay"] > .content-card > h3 {
+            margin-right: 0;
+        }
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="otpay"] > .content-card > h3::after {
+            content: none !important;
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            margin: 0 !important;
+            background-image: none !important;
+            animation: none !important;
+            filter: none !important;
         }
         /* หมุนไปหมุนมา — gentle rotate wobble (not full spins) */
         @keyframes eunhaShinWobbleTitle {
@@ -1545,6 +1561,61 @@
             opacity: .65;
             cursor: wait;
             filter: none;
+        }
+        /*
+          Eunha only: starred cheek Shin sits inside the green Refresh bar,
+          immediately after 「การรายงาน」 (moved off the OT panel body h3).
+        */
+        .dash-shell.is-eunha-shin #ot-refresh-sheet-btn.soft-btn {
+            display: inline-flex !important;
+            align-items: center;
+            gap: .12rem;
+            overflow: visible;
+            padding-top: .78rem !important;
+            padding-bottom: .78rem !important;
+        }
+        .dash-shell.is-eunha-shin #ot-refresh-sheet-btn .eunha-ot-refresh-shin {
+            display: inline-block;
+            flex: 0 0 auto;
+            --eunha-cheek-size: 34px;
+            width: 46px;
+            height: 46px;
+            margin: -.35rem -.05rem;
+            pointer-events: none;
+            background-repeat: no-repeat;
+            background-image:
+                url('assets/decor/shinchan-cheek.png?v=cheek4'),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                radial-gradient(circle, #fef08a 0 55%, transparent 60%),
+                radial-gradient(circle, #facc15 0 50%, transparent 58%),
+                radial-gradient(circle, #fef08a 0 50%, transparent 58%);
+            background-size:
+                var(--eunha-cheek-size) var(--eunha-cheek-size),
+                11px 11px, 9px 9px, 10px 10px, 8px 8px, 12px 12px,
+                5px 5px, 4px 4px, 6px 6px;
+            background-position:
+                center,
+                6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                48% 4%, 96% 72%, 22% 92%;
+            filter:
+                drop-shadow(0 1px 1px rgba(255, 255, 255, .9))
+                drop-shadow(0 2px 5px rgba(15, 23, 42, .18));
+            transform-origin: 50% 60%;
+            animation:
+                eunhaOtRefreshShinWobble 9s ease-in-out infinite,
+                eunhaCheekStarsTwinkle 7.5s ease-in-out infinite,
+                eunhaCheekStarsOrbit 28s linear infinite;
+            will-change: transform, background-size, background-position;
+        }
+        @keyframes eunhaOtRefreshShinWobble {
+            0%, 100% { transform: translate(0, 0) rotate(-10deg) scale(1); }
+            25% { transform: translate(1px, -1px) rotate(8deg) scale(1.04); }
+            50% { transform: translate(0, 1px) rotate(-9deg) scale(1.02); }
+            75% { transform: translate(-1px, -1px) rotate(7deg) scale(1.05); }
         }
         @media (min-width: 900px) {
             .stat-grid.work-stats { grid-template-columns: repeat(5, minmax(0,1fr)); }
@@ -10315,7 +10386,8 @@
             .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after,
-            .dash-shell.is-eunha-shin .profile-btn::before {
+            .dash-shell.is-eunha-shin .profile-btn::before,
+            .dash-shell.is-eunha-shin #ot-refresh-sheet-btn .eunha-ot-refresh-shin {
                 animation: none !important;
             }
             .header-shin-bubble { transition: none !important; }
@@ -19921,6 +19993,19 @@
         /** OT panel title: self-only scope + current calendar month (all accounts). */
         function otTitleLabel(date = new Date()) {
             return String(t('otTitle')).replace(/\{month\}/g, currentMonthLabel(date));
+        }
+        /** Eunha: starred Shin sits after 「การรายงาน」 inside the green Refresh label. */
+        function otRefreshSheetBtnHtml() {
+            const label = String(t('otRefreshSheet') || '');
+            const safe = label.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const eunhaOn = !!(typeof currentUser !== 'undefined' && currentUser && currentUser.id === 'eunha')
+                || !!document.querySelector('.dash-shell.is-eunha-shin');
+            if (!eunhaOn) return safe;
+            const shin = '<span class="eunha-ot-refresh-shin" aria-hidden="true"></span>';
+            const marker = 'การรายงาน';
+            const idx = safe.indexOf(marker);
+            if (idx < 0) return `${safe}${shin}`;
+            return `${safe.slice(0, idx + marker.length)}${shin}${safe.slice(idx + marker.length)}`;
         }
 
         function loadDaySchedulesBundle() {
@@ -30713,7 +30798,7 @@
                 return `<div class="tab-panel" data-panel="otpay"><div class="content-card compact-card">
                     ${eligible ? `<div class="admin-actions" style="margin-top:0">
                         <button type="button" class="soft-btn" id="ot-add-btn">${t('otAdd')}</button>
-                        <button type="button" class="soft-btn" id="ot-refresh-sheet-btn">${t('otRefreshSheet')}</button>
+                        <button type="button" class="soft-btn" id="ot-refresh-sheet-btn">${otRefreshSheetBtnHtml()}</button>
                     </div>
                     <p class="text-xs text-slate-500" id="ot-sheet-sync-msg" style="margin:.35rem 0 0"></p>
                     <h3 class="mt-3">${otTitleLabel()}</h3>
