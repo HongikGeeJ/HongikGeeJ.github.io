@@ -12,7 +12,8 @@ alter table public.portal_stores add constraint portal_stores_store_name_check
     'headOrders', 'orderAcks', 'sharedNotes', 'sharedNoteStudents',
     'leaveRequests', 'directorTodos', 'schoolFinance', 'dormStudents',
     'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
-    'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos'
+    'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos',
+    'accountData'
   ));
 
 -- 2) Public Storage bucket for high-quality JPEGs (avatars)

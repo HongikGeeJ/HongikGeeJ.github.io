@@ -52,17 +52,17 @@ Until those are filled, the portal keeps working with **localStorage** (and opti
 
 3. Click **Run** (should succeed with no errors)
 
-4. **Also run once** (profile photos / Storage) — **required if photo upload shows `portal_stores_store_name_check`**:
+4. **Also run once** (profile photos / Storage / emergency `accountData`) — **required if photo upload or emergency sync shows `portal_stores_store_name_check`**:
 
-   **`data/supabase/FIX-RUN-IN-SQL-EDITOR.sql`** (same content as `storage-photos.sql`)
+   **`data/supabase/FIX-RUN-IN-SQL-EDITOR.sql`** (photos + `accountData`) · or only emergency: **`data/supabase/FIX-accountData.sql`**
 
-   This adds `photos` to `portal_stores` and creates public bucket `teacher-photos` with anon read/write (same trust model as the rest of the portal).
+   This adds `photos` + `accountData` to `portal_stores` and creates public bucket `teacher-photos` with anon read/write (same trust model as the rest of the portal).
 
 This creates:
 
 | Table | Purpose |
 |-------|---------|
-| `portal_stores` | Main realtime sync (schedules, roomTt, attendance, sharedNotes, **photos**, …) |
+| `portal_stores` | Main realtime sync (schedules, roomTt, attendance, sharedNotes, **photos**, **accountData**/emergency, …) |
 | `students` | Student profiles |
 | `student_learning_records` | Per-lesson learning / daily study records |
 | `learning_notes` | Shared teaching notes |
@@ -94,7 +94,7 @@ Priority when saving / syncing portal stores:
 2. Else **Apps Script** if `data/photos/sync-config.json` `syncUrl` is set  
 3. Else **localStorage only** (no crash)
 
-**Profile photos:** upload JPEG → Supabase Storage bucket `teacher-photos` (public URL) + `portal_stores.photos` index (per-account merge, never wipe other teachers). Quality stays high (~720px JPEG q≈0.92). **One-time SQL:** paste `data/supabase/FIX-RUN-IN-SQL-EDITOR.sql` in Supabase SQL Editor if cloud save fails (`store_name_check` or Storage bucket missing). Until then, photos stay on that PC only.
+**Profile photos:** upload JPEG → Supabase Storage bucket `teacher-photos` (public URL) + `portal_stores.photos` index (per-account merge, never wipe other teachers). Quality stays high (~720px JPEG q≈0.92). **Emergency contacts:** teachers save via emergency tab → `localStorage hongik-account-data-v2` + portal `accountData` (same blob). **One-time SQL:** paste `data/supabase/FIX-RUN-IN-SQL-EDITOR.sql` (or `FIX-accountData.sql`) in Supabase SQL Editor if cloud save fails (`store_name_check` or Storage bucket missing). Until then, photos/emergency stay on that PC only.
 
 Live site:
 
