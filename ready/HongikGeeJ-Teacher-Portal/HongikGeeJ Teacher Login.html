@@ -1101,6 +1101,32 @@
             max-width: none;
             white-space: nowrap !important;
             flex-shrink: 0;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            text-align: left;
+            transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+        }
+        button.ko-header-tag {
+            font-family: 'Noto Sans KR', Pretendard, sans-serif;
+            font-size: .78rem;
+            font-weight: 800;
+            letter-spacing: .02em;
+            line-height: 1.2;
+            color: #0047a0;
+        }
+        button.ko-header-tag:hover {
+            transform: translateY(-1px);
+            border-color: rgba(74, 111, 165, .45);
+            box-shadow:
+                0 5px 12px rgba(15, 23, 42, .18),
+                0 1px 2px rgba(15, 23, 42, .1),
+                inset 0 1px 0 rgba(255, 255, 255, .95),
+                inset 0 -1px 0 rgba(15, 23, 42, .06);
+        }
+        button.ko-header-tag:focus-visible {
+            outline: 2px solid #0047a0;
+            outline-offset: 2px;
         }
         .ko-header-tag [data-i18n="koHeaderTag"] {
             white-space: nowrap !important;
@@ -2292,6 +2318,151 @@
             line-height: 1.3;
             max-width: min(100%, 22rem);
         }
+        #taehyun-banner-text,
+        button.taehyun-banner-brand {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            padding: .12rem .2rem;
+            border: none;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            font-weight: 800;
+            letter-spacing: inherit;
+            cursor: pointer;
+            border-radius: .4rem;
+            text-decoration: none;
+            transition: color .15s ease, background .15s ease;
+        }
+        #taehyun-banner-text:hover,
+        button.taehyun-banner-brand:hover {
+            color: #1e3a5f;
+            background: rgba(255,255,255,.55);
+        }
+        #taehyun-banner-text:focus-visible,
+        button.taehyun-banner-brand:focus-visible {
+            outline: 2px solid #4a6fa5;
+            outline-offset: 2px;
+        }
+
+        /* School general-info modal — soft slate / KR accent (portal match) */
+        .modal-box.school-info-box {
+            width: min(440px, 100%);
+            padding: 1.55rem 1.4rem 1.25rem;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(74, 111, 165, .2);
+            background:
+                linear-gradient(165deg, rgba(255,255,255,.98) 0%, rgba(238,245,251,.96) 48%, rgba(251,248,245,.97) 100%);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,.75) inset,
+                0 22px 52px rgba(15, 23, 42, .24);
+            overflow: hidden;
+        }
+        .modal-box.school-info-box::before {
+            content: '';
+            position: absolute; left: 1.15rem; right: 1.15rem; top: 0;
+            height: 3px; border-radius: 0 0 6px 6px;
+            background: linear-gradient(90deg, #cd2e3a 0%, #0047a0 52%, #3b5b8a 100%);
+        }
+        .school-info-head {
+            text-align: center;
+            margin: .1rem 0 .95rem;
+            padding-bottom: .9rem;
+            border-bottom: 1px solid rgba(74, 111, 165, .14);
+        }
+        .school-info-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 2.75rem; height: 2.75rem; margin: 0 auto .65rem;
+            border-radius: .85rem;
+            background: linear-gradient(145deg, #ffffff, #e8eef6);
+            border: 1px solid rgba(74, 111, 165, .22);
+            box-shadow: 0 8px 18px rgba(74, 111, 165, .12);
+            color: #0047a0;
+            font-size: 1.25rem;
+        }
+        .school-info-title {
+            margin: 0;
+            font-size: 1.28rem;
+            font-weight: 900;
+            letter-spacing: -.02em;
+            color: #0f172a;
+            font-family: 'Noto Sans KR', Pretendard, sans-serif;
+        }
+        .school-info-aka {
+            margin: .28rem 0 0;
+            font-size: .92rem;
+            font-weight: 750;
+            color: #3b5b8a;
+            letter-spacing: .01em;
+        }
+        .school-info-type {
+            margin: .35rem 0 0;
+            font-size: .78rem;
+            font-weight: 650;
+            color: #64748b;
+        }
+        .school-info-body {
+            display: flex;
+            flex-direction: column;
+            gap: .85rem;
+        }
+        .school-info-row {
+            display: grid;
+            gap: .28rem;
+        }
+        .school-info-label {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            font-size: .68rem;
+            font-weight: 800;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+        .school-info-label i { font-size: .9rem; color: #4a6fa5; }
+        .school-info-address {
+            margin: 0;
+            font-size: .9rem;
+            font-weight: 650;
+            line-height: 1.55;
+            color: #1e293b;
+            padding: .65rem .75rem;
+            border-radius: .75rem;
+            background: rgba(255,255,255,.78);
+            border: 1px solid rgba(148, 163, 184, .28);
+        }
+        .school-info-phones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .45rem;
+        }
+        .school-info-phones a {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .45rem .75rem;
+            border-radius: .65rem;
+            font-size: .9rem;
+            font-weight: 800;
+            color: #0047a0;
+            text-decoration: none;
+            background: rgba(255,255,255,.88);
+            border: 1px solid rgba(74, 111, 165, .28);
+            box-shadow: 0 4px 10px rgba(74, 111, 165, .08);
+            transition: background .15s ease, border-color .15s ease, transform .15s ease;
+        }
+        .school-info-phones a:hover {
+            background: #fff;
+            border-color: rgba(0, 71, 160, .45);
+            transform: translateY(-1px);
+        }
+        .school-info-phones a:focus-visible {
+            outline: 2px solid #0047a0;
+            outline-offset: 2px;
+        }
+        .school-info-phones a i { font-size: .95rem; color: #cd2e3a; }
 
         .theme-teacher-a .stat-card,
         .theme-teacher-a .content-card,
@@ -9668,7 +9839,7 @@
                             <span id="dash-role-chip" class="role-chip"></span>
                         </div>
                         <p id="dash-today" class="text-xs text-slate-500 m-0 mt-0.5"></p>
-                        <p class="ko-header-tag" aria-hidden="false"><span class="ko-dot"><img src="https://flagcdn.com/w80/kr.png" alt=""></span><span data-i18n="koHeaderTag">홍익지제이 · Hongik&nbsp;GeeJ</span><span class="ko-online" title="Online" aria-label="Online"></span></p>
+                        <button type="button" class="ko-header-tag" id="ko-header-tag-btn" data-i18n-aria="schoolInfoOpenAria" aria-haspopup="dialog" aria-controls="school-info-modal" aria-label="학교 정보 보기"><span class="ko-dot"><img src="https://flagcdn.com/w80/kr.png" alt=""></span><span data-i18n="koHeaderTag">홍익지제이 · Hongik&nbsp;GeeJ</span><span class="ko-online" title="Online" aria-label="Online"></span></button>
                     </div>
                 </div>
                 <div class="header-actions">
@@ -9709,7 +9880,7 @@
             </header>
             <div class="taehyun-banner" id="taehyun-banner">
                 <span class="sig" id="taehyun-banner-sig">ขอให้วันนี้เป็นวันที่ดีของคุณครู</span>
-                <span id="taehyun-banner-text" data-i18n="taehyunBanner">홍익지제이 · Hongik GeeJ</span>
+                <button type="button" id="taehyun-banner-text" class="taehyun-banner-brand" data-i18n="taehyunBanner" data-i18n-aria="schoolInfoOpenAria" aria-haspopup="dialog" aria-controls="school-info-modal" aria-label="학교 정보 보기">홍익지제이 · Hongik GeeJ</button>
             </div>
             <nav class="dash-tabs" id="dash-tabs"></nav>
             <div class="dash-body">
@@ -9738,6 +9909,34 @@
             <p id="photo-modal-name" class="mt-3 mb-1 font-semibold text-slate-700"></p>
             <p id="photo-sync-msg" aria-live="polite"></p>
             <button type="button" id="photo-modal-close" class="soft-btn ghost mt-2" data-i18n="close">닫기</button>
+        </div>
+    </div>
+
+    <div id="school-info-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="school-info-title">
+        <div class="modal-box school-info-box">
+            <button type="button" class="modal-x" id="school-info-x" data-i18n-aria="close" aria-label="닫기"><i class="ph ph-x"></i></button>
+            <div class="school-info-head">
+                <div class="school-info-badge" aria-hidden="true"><i class="ph-fill ph-buildings"></i></div>
+                <h2 id="school-info-title" class="school-info-title" data-i18n="schoolInfoTitle">Hongik GeeJ</h2>
+                <p class="school-info-aka" data-i18n="schoolInfoAka">ฮงอิก จีเจ</p>
+                <p class="school-info-type" data-i18n="schoolInfoType">สถาบันสอนภาษาเกาหลี</p>
+            </div>
+            <div class="school-info-body">
+                <div class="school-info-row">
+                    <span class="school-info-label"><i class="ph ph-map-pin" aria-hidden="true"></i><span data-i18n="schoolInfoAddressLabel">ที่ตั้ง</span></span>
+                    <p class="school-info-address" data-i18n="schoolInfoAddress">182/6 หมู่ 10 ตำบลป่าไผ่ อำเภอสันทราย จังหวัดเชียงใหม่ 50290</p>
+                </div>
+                <div class="school-info-row">
+                    <span class="school-info-label"><i class="ph ph-phone" aria-hidden="true"></i><span data-i18n="schoolInfoPhoneLabel">เบอร์โทรศัพท์</span></span>
+                    <div class="school-info-phones">
+                        <a href="tel:+66979363671"><i class="ph-fill ph-phone-call" aria-hidden="true"></i>097-936-3671</a>
+                        <a href="tel:+66652437291"><i class="ph-fill ph-phone-call" aria-hidden="true"></i>065-243-7291</a>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-actions" style="justify-content:center;margin-top:1.15rem">
+                <button type="button" class="soft-btn ghost" id="school-info-close" data-i18n="close">닫기</button>
+            </div>
         </div>
     </div>
 
@@ -12813,6 +13012,13 @@
                 workSummary: '근무 요약',
                 taehyunBanner: '홍익지제이와 함께',
                 taehyunSig: '오늘도 좋은 하루 되세요, 선생님',
+                schoolInfoOpenAria: '학교 정보 보기',
+                schoolInfoTitle: 'Hongik GeeJ',
+                schoolInfoAka: '홍익지제이 · ฮงอิก จีเจ',
+                schoolInfoType: '한국어 교육 기관',
+                schoolInfoAddressLabel: '주소',
+                schoolInfoAddress: '182/6 หมู่ 10 ตำบลป่าไผ่ อำเภอสันทราย จังหวัดเชียงใหม่ 50290',
+                schoolInfoPhoneLabel: '전화',
                 weekLine: '주간 출근 그래프',
                 cancelClass: '수업 취소',
                 cancelClassHint: '이 수업을 취소합니다 · 상태가 「취소」로 바뀝니다',
@@ -13764,6 +13970,13 @@
                 workSummary: 'สรุปการทำงาน',
                 taehyunBanner: '홍익지제이 · Hongik GeeJ',
                 taehyunSig: 'ขอให้วันนี้เป็นวันที่ดีของคุณครู',
+                schoolInfoOpenAria: 'ดูข้อมูลโรงเรียน',
+                schoolInfoTitle: 'Hongik GeeJ',
+                schoolInfoAka: 'ฮงอิก จีเจ',
+                schoolInfoType: 'สถาบันสอนภาษาเกาหลี',
+                schoolInfoAddressLabel: 'ที่ตั้ง',
+                schoolInfoAddress: '182/6 หมู่ 10 ตำบลป่าไผ่ อำเภอสันทราย จังหวัดเชียงใหม่ 50290',
+                schoolInfoPhoneLabel: 'เบอร์โทรศัพท์',
                 weekLine: 'กราฟเส้นสัปดาห์นี้',
                 cancelClass: 'ยกเลิกคลาส',
                 cancelClassHint: 'ยกเลิกคลาสนี้ · สถานะจะเป็น「ยกเลิก」',
@@ -14715,6 +14928,13 @@
                 workSummary: 'Work summary',
                 taehyunBanner: 'Hongik GeeJ Chiang Mai',
                 taehyunSig: 'Have a wonderful day, teacher',
+                schoolInfoOpenAria: 'View school information',
+                schoolInfoTitle: 'Hongik GeeJ',
+                schoolInfoAka: 'ฮงอิก จีเจ',
+                schoolInfoType: 'Korean Language Institute',
+                schoolInfoAddressLabel: 'Address',
+                schoolInfoAddress: '182/6 Moo 10, Pa Phai, San Sai, Chiang Mai 50290',
+                schoolInfoPhoneLabel: 'Phone',
                 weekLine: 'Weekly line chart',
                 cancelClass: 'Cancel class',
                 cancelClassHint: 'Cancel this class · status will become Cancelled',
@@ -22083,6 +22303,10 @@
             applyStaticI18n();
             modal.classList.add('open');
             syncModalOpenLock();
+        }
+
+        function openSchoolInfoModal() {
+            openTeachPop('school-info-modal');
         }
 
         function getAttendanceDay(dateKey) {
@@ -33829,6 +34053,19 @@
                     photoModal.classList.remove('open');
                     document.getElementById('crop-ui').classList.add('hidden');
                 }
+            });
+            const schoolInfoModal = document.getElementById('school-info-modal');
+            document.getElementById('taehyun-banner-text')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                openSchoolInfoModal();
+            });
+            document.getElementById('ko-header-tag-btn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                openSchoolInfoModal();
+            });
+            document.getElementById('school-info-close')?.addEventListener('click', () => closeModalFast(schoolInfoModal));
+            schoolInfoModal?.addEventListener('click', (e) => {
+                if (e.target === schoolInfoModal) closeModalFast(schoolInfoModal);
             });
             const avatarLightbox = document.getElementById('avatar-lightbox');
             avatarLightbox?.addEventListener('click', (e) => {
