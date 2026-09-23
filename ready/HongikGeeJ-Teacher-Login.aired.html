@@ -2414,6 +2414,27 @@
             right: 3%;
             animation: hangulFloatCharm 11s cubic-bezier(.45,.05,.55,.95) infinite;
         }
+        /* Director only: hangul wallpaper may drift over #dash-tabs.
+           Header stays z-index 500 (above tabs); FX never steals clicks.
+           Lang menu (12000) / modals (20000) unchanged. */
+        .dash-shell.theme-director > .dash-header .dash-header-fx {
+            overflow: visible;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float-layer {
+            inset: 0 0 -5.75rem 0;
+            overflow: visible;
+            pointer-events: none;
+        }
+        .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float,
+        .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-mark {
+            pointer-events: none;
+        }
+        .dash-shell.theme-director > .dash-tabs {
+            position: relative;
+            z-index: 1;
+        }
         .theme-director .taehyun-fx .seal {
             border-color: rgba(30,58,95,.45);
             color: #1e3a5f;
