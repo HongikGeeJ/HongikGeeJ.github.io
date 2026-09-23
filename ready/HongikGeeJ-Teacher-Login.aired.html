@@ -476,7 +476,8 @@
                 url('assets/dancheong/edge-sparkles.svg?v=flower1');
             background-repeat: no-repeat;
             background-position: center top 3px, center bottom 3px;
-            background-size: min(100%, 520px) 16px;
+            /* ~5× prior 16px rail (top + bottom) */
+            background-size: min(100%, 520px) 80px;
         }
         .content-card::before,
         .content-card::after {
@@ -528,7 +529,7 @@
             width: 26px; height: 26px; opacity: .82;
         }
         .content-card.compact-card {
-            background-size: min(100%, 400px) 14px;
+            background-size: min(100%, 400px) 70px;
         }
         .content-card[style*="transparent"] {
             background-image: none;
@@ -559,7 +560,7 @@
             .dc-c.br { top: calc(100% + 12px); left: calc(100% + 12px); bottom: auto; right: auto; }
             .content-card::before,
             .content-card::after { width: 24px; height: 24px; opacity: .7; }
-            .content-card { background-size: min(100%, 340px) 14px; }
+            .content-card { background-size: min(100%, 340px) 70px; }
         }
         .dash-shell {
             width: 100%;
@@ -596,8 +597,8 @@
         @media (min-width: 1100px) {
             .dash-body { padding: 1.35rem 1.85rem 1.75rem; }
             .dash-header { padding-left: 1.5rem; padding-right: 1.5rem; }
-            .content-card { padding: 1.25rem 1.5rem; }
-            .content-card.compact-card { padding: 1.2rem 1.4rem; }
+            .content-card { padding: 5.65rem 1.5rem; }
+            .content-card.compact-card { padding: 5rem 1.4rem; }
             #overview-board {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1091,7 +1092,8 @@
         .stat-card .k { font-size: .72rem; font-weight: 700; color: #64748b; }
         .stat-card .v { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-top: .2rem; }
         .stat-card .h { font-size: .75rem; color: #94a3b8; margin-top: .15rem; }
-        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 1.05rem 1.1rem; margin-bottom: .85rem; }
+        /* Vertical pad clears ~80px top/bottom flower rails */
+        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 5.5rem 1.1rem; margin-bottom: .85rem; }
         .content-card h3 { margin: 0; font-size: 1rem; font-weight: 750; color: #0f172a; display: flex; align-items: center; gap: .4rem; }
         .item-row { display: flex; justify-content: space-between; gap: .75rem; padding: .7rem 0; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
         .item-row:last-child { border-bottom: none; }
@@ -1284,7 +1286,7 @@
         .role-chip { display: inline-flex; font-size: .72rem; font-weight: 700; padding: .25rem .6rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
 
         /* Readable ink on all themes */
-        .theme-teacher-a, .theme-teacher-b, .theme-teacher-c, .theme-director,
+        .theme-teacher-a, .theme-teacher-b, .theme-teacher-c, .theme-teacher-d, .theme-director,
         .theme-acct-1, .theme-acct-2, .theme-acct-3, .theme-admin {
             --card-ink: #0f172a;
             --card-muted: #475569;
@@ -2226,9 +2228,8 @@
         .theme-teacher-c #dash-name { color: #2d3b2c !important; line-height: 1.55 !important; padding-bottom: .2em; overflow: visible; }
 
         /*
-          Sua only (.theme-teacher-c): ~3× floral chrome.
-          Edge mini-flower strip + card corner blooms + dash-shell .dc-c.
-          Other accounts keep the shared base sizes.
+          Sua only (.theme-teacher-c): larger corner blooms + dash-shell .dc-c.
+          Edge mini-flower strip matches shared ~5× rail (80px).
         */
         .dash-shell.theme-teacher-c > .dc-corners .dc-c {
             width: 216px;
@@ -2249,9 +2250,9 @@
                 url('assets/dancheong/edge-sparkles.svg?v=flower1');
             background-repeat: no-repeat;
             background-position: center top 3px, center bottom 3px;
-            background-size: min(100%, 520px) 48px;
-            padding-top: 3.35rem;
-            padding-bottom: 3.35rem;
+            background-size: min(100%, 520px) 80px;
+            padding-top: 5.5rem;
+            padding-bottom: 5.5rem;
         }
         .theme-teacher-c .content-card::before,
         .theme-teacher-c .content-card::after {
@@ -2259,9 +2260,9 @@
             height: 96px;
         }
         .theme-teacher-c .content-card.compact-card {
-            background-size: min(100%, 400px) 42px;
-            padding-top: 2.9rem;
-            padding-bottom: 2.9rem;
+            background-size: min(100%, 400px) 70px;
+            padding-top: 5rem;
+            padding-bottom: 5rem;
         }
         .theme-teacher-c .content-card.compact-card::before,
         .theme-teacher-c .content-card.compact-card::after {
@@ -2281,9 +2282,9 @@
         }
         @media (max-width: 480px) {
             .theme-teacher-c .content-card {
-                background-size: min(100%, 340px) 42px;
-                padding-top: 3rem;
-                padding-bottom: 3rem;
+                background-size: min(100%, 340px) 70px;
+                padding-top: 5rem;
+                padding-bottom: 5rem;
             }
             .theme-teacher-c .content-card::before,
             .theme-teacher-c .content-card::after {
@@ -2297,6 +2298,51 @@
                     url('assets/dancheong/edge-sparkles-static.svg?v=flower1');
             }
         }
+
+        /* Part-time: warm orange frame */
+        .theme-teacher-d {
+            --accent: #ea580c;
+            --accent-soft: #fff7ed;
+            --shell-bg: linear-gradient(155deg, #fff7ed 0%, #ffedd5 42%, #fed7aa 100%);
+            --shell-border: rgba(234,88,12,.28);
+            --shell-ink: #7c2d12;
+            --shell-muted: #9a3412;
+        }
+        .dash-shell.theme-teacher-d {
+            box-shadow: 0 22px 48px rgba(234,88,12,.12), 0 0 0 1px rgba(253,186,116,.28) !important;
+        }
+        .theme-teacher-d .soft-btn {
+            background: linear-gradient(95deg, #fb923c, #ea580c 55%, #c2410c);
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(234,88,12,.28);
+        }
+        .theme-teacher-d .tab-btn.active {
+            color: #c2410c !important;
+            background: linear-gradient(180deg, rgba(255,237,213,.7), rgba(254,215,170,.45));
+            box-shadow: inset 0 -3px 0 #ea580c;
+            font-weight: 800;
+        }
+        .theme-teacher-d .profile-btn {
+            border-color: #fb923c;
+            background: linear-gradient(135deg, #ffedd5, #fdba74, #fb923c);
+            box-shadow: 0 0 0 3px rgba(253,186,116,.4);
+        }
+        .theme-teacher-d .content-card,
+        .theme-teacher-d .stat-card {
+            border-color: rgba(234,88,12,.16);
+            box-shadow: 0 8px 22px rgba(234,88,12,.08);
+            background: rgba(255,255,255,.88);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .theme-teacher-d .badge {
+            background: linear-gradient(90deg, #ffedd5, #fed7aa);
+            color: #c2410c;
+        }
+        .theme-teacher-d .dash-identity { gap: .85rem !important; }
+        .theme-teacher-d .dash-identity-text { padding-left: .7rem; margin-left: 0; }
+        .theme-teacher-d .ko-header-tag { color: #c2410c; border-left-color: #ea580c; }
+        .theme-teacher-d #dash-name { color: #7c2d12 !important; line-height: 1.55 !important; padding-bottom: .2em; overflow: visible; }
 
         /* 원장: masculine composed · slate navy · Korean head FX */
         .theme-director {
@@ -6602,7 +6648,37 @@
             padding: .85rem .9rem; margin-bottom: .5rem;
             border: 1.5px solid #e2e8f0; border-radius: 1rem; background: #fff;
             transition: transform .18s, box-shadow .18s, border-color .18s;
+            position: relative;
         }
+        .ov-edit-corner,
+        .em-edit-corner {
+            position: absolute;
+            top: .4rem;
+            right: .4rem;
+            z-index: 2;
+            width: 1.85rem;
+            height: 1.85rem;
+            border-radius: .55rem;
+            border: 1.5px solid #e2e8f0;
+            background: #fff;
+            color: #64748b;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            padding: 0;
+            font-size: .95rem;
+            box-shadow: 0 2px 8px rgba(15,23,42,.08);
+            transition: background .15s, color .15s, border-color .15s, transform .15s;
+        }
+        .ov-edit-corner:hover,
+        .em-edit-corner:hover {
+            background: #fff7ed;
+            color: #ea580c;
+            border-color: #fdba74;
+            transform: scale(1.06);
+        }
+        .em-profile { position: relative; }
+        .em-profile .em-edit-corner { top: .65rem; right: .65rem; }
         .ov-teacher-btn:hover {
             transform: translateX(4px);
             border-color: #93c5fd;
@@ -8184,7 +8260,7 @@
             .stat-grid, .stat-grid.work-stats { grid-template-columns: 1fr; }
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
-            .content-card { padding: .9rem .85rem; margin-bottom: .7rem; }
+            .content-card { padding: 5rem .85rem; margin-bottom: .7rem; }
             .content-card::before,
             .content-card::after { width: 24px; height: 24px; opacity: .7; }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
@@ -8972,6 +9048,97 @@
             <div class="admin-actions" style="justify-content:center;margin-top:1.1rem;gap:.55rem">
                 <button type="button" class="soft-btn ghost" id="em-contact-cancel" data-i18n="cancelEdit">Cancel</button>
                 <button type="button" class="soft-btn" id="em-contact-save" data-i18n="emSaveContact">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dir-tea-edit-modal" class="modal teach-shell">
+        <div class="modal-box teach-pop" style="width:min(440px,100%)">
+            <div class="teach-pop-decor" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+            </div>
+            <button type="button" class="modal-x" id="dir-tea-edit-x"><i class="ph ph-x"></i></button>
+            <div class="teach-pop-head">
+                <div class="teach-pop-icon" aria-hidden="true"><i class="ph-fill ph-user-circle-gear"></i></div>
+                <p class="teach-pop-title" id="dir-tea-edit-title" data-i18n="dirTeaEditTitle">แก้ไขโปรไฟล์คุณครู</p>
+                <p class="teach-pop-sub" id="dir-tea-edit-sub" data-i18n="dirTeaEditHint">ชื่อ · ข้อมูล · รูป · ธงชาติ</p>
+            </div>
+            <input type="hidden" id="dir-tea-edit-id" value="">
+            <div class="sched-form" style="margin-top:1rem">
+                <div>
+                    <label class="sched-label" for="dir-tea-name-ko">Name (KO)</label>
+                    <input type="text" id="dir-tea-name-ko" class="sched-text" autocomplete="off">
+                </div>
+                <div>
+                    <label class="sched-label" for="dir-tea-name-en">Name (EN)</label>
+                    <input type="text" id="dir-tea-name-en" class="sched-text" autocomplete="off">
+                </div>
+                <div class="full">
+                    <label class="sched-label" for="dir-tea-name-th">Name (TH)</label>
+                    <input type="text" id="dir-tea-name-th" class="sched-text" autocomplete="off">
+                </div>
+                <div class="full">
+                    <label class="sched-label" for="dir-tea-email" data-i18n="contactEmail">อีเมล</label>
+                    <input type="email" id="dir-tea-email" class="sched-text" autocomplete="email">
+                </div>
+                <div>
+                    <label class="sched-label" for="dir-tea-dob" data-i18n="birthDate">วันเดือนปีเกิด</label>
+                    <input type="date" id="dir-tea-dob" class="sched-text">
+                </div>
+                <div>
+                    <label class="sched-label" for="dir-tea-blood" data-i18n="bloodType">กรุ๊ปเลือด</label>
+                    <select id="dir-tea-blood" class="sched-select">
+                        <option value="">—</option>
+                        <option value="A">A</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B">B</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O">O</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB">AB</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+                <div class="full">
+                    <label class="sched-label" for="dir-tea-work-th" data-i18n="workForm">วันทำงาน</label>
+                    <input type="text" id="dir-tea-work-th" class="sched-text" placeholder="จ·อ">
+                </div>
+                <div class="full">
+                    <label class="sched-label" data-i18n="dirTeaFlags">ธงชาติ / ภาษาที่สอน</label>
+                    <div class="dir-tea-flags" style="display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.35rem">
+                        <label class="check-row" style="margin:0;padding:.35rem .55rem;border:1.5px solid #e2e8f0;border-radius:.65rem">
+                            <input type="checkbox" id="dir-tea-flag-th" value="th">
+                            <span><img src="https://flagcdn.com/w40/th.png" alt="TH" width="18" height="18" style="vertical-align:-3px;margin-right:.25rem">TH</span>
+                        </label>
+                        <label class="check-row" style="margin:0;padding:.35rem .55rem;border:1.5px solid #e2e8f0;border-radius:.65rem">
+                            <input type="checkbox" id="dir-tea-flag-kr" value="kr">
+                            <span><img src="https://flagcdn.com/w40/kr.png" alt="KR" width="18" height="18" style="vertical-align:-3px;margin-right:.25rem">KR</span>
+                        </label>
+                        <label class="check-row" style="margin:0;padding:.35rem .55rem;border:1.5px solid #e2e8f0;border-radius:.65rem">
+                            <input type="checkbox" id="dir-tea-flag-gb" value="gb">
+                            <span><img src="https://flagcdn.com/w40/gb.png" alt="EN" width="18" height="18" style="vertical-align:-3px;margin-right:.25rem">EN</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="full">
+                    <label class="sched-label" data-i18n="dirTeaPhoto">รูปโปรไฟล์</label>
+                    <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;margin-top:.35rem">
+                        <img id="dir-tea-photo-preview" alt="" width="56" height="56" style="width:56px;height:56px;border-radius:50%;object-fit:cover;background:#f1f5f9;border:2px solid #e2e8f0;display:none">
+                        <label class="soft-btn ghost" style="margin:0;cursor:pointer;padding:.4rem .75rem;font-size:.82rem">
+                            <i class="ph ph-camera"></i> <span data-i18n="dirTeaChangePhoto">เปลี่ยนรูป</span>
+                            <input type="file" id="dir-tea-photo-input" accept="image/*" style="display:none">
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <p id="dir-tea-edit-msg" class="text-xs text-rose-600 text-center mt-2 mb-0"></p>
+            <div class="admin-actions" style="justify-content:center;margin-top:1.1rem;gap:.55rem">
+                <button type="button" class="soft-btn ghost" id="dir-tea-edit-cancel" data-i18n="cancelEdit">Cancel</button>
+                <button type="button" class="soft-btn" id="dir-tea-edit-save" data-i18n="dirTeaEditSave">บันทึก</button>
             </div>
         </div>
     </div>
@@ -10751,6 +10918,8 @@
         let schedAlertPopupSnoozed = false; // dismissed with × / backdrop until tab change
         let pendingSelfPw = null;
         let cropState = { x: 0, y: 0, scale: 1, dragging: false, startX: 0, startY: 0, baseX: 0, baseY: 0, naturalW: 0, naturalH: 0 };
+        let photoEditTargetId = null; // director editing another teacher's photo
+        let dirTeaEditTargetId = null;
 
         const I18N = {
             ko: {
@@ -10896,7 +11065,7 @@
                 adminMapTeachers: '교사 계정',
                 adminMapDirector: '원장 계정',
                 adminMapAccounting: '회계 계정',
-                adminMapTeachersHint: '태현 · 은나 · 수아 등 교사',
+                adminMapTeachersHint: '태현 · 은나 · 수아 · 파트타임 등 교사',
                 adminMapDirectorHint: '원장 / Head',
                 adminMapAccountingHint: '회계 1–3',
                 adminBlkProfile: '① 프로필 · 이름',
@@ -11333,6 +11502,14 @@
                 teachersEmergencyHint: '각 교사가 등록한 비상 연락처 요약입니다 · 눌러서 프로필',
                 noTeacherEm: '등록된 비상 연락처 없음',
                 emTeacherOpenHint: '눌러서 프로필 보기',
+                dirTeaEditCorner: '프로필 수정',
+                dirTeaEditTitle: '교사 프로필 수정',
+                dirTeaEditHint: '이름 · 정보 · 사진 · 국기',
+                dirTeaEditSave: '저장',
+                dirTeaFlags: '국기 / 가르치는 언어',
+                dirTeaPhoto: '프로필 사진',
+                dirTeaChangePhoto: '사진 변경',
+                dirTeaEditSaved: '저장되었습니다',
                 emTeacherProfileBack: '목록으로',
                 emTeacherProfileContacts: '등록된 비상 연락처',
                 emTeacherProfileRole: '역할',
@@ -11782,7 +11959,7 @@
                 adminMapTeachers: 'บัญชีคุณครู',
                 adminMapDirector: 'บัญชีหัวหน้า',
                 adminMapAccounting: 'บัญชีฝ่ายบัญชี',
-                adminMapTeachersHint: 'แทฮยอน · อึนนา · ซูอา ฯลฯ',
+                adminMapTeachersHint: 'แทฮยอน · อึนนา · ซูอา · part time ฯลฯ',
                 adminMapDirectorHint: 'ผู้อำนวยการ / หัวหน้า',
                 adminMapAccountingHint: 'บัญชี 1–3',
                 adminBlkProfile: '① โปรไฟล์ · ชื่อ',
@@ -12219,6 +12396,14 @@
                 teachersEmergencyHint: 'สรุปเบอร์ที่คุณครูแต่ละคนลงทะเบียนไว้ · แยกสีตามคน · กดเพื่อดูโปรไฟล์',
                 noTeacherEm: 'ยังไม่ได้ลงทะเบียน',
                 emTeacherOpenHint: 'กดเพื่อดูโปรไฟล์',
+                dirTeaEditCorner: 'แก้ไขโปรไฟล์',
+                dirTeaEditTitle: 'แก้ไขโปรไฟล์คุณครู',
+                dirTeaEditHint: 'ชื่อ · ข้อมูล · รูป · ธงชาติ',
+                dirTeaEditSave: 'บันทึก',
+                dirTeaFlags: 'ธงชาติ / ภาษาที่สอน',
+                dirTeaPhoto: 'รูปโปรไฟล์',
+                dirTeaChangePhoto: 'เปลี่ยนรูป',
+                dirTeaEditSaved: 'บันทึกแล้ว',
                 emTeacherProfileBack: 'กลับรายชื่อ',
                 emTeacherProfileContacts: 'เบอร์ฉุกเฉินที่ลงทะเบียน',
                 emTeacherProfileRole: 'บทบาท',
@@ -12668,7 +12853,7 @@
                 adminMapTeachers: 'Teacher accounts',
                 adminMapDirector: 'Director account',
                 adminMapAccounting: 'Accounting accounts',
-                adminMapTeachersHint: 'Taehyun · Eunna · Sua, etc.',
+                adminMapTeachersHint: 'Taehyun · Eunna · Sua · Part time, etc.',
                 adminMapDirectorHint: 'Director / Head',
                 adminMapAccountingHint: 'Accounting 1–3',
                 adminBlkProfile: '① Profile · names',
@@ -13105,6 +13290,14 @@
                 teachersEmergencyHint: 'Summary of contacts each teacher registered · color-coded · tap for profile',
                 noTeacherEm: 'Not registered yet',
                 emTeacherOpenHint: 'Tap to view profile',
+                dirTeaEditCorner: 'Edit profile',
+                dirTeaEditTitle: 'Edit teacher profile',
+                dirTeaEditHint: 'Name · info · photo · flags',
+                dirTeaEditSave: 'Save',
+                dirTeaFlags: 'Flags / languages taught',
+                dirTeaPhoto: 'Profile photo',
+                dirTeaChangePhoto: 'Change photo',
+                dirTeaEditSaved: 'Saved',
                 emTeacherProfileBack: 'Back to list',
                 emTeacherProfileContacts: 'Registered emergency contacts',
                 emTeacherProfileRole: 'Role',
@@ -13626,13 +13819,23 @@
                 workDaysNoteTh: 'พุธ–อาทิตย์',
                 workDaysNoteEn: 'Wed–Sun'
             },
+            '8888': {
+                ...account('parttime', 'PT', '파트타임 선생님', 'Teacher Part time', 'คุณครูpart time', 'teacher', 'theme-teacher-d', '2026-09-01', 0),
+                classes: WEEKLY_CLASSES.parttime,
+                workDaysNote: 'Mon Tue',
+                workDaysNoteKo: '월·화',
+                workDaysNoteTh: 'จ·อ',
+                workDaysNoteEn: 'Mon Tue',
+                // Editable slot — director/admin can rename (e.g. คุณครูพัทธ์ / Phat)
+                langFlags: ['th']
+            },
             '9999': {
                 ...account('director', 'HEAD', '원장님', 'Director', 'ผู้อำนวยการ', 'director', 'theme-director', '2020-06-01', 4),
                 overviewTeachers: [
                     { name: '태현', status: '수–일', note: 'Group / TOPIK / Online' },
                     { name: '은나', status: '월·화·금+주말', note: '1:1 / Online Group' },
                     { name: '수아', status: '수–일', note: '1:1 / Kids / Group' },
-                    { name: '파트타임', status: '월·화', note: '18:00–22:00 방 1' }
+                    { name: '파트타임', status: '월·화', note: '18:00–22:00 방 1 · editable' }
                 ]
             },
             '0000': { ...account('acct1', 'ACC1', '회계 1', 'Accounting 1', 'บัญชี 1', 'accounting', 'theme-acct-1', '2024-01-08', 1), finance: [{ label: '입금', value: '฿12,400' }, { label: '미수', value: '฿3,200' }] },
@@ -14702,11 +14905,11 @@
         }
         function teacherColor(tea, idx = 0) {
             const map = {
-                // sheet colors: blue Taehyun · yellow Eunna · green Sua · pink Part-time
+                // sheet colors: blue Taehyun · soft pink Eunna · green Sua · orange Part-time
                 taehyun: { bg: '#dbeafe', border: '#60a5fa', accent: '#1d4ed8', soft: '#93c5fd' },
-                eunha: { bg: '#fef9c3', border: '#fde047', accent: '#a16207', soft: '#fef08a' },
+                eunha: { bg: '#fdf2f8', border: '#f9a8d4', accent: '#ec4899', soft: '#fce7f3' },
                 sua: { bg: '#dcfce7', border: '#86efac', accent: '#15803d', soft: '#bbf7d0' },
-                parttime: { bg: '#fce7f3', border: '#f9a8d4', accent: '#db2777', soft: '#fbcfe8' },
+                parttime: { bg: '#fff7ed', border: '#fdba74', accent: '#ea580c', soft: '#ffedd5' },
                 director: { bg: '#e8eef5', border: '#64748b', accent: '#1e3a5f', soft: '#cbd5e1' }
             };
             if (map[tea.id]) return map[tea.id];
@@ -15014,11 +15217,17 @@
                 .trim();
         }
         function shortTeacherLabel(uOrId) {
-            if (uOrId === 'parttime' || (uOrId && uOrId.id === 'parttime')) {
-                return lang === 'th' ? 'พาร์ทไทม์' : lang === 'en' ? 'Part-time' : '파트타임';
-            }
             if (uOrId === 'break' || (uOrId && uOrId.id === 'break')) {
                 return lang === 'th' ? 'พัก' : lang === 'en' ? 'Break' : '휴식';
+            }
+            if (uOrId === 'parttime' || (uOrId && uOrId.id === 'parttime')) {
+                const live = resolveAccountById('parttime', { allowBlocked: true });
+                if (live) {
+                    let n = displayName(live);
+                    n = n.replace(/\s*선생님$/, '').replace(/^Teacher\s+/i, '').replace(/^คุณครู/, '').trim();
+                    if (n) return n;
+                }
+                return lang === 'th' ? 'part time' : lang === 'en' ? 'Part time' : '파트타임';
             }
             const u = typeof uOrId === 'string' ? resolveAccountById(uOrId, { allowBlocked: true }) : uOrId;
             if (!u) return String(uOrId || '');
@@ -15809,17 +16018,24 @@
         }
         /** Live aggregate of every teacher's registered classes + students */
         function parttimePseudoTeacher() {
+            const live = resolveAccountById('parttime', { allowBlocked: true });
+            if (live) return { ...live, id: 'parttime', role: 'teacher' };
             return {
                 id: 'parttime',
-                nameKo: '파트타임',
-                nameEn: 'Part-time',
-                nameTh: 'พาร์ทไทม์',
+                nameKo: '파트타임 선생님',
+                nameEn: 'Teacher Part time',
+                nameTh: 'คุณครูpart time',
                 role: 'teacher',
                 classes: WEEKLY_CLASSES.parttime
             };
         }
+        function schoolTeacherList() {
+            const teas = teacherAccounts();
+            if (!teas.some((t) => t && t.id === 'parttime')) teas.push(parttimePseudoTeacher());
+            return teas;
+        }
         function collectLiveSchoolClasses() {
-            const teachers = [...teacherAccounts(), parttimePseudoTeacher()];
+            const teachers = schoolTeacherList();
             const items = [];
             teachers.forEach((tea, i) => {
                 const c = teacherColor(tea, i);
@@ -15937,7 +16153,7 @@
         function collectClassesForCalendarDay(dateObj) {
             const dateKey = dateKeyFromDate(dateObj);
             const dayKey = weekdayKeyFromDate(dateObj);
-            const teachers = [...teacherAccounts(), parttimePseudoTeacher()];
+            const teachers = schoolTeacherList();
             const items = [];
             teachers.forEach((tea, i) => {
                 const color = teacherColor(tea, i);
@@ -16576,7 +16792,8 @@
         const TEACHER_DISPLAY = {
             taehyun: { ko: '태현 선생님', en: 'Teacher Taehyun', th: 'คุณครูแทฮยอน' },
             eunha: { ko: '은나 선생님', en: 'Teacher Eunna', th: 'คุณครูอึนนา' },
-            sua: { ko: '수아 선생님', en: 'Teacher Sua', th: 'คุณครูซูอา' }
+            sua: { ko: '수아 선생님', en: 'Teacher Sua', th: 'คุณครูซูอา' },
+            parttime: { ko: '파트타임 선생님', en: 'Teacher Part time', th: 'คุณครูpart time' }
         };
 
         function displayName(u) {
@@ -20473,7 +20690,7 @@
             merged.id = base.id;
             // always keep designed account theme (never allow override wipe)
             if (base.theme) merged.theme = base.theme;
-            ['todayTasks', 'orders', 'classes', 'leave', 'emergency', 'finance', 'overviewTeachers'].forEach((k) => {
+            ['todayTasks', 'orders', 'classes', 'leave', 'emergency', 'finance', 'overviewTeachers', 'langFlags'].forEach((k) => {
                 if (ov[k] !== undefined) {
                     merged[k] = k === 'emergency' ? normalizeEmergencyContacts(ov[k]) : deepClone(ov[k]);
                 } else if (k === 'emergency') {
@@ -24538,6 +24755,107 @@
                 });
             }
 
+            function closeDirectorTeacherEditModal() {
+                document.getElementById('dir-tea-edit-modal')?.classList.remove('open');
+                dirTeaEditTargetId = null;
+                if (typeof syncModalOpenLock === 'function') syncModalOpenLock();
+            }
+            function openDirectorTeacherEditModal(teacherId) {
+                if (!currentUser || (currentUser.role !== 'director' && currentUser.role !== 'admin')) return;
+                const id = canonicalAccountId(teacherId) || String(teacherId || '').trim();
+                const tea = resolveAccountById(id, { allowBlocked: true });
+                const modal = document.getElementById('dir-tea-edit-modal');
+                if (!tea || !modal) return;
+                dirTeaEditTargetId = id;
+                const escVal = (s) => String(s ?? '');
+                document.getElementById('dir-tea-edit-id').value = id;
+                document.getElementById('dir-tea-name-ko').value = escVal(tea.nameKo);
+                document.getElementById('dir-tea-name-en').value = escVal(tea.nameEn);
+                document.getElementById('dir-tea-name-th').value = escVal(tea.nameTh);
+                document.getElementById('dir-tea-email').value = accountEmail(id) || escVal(tea.email) || '';
+                const dob = document.getElementById('dir-tea-dob');
+                if (dob) {
+                    dob.value = accountBirthDate(id) || '';
+                    try { dob.max = todayKey(); } catch (_) {}
+                }
+                const blood = document.getElementById('dir-tea-blood');
+                if (blood) blood.value = accountBloodType(id) || '';
+                document.getElementById('dir-tea-work-th').value = escVal(tea.workDaysNoteTh || tea.workDaysNote || '');
+                const flags = teacherTaughtLangCodes(id);
+                document.getElementById('dir-tea-flag-th').checked = flags.includes('th');
+                document.getElementById('dir-tea-flag-kr').checked = flags.includes('kr');
+                document.getElementById('dir-tea-flag-gb').checked = flags.includes('gb');
+                const prev = document.getElementById('dir-tea-photo-preview');
+                const photo = typeof getDisplayPhoto === 'function' ? getDisplayPhoto(id) : '';
+                if (prev) {
+                    if (photo) {
+                        prev.src = photo;
+                        prev.style.display = 'block';
+                    } else {
+                        prev.removeAttribute('src');
+                        prev.style.display = 'none';
+                    }
+                }
+                const msg = document.getElementById('dir-tea-edit-msg');
+                if (msg) msg.textContent = '';
+                applyStaticI18n();
+                openTeachPop(modal);
+            }
+            function saveDirectorTeacherEdit() {
+                if (!currentUser || (currentUser.role !== 'director' && currentUser.role !== 'admin')) return;
+                const id = document.getElementById('dir-tea-edit-id')?.value
+                    || dirTeaEditTargetId
+                    || '';
+                if (!id) return;
+                const nameKo = (document.getElementById('dir-tea-name-ko')?.value || '').trim();
+                const nameEn = (document.getElementById('dir-tea-name-en')?.value || '').trim();
+                const nameTh = (document.getElementById('dir-tea-name-th')?.value || '').trim();
+                const email = (document.getElementById('dir-tea-email')?.value || '').trim();
+                const birthDate = document.getElementById('dir-tea-dob')?.value || '';
+                const bloodType = document.getElementById('dir-tea-blood')?.value || '';
+                const workTh = (document.getElementById('dir-tea-work-th')?.value || '').trim();
+                const langFlags = [];
+                if (document.getElementById('dir-tea-flag-th')?.checked) langFlags.push('th');
+                if (document.getElementById('dir-tea-flag-kr')?.checked) langFlags.push('kr');
+                if (document.getElementById('dir-tea-flag-gb')?.checked) langFlags.push('gb');
+                const store = loadOverrides();
+                const prev = store[id] || {};
+                const next = {
+                    ...prev,
+                    nameKo: nameKo || prev.nameKo,
+                    nameEn: nameEn || prev.nameEn,
+                    nameTh: nameTh || prev.nameTh,
+                    email: normalizeEmail(email),
+                    birthDate: normalizeBirthDate(birthDate),
+                    bloodType: normalizeBloodType(bloodType),
+                    workDaysNoteTh: workTh,
+                    workDaysNote: workTh || prev.workDaysNote || '',
+                    langFlags,
+                    updatedAt: new Date().toISOString()
+                };
+                store[id] = next;
+                saveOverrides(store);
+                if (TEACHER_DISPLAY[id]) {
+                    TEACHER_DISPLAY[id] = {
+                        ko: next.nameKo || TEACHER_DISPLAY[id].ko,
+                        en: next.nameEn || TEACHER_DISPLAY[id].en,
+                        th: next.nameTh || TEACHER_DISPLAY[id].th
+                    };
+                }
+                try { pushAccountDataSave('dir-tea-edit'); } catch (_) {}
+                const msg = document.getElementById('dir-tea-edit-msg');
+                if (msg) {
+                    msg.style.color = '#15803d';
+                    msg.textContent = t('dirTeaEditSaved');
+                }
+                closeDirectorTeacherEditModal();
+                if (currentUser) {
+                    const u = resolveAccountById(currentUser.id) || currentUser;
+                    try { if (document.getElementById('overview-board')) renderOverviewBoard(u); } catch (_) {}
+                    try { if (document.getElementById('em-dir-board')) renderDirectorEmergencyBoard(u); } catch (_) {}
+                }
+            }
+
             function renderOverviewBoard(user) {
                 const board = document.getElementById('overview-board');
                 if (!board || !user || user.role !== 'director') return;
@@ -24632,13 +24950,8 @@
                     const avatarHtml = userAvatarHtml(tea.id, displayName(tea), { color: c });
                     const isDash = status === '—' || status === '-' || status === '–';
                     const moreLabel = esc(t('overviewClickMore'));
-                    const flagCodes = (() => {
-                        // UI locale flag (TH) + taught languages per teacher
-                        if (tea.id === 'eunha') return ['th', 'kr']; // Korean only
-                        if (tea.id === 'taehyun' || tea.id === 'sua') return ['th', 'kr', 'gb']; // KO + EN
-                        return null;
-                    })();
-                    const flagsHtml = flagCodes
+                    const flagCodes = teacherTaughtLangCodes(tea.id);
+                    const flagsHtml = flagCodes.length
                         ? flagCodes.map((code) => {
                             const alt = code === 'th' ? 'TH' : code === 'kr' ? 'KR' : 'EN';
                             return `<img src="https://flagcdn.com/w40/${code}.png" alt="${alt}" width="18" height="18">`;
@@ -24657,7 +24970,9 @@
                     const lessonLines = (!myLeave && !dayOff && activeSched.length)
                         ? `<div class="ov-lessons">${activeSched.map((it) => `<div class="ov-lesson-line">${fmtLessonHtml(it)}</div>`).join('')}</div>`
                         : `<div class="text-xs text-slate-500 text-left">${esc(note)}</div>`;
+                    const editCorner = `<button type="button" class="ov-edit-corner" data-ov-edit="${tea.id}" title="${esc(t('dirTeaEditCorner'))}" aria-label="${esc(t('dirTeaEditCorner'))}"><i class="ph ph-pencil-simple"></i></button>`;
                     return `<button type="button" class="ov-teacher-btn" data-ov-tea="${tea.id}" style="border-left:4px solid ${c.accent}">
+                        ${editCorner}
                         <div class="ov-top">
                             <span class="ov-name" style="color:${c.accent};display:inline-flex;align-items:center;gap:.45rem">${avatarHtml}${displayName(tea)}</span>
                             ${headerEnd}
@@ -24676,13 +24991,32 @@
                 board.querySelectorAll('[data-ov-tea]').forEach((btn) => {
                     btn.addEventListener('click', () => go({ view: 'detail', teacherId: btn.dataset.ovTea }, 'ov-slide-in'));
                 });
+                board.querySelectorAll('[data-ov-edit]').forEach((btn) => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openDirectorTeacherEditModal(btn.dataset.ovEdit);
+                    });
+                });
             }
             renderOverviewBoardRef = renderOverviewBoard;
 
             function teacherTaughtLangCodes(teaId) {
-                // UI locale flag (TH) + taught languages per teacher
-                if (teaId === 'eunha') return ['th', 'kr']; // Korean only
-                if (teaId === 'taehyun' || teaId === 'sua') return ['th', 'kr', 'gb']; // KO + EN
+                const id = String(teaId || '').trim();
+                try {
+                    const acc = resolveAccountById(id, { allowBlocked: true });
+                    if (acc && Array.isArray(acc.langFlags) && acc.langFlags.length) {
+                        return acc.langFlags.filter((c) => c === 'th' || c === 'kr' || c === 'gb');
+                    }
+                    const ov = (loadOverrides() || {})[id];
+                    if (ov && Array.isArray(ov.langFlags) && ov.langFlags.length) {
+                        return ov.langFlags.filter((c) => c === 'th' || c === 'kr' || c === 'gb');
+                    }
+                } catch (_) {}
+                // Defaults: UI locale flag (TH) + taught languages per teacher
+                if (id === 'eunha') return ['th', 'kr'];
+                if (id === 'taehyun' || id === 'sua') return ['th', 'kr', 'gb'];
+                if (id === 'parttime') return ['th'];
                 return [];
             }
             function teacherTaughtLangLabels(teaId) {
@@ -24740,7 +25074,7 @@
                         color: c,
                         idx
                     });
-                    const canEditDob = !!(currentUser && currentUser.id === tea.id);
+                    const canEditDob = !!(currentUser && (currentUser.id === tea.id || currentUser.role === 'director' || currentUser.role === 'admin'));
                     const bioRows = [
                         `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileRole'))}</span><span>${esc(roleLbl)}</span></div>`,
                         langLabels.length
@@ -24775,6 +25109,7 @@
                     board.innerHTML = `
                         <button type="button" class="ov-back" id="em-dir-back-btn"><i class="ph ph-caret-left"></i> ${t('emTeacherProfileBack')}</button>
                         <div class="em-profile" style="background:${c.bg};border-color:${c.border}">
+                            <button type="button" class="em-edit-corner" data-em-edit-tea="${esc(tea.id)}" title="${esc(t('dirTeaEditCorner'))}" aria-label="${esc(t('dirTeaEditCorner'))}"><i class="ph ph-pencil-simple"></i></button>
                             <div class="em-profile-hero">
                                 ${photoHtml}
                                 <h3 class="em-profile-name" style="color:${c.accent}">${esc(displayName(tea))}</h3>
@@ -24790,6 +25125,11 @@
                             <div class="em-profile-contacts">${contactRows}</div>
                         </div>`;
                     document.getElementById('em-dir-back-btn')?.addEventListener('click', () => go({ view: 'list', teacherId: null }, 'em-slide-back'));
+                    board.querySelector('[data-em-edit-tea]')?.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openDirectorTeacherEditModal(tea.id);
+                    });
                     if (canEditDob) {
                         const pill = document.getElementById('em-profile-dob-pill');
                         const input = document.getElementById('em-profile-dob-input');
@@ -30635,10 +30975,16 @@
                 ctx.drawImage(img, dx, dy, drawW, drawH);
                 const raw = canvas.toDataURL('image/jpeg', 0.95);
                 const out = await compressPhotoDataUrl(raw, { maxSide: 720, quality: 0.92 });
-                const pushResult = await setUserPhoto(currentUser.id, out);
-                loadPhoto(currentUser.id);
+                const photoUserId = photoEditTargetId || currentUser.id;
+                const pushResult = await setUserPhoto(photoUserId, out);
+                if (photoUserId === currentUser.id) loadPhoto(currentUser.id);
                 document.getElementById('crop-ui').classList.add('hidden');
                 document.getElementById('photo-modal-body').innerHTML = `<img src="${out}" alt="" style="width:220px;height:220px;border-radius:50%;object-fit:cover">`;
+                const dirPrev = document.getElementById('dir-tea-photo-preview');
+                if (dirPrev && photoEditTargetId) {
+                    dirPrev.src = out;
+                    dirPrev.style.display = 'block';
+                }
                 // Refresh director overview avatars live when a photo is saved
                 if (currentUser) {
                     const u = resolveAccountById(currentUser.id) || currentUser;
@@ -30649,6 +30995,7 @@
                         try { renderDirectorEmergencyBoard(u); } catch (_) {}
                     }
                 }
+                photoEditTargetId = null;
                 notifyPhotoSaveResult(pushResult);
             });
 
@@ -30656,10 +31003,35 @@
                 const file = e.target.files && e.target.files[0];
                 e.target.value = '';
                 if (!file || !currentUser) return;
+                photoEditTargetId = null;
                 const reader = new FileReader();
                 reader.onload = () => openCropEditor(reader.result);
                 reader.readAsDataURL(file);
             });
+
+            document.getElementById('dir-tea-photo-input')?.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                e.target.value = '';
+                const tid = document.getElementById('dir-tea-edit-id')?.value || dirTeaEditTargetId;
+                if (!file || !tid || !currentUser) return;
+                if (currentUser.role !== 'director' && currentUser.role !== 'admin') return;
+                photoEditTargetId = tid;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    openCropEditor(reader.result);
+                    const nameEl = document.getElementById('photo-modal-name');
+                    const tea = resolveAccountById(tid, { allowBlocked: true });
+                    if (nameEl && tea) nameEl.textContent = displayName(tea);
+                };
+                reader.readAsDataURL(file);
+            });
+            const closeDirTeaEdit = () => closeDirectorTeacherEditModal();
+            document.getElementById('dir-tea-edit-x')?.addEventListener('click', closeDirTeaEdit);
+            document.getElementById('dir-tea-edit-cancel')?.addEventListener('click', closeDirTeaEdit);
+            document.getElementById('dir-tea-edit-modal')?.addEventListener('click', (e) => {
+                if (e.target?.id === 'dir-tea-edit-modal') closeDirTeaEdit();
+            });
+            document.getElementById('dir-tea-edit-save')?.addEventListener('click', () => saveDirectorTeacherEdit());
 
             document.getElementById('logout-btn').addEventListener('click', () => {
                 passcode.value = '';

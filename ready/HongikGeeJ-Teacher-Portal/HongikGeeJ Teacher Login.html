@@ -2228,9 +2228,8 @@
         .theme-teacher-c #dash-name { color: #2d3b2c !important; line-height: 1.55 !important; padding-bottom: .2em; overflow: visible; }
 
         /*
-          Sua only (.theme-teacher-c): ~3× floral chrome.
-          Edge mini-flower strip + card corner blooms + dash-shell .dc-c.
-          Other accounts keep the shared base sizes.
+          Sua only (.theme-teacher-c): larger corner blooms + dash-shell .dc-c.
+          Edge mini-flower strip matches shared ~5× rail (80px).
         */
         .dash-shell.theme-teacher-c > .dc-corners .dc-c {
             width: 216px;
@@ -2251,9 +2250,9 @@
                 url('assets/dancheong/edge-sparkles.svg?v=flower1');
             background-repeat: no-repeat;
             background-position: center top 3px, center bottom 3px;
-            background-size: min(100%, 520px) 48px;
-            padding-top: 3.35rem;
-            padding-bottom: 3.35rem;
+            background-size: min(100%, 520px) 80px;
+            padding-top: 5.5rem;
+            padding-bottom: 5.5rem;
         }
         .theme-teacher-c .content-card::before,
         .theme-teacher-c .content-card::after {
@@ -2261,9 +2260,9 @@
             height: 96px;
         }
         .theme-teacher-c .content-card.compact-card {
-            background-size: min(100%, 400px) 42px;
-            padding-top: 2.9rem;
-            padding-bottom: 2.9rem;
+            background-size: min(100%, 400px) 70px;
+            padding-top: 5rem;
+            padding-bottom: 5rem;
         }
         .theme-teacher-c .content-card.compact-card::before,
         .theme-teacher-c .content-card.compact-card::after {
@@ -2283,9 +2282,9 @@
         }
         @media (max-width: 480px) {
             .theme-teacher-c .content-card {
-                background-size: min(100%, 340px) 42px;
-                padding-top: 3rem;
-                padding-bottom: 3rem;
+                background-size: min(100%, 340px) 70px;
+                padding-top: 5rem;
+                padding-bottom: 5rem;
             }
             .theme-teacher-c .content-card::before,
             .theme-teacher-c .content-card::after {
@@ -8261,7 +8260,7 @@
             .stat-grid, .stat-grid.work-stats { grid-template-columns: 1fr; }
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
-            .content-card { padding: .9rem .85rem; margin-bottom: .7rem; }
+            .content-card { padding: 5rem .85rem; margin-bottom: .7rem; }
             .content-card::before,
             .content-card::after { width: 24px; height: 24px; opacity: .7; }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
@@ -11066,7 +11065,7 @@
                 adminMapTeachers: '교사 계정',
                 adminMapDirector: '원장 계정',
                 adminMapAccounting: '회계 계정',
-                adminMapTeachersHint: '태현 · 은나 · 수아 등 교사',
+                adminMapTeachersHint: '태현 · 은나 · 수아 · 파트타임 등 교사',
                 adminMapDirectorHint: '원장 / Head',
                 adminMapAccountingHint: '회계 1–3',
                 adminBlkProfile: '① 프로필 · 이름',
@@ -11960,7 +11959,7 @@
                 adminMapTeachers: 'บัญชีคุณครู',
                 adminMapDirector: 'บัญชีหัวหน้า',
                 adminMapAccounting: 'บัญชีฝ่ายบัญชี',
-                adminMapTeachersHint: 'แทฮยอน · อึนนา · ซูอา ฯลฯ',
+                adminMapTeachersHint: 'แทฮยอน · อึนนา · ซูอา · part time ฯลฯ',
                 adminMapDirectorHint: 'ผู้อำนวยการ / หัวหน้า',
                 adminMapAccountingHint: 'บัญชี 1–3',
                 adminBlkProfile: '① โปรไฟล์ · ชื่อ',
@@ -12854,7 +12853,7 @@
                 adminMapTeachers: 'Teacher accounts',
                 adminMapDirector: 'Director account',
                 adminMapAccounting: 'Accounting accounts',
-                adminMapTeachersHint: 'Taehyun · Eunna · Sua, etc.',
+                adminMapTeachersHint: 'Taehyun · Eunna · Sua · Part time, etc.',
                 adminMapDirectorHint: 'Director / Head',
                 adminMapAccountingHint: 'Accounting 1–3',
                 adminBlkProfile: '① Profile · names',
@@ -30976,9 +30975,8 @@
                 ctx.drawImage(img, dx, dy, drawW, drawH);
                 const raw = canvas.toDataURL('image/jpeg', 0.95);
                 const out = await compressPhotoDataUrl(raw, { maxSide: 720, quality: 0.92 });
-                const pushResult = await setUserPhoto(photoEditTargetId || currentUser.id, out);
                 const photoUserId = photoEditTargetId || currentUser.id;
-                loadPhoto(currentUser.id === photoUserId ? currentUser.id : currentUser.id);
+                const pushResult = await setUserPhoto(photoUserId, out);
                 if (photoUserId === currentUser.id) loadPhoto(currentUser.id);
                 document.getElementById('crop-ui').classList.add('hidden');
                 document.getElementById('photo-modal-body').innerHTML = `<img src="${out}" alt="" style="width:220px;height:220px;border-radius:50%;object-fit:cover">`;
