@@ -23025,12 +23025,20 @@
                 });
 
                 // occupancy map: date|room|half -> block
+                // student_postponed keeps a gray record but frees the cell for re-booking
                 const byCell = {};
+                const releasedByCell = {};
                 Object.values(store.blocks || {}).forEach((b) => {
                     if (!b || !b.date) return;
+                    const released = roomTtReleasesOccupancy(b);
                     ROOM_TT_HALVES.forEach((half) => {
                         if (!roomTtCovers(b, half)) return;
                         const k = `${b.date}|${b.room}|${half}`;
+                        if (released) {
+                            const prevR = releasedByCell[k];
+                            if (!prevR || (prevR.isBreak && !b.isBreak)) releasedByCell[k] = b;
+                            return;
+                        }
                         const prev = byCell[k];
                         if (!prev || (prev.isBreak && !b.isBreak)) byCell[k] = b;
                     });
