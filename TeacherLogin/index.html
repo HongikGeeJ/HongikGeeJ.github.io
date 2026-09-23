@@ -546,65 +546,98 @@
         }
         /*
           Taehyun-only: animated corner-bloom flowers on ALL tab panels
-          (TL head behind framed h3 + BR tail flush to card corner).
+          (TL head behind framed h3 + fuller BR cluster flush to card corner).
+          Pop in/out (ผุด ๆ โผล่ ๆ) replaces the old sway.
           !important beats the fold-away width:0/height:0 kill switch.
           z-index:0 keeps framed headings + forms above the décor.
         */
         .dash-shell.theme-teacher-a .tab-panel > .content-card {
             isolation: isolate;
             overflow: visible;
+            /* Nudge content down so TL blooms clear the framed h3 */
+            padding-top: 2.65rem !important;
+            padding-bottom: 1.9rem !important;
+        }
+        .dash-shell.theme-teacher-a .tab-panel > .content-card.compact-card {
+            padding-top: 2.35rem !important;
+            padding-bottom: 1.65rem !important;
+        }
+        .dash-shell.theme-teacher-a .tab-panel[data-panel="rooms"] > .content-card {
+            padding-top: 2.45rem !important;
+            padding-bottom: 1.75rem !important;
         }
         .dash-shell.theme-teacher-a .tab-panel > .content-card::before,
         .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
             content: '' !important;
             display: block !important;
             position: absolute !important;
-            width: 126px !important;
-            height: 126px !important;
+            width: 132px !important;
+            height: 132px !important;
             pointer-events: none !important;
             z-index: 0 !important;
             background-repeat: no-repeat !important;
             background-size: contain !important;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom16') !important;
-            opacity: .9 !important;
-            animation: cardBloomSway 5.2s ease-in-out infinite !important;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom17') !important;
+            opacity: 0 !important;
+            animation: cardBloomPop 3.8s ease-in-out infinite !important;
             transform-origin: 0 0 !important;
             filter: none !important;
-            will-change: transform;
+            will-change: transform, opacity;
         }
         .dash-shell.theme-teacher-a .tab-panel > .content-card::before {
             top: 0 !important;
             left: 0 !important;
             right: auto !important;
             bottom: auto !important;
-            transform: none !important;
+            transform: scale(.42) !important;
         }
         .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
-            width: 138px !important;
-            height: 108px !important;
+            /* Fuller BR — same flower décor, mirrored + larger footprint */
+            width: 176px !important;
+            height: 176px !important;
             top: auto !important;
             left: auto !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom8') !important;
-            transform: none !important;
+            right: -2px !important;
+            bottom: -2px !important;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom17') !important;
+            background-position: bottom right !important;
+            transform: scale(-.42, -.42) !important;
             transform-origin: 100% 100% !important;
-            animation: cardBloomSwayBrIn 5.2s ease-in-out infinite !important;
-            animation-delay: .7s !important;
+            animation: cardBloomPopBr 3.8s ease-in-out infinite !important;
+            animation-delay: 1.15s !important;
         }
         .dash-shell.theme-teacher-a .tab-panel > .content-card > * {
             position: relative;
             z-index: 1;
         }
-        @keyframes cardBloomSway {
-            0%, 100% { transform: rotate(-2deg) scale(1); }
-            40% { transform: rotate(1.4deg) scale(1.03); }
-            75% { transform: rotate(2deg) scale(1.015); }
+        /* Pop appear / disappear — staggered TL vs BR */
+        @keyframes cardBloomPop {
+            0%, 6% { opacity: 0; transform: scale(.42); }
+            16% { opacity: .95; transform: scale(1.1); }
+            26%, 44% { opacity: .9; transform: scale(1); }
+            56% { opacity: 0; transform: scale(.36); }
+            100% { opacity: 0; transform: scale(.36); }
         }
-        @keyframes cardBloomSwayBrIn {
-            0%, 100% { transform: rotate(2deg) scale(1); }
-            40% { transform: rotate(-1.4deg) scale(1.03); }
-            75% { transform: rotate(-2deg) scale(1.015); }
+        @keyframes cardBloomPopBr {
+            0%, 6% { opacity: 0; transform: scale(-.42, -.42); }
+            16% { opacity: .95; transform: scale(-1.1, -1.1); }
+            26%, 44% { opacity: .9; transform: scale(-1, -1); }
+            56% { opacity: 0; transform: scale(-.36, -.36); }
+            100% { opacity: 0; transform: scale(-.36, -.36); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::before,
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
+                animation: none !important;
+                opacity: .88 !important;
+                will-change: auto;
+            }
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::before {
+                transform: none !important;
+            }
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
+                transform: scale(-1, -1) !important;
+            }
         }
         /*
           Eunha-only Shin décor (all tab panels):
@@ -6102,43 +6135,143 @@
             font-size: .78rem; font-weight: 750; color: #64748b;
         }
         .pt-calc-sum {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
             margin: 1rem 0 0; padding: 1.15rem 1.2rem 1.25rem;
             border-radius: 1.15rem;
-            background: linear-gradient(135deg, #065f46 0%, #047857 42%, #10b981 100%);
-            color: #fff;
-            box-shadow: 0 12px 28px rgba(4, 120, 87, .28);
+            background:
+                linear-gradient(135deg, #f7fcee 0%, #e8f9d4 42%, #d6f2b8 78%, #c8ebb0 100%);
+            color: #14532d;
+            border: 1.5px solid rgba(134, 209, 120, .55);
+            box-shadow:
+                0 12px 28px rgba(134, 209, 120, .22),
+                inset 0 1px 0 rgba(255, 255, 255, .72);
+        }
+        .pt-calc-sum::before {
+            content: '';
+            position: absolute; inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(
+                105deg,
+                transparent 18%,
+                rgba(255, 255, 255, .55) 42%,
+                transparent 58%
+            );
+            background-size: 220% 100%;
+            animation: ptSumShimmer 5.5s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+            opacity: .7;
+        }
+        .pt-calc-sum-deco {
+            position: absolute; inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .pt-calc-sum-deco .pt-deco {
+            position: absolute;
+            font-size: .95rem;
+            line-height: 1;
+            opacity: .72;
+            filter: saturate(1.05);
+            will-change: transform, opacity;
+            user-select: none;
+        }
+        .pt-calc-sum-deco .pt-deco-a {
+            top: .45rem; right: 1.1rem;
+            animation: ptSumFloatA 4.2s ease-in-out infinite;
+        }
+        .pt-calc-sum-deco .pt-deco-b {
+            top: 42%; right: .55rem;
+            font-size: .82rem;
+            animation: ptSumTwinkle 2.8s ease-in-out infinite;
+        }
+        .pt-calc-sum-deco .pt-deco-c {
+            bottom: .55rem; right: 2.4rem;
+            font-size: .88rem;
+            animation: ptSumFloatB 5s ease-in-out infinite;
+        }
+        .pt-calc-sum-deco .pt-deco-d {
+            top: .55rem; left: 42%;
+            font-size: .78rem;
+            animation: ptSumTwinkle 3.4s ease-in-out .6s infinite;
+        }
+        .pt-calc-sum-deco .pt-deco-e {
+            bottom: .7rem; left: .85rem;
+            font-size: .72rem;
+            opacity: .55;
+            animation: ptSumFloatA 4.8s ease-in-out .4s infinite;
         }
         .pt-calc-sum-title {
+            position: relative; z-index: 1;
             margin: 0 0 .85rem; font-size: .92rem; font-weight: 800;
-            letter-spacing: .01em; opacity: .92;
+            letter-spacing: .01em; color: #166534;
         }
         .pt-calc-sum-grid {
+            position: relative; z-index: 1;
             display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem 1rem;
         }
         @media (max-width: 560px) {
             .pt-calc-sum-grid { grid-template-columns: 1fr; gap: .85rem; }
+            .pt-calc-sum-deco .pt-deco-d,
+            .pt-calc-sum-deco .pt-deco-e { display: none; }
         }
         .pt-sum-metric {
             display: flex; flex-direction: column; gap: .2rem; min-width: 0;
             padding: .55rem .7rem; border-radius: .85rem;
-            background: rgba(255,255,255,.12);
+            background: rgba(255, 255, 255, .62);
+            border: 1px solid rgba(255, 255, 255, .85);
+            box-shadow: 0 4px 12px rgba(74, 140, 70, .06);
+            backdrop-filter: blur(4px);
         }
         .pt-sum-metric.pay {
-            background: rgba(255,255,255,.18);
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+            background: rgba(255, 255, 255, .78);
+            border-color: rgba(187, 247, 208, .95);
+            box-shadow:
+                0 4px 14px rgba(74, 140, 70, .08),
+                inset 0 0 0 1px rgba(134, 239, 172, .35);
         }
         .pt-sum-label {
-            font-size: .72rem; font-weight: 750; opacity: .88; letter-spacing: .01em;
+            font-size: .72rem; font-weight: 750; letter-spacing: .01em;
+            color: #3f6212;
         }
         .pt-sum-value {
             font-size: clamp(1.55rem, 4.8vw, 2.2rem); font-weight: 900;
             letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums;
+            color: #14532d;
         }
         .pt-sum-metric.pay .pt-sum-value {
             font-size: clamp(1.85rem, 5.5vw, 2.55rem);
+            color: #15803d;
         }
         .pt-sum-unit {
-            font-size: .78rem; font-weight: 750; opacity: .88; margin-left: .2rem;
+            font-size: .78rem; font-weight: 750; margin-left: .2rem;
+            color: #4d7c0f;
+        }
+        @keyframes ptSumShimmer {
+            0%, 100% { background-position: 120% 0; }
+            50% { background-position: -20% 0; }
+        }
+        @keyframes ptSumFloatA {
+            0%, 100% { transform: translateY(0) rotate(-6deg); }
+            50% { transform: translateY(-5px) rotate(8deg); }
+        }
+        @keyframes ptSumFloatB {
+            0%, 100% { transform: translate(0, 0) rotate(4deg); }
+            50% { transform: translate(-4px, -6px) rotate(-10deg); }
+        }
+        @keyframes ptSumTwinkle {
+            0%, 100% { opacity: .45; transform: scale(.92); }
+            50% { opacity: .9; transform: scale(1.08); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .pt-calc-sum::before,
+            .pt-calc-sum-deco .pt-deco {
+                animation: none !important;
+            }
+            .pt-calc-sum::before { opacity: .35; }
         }
         .pt-cal {
             margin: .2rem 0 .85rem; border-radius: 1.1rem; border: 1.5px solid #e2e8f0;
@@ -6173,32 +6306,89 @@
             background: linear-gradient(160deg, #fce7f3 0%, #fbcfe8 100%);
             box-shadow: inset 0 0 0 1.5px rgba(236,72,153,.35);
         }
-        .pt-cal-cell.today {
-            border: 2px solid #f97316; background: #fff7ed;
-            box-shadow: 0 0 0 2px rgba(249,115,22,.18);
-        }
-        .pt-cal-cell.today.has-entries {
-            background: linear-gradient(160deg, #ffedd5 0%, #fce7f3 100%);
-        }
-        .pt-cal-cell.pt-day-past {
-            background: #cfd8e6;
-            color: #64748b;
-            opacity: .78;
+        /* Future — crisp, full-weight day numbers */
+        .pt-cal-cell.pt-day-future {
+            background: #edf3fb;
+            color: #0f172a;
             box-shadow: inset 0 0 0 1px rgba(100,116,139,.28);
         }
+        .pt-cal-cell.pt-day-future .pt-cal-num {
+            color: #0f172a;
+            font-weight: 900;
+            font-size: 1.08rem;
+            letter-spacing: -0.02em;
+        }
+        .pt-cal-cell.pt-day-future.sun .pt-cal-num { color: #dc2626; }
+        .pt-cal-cell.pt-day-future.has-entries {
+            background: linear-gradient(160deg, #fce7f3 0%, #fbcfe8 100%);
+            box-shadow: inset 0 0 0 1.5px rgba(236,72,153,.4);
+        }
+        /* Today — stronger orange accent */
+        .pt-cal-cell.today {
+            border: 2.5px solid #ea580c;
+            background: #fff7ed;
+            box-shadow: 0 0 0 3px rgba(234,88,12,.22), inset 0 0 0 1px rgba(251,146,60,.35);
+            color: #9a3412;
+        }
+        .pt-cal-cell.today .pt-cal-num {
+            color: #c2410c;
+            font-weight: 950;
+            font-size: 1.12rem;
+            letter-spacing: -0.02em;
+        }
+        .pt-cal-cell.today.sun .pt-cal-num { color: #c2410c; }
+        .pt-cal-cell.today.has-entries {
+            background: linear-gradient(160deg, #ffedd5 0%, #fce7f3 100%);
+            box-shadow: 0 0 0 3px rgba(234,88,12,.22), inset 0 0 0 1.5px rgba(236,72,153,.35);
+        }
+        /* Past — faded + strike-through; keep + button full opacity */
+        .pt-cal-cell.pt-day-past {
+            background: #d5dde8;
+            color: #94a3b8;
+            box-shadow: inset 0 0 0 1px rgba(148,163,184,.22);
+        }
         .pt-cal-cell.pt-day-past.has-entries {
-            background: linear-gradient(160deg, #e2d0da 0%, #d9bccb 100%);
-            box-shadow: inset 0 0 0 1px rgba(148,163,184,.4);
+            background: linear-gradient(160deg, #e4d5dd 0%, #d4c0cb 100%);
+            box-shadow: inset 0 0 0 1px rgba(148,163,184,.35);
         }
         .pt-cal-cell.pt-day-past .pt-cal-num {
-            color: #64748b;
+            color: #94a3b8;
+            opacity: .55;
+            font-weight: 700;
+            font-size: 1rem;
             text-decoration: line-through;
-            text-decoration-thickness: 1px;
-            text-decoration-color: rgba(100,116,139,.5);
+            text-decoration-thickness: 2px;
+            text-decoration-color: rgba(100,116,139,.72);
         }
-        .pt-cal-cell.pt-day-past.sun .pt-cal-num { color: #b91c1c; }
-        .pt-cal-cell.pt-day-past .pt-cal-pill { filter: saturate(.7); opacity: .9; }
-        .pt-cal-num { font-weight: 850; font-size: .95rem; line-height: 1.2; }
+        .pt-cal-cell.pt-day-past.sun .pt-cal-num {
+            color: #c07070;
+            text-decoration-color: rgba(185,28,28,.45);
+        }
+        .pt-cal-cell.pt-day-past .pt-cal-pills,
+        .pt-cal-cell.pt-day-past .pt-cal-more {
+            opacity: .55;
+            filter: saturate(.55) grayscale(.15);
+        }
+        .pt-cal-cell.pt-day-past .pt-cal-add {
+            opacity: 1;
+            filter: none;
+        }
+        .pt-cal-num { font-weight: 900; font-size: 1.05rem; line-height: 1.15; color: #0f172a; letter-spacing: -0.02em; }
+        /* Self PT calendar: stronger past / today / future contrast */
+        #pt-app-self .pt-cal .pt-cal-num { font-size: 1.08rem; }
+        #pt-app-self .pt-cal .pt-cal-cell.pt-day-past { background: #cdd5e2; }
+        #pt-app-self .pt-cal .pt-cal-cell.pt-day-past .pt-cal-num {
+            opacity: .48;
+            text-decoration-thickness: 2.25px;
+        }
+        #pt-app-self .pt-cal .pt-cal-cell.today {
+            border-color: #ea580c;
+            box-shadow: 0 0 0 3px rgba(234,88,12,.28), inset 0 0 0 1px rgba(251,146,60,.4);
+        }
+        #pt-app-self .pt-cal .pt-cal-cell.pt-day-future .pt-cal-num {
+            font-size: 1.12rem;
+            color: #020617;
+        }
         .pt-cal-add {
             align-self: flex-end; width: 1.55rem; height: 1.55rem; border-radius: .5rem;
             border: none; cursor: pointer; font-size: 1rem; font-weight: 900; line-height: 1;
@@ -9766,6 +9956,33 @@
         @keyframes roomTtFadeIn {
             from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: none; }
+        }
+        @keyframes roomTtChipGlow {
+            0%, 100% {
+                box-shadow:
+                    0 0 0 2px color-mix(in srgb, currentColor 26%, transparent),
+                    0 0 8px color-mix(in srgb, currentColor 34%, transparent),
+                    0 0 18px color-mix(in srgb, currentColor 16%, transparent),
+                    0 6px 14px rgba(15, 23, 42, .1);
+            }
+            50% {
+                box-shadow:
+                    0 0 0 2.5px color-mix(in srgb, currentColor 38%, transparent),
+                    0 0 14px color-mix(in srgb, currentColor 50%, transparent),
+                    0 0 28px color-mix(in srgb, currentColor 28%, transparent),
+                    0 8px 16px rgba(15, 23, 42, .12);
+            }
+        }
+        @keyframes roomTtChipShimmer {
+            0%, 12% { background-position: 130% 0; }
+            42%, 100% { background-position: -40% 0; }
+        }
+        @keyframes roomTtChipSparkle {
+            0%, 100% { opacity: 0; transform: scale(.55); }
+            18% { opacity: .85; transform: scale(1); }
+            32% { opacity: 0; transform: scale(.5); }
+            52% { opacity: .7; transform: scale(1) translate(12px, 4px); }
+            68%, 100% { opacity: 0; }
         }
         .room-tt-plus.is-range-start {
             background: rgba(14,165,233,.18) !important;
@@ -29731,7 +29948,8 @@
                         i % 7 === 0 ? 'sun' : '',
                         dayRecs.length ? 'has-entries' : '',
                         dateStr === today ? 'today' : '',
-                        dateStr < today ? 'pt-day-past' : ''
+                        dateStr < today ? 'pt-day-past' : '',
+                        dateStr > today ? 'pt-day-future' : ''
                     ].filter(Boolean).join(' ');
                     const addBtn = canEdit
                         ? `<button type="button" class="pt-cal-add" data-pt-add-day="${dateStr}" title="${esc(t('ptAddDay'))}">+</button>`
@@ -29850,6 +30068,13 @@
                         </table>
                     </div>
                     <div class="pt-calc-sum" title="${t('ptCalcTotal')}" aria-live="polite">
+                        <span class="pt-calc-sum-deco" aria-hidden="true">
+                            <span class="pt-deco pt-deco-a">🌸</span>
+                            <span class="pt-deco pt-deco-b">✨</span>
+                            <span class="pt-deco pt-deco-c">🦋</span>
+                            <span class="pt-deco pt-deco-d">🌼</span>
+                            <span class="pt-deco pt-deco-e">⭐</span>
+                        </span>
                         <div class="pt-calc-sum-title">${t('ptCalcTotal')}</div>
                         <div class="pt-calc-sum-grid">
                             <div class="pt-sum-metric">
