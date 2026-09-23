@@ -342,7 +342,8 @@
             position: absolute;
             inset: 0;
             z-index: 520;
-            pointer-events: none;
+            /* Full-bleed décor frame — never steal tab/header/body clicks */
+            pointer-events: none !important;
             overflow: visible;
         }
         .dash-shell > .dc-corners .dc-c {
@@ -1508,7 +1509,7 @@
         /* overflow visible so #dash-lang-menu can extend below header (FX clips itself) */
         .dash-shell.theme-teacher-a > .dash-header { z-index: 600 !important; overflow: visible !important; }
         .dash-shell.theme-teacher-a > .taehyun-banner { z-index: 5; }
-        .dash-shell.theme-teacher-a > .dash-tabs { z-index: 4; }
+        .dash-shell.theme-teacher-a > .dash-tabs { z-index: 610 !important; pointer-events: auto !important; }
         .dash-shell.theme-teacher-a > .dash-body { z-index: 3; }
         .theme-teacher-a .dash-body {
             position: relative;
@@ -1828,44 +1829,54 @@
         .dash-header-fx {
             position: absolute;
             inset: 0;
-            /* Décor only — stay under hangul name / clock / chrome */
+            /* Décor only — under clock cluster; never capture clicks */
             z-index: 1;
             pointer-events: none;
             overflow: hidden;
             border-radius: inherit;
         }
+        .dash-header-fx,
+        .dash-header-fx * {
+            pointer-events: none !important;
+        }
         .dash-header > .dash-identity {
             position: relative;
-            z-index: 20;
+            z-index: 8;
         }
         .dash-header > .header-actions {
             position: relative;
-            /* Above FX floats + wallpaper blooms; logout/logo stay clickable */
-            z-index: 30;
+            /* Keep modest — do NOT elevate whole bar over #dash-tabs */
+            z-index: 8;
             pointer-events: auto;
         }
         .dash-header-fx .hangul-float-layer {
             z-index: 1;
         }
-        /* Hangul name + live clock + Korean date — frontmost over wallpaper/flowers */
+        /*
+         * Hangul name + clock + Korean date only.
+         * Stacking stays inside this cluster (above FX=1). pointer-events:none so
+         * it never overlays / blocks #dash-tabs or body clicks.
+         */
         .header-clock-cluster {
             position: relative;
-            z-index: 50;
+            z-index: 5;
             display: inline-flex;
             align-items: center;
             flex-shrink: 0;
+            max-width: max-content;
             isolation: isolate;
             pointer-events: none;
         }
         .header-clock-stack {
             position: relative;
-            z-index: 51;
+            z-index: 1;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             justify-content: center;
             gap: .1rem;
             flex-shrink: 0;
+            pointer-events: none;
         }
         /* Personal/brand Hangul mark — always immediately before #digital-clock / #dash-clock */
         .header-actions .hangul-mark,
@@ -1877,7 +1888,7 @@
             align-self: center;
             margin: 0 .45rem 0 0;
             padding: 0;
-            z-index: 55;
+            z-index: 2;
             font-size: clamp(1.35rem, 3.6vw, 2.05rem);
             font-weight: 900;
             letter-spacing: .06em;
@@ -1888,7 +1899,7 @@
             opacity: .42;
             color: #4a6fa5;
             animation: hangulFloatCharm 9.5s ease-in-out infinite;
-            pointer-events: none;
+            pointer-events: none !important;
             will-change: transform, opacity;
         }
         .header-actions .hangul-mark.is-on,
@@ -1902,7 +1913,7 @@
             margin: 0;
             padding: 0 .12rem 0 0;
             position: relative;
-            z-index: 55;
+            z-index: 2;
             font-size: clamp(.62rem, 1.35vw, .78rem);
             font-weight: 650;
             letter-spacing: .02em;
@@ -1910,8 +1921,25 @@
             white-space: nowrap;
             color: #475569;
             font-family: 'Noto Sans KR', 'Pretendard Variable', Pretendard, sans-serif;
-            pointer-events: none;
+            pointer-events: none !important;
             user-select: none;
+        }
+        /* Tabs / body stay clickable — above header (600) so décor overflow never steals nav taps */
+        .dash-shell > .dash-tabs,
+        .dash-shell > #dash-tabs {
+            position: relative;
+            z-index: 610;
+            pointer-events: auto;
+        }
+        .dash-shell > .dash-body {
+            position: relative;
+            z-index: 3;
+            pointer-events: auto;
+        }
+        .dash-shell.theme-teacher-a > .dash-tabs,
+        .dash-shell.theme-director > .dash-tabs {
+            z-index: 610 !important;
+            pointer-events: auto !important;
         }
         @media (max-width: 720px) {
             .header-actions .hangul-mark,
@@ -2428,7 +2456,7 @@
 
         /*
           Sua only (.theme-teacher-c): larger corner blooms + dash-shell .dc-c.
-          Edge mini-flower strip matches shared ~5× rail (80px).
+          Edge mini-flower strip matches shared tucked rail (~48px).
         */
         .dash-shell.theme-teacher-c > .dc-corners .dc-c {
             width: 216px;
@@ -2482,13 +2510,14 @@
         }
         @media (max-width: 480px) {
             .theme-teacher-c .content-card {
-                background-size: min(100%, 340px) 70px;
-                padding-top: 5rem;
-                padding-bottom: 5rem;
+                background-size: min(100%, 320px) 40px;
+                padding-top: 3rem;
+                padding-bottom: 3rem;
             }
             .theme-teacher-c .content-card::before,
             .theme-teacher-c .content-card::after {
                 width: 72px; height: 72px;
+                pointer-events: none !important;
             }
         }
         @media (prefers-reduced-motion: reduce) {
@@ -2711,8 +2740,8 @@
             /* Brand mark sits left of the digital clock for director too */
             animation: hangulFloatCharm 11s cubic-bezier(.45,.05,.55,.95) infinite;
         }
-        /* Director only: hangul wallpaper may drift over #dash-tabs.
-           Header stays z-index 600 (above .dc-corners 520 + tabs); FX never steals clicks.
+        /* Director only: hangul wallpaper may drift over #dash-tabs visually.
+           FX is pointer-events:none; #dash-tabs is z-index 610 (above header 600) so nav stays clickable.
            Lang menu (12000) / modals (20000) unchanged. */
         .dash-shell.theme-director > .dash-header .dash-header-fx {
             overflow: visible;
@@ -2727,11 +2756,12 @@
         .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float,
         .dash-shell.theme-director > .dash-header .header-actions .hangul-mark,
         .dash-shell.theme-director > .dash-header #dash-hangul-mark {
-            pointer-events: none;
+            pointer-events: none !important;
         }
         .dash-shell.theme-director > .dash-tabs {
             position: relative;
-            z-index: 1;
+            z-index: 610 !important;
+            pointer-events: auto !important;
         }
         .theme-director .taehyun-fx .seal {
             border-color: rgba(30,58,95,.45);
@@ -3200,8 +3230,8 @@
             background: #f59e0b; color: #0f172a; padding: .15rem .45rem; border-radius: .35rem;
         }
         .ot-card .meta { font-size: .78rem; color: #cbd5e1; margin-top: .25rem; }
-        /* Vertical pad clears ~70px compact flower rails (overrides prior .85rem all-sides) */
-        .compact-card { padding: 5rem .85rem !important; }
+        /* Vertical pad clears ~42px compact flower rails (overrides prior .85rem all-sides) */
+        .compact-card { padding: 3rem .85rem !important; }
         .compact-card h3 { font-size: 1rem; margin: 0 0 .5rem; }
         /* Ack-status card: minimal quick-compose under title (sticky while list scrolls) */
         .content-card > .order-quick-compose {
@@ -8929,9 +8959,9 @@
             .stat-grid, .stat-grid.work-stats { grid-template-columns: 1fr; }
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
-            .content-card { padding: 5rem .85rem; margin-bottom: .7rem; }
+            .content-card { padding: 3rem .85rem; margin-bottom: .7rem; }
             .content-card::before,
-            .content-card::after { width: 24px; height: 24px; opacity: .7; }
+            .content-card::after { width: 24px; height: 24px; opacity: .7; pointer-events: none !important; }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
             .login-sea { height: min(96px, 16vh); }
             .lang-float {
@@ -9056,8 +9086,13 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <span id="dash-hangul-mark" class="hangul-mark" aria-hidden="true"></span>
-                    <div id="digital-clock" class="digital-clock" data-dash-clock="1">--:-- --</div>
+                    <div class="header-clock-cluster">
+                        <span id="dash-hangul-mark" class="hangul-mark" aria-hidden="true"></span>
+                        <div class="header-clock-stack">
+                            <div id="digital-clock" class="digital-clock" data-dash-clock="1">--:-- --</div>
+                            <time id="dash-ko-date" class="dash-ko-date"></time>
+                        </div>
+                    </div>
                     <div class="profile-wrap">
                         <button type="button" id="profile-preview-btn" class="profile-btn">
                             <img id="profile-img" class="hidden" alt="">
@@ -23078,9 +23113,46 @@
             window.addEventListener('focusout', () => setTimeout(pinLangFloatViewport, 80));
             pinLangFloatViewport();
 
+            /** Korean calendar line under the header clock — all accounts, Asia/Bangkok day. */
+            function formatKoHeaderDate(d = new Date()) {
+                const opts = {
+                    timeZone: 'Asia/Bangkok',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                };
+                try {
+                    return d.toLocaleDateString('ko-KR', opts);
+                } catch (_) {
+                    try {
+                        return d.toLocaleDateString('ko-KR', {
+                            year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+                        });
+                    } catch (__) {
+                        return '';
+                    }
+                }
+            }
+            function tickKoHeaderDate(now = new Date()) {
+                const koDateEl = document.getElementById('dash-ko-date');
+                if (!koDateEl) return;
+                const koNext = formatKoHeaderDate(now);
+                if (!koNext || koDateEl.textContent === koNext) return;
+                koDateEl.textContent = koNext;
+                try {
+                    koDateEl.dateTime = now.toLocaleString('en-CA', {
+                        timeZone: 'Asia/Bangkok',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                } catch (_) {}
+            }
             function tickClock() {
                 if (document.hidden) return;
                 const now = new Date();
+                tickKoHeaderDate(now);
                 const locale = lang === 'th' ? 'th-TH' : lang === 'en' ? 'en-US' : 'ko-KR';
                 const lite = isLiteClient();
                 const timeOpts = lite
