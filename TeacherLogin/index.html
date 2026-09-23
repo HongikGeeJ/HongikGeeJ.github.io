@@ -6328,7 +6328,8 @@
         .pt-calc-toolbar .pt-calc-chip-range {
             margin-left: .15rem;
         }
-        /* PT self income summary — minimal morning-grass + playful motion */
+        /* PT self income summary — green-yellow Hangul ambient + corner blooms
+           Gated: #pt-app-self only (parttime). Director .pt-calc-sum--dir stays formal slate. */
         #pt-app-self .pt-calc-sum {
             position: relative;
             overflow: hidden;
@@ -6338,6 +6339,7 @@
             background:
                 radial-gradient(120% 90% at 8% -10%, rgba(255, 255, 255, .95) 0%, transparent 42%),
                 radial-gradient(90% 70% at 92% 110%, rgba(187, 247, 208, .55) 0%, transparent 48%),
+                radial-gradient(70% 55% at 55% 40%, rgba(254, 240, 138, .28) 0%, transparent 55%),
                 linear-gradient(155deg, #f8fdf3 0%, #eef9e0 38%, #dff4c8 72%, #d4eeb8 100%);
             color: #14532d;
             border: 1px solid rgba(134, 209, 120, .42);
@@ -6378,68 +6380,129 @@
             pointer-events: none;
             z-index: 0;
             overflow: hidden;
+            border-radius: inherit;
+        }
+        /* Ambient Hangul — dash-header drift pattern, green-yellow palette */
+        #pt-app-self .pt-sum-hangul {
+            position: absolute; inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        #pt-app-self .pt-sum-hangul .pt-hangul {
+            position: absolute;
+            bottom: -0.4em;
+            font-weight: 800;
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
+            will-change: transform, opacity;
+            color: rgba(132, 204, 22, .4);
+            text-shadow: 0 3px 14px rgba(202, 138, 4, .14);
+            animation: ptSumHangulDrift linear infinite;
+        }
+        #pt-app-self .pt-sum-hangul .pt-hangul.c2 { color: rgba(202, 138, 4, .42); }
+        #pt-app-self .pt-sum-hangul .pt-hangul.c3 { color: rgba(74, 222, 128, .4); }
+        #pt-app-self .pt-sum-hangul .pt-hangul.c4 { color: rgba(163, 230, 53, .42); }
+        #pt-app-self .pt-sum-hangul .pt-hangul.c5 { color: rgba(250, 204, 21, .44); }
+        /* Corner flower SVGs — recolor purple/pink blooms toward green-yellow */
+        #pt-app-self .pt-sum-bloom,
+        #pt-app-self .pt-sum-flower {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+            background-repeat: no-repeat;
+            background-size: contain;
+            filter:
+                hue-rotate(78deg) saturate(1.22) brightness(1.04)
+                drop-shadow(0 2px 6px rgba(74, 140, 70, .16));
+            opacity: .78;
+            will-change: transform, opacity;
+        }
+        #pt-app-self .pt-sum-bloom.tl {
+            top: -0.35rem; left: -0.35rem;
+            width: 4.6rem; height: 4.6rem;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom6');
+            transform-origin: 0 0;
+            animation: ptSumBloomBreathe 5.4s ease-in-out infinite;
+        }
+        #pt-app-self .pt-sum-bloom.br {
+            bottom: -0.45rem; right: -0.4rem;
+            width: 5.1rem; height: 5.1rem;
+            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bloom6');
+            transform-origin: 100% 100%;
+            animation: ptSumBloomBreatheBr 5.8s ease-in-out 0.7s infinite;
+        }
+        #pt-app-self .pt-sum-flower.tr {
+            top: -0.2rem; right: 1.6rem;
+            width: 2.6rem; height: 2.6rem;
+            background-image: url('assets/dancheong/corner-flower.svg?v=cluster7');
+            background-position: top right;
+            transform-origin: 50% 0;
+            opacity: .68;
+            animation: ptSumFlowerSwayFlip 4.8s ease-in-out infinite;
+        }
+        #pt-app-self .pt-sum-flower.bl {
+            bottom: -0.15rem; left: 1.35rem;
+            width: 2.35rem; height: 2.35rem;
+            background-image: url('assets/dancheong/corner-flower-bottom.svg?v=cluster7');
+            opacity: .62;
+            animation: ptSumFlowerSway 5.6s ease-in-out 1.1s infinite;
         }
         #pt-app-self .pt-calc-sum-deco .pt-deco {
             position: absolute;
             font-size: 1rem;
             line-height: 1;
-            opacity: .78;
+            opacity: .72;
             filter: drop-shadow(0 2px 6px rgba(74, 140, 70, .18)) saturate(1.08);
             will-change: transform, opacity, filter;
             user-select: none;
+            z-index: 1;
         }
         #pt-app-self .pt-calc-sum-deco .pt-deco-a {
-            top: .4rem; right: 1.15rem;
+            top: .35rem; right: .55rem;
             animation: ptSumFloatA 3.8s ease-in-out infinite;
         }
         #pt-app-self .pt-calc-sum-deco .pt-deco-b {
-            top: 38%; right: .5rem;
-            font-size: .88rem;
+            top: 42%; right: .35rem;
+            font-size: .82rem;
             animation: ptSumTwinkle 2.4s ease-in-out infinite;
         }
         #pt-app-self .pt-calc-sum-deco .pt-deco-c {
-            bottom: .5rem; right: 2.55rem;
-            font-size: .95rem;
+            bottom: .45rem; right: 3.4rem;
+            font-size: .88rem;
             animation: ptSumFloatB 4.6s ease-in-out infinite;
         }
         #pt-app-self .pt-calc-sum-deco .pt-deco-d {
-            top: .5rem; left: 44%;
-            font-size: .82rem;
+            top: .45rem; left: 42%;
+            font-size: .78rem;
             animation: ptSumTwinkle 3.1s ease-in-out .5s infinite;
         }
-        #pt-app-self .pt-calc-sum-deco .pt-deco-e {
-            bottom: .65rem; left: .9rem;
-            font-size: .78rem;
-            opacity: .62;
-            animation: ptSumDrift 5.4s ease-in-out .3s infinite;
-        }
-        #pt-app-self .pt-calc-sum-deco .pt-deco-f {
-            top: 52%; left: .55rem;
-            font-size: .72rem;
-            opacity: .5;
-            animation: ptSumTwinkle 3.6s ease-in-out 1s infinite;
-        }
         #pt-app-self .pt-calc-sum-title {
-            position: relative; z-index: 1;
+            position: relative; z-index: 2;
             margin: 0 0 .9rem; font-size: .9rem; font-weight: 800;
             letter-spacing: .02em; color: #166534;
             text-shadow: 0 1px 0 rgba(255, 255, 255, .55);
         }
         #pt-app-self .pt-calc-sum-grid {
-            position: relative; z-index: 1;
+            position: relative; z-index: 2;
             display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem .9rem;
         }
         @media (max-width: 560px) {
             #pt-app-self .pt-calc-sum-grid { grid-template-columns: 1fr; gap: .75rem; }
-            #pt-app-self .pt-calc-sum-deco .pt-deco-d,
-            #pt-app-self .pt-calc-sum-deco .pt-deco-e,
-            #pt-app-self .pt-calc-sum-deco .pt-deco-f { display: none; }
+            #pt-app-self .pt-calc-sum-deco .pt-deco-d { display: none; }
+            #pt-app-self .pt-sum-flower.tr,
+            #pt-app-self .pt-sum-flower.bl { display: none; }
+            #pt-app-self .pt-sum-hangul .pt-hangul:nth-child(n+7) { display: none; }
+            #pt-app-self .pt-sum-bloom.tl { width: 3.6rem; height: 3.6rem; }
+            #pt-app-self .pt-sum-bloom.br { width: 4rem; height: 4rem; }
         }
         #pt-app-self .pt-sum-metric {
+            position: relative; z-index: 2;
             display: flex; flex-direction: column; gap: .22rem; min-width: 0;
             padding: .65rem .75rem; border-radius: 1rem;
-            background: rgba(255, 255, 255, .72);
-            border: 1px solid rgba(255, 255, 255, .92);
+            background: rgba(255, 255, 255, .78);
+            border: 1px solid rgba(255, 255, 255, .94);
             box-shadow:
                 0 6px 16px rgba(74, 140, 70, .07),
                 0 1px 0 rgba(255, 255, 255, .9) inset;
@@ -6589,24 +6652,49 @@
             0%, 100% { transform: translate(0, 0) rotate(6deg) scale(1); }
             50% { transform: translate(-6px, -8px) rotate(-12deg) scale(1.1); }
         }
-        @keyframes ptSumDrift {
-            0%, 100% { transform: translate(0, 0) rotate(-4deg); opacity: .55; }
-            50% { transform: translate(5px, -6px) rotate(12deg); opacity: .85; }
-        }
         @keyframes ptSumTwinkle {
             0%, 100% { opacity: .4; transform: scale(.88) rotate(0deg); filter: drop-shadow(0 0 0 transparent); }
             50% { opacity: 1; transform: scale(1.14) rotate(12deg); filter: drop-shadow(0 0 6px rgba(254, 240, 138, .55)); }
+        }
+        /* Continuous Hangul rise — mirrors dash-header taeHangulDrift, green-yellow tone */
+        @keyframes ptSumHangulDrift {
+            0% { transform: translate3d(0, 6px, 0) rotate(-8deg); opacity: 0; }
+            10% { opacity: .82; }
+            55% { opacity: .55; }
+            100% { transform: translate3d(22px, -112px, 0) rotate(12deg); opacity: 0; }
+        }
+        @keyframes ptSumBloomBreathe {
+            0%, 100% { opacity: .7; transform: scale(.96); }
+            40% { opacity: .88; transform: scale(1.05); }
+            70% { opacity: .78; transform: scale(1); }
+        }
+        @keyframes ptSumBloomBreatheBr {
+            0%, 100% { opacity: .68; transform: scale(.95); }
+            40% { opacity: .86; transform: scale(1.06); }
+            70% { opacity: .76; transform: scale(1.01); }
+        }
+        @keyframes ptSumFlowerSway {
+            0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); }
+            50% { transform: translateY(-5px) rotate(6deg) scale(1.06); }
+        }
+        @keyframes ptSumFlowerSwayFlip {
+            0%, 100% { transform: scaleX(-1) translateY(0) rotate(4deg); }
+            50% { transform: scaleX(-1) translateY(-5px) rotate(-6deg) scale(1.06); }
         }
         @media (prefers-reduced-motion: reduce) {
             #pt-app-self .pt-calc-sum::before,
             #pt-app-self .pt-calc-sum::after,
             #pt-app-self .pt-calc-sum-deco .pt-deco,
+            #pt-app-self .pt-sum-hangul .pt-hangul,
+            #pt-app-self .pt-sum-bloom,
+            #pt-app-self .pt-sum-flower,
             #pt-app-self .pt-sum-metric.pay,
             #pt-app .pt-calc-sum::before,
             .pt-calc-sum.pt-calc-sum--dir::before {
                 animation: none !important;
             }
             #pt-app-self .pt-calc-sum::before { opacity: .35; }
+            #pt-app-self .pt-sum-hangul .pt-hangul { opacity: .35; }
             #pt-app-self .pt-sum-metric:hover { transform: none; }
         }
         .pt-cal {
@@ -31389,14 +31477,30 @@
                         </div>`;
                 const sumHtmlSelf = `
                     <div class="pt-calc-sum" title="${t('ptCalcTotal')}" aria-live="polite">
-                        <span class="pt-calc-sum-deco" aria-hidden="true">
-                            <span class="pt-deco pt-deco-a">🌸</span>
+                        <div class="pt-calc-sum-deco" aria-hidden="true">
+                            <div class="pt-sum-hangul">
+                                <span class="pt-hangul c1" style="left:6%;font-size:1.05rem;animation-duration:9.5s;animation-delay:-0.4s">홍</span>
+                                <span class="pt-hangul c2" style="left:18%;font-size:0.88rem;animation-duration:11.2s;animation-delay:-2.1s">익</span>
+                                <span class="pt-hangul c3" style="left:31%;font-size:1.2rem;animation-duration:8.6s;animation-delay:-4.8s">빛</span>
+                                <span class="pt-hangul c4" style="left:44%;font-size:0.95rem;animation-duration:12.4s;animation-delay:-1.2s">길</span>
+                                <span class="pt-hangul c5" style="left:57%;font-size:1.12rem;animation-duration:10.1s;animation-delay:-6.3s">꿈</span>
+                                <span class="pt-hangul c1" style="left:69%;font-size:0.82rem;animation-duration:13s;animation-delay:-3.5s">학</span>
+                                <span class="pt-hangul c3" style="left:78%;font-size:1rem;animation-duration:9.2s;animation-delay:-7.1s">원</span>
+                                <span class="pt-hangul c2" style="left:88%;font-size:1.15rem;animation-duration:11.8s;animation-delay:-5s">정</span>
+                                <span class="pt-hangul c5" style="left:12%;font-size:0.78rem;animation-duration:14.2s;animation-delay:-8.4s">성</span>
+                                <span class="pt-hangul c4" style="left:52%;font-size:0.92rem;animation-duration:10.8s;animation-delay:-0.9s">힘</span>
+                                <span class="pt-hangul c1" style="left:36%;font-size:0.72rem;animation-duration:12.6s;animation-delay:-9.2s">덕</span>
+                                <span class="pt-hangul c3" style="left:83%;font-size:0.85rem;animation-duration:8.9s;animation-delay:-2.8s">한</span>
+                            </div>
+                            <span class="pt-sum-bloom tl"></span>
+                            <span class="pt-sum-bloom br"></span>
+                            <span class="pt-sum-flower tr"></span>
+                            <span class="pt-sum-flower bl"></span>
+                            <span class="pt-deco pt-deco-a">🌼</span>
                             <span class="pt-deco pt-deco-b">✨</span>
-                            <span class="pt-deco pt-deco-c">🦋</span>
-                            <span class="pt-deco pt-deco-d">🌼</span>
-                            <span class="pt-deco pt-deco-e">⭐</span>
-                            <span class="pt-deco pt-deco-f">🌿</span>
-                        </span>
+                            <span class="pt-deco pt-deco-c">🌿</span>
+                            <span class="pt-deco pt-deco-d">⭐</span>
+                        </div>
                         <div class="pt-calc-sum-title">${t('ptCalcTotal')}</div>
                         ${sumMetrics}
                     </div>`;
