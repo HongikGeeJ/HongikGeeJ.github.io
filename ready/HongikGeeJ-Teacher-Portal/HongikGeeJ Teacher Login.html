@@ -5953,10 +5953,14 @@
             letter-spacing: .01em;
             white-space: nowrap;
             line-height: 1.2;
+            flex-shrink: 0;
+            max-width: none;
+            width: auto;
         }
         .em-dob-pill.is-unset {
             color: #94a3b8 !important;
             font-weight: 650 !important;
+            padding: .28rem .85rem;
         }
         .em-dob-pill.is-edit {
             cursor: pointer;
@@ -11020,7 +11024,7 @@
                 emTeacherLangEn: '영어',
                 emTeacherLangTh: '태국어',
                 birthDate: '생년월일',
-                birthDatePlaceholder: '생년월일 입력',
+                birthDatePlaceholder: '아직 기록되지 않음',
                 birthDateHint: '본인 생년월일 · 탭해서 수정 · 실시간 동기화',
                 birthDateEdit: '생년월일 수정',
                 birthDateSaved: '생년월일을 저장했습니다',
@@ -11894,7 +11898,7 @@
                 emTeacherLangEn: 'อังกฤษ',
                 emTeacherLangTh: 'ไทย',
                 birthDate: 'วันเดือนปีเกิด',
-                birthDatePlaceholder: 'ใส่วันเกิด',
+                birthDatePlaceholder: 'ยังไม่ได้มีการบันทึก',
                 birthDateHint: 'วันเกิดของคุณ · แตะเพื่อแก้ไข · ซิงก์แบบเรียลไทม์',
                 birthDateEdit: 'แก้ไขวันเกิด',
                 birthDateSaved: 'บันทึกวันเกิดแล้ว',
@@ -12768,7 +12772,7 @@
                 emTeacherLangEn: 'English',
                 emTeacherLangTh: 'Thai',
                 birthDate: 'Date of birth',
-                birthDatePlaceholder: 'Add date of birth',
+                birthDatePlaceholder: 'Not yet recorded',
                 birthDateHint: 'Your date of birth · tap to edit · syncs live',
                 birthDateEdit: 'Edit date of birth',
                 birthDateSaved: 'Date of birth saved',
