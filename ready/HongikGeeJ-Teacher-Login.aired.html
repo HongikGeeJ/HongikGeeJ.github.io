@@ -6435,7 +6435,7 @@
         .ot-pay-panel .pay-ok-total {
             background: #9a3412; border-color: #9a3412;
         }
-        /* OT lookback month strip (ย้อนหลัง 8 เดือน) */
+        /* OT lookback month strip (ย้อนหลัง 8 เดือน) — oldest left → newest right */
         .ot-month-board {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(10.75rem, 1fr));
@@ -6443,6 +6443,7 @@
             margin: .35rem 0 .85rem;
         }
         .ot-month-chip {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -6457,6 +6458,7 @@
             font-family: inherit;
             cursor: pointer;
             text-align: left;
+            isolation: isolate;
             transition: border-color .18s, box-shadow .18s, background .18s, transform .15s;
         }
         .ot-month-chip .ot-month-ym {
@@ -6467,13 +6469,39 @@
             flex: 0 1 auto;
             line-height: 1.25;
             color: #0f172a;
+            position: relative;
+            z-index: 1;
         }
         .ot-month-chip .pay-ok-badge {
             font-size: .7rem;
             padding: .22rem .52rem;
             flex: 0 0 auto;
+            position: relative;
+            z-index: 1;
         }
-        .ot-month-chip.has-pay {
+        /* Past months: cooler slate */
+        .ot-month-chip.is-past-month {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+        }
+        .ot-month-chip.is-past-month .ot-month-ym {
+            color: #64748b;
+        }
+        .ot-month-chip.is-past-month.has-pay {
+            border-color: #fdba74;
+            background: #fff;
+            box-shadow: inset 3px 0 0 #ea580c99;
+        }
+        /* Current calendar month: warmer amber */
+        .ot-month-chip.is-current-month {
+            border-color: #fb923c;
+            background: #fffbeb;
+            box-shadow: inset 3px 0 0 #ea580c;
+        }
+        .ot-month-chip.is-current-month .ot-month-ym {
+            color: #9a3412;
+        }
+        .ot-month-chip.has-pay:not(.is-past-month):not(.is-current-month) {
             border-color: #fdba74;
             box-shadow: inset 3px 0 0 #c2410c;
         }
@@ -6481,17 +6509,96 @@
             color: #64748b;
             font-weight: 700;
         }
+        .ot-month-chip.zero-pay.is-current-month .ot-month-ym {
+            color: #c2410c;
+        }
+        /* Active: amber LED chase around rectangular rim + glow */
+        @property --ot-led-angle {
+            syntax: '<angle>';
+            inherits: false;
+            initial-value: 0deg;
+        }
+        @keyframes ot-led-spin {
+            to { --ot-led-angle: 360deg; }
+        }
         .ot-month-chip.is-active {
-            border-color: #ea580c;
-            outline: 2px solid #ea580c;
-            outline-offset: 2px;
+            border-color: transparent;
+            outline: none;
             background: #fff7ed;
-            box-shadow: 0 3px 10px rgba(234, 88, 12, .16);
+            box-shadow:
+                0 0 0 1px rgba(234, 88, 12, .22),
+                0 0 12px rgba(234, 88, 12, .32),
+                0 0 24px rgba(251, 191, 36, .2);
+            z-index: 1;
+        }
+        .ot-month-chip.is-active.is-past-month {
+            background: #fff7ed;
+            box-shadow:
+                0 0 0 1px rgba(234, 88, 12, .18),
+                0 0 10px rgba(234, 88, 12, .26),
+                0 0 18px rgba(251, 191, 36, .14);
+        }
+        .ot-month-chip.is-active.is-current-month {
+            background: #ffedd5;
+            box-shadow:
+                0 0 0 1px rgba(194, 65, 12, .28),
+                0 0 16px rgba(234, 88, 12, .4),
+                0 0 30px rgba(251, 191, 36, .28);
+        }
+        .ot-month-chip.is-active::before {
+            content: '';
+            position: absolute;
+            inset: -2.5px;
+            border-radius: calc(.7rem + 2px);
+            background: conic-gradient(
+                from var(--ot-led-angle),
+                transparent 0 58%,
+                #fdba74 66%,
+                #fbbf24 74%,
+                #ea580c 84%,
+                #fff7ed 92%,
+                transparent 100%
+            );
+            z-index: -2;
+            animation: ot-led-spin 1.75s linear infinite;
+            pointer-events: none;
+        }
+        .ot-month-chip.is-active.is-current-month::before {
+            background: conic-gradient(
+                from var(--ot-led-angle),
+                transparent 0 52%,
+                #fb923c 62%,
+                #fbbf24 72%,
+                #c2410c 84%,
+                #ffedd5 92%,
+                transparent 100%
+            );
+            animation-duration: 1.45s;
+        }
+        .ot-month-chip.is-active::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: inherit;
+            z-index: -1;
+            pointer-events: none;
         }
         .ot-month-chip.has-pay.is-active {
-            box-shadow: inset 3px 0 0 #c2410c, 0 3px 10px rgba(234, 88, 12, .16);
+            box-shadow:
+                inset 3px 0 0 #c2410c,
+                0 0 0 1px rgba(234, 88, 12, .22),
+                0 0 12px rgba(234, 88, 12, .32),
+                0 0 24px rgba(251, 191, 36, .2);
         }
-        .ot-month-chip:hover {
+        .ot-month-chip.has-pay.is-active.is-current-month {
+            box-shadow:
+                inset 3px 0 0 #c2410c,
+                0 0 0 1px rgba(194, 65, 12, .28),
+                0 0 16px rgba(234, 88, 12, .4),
+                0 0 30px rgba(251, 191, 36, .28);
+        }
+        .ot-month-chip:hover:not(.is-active) {
             border-color: #fb923c;
             transform: translateY(-1px);
         }
@@ -7327,9 +7434,31 @@
             opacity: 0; pointer-events: none; transition: transform .28s ease, opacity .28s ease;
         }
         #app-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
-        #app-toast.is-ok { border-color: #6ee7b7; background: linear-gradient(180deg, #ecfdf5, #fff); color: #065f46; }
+        #app-toast.is-ok {
+            border-color: #34d399; background: linear-gradient(180deg, #d1fae5, #ecfdf5 55%, #fff);
+            color: #047857;
+        }
         #app-toast.is-warn { border-color: #fcd34d; background: linear-gradient(180deg, #fffbeb, #fff); color: #92400e; }
-        #app-toast.is-err { border-color: #fda4af; background: linear-gradient(180deg, #fff1f2, #fff); color: #9f1239; }
+        #app-toast.is-err {
+            border-color: #fb7185; background: linear-gradient(180deg, #ffe4e6, #fff1f2 55%, #fff);
+            color: #be123c;
+        }
+        @keyframes app-toast-attention {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            12% { transform: translateX(calc(-50% - 7px)) translateY(0); }
+            24% { transform: translateX(calc(-50% + 7px)) translateY(0); }
+            36% { transform: translateX(calc(-50% - 5px)) translateY(0); }
+            48% { transform: translateX(calc(-50% + 5px)) translateY(0); }
+            60% { transform: translateX(calc(-50% - 3px)) translateY(0); }
+            72% { transform: translateX(calc(-50% + 2px)) translateY(0); }
+        }
+        @keyframes app-toast-err-pulse {
+            0%, 100% { box-shadow: 0 12px 32px rgba(15, 23, 42, .16); }
+            35% { box-shadow: 0 10px 28px rgba(190, 18, 60, .42), 0 0 0 3px rgba(251, 113, 133, .35); }
+        }
+        #app-toast.is-err.show.is-attention {
+            animation: app-toast-attention .58s ease-in-out, app-toast-err-pulse .58s ease-in-out;
+        }
 
         /* —— Shared room timetable (3 rooms · Mon–Sun · 10–22) —— */
         .room-tt-wrap {
@@ -10347,15 +10476,44 @@
             if (next) photosSyncConfigUrl = next;
             return next;
         }
-        function showAppToast(message, kind = 'ok') {
+        const APP_TOAST_THROTTLE_MS = 60 * 60 * 1000;
+        const APP_TOAST_THROTTLE_PREFIX = 'hongik-toast-throttle:';
+        function canShowThrottledToast(key, { force = false } = {}) {
+            if (!key || force) return true;
+            try {
+                const last = Number(localStorage.getItem(APP_TOAST_THROTTLE_PREFIX + key) || 0);
+                if (last && (Date.now() - last) < APP_TOAST_THROTTLE_MS) return false;
+            } catch (_) {}
+            return true;
+        }
+        function markThrottledToast(key) {
+            if (!key) return;
+            try { localStorage.setItem(APP_TOAST_THROTTLE_PREFIX + key, String(Date.now())); } catch (_) {}
+        }
+        function showAppToast(message, kind = 'ok', opts) {
+            const options = (opts && typeof opts === 'object') ? opts : {};
+            const throttleKey = String(options.throttleKey || '');
+            if (throttleKey && !canShowThrottledToast(throttleKey, { force: !!options.force })) return false;
             const el = document.getElementById('app-toast');
-            if (!el || !message) return;
+            if (!el || !message) return false;
             el.textContent = message;
-            el.classList.remove('is-ok', 'is-warn', 'is-err', 'show');
-            el.classList.add(kind === 'err' ? 'is-err' : kind === 'warn' ? 'is-warn' : 'is-ok');
-            requestAnimationFrame(() => el.classList.add('show'));
+            el.classList.remove('is-ok', 'is-warn', 'is-err', 'is-attention', 'show');
+            const tone = kind === 'err' ? 'is-err' : kind === 'warn' ? 'is-warn' : 'is-ok';
+            el.classList.add(tone);
+            requestAnimationFrame(() => {
+                el.classList.add('show');
+                if (tone === 'is-err') {
+                    // Restart attention shake/pulse each time an error toast is shown
+                    void el.offsetWidth;
+                    el.classList.add('is-attention');
+                }
+            });
             clearTimeout(appToastTimer);
-            appToastTimer = setTimeout(() => el.classList.remove('show'), 5200);
+            appToastTimer = setTimeout(() => {
+                el.classList.remove('show', 'is-attention');
+            }, 5200);
+            if (throttleKey) markThrottledToast(throttleKey);
+            return true;
         }
         function setPhotoSyncMsg(message, kind = '') {
             const el = document.getElementById('photo-sync-msg');
@@ -16468,7 +16626,8 @@
                 m -= 1;
                 if (m <= 0) { m = 12; y -= 1; }
             }
-            return out;
+            /* Chronological: oldest → newest (left → right on month board) */
+            return out.reverse();
         }
         function parseCourseTimeRange(course) {
             const m = String(course || '').match(/(\d{1,2})[\.:](\d{2})\s*[-–.]+\s*(\d{1,2})[\.:](\d{2})/);
@@ -18397,16 +18556,21 @@
                         ? ((typeof t === 'function' ? t('systemBackupNeedSql') : '')
                             || ' · run FIX-systemBackup.sql in Supabase SQL Editor')
                         : '';
-                    showAppToast(msg + hint, 'warn');
+                    // Recurring auto backup: at most once/hour; manual force always shows
+                    showAppToast(msg + hint, 'err', {
+                        throttleKey: 'systemBackup-fail',
+                        force: toast === true
+                    });
                     return { ok: true, local: true, remote, item };
                 }
 
                 if (toast === 'first' && !systemBackupState.firstOkToasted) {
                     systemBackupState.firstOkToasted = true;
                     const msg = (typeof t === 'function' ? t('systemBackupOk') : '') || 'System backup saved';
-                    showAppToast(msg, 'ok');
+                    showAppToast(msg, 'ok', { throttleKey: 'systemBackup-ok' });
                 } else if (toast === true) {
                     const msg = (typeof t === 'function' ? t('systemBackupOk') : '') || 'System backup saved';
+                    // Manual backup confirm — never throttled
                     showAppToast(msg, 'ok');
                 }
                 return { ok: true, local: true, remote, item };
@@ -18418,7 +18582,10 @@
                     at: new Date().toISOString()
                 };
                 const msg = (typeof t === 'function' ? t('systemBackupFailHard') : '') || 'System backup failed';
-                showAppToast(msg, 'err');
+                showAppToast(msg, 'err', {
+                    throttleKey: 'systemBackup-fail',
+                    force: toast === true
+                });
                 return { ok: false, error: systemBackupState.error };
             } finally {
                 systemBackupInFlight = false;
@@ -24776,11 +24943,13 @@
                 }).join('');
 
                 const lookback = otLookbackMonthKeys(8);
+                const currentYm = todayKey().slice(0, 7);
                 const monthOverview = lookback.map((m) => {
                     let sum = 0;
                     teachers.forEach((tea) => { sum += otMonthPaySum(otEntriesForMonth(tea.id, m)); });
                     const active = m === ym ? ' is-active' : '';
-                    return `<button type="button" class="ot-month-chip ${sum > 0 ? 'has-pay' : 'zero-pay'}${active}" data-ot-ym="${m}">
+                    const monthKind = m === currentYm ? ' is-current-month' : ' is-past-month';
+                    return `<button type="button" class="ot-month-chip ${sum > 0 ? 'has-pay' : 'zero-pay'}${monthKind}${active}" data-ot-ym="${m}">
                         <span class="ot-month-ym">${esc(m)}</span>
                         <span class="pay-ok-badge${sum > 0 ? ' due' : ''}">${t('baht')}${sum.toLocaleString()}</span>
                     </button>`;

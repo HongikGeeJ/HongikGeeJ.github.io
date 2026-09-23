@@ -599,25 +599,6 @@
             .dash-header { padding-left: 1.5rem; padding-right: 1.5rem; }
             .content-card { padding: 5.65rem 1.5rem; }
             .content-card.compact-card { padding: 5rem 1.4rem; }
-            #overview-board {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: .85rem;
-                align-items: start;
-            }
-            #overview-board > h3,
-            #overview-board > p.text-xs,
-            #overview-board > .ov-back,
-            #overview-board > .ov-detail-head,
-            #overview-board > .ov-detail-sub,
-            #overview-board > .ov-detail-card,
-            #overview-board > .empty-note {
-                grid-column: 1 / -1;
-            }
-            #overview-board .ov-teacher-btn {
-                margin-bottom: 0;
-                height: 100%;
-            }
             .tab-panel[data-panel="rooms"] .room-tt-wrap { max-height: none; }
         }
         @media (min-width: 1400px) {
@@ -639,7 +620,6 @@
                 min-height: 100dvh;
                 border-radius: 0;
             }
-            #overview-board { display: block; }
         }
 
         .logo-wrap {
@@ -6827,13 +6807,70 @@
         .dir-plan-del:hover { background: rgba(140, 80, 70, .08); color: #7a4538; border-color: rgba(140, 80, 70, .22); }
 
         /* Director overview · teacher drill-down */
-        .ov-teacher-btn {
-            width: 100%; text-align: left; font-family: inherit; cursor: pointer;
-            display: flex; flex-direction: column; align-items: stretch; gap: .35rem;
-            padding: .85rem .9rem; margin-bottom: .5rem;
-            border: 1.5px solid #e2e8f0; border-radius: 1rem; background: #fff;
+        #overview-board {
+            display: block;
+        }
+        #overview-board .ov-board-head {
+            display: flex;
+            flex-direction: column;
+            gap: .28rem;
+            margin-bottom: .85rem;
+        }
+        #overview-board .ov-board-head h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 750;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+        #overview-board .ov-board-hint {
+            margin: 0;
+            font-size: .72rem;
+            color: #64748b;
+            line-height: 1.4;
+        }
+        #overview-board .ov-board-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .75rem;
+            align-items: stretch;
+        }
+        @media (max-width: 720px) {
+            #overview-board .ov-board-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Card must NOT be a <button> — edit pencil is a real button (nested buttons break the DOM). */
+        .ov-teacher-card {
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: .55rem;
+            padding: .85rem .9rem .75rem;
+            margin: 0;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1rem;
+            background: #fff;
             transition: transform .18s, box-shadow .18s, border-color .18s;
             position: relative;
+            min-height: 0;
+            box-sizing: border-box;
+        }
+        .ov-teacher-card:hover,
+        .ov-teacher-card:focus-visible {
+            transform: translateY(-2px);
+            border-color: #93c5fd;
+            box-shadow: 0 8px 20px rgba(37,99,235,.1);
+            outline: none;
+        }
+        .ov-teacher-card:focus-visible {
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(37,99,235,.45), 0 8px 20px rgba(37,99,235,.1);
         }
         .ov-edit-corner,
         .em-edit-corner {
@@ -6864,39 +6901,43 @@
         }
         .em-profile { position: relative; }
         .em-profile .em-edit-corner { top: .65rem; right: .65rem; }
-        .ov-teacher-btn:hover {
-            transform: translateX(4px);
-            border-color: #93c5fd;
-            box-shadow: 0 8px 20px rgba(37,99,235,.1);
+        .ov-teacher-card .ov-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: .55rem;
+            padding-right: 2.1rem;
         }
-        .ov-teacher-btn .ov-top {
-            display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem;
+        .ov-teacher-card .ov-name {
+            font-weight: 850;
+            font-size: .98rem;
+            color: #0f172a;
+            line-height: 1.25;
+            min-width: 0;
         }
-        .ov-teacher-btn .ov-name { font-weight: 850; font-size: 1rem; color: #0f172a; }
-        .ov-teacher-btn .ov-arrow { color: #64748b; font-size: 1.1rem; }
-        .ov-teacher-btn .ov-header-end {
+        .ov-teacher-card .ov-header-end {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             gap: .28rem;
             flex-shrink: 0;
         }
-        .ov-teacher-btn .ov-lang-flags,
-        .theme-director .ov-teacher-btn .ov-lang-flags.badge {
+        .ov-teacher-card .ov-lang-flags,
+        .theme-director .ov-teacher-card .ov-lang-flags.badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: .3rem .7rem !important;
-            min-width: 5.1rem;
+            gap: 6px;
+            padding: .22rem .5rem !important;
+            min-width: 0;
             line-height: 1;
             background: #f8fafc !important;
             color: inherit !important;
             border: 1px solid #e2e8f0 !important;
             font-weight: 700 !important;
         }
-        .ov-teacher-btn .ov-click-more,
-        .theme-director .ov-teacher-btn .ov-click-more.badge {
+        .ov-teacher-card .ov-click-more,
+        .theme-director .ov-teacher-card .ov-click-more.badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -6908,31 +6949,48 @@
             font-size: .68rem !important;
             font-weight: 800 !important;
             line-height: 1.15;
-            padding: .2rem .45rem !important;
+            padding: .22rem .5rem !important;
             white-space: nowrap;
             max-width: 100%;
+            border-radius: .45rem;
         }
-        .ov-teacher-btn .ov-lang-flags img {
-            width: 18px;
-            height: 18px;
+        .ov-teacher-card .ov-lang-flags img {
+            width: 16px;
+            height: 16px;
             border-radius: 2px;
             flex-shrink: 0;
             object-fit: cover;
             display: block;
             box-shadow: 0 0 0 1px rgba(15, 23, 42, .08);
         }
-        .ov-teacher-btn .ov-lessons {
+        .ov-teacher-card .ov-lessons {
             display: flex;
             flex-direction: column;
-            gap: .18rem;
+            gap: .2rem;
             text-align: left;
             width: 100%;
+            flex: 1 1 auto;
+            min-height: 2.4rem;
         }
-        .ov-teacher-btn .ov-lesson-line {
+        .ov-teacher-card .ov-lesson-line {
             font-size: .78rem;
             color: #475569;
             line-height: 1.35;
         }
+        .ov-teacher-card .ov-empty-line {
+            font-size: .78rem;
+            color: #94a3b8;
+            line-height: 1.35;
+            text-align: left;
+        }
+        .ov-teacher-card .ov-status-row {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            flex-wrap: wrap;
+        }
+        /* Legacy class kept for any stale refs */
+        .ov-teacher-btn { display: none !important; }
         /* Room pills — same tones as ตารางห้องเรียน column headers (A blue / B pink / C purple) */
         .room-badge {
             display: inline-flex;
@@ -7434,9 +7492,31 @@
             opacity: 0; pointer-events: none; transition: transform .28s ease, opacity .28s ease;
         }
         #app-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
-        #app-toast.is-ok { border-color: #6ee7b7; background: linear-gradient(180deg, #ecfdf5, #fff); color: #065f46; }
+        #app-toast.is-ok {
+            border-color: #34d399; background: linear-gradient(180deg, #d1fae5, #ecfdf5 55%, #fff);
+            color: #047857;
+        }
         #app-toast.is-warn { border-color: #fcd34d; background: linear-gradient(180deg, #fffbeb, #fff); color: #92400e; }
-        #app-toast.is-err { border-color: #fda4af; background: linear-gradient(180deg, #fff1f2, #fff); color: #9f1239; }
+        #app-toast.is-err {
+            border-color: #fb7185; background: linear-gradient(180deg, #ffe4e6, #fff1f2 55%, #fff);
+            color: #be123c;
+        }
+        @keyframes app-toast-attention {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            12% { transform: translateX(calc(-50% - 7px)) translateY(0); }
+            24% { transform: translateX(calc(-50% + 7px)) translateY(0); }
+            36% { transform: translateX(calc(-50% - 5px)) translateY(0); }
+            48% { transform: translateX(calc(-50% + 5px)) translateY(0); }
+            60% { transform: translateX(calc(-50% - 3px)) translateY(0); }
+            72% { transform: translateX(calc(-50% + 2px)) translateY(0); }
+        }
+        @keyframes app-toast-err-pulse {
+            0%, 100% { box-shadow: 0 12px 32px rgba(15, 23, 42, .16); }
+            35% { box-shadow: 0 10px 28px rgba(190, 18, 60, .42), 0 0 0 3px rgba(251, 113, 133, .35); }
+        }
+        #app-toast.is-err.show.is-attention {
+            animation: app-toast-attention .58s ease-in-out, app-toast-err-pulse .58s ease-in-out;
+        }
 
         /* —— Shared room timetable (3 rooms · Mon–Sun · 10–22) —— */
         .room-tt-wrap {
@@ -10454,15 +10534,44 @@
             if (next) photosSyncConfigUrl = next;
             return next;
         }
-        function showAppToast(message, kind = 'ok') {
+        const APP_TOAST_THROTTLE_MS = 60 * 60 * 1000;
+        const APP_TOAST_THROTTLE_PREFIX = 'hongik-toast-throttle:';
+        function canShowThrottledToast(key, { force = false } = {}) {
+            if (!key || force) return true;
+            try {
+                const last = Number(localStorage.getItem(APP_TOAST_THROTTLE_PREFIX + key) || 0);
+                if (last && (Date.now() - last) < APP_TOAST_THROTTLE_MS) return false;
+            } catch (_) {}
+            return true;
+        }
+        function markThrottledToast(key) {
+            if (!key) return;
+            try { localStorage.setItem(APP_TOAST_THROTTLE_PREFIX + key, String(Date.now())); } catch (_) {}
+        }
+        function showAppToast(message, kind = 'ok', opts) {
+            const options = (opts && typeof opts === 'object') ? opts : {};
+            const throttleKey = String(options.throttleKey || '');
+            if (throttleKey && !canShowThrottledToast(throttleKey, { force: !!options.force })) return false;
             const el = document.getElementById('app-toast');
-            if (!el || !message) return;
+            if (!el || !message) return false;
             el.textContent = message;
-            el.classList.remove('is-ok', 'is-warn', 'is-err', 'show');
-            el.classList.add(kind === 'err' ? 'is-err' : kind === 'warn' ? 'is-warn' : 'is-ok');
-            requestAnimationFrame(() => el.classList.add('show'));
+            el.classList.remove('is-ok', 'is-warn', 'is-err', 'is-attention', 'show');
+            const tone = kind === 'err' ? 'is-err' : kind === 'warn' ? 'is-warn' : 'is-ok';
+            el.classList.add(tone);
+            requestAnimationFrame(() => {
+                el.classList.add('show');
+                if (tone === 'is-err') {
+                    // Restart attention shake/pulse each time an error toast is shown
+                    void el.offsetWidth;
+                    el.classList.add('is-attention');
+                }
+            });
             clearTimeout(appToastTimer);
-            appToastTimer = setTimeout(() => el.classList.remove('show'), 5200);
+            appToastTimer = setTimeout(() => {
+                el.classList.remove('show', 'is-attention');
+            }, 5200);
+            if (throttleKey) markThrottledToast(throttleKey);
+            return true;
         }
         function setPhotoSyncMsg(message, kind = '') {
             const el = document.getElementById('photo-sync-msg');
@@ -18505,16 +18614,21 @@
                         ? ((typeof t === 'function' ? t('systemBackupNeedSql') : '')
                             || ' · run FIX-systemBackup.sql in Supabase SQL Editor')
                         : '';
-                    showAppToast(msg + hint, 'warn');
+                    // Recurring auto backup: at most once/hour; manual force always shows
+                    showAppToast(msg + hint, 'err', {
+                        throttleKey: 'systemBackup-fail',
+                        force: toast === true
+                    });
                     return { ok: true, local: true, remote, item };
                 }
 
                 if (toast === 'first' && !systemBackupState.firstOkToasted) {
                     systemBackupState.firstOkToasted = true;
                     const msg = (typeof t === 'function' ? t('systemBackupOk') : '') || 'System backup saved';
-                    showAppToast(msg, 'ok');
+                    showAppToast(msg, 'ok', { throttleKey: 'systemBackup-ok' });
                 } else if (toast === true) {
                     const msg = (typeof t === 'function' ? t('systemBackupOk') : '') || 'System backup saved';
+                    // Manual backup confirm — never throttled
                     showAppToast(msg, 'ok');
                 }
                 return { ok: true, local: true, remote, item };
@@ -18526,7 +18640,10 @@
                     at: new Date().toISOString()
                 };
                 const msg = (typeof t === 'function' ? t('systemBackupFailHard') : '') || 'System backup failed';
-                showAppToast(msg, 'err');
+                showAppToast(msg, 'err', {
+                    throttleKey: 'systemBackup-fail',
+                    force: toast === true
+                });
                 return { ok: false, error: systemBackupState.error };
             } finally {
                 systemBackupInFlight = false;

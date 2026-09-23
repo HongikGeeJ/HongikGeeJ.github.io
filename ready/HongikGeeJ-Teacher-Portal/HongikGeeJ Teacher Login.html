@@ -7434,9 +7434,31 @@
             opacity: 0; pointer-events: none; transition: transform .28s ease, opacity .28s ease;
         }
         #app-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
-        #app-toast.is-ok { border-color: #6ee7b7; background: linear-gradient(180deg, #ecfdf5, #fff); color: #065f46; }
+        #app-toast.is-ok {
+            border-color: #34d399; background: linear-gradient(180deg, #d1fae5, #ecfdf5 55%, #fff);
+            color: #047857;
+        }
         #app-toast.is-warn { border-color: #fcd34d; background: linear-gradient(180deg, #fffbeb, #fff); color: #92400e; }
-        #app-toast.is-err { border-color: #fda4af; background: linear-gradient(180deg, #fff1f2, #fff); color: #9f1239; }
+        #app-toast.is-err {
+            border-color: #fb7185; background: linear-gradient(180deg, #ffe4e6, #fff1f2 55%, #fff);
+            color: #be123c;
+        }
+        @keyframes app-toast-attention {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            12% { transform: translateX(calc(-50% - 7px)) translateY(0); }
+            24% { transform: translateX(calc(-50% + 7px)) translateY(0); }
+            36% { transform: translateX(calc(-50% - 5px)) translateY(0); }
+            48% { transform: translateX(calc(-50% + 5px)) translateY(0); }
+            60% { transform: translateX(calc(-50% - 3px)) translateY(0); }
+            72% { transform: translateX(calc(-50% + 2px)) translateY(0); }
+        }
+        @keyframes app-toast-err-pulse {
+            0%, 100% { box-shadow: 0 12px 32px rgba(15, 23, 42, .16); }
+            35% { box-shadow: 0 10px 28px rgba(190, 18, 60, .42), 0 0 0 3px rgba(251, 113, 133, .35); }
+        }
+        #app-toast.is-err.show.is-attention {
+            animation: app-toast-attention .58s ease-in-out, app-toast-err-pulse .58s ease-in-out;
+        }
 
         /* —— Shared room timetable (3 rooms · Mon–Sun · 10–22) —— */
         .room-tt-wrap {
@@ -10454,15 +10476,44 @@
             if (next) photosSyncConfigUrl = next;
             return next;
         }
-        function showAppToast(message, kind = 'ok') {
+        const APP_TOAST_THROTTLE_MS = 60 * 60 * 1000;
+        const APP_TOAST_THROTTLE_PREFIX = 'hongik-toast-throttle:';
+        function canShowThrottledToast(key, { force = false } = {}) {
+            if (!key || force) return true;
+            try {
+                const last = Number(localStorage.getItem(APP_TOAST_THROTTLE_PREFIX + key) || 0);
+                if (last && (Date.now() - last) < APP_TOAST_THROTTLE_MS) return false;
+            } catch (_) {}
+            return true;
+        }
+        function markThrottledToast(key) {
+            if (!key) return;
+            try { localStorage.setItem(APP_TOAST_THROTTLE_PREFIX + key, String(Date.now())); } catch (_) {}
+        }
+        function showAppToast(message, kind = 'ok', opts) {
+            const options = (opts && typeof opts === 'object') ? opts : {};
+            const throttleKey = String(options.throttleKey || '');
+            if (throttleKey && !canShowThrottledToast(throttleKey, { force: !!options.force })) return false;
             const el = document.getElementById('app-toast');
-            if (!el || !message) return;
+            if (!el || !message) return false;
             el.textContent = message;
-            el.classList.remove('is-ok', 'is-warn', 'is-err', 'show');
-            el.classList.add(kind === 'err' ? 'is-err' : kind === 'warn' ? 'is-warn' : 'is-ok');
-            requestAnimationFrame(() => el.classList.add('show'));
+            el.classList.remove('is-ok', 'is-warn', 'is-err', 'is-attention', 'show');
+            const tone = kind === 'err' ? 'is-err' : kind === 'warn' ? 'is-warn' : 'is-ok';
+            el.classList.add(tone);
+            requestAnimationFrame(() => {
+                el.classList.add('show');
+                if (tone === 'is-err') {
+                    // Restart attention shake/pulse each time an error toast is shown
+                    void el.offsetWidth;
+                    el.classList.add('is-attention');
+                }
+            });
             clearTimeout(appToastTimer);
-            appToastTimer = setTimeout(() => el.classList.remove('show'), 5200);
+            appToastTimer = setTimeout(() => {
+                el.classList.remove('show', 'is-attention');
+            }, 5200);
+            if (throttleKey) markThrottledToast(throttleKey);
+            return true;
         }
         function setPhotoSyncMsg(message, kind = '') {
             const el = document.getElementById('photo-sync-msg');
@@ -18505,16 +18556,21 @@
                         ? ((typeof t === 'function' ? t('systemBackupNeedSql') : '')
                             || ' · run FIX-systemBackup.sql in Supabase SQL Editor')
                         : '';
-                    showAppToast(msg + hint, 'warn');
+                    // Recurring auto backup: at most once/hour; manual force always shows
+                    showAppToast(msg + hint, 'err', {
+                        throttleKey: 'systemBackup-fail',
+                        force: toast === true
+                    });
                     return { ok: true, local: true, remote, item };
                 }
 
                 if (toast === 'first' && !systemBackupState.firstOkToasted) {
                     systemBackupState.firstOkToasted = true;
                     const msg = (typeof t === 'function' ? t('systemBackupOk') : '') || 'System backup saved';
-                    showAppToast(msg, 'ok');
+                    showAppToast(msg, 'ok', { throttleKey: 'systemBackup-ok' });
                 } else if (toast === true) {
                     const msg = (typeof t === 'function' ? t('systemBackupOk') : '') || 'System backup saved';
+                    // Manual backup confirm — never throttled
                     showAppToast(msg, 'ok');
                 }
                 return { ok: true, local: true, remote, item };
@@ -18526,7 +18582,10 @@
                     at: new Date().toISOString()
                 };
                 const msg = (typeof t === 'function' ? t('systemBackupFailHard') : '') || 'System backup failed';
-                showAppToast(msg, 'err');
+                showAppToast(msg, 'err', {
+                    throttleKey: 'systemBackup-fail',
+                    force: toast === true
+                });
                 return { ok: false, error: systemBackupState.error };
             } finally {
                 systemBackupInFlight = false;
