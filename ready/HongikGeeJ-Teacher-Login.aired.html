@@ -6367,6 +6367,31 @@
             color: #475569;
             line-height: 1.35;
         }
+        /* Room pills — same tones as ตารางห้องเรียน column headers (A blue / B pink / C purple) */
+        .room-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: .08rem .42rem;
+            border-radius: 999px;
+            font-size: .68rem;
+            font-weight: 800;
+            letter-spacing: .01em;
+            color: #fff;
+            line-height: 1.25;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        .room-badge.r-a { background: linear-gradient(135deg, #0284c7, #0ea5e9); }
+        .room-badge.r-b { background: linear-gradient(135deg, #db2777, #f472b6); }
+        .room-badge.r-c { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
+        .ov-lesson-line .room-badge,
+        .ov-detail-card .room-badge,
+        .sched-item-summary .room-badge,
+        .week-class-card .room-badge {
+            font-size: .64rem;
+            padding: .06rem .38rem;
+            margin-left: .1rem;
+        }
         .ov-detail-card .ov-students {
             display: flex;
             align-items: flex-start;
@@ -14516,10 +14541,34 @@
             }
             return false;
         }
+        /** Normalize A/B/C · 1/2/3 · 방/ห้อง/Room N → 'A'|'B'|'C'|''. */
+        function normalizeRoomCode(room) {
+            const s = String(room || '').trim();
+            if (!s) return '';
+            const u = s.toUpperCase();
+            if (u === 'A' || u === 'B' || u === 'C') return u;
+            if (u === '1' || u === '2' || u === '3') return ({ '1': 'A', '2': 'B', '3': 'C' })[u];
+            const m = s.match(/(?:방|ห้อง|room|호실)\s*([123])/i) || s.match(/\b([123])\s*(?:호실|방)?$/);
+            if (m) return ({ '1': 'A', '2': 'B', '3': 'C' })[m[1]];
+            return '';
+        }
         function roomLabel(room) {
-            if (room === 'B') return t('roomTtRoomB');
-            if (room === 'C') return t('roomTtRoomC');
+            const code = normalizeRoomCode(room) || 'A';
+            if (code === 'B') return t('roomTtRoomB');
+            if (code === 'C') return t('roomTtRoomC');
             return t('roomTtRoomA');
+        }
+        /** Colored room pill (matches .room-tt-rooms .r-a/.r-b/.r-c). */
+        function roomBadgeHtml(room, escFn) {
+            const code = normalizeRoomCode(room);
+            if (!code && !room) return '';
+            const esc = typeof escFn === 'function'
+                ? escFn
+                : ((s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'));
+            const tone = code === 'B' ? 'r-b' : code === 'C' ? 'r-c' : (code === 'A' ? 'r-a' : '');
+            const label = code ? roomLabel(code) : String(room);
+            if (!tone) return `<span class="room-badge">${esc(label)}</span>`;
+            return `<span class="room-badge ${tone}">${esc(label)}</span>`;
         }
         function cleanClassTitleDisplay(raw) {
             return String(raw || '')
@@ -15461,12 +15510,14 @@
                         sched.forEach((it) => {
                             const timeLabel = (it.start && it.end) ? `${it.start}–${it.end}` : (it.start || '');
                             const title = pickLangText(it, 'title') || it.title || '';
+                            const roomFromBlock = it.roomSlotId ? (getRoomBlockById(it.roomSlotId)?.room || '') : '';
                             items.push({
                                 teacherId: tea.id,
                                 teacherName: displayName(tea),
                                 title,
                                 time: timeLabel,
                                 start: it.start || '',
+                                room: it.room || roomFromBlock || '',
                                 students: [],
                                 classStatus: normalizeClassStatus(it.classStatus),
                                 color,
@@ -15482,12 +15533,11 @@
                     if (!days.includes(dayKey)) return;
                     const tr = parseTimeRange(clsItem.time);
                     const baseTitle = pickLangText(clsItem, 'title') || clsItem.title || '';
-                    const title = clsItem.room ? `${baseTitle} · ${clsItem.room}` : baseTitle;
                     const students = Array.isArray(clsItem.students) ? clsItem.students.filter(s => s && s.name) : [];
                     items.push({
                         teacherId: tea.id,
                         teacherName: displayName(tea),
-                        title,
+                        title: baseTitle,
                         time: tr.label || clsItem.time || '',
                         start: tr.start,
                         room: clsItem.room || '',
@@ -21764,8 +21814,9 @@
                             ? it.students.map(s => `<span title="${esc(s.note || '')}">${esc(s.name)}</span>`).join('')
                             : `<span style="background:#f1f5f9;color:#94a3b8">${t('noStudents')}</span>`;
                         const stBadge = classStatusBadgeHtml(it.classStatus, { hideNormal: true });
+                        const roomHtml = it.room ? ` ${roomBadgeHtml(it.room, esc)}` : '';
                         return `<div class="week-class-card" style="border-left-color:${it.color.accent};background:${it.color.bg}">
-                            <div class="wc-title" style="color:${it.color.accent}">${esc(it.title || '—')} <span class="wc-teacher">· ${esc(it.teacherName)}</span></div>
+                            <div class="wc-title" style="color:${it.color.accent}">${esc(it.title || '—')}${roomHtml} <span class="wc-teacher">· ${esc(it.teacherName)}</span></div>
                             <div class="wc-meta">${esc(it.time || '—')} · ${t('weekTaughtBy')}: ${esc(it.teacherName)}${it.students.length ? ` · ${it.students.length} ${t('studentsUnit')}` : ''}</div>
                             ${stBadge}
                             <div class="wc-students">${names}</div>
@@ -23649,7 +23700,7 @@
                         lessons.forEach((item) => {
                             const cancelled = !!item.cancelled;
                             const ctype = normalizeClassType(item.classType);
-                            const roomTxt = item.room ? ` · ${roomLabel(item.room)}` : '';
+                            const roomHtml = item.room ? ` · ${roomBadgeHtml(item.room, esc)}` : '';
                             const stuNames = item.students.length
                                 ? item.students.map((s) => esc(s.name)).join(', ')
                                 : esc(t('noStudents'));
@@ -23657,7 +23708,7 @@
                                 ? `${t('cancelledBadge')}${item.cancelReason ? ' · ' + esc(item.cancelReason) : ''}`
                                 : '';
                             detailParts.push(`<div class="ov-detail-card${cancelled ? ' cancelled' : ''}" style="border-left:4px solid ${cancelled ? '#ea580c' : c.accent}">
-                                <div class="ot"><span class="sched-type-badge ${ctype}">${classTypeLabel(ctype)}</span> ${classStatusBadgeHtml(item.classStatus)} ${esc(item.start)}–${esc(item.end)}${esc(roomTxt)} · ${esc(item.title || '—')}</div>
+                                <div class="ot"><span class="sched-type-badge ${ctype}">${classTypeLabel(ctype)}</span> ${classStatusBadgeHtml(item.classStatus)} ${esc(item.start)}–${esc(item.end)}${roomHtml} · ${esc(item.title || '—')}</div>
                                 <div class="om">${cancelLine || t('overviewTodayTeach')}</div>
                                 <div class="om ov-students"><i class="ph ph-users"></i> ${stuNames}${item.students.length ? ` · ${item.students.length} ${t('studentsUnit')}` : ''}</div>
                                 ${item.note ? `<div class="om">${esc(item.note)}</div>` : ''}
@@ -23686,6 +23737,10 @@
                     const fmtLesson = (it) => {
                         const roomTxt = it.room ? ` · ${roomLabel(it.room)}` : '';
                         return `${it.start}–${it.end} ${it.title || classTypeLabel(it.classType)}${roomTxt}`;
+                    };
+                    const fmtLessonHtml = (it) => {
+                        const roomHtml = it.room ? ` · ${roomBadgeHtml(it.room, esc)}` : '';
+                        return `${esc(it.start)}–${esc(it.end)} ${esc(it.title || classTypeLabel(it.classType))}${roomHtml}`;
                     };
                     if (myLeave) { status = t('pending'); note = `${myLeave.from}→${myLeave.to} ${pickLangText(myLeave, 'reason') || myLeave.reason || ''}`; }
                     else if (dayOff) { status = t('schedTypeDayOff'); note = pickLangText(dayOff, 'title') || t('schedDayOffTitle'); }
@@ -23723,7 +23778,7 @@
                         ? `<div class="ov-header-end">${flagsPill}</div>`
                         : '';
                     const lessonLines = (!myLeave && !dayOff && activeSched.length)
-                        ? `<div class="ov-lessons">${activeSched.map((it) => `<div class="ov-lesson-line">${esc(fmtLesson(it))}</div>`).join('')}</div>`
+                        ? `<div class="ov-lessons">${activeSched.map((it) => `<div class="ov-lesson-line">${fmtLessonHtml(it)}</div>`).join('')}</div>`
                         : `<div class="text-xs text-slate-500 text-left">${esc(note)}</div>`;
                     return `<button type="button" class="ov-teacher-btn" data-ov-tea="${tea.id}" style="border-left:4px solid ${c.accent}">
                         <div class="ov-top">
@@ -25526,6 +25581,9 @@
                     const typeBadge = `<span class="sched-type-badge ${ctype}">${classTypeLabel(ctype)}</span>`;
                     const statusBadge = (!isDayOff && !cancelled) ? classStatusBadgeHtml(item.classStatus) : '';
                     const titleText = String(pickLangText(item, 'title') || '').replace(/</g,'&lt;');
+                    const roomBlockEarly = item.roomSlotId ? getRoomBlockById(item.roomSlotId) : null;
+                    const roomCode = item.room || roomBlockEarly?.room || '';
+                    const roomTitleHtml = roomCode ? ` · ${roomBadgeHtml(roomCode)}` : '';
                     const meta = cancelled ? `<div class="cancel-meta">
                         <span class="badge" style="background:#ffedd5;color:#9a3412;margin-right:.35rem">${t('cancelledBadge')}</span>
                         ${item.cancelReason || item.cancelReasonKo || item.cancelReasonTh || item.cancelReasonEn ? `<div><strong>${t('cancelReason')}:</strong> ${String(pickLangText(item, 'cancelReason')).replace(/</g,'&lt;')}</div>` : ''}
@@ -25551,7 +25609,7 @@
                             ${typeBadge}
                             <div class="sched-item-summary">
                                 <span class="si-time">${item.start}–${item.end}</span>
-                                <span class="si-title">${titleText}</span>
+                                <span class="si-title">${titleText}${roomTitleHtml}</span>
                             </div>
                             ${meta}
                             <div class="sched-item-actions">${delBtn}</div>
@@ -25559,7 +25617,7 @@
                     }
                     const subjKey = matchTeachSubjectKey(item, user);
                     const otherVal = subjKey === 'other' ? String(pickLangText(item, 'title') || '').replace(/"/g, '&quot;') : '';
-                    const roomBlock = item.roomSlotId ? getRoomBlockById(item.roomSlotId) : null;
+                    const roomBlock = roomBlockEarly;
                     const canStatus = canEditClassStatus(user, roomBlock || { teacherId: user.id, isBreak: false });
                     const statusEdit = canStatus
                         ? `<div class="full">
@@ -25571,7 +25629,7 @@
                         <div class="cls-run-row">${typeBadge}${statusBadge}</div>
                         <div class="sched-item-summary">
                             <span class="si-time">${item.start}–${item.end}</span>
-                            <span class="si-title">${titleText}</span>
+                            <span class="si-title">${titleText}${roomTitleHtml}</span>
                         </div>
                         <div class="sched-edit-grid">
                             <div>

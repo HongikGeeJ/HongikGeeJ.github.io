@@ -466,17 +466,17 @@
             .dc-c.bl { transform: scaleY(-1); }
             .dc-c.br { transform: scale(-1); }
         }
-        /* Corner blooms + sea-tone shimmer rail on card edges (all roles) */
+        /* Corner blooms + dense mini-flower rail on card edges (all roles) */
         .content-card {
             position: relative;
             overflow: visible;
             background-color: #fff;
             background-image:
-                url('assets/dancheong/edge-sparkles.svg?v=sea2'),
-                url('assets/dancheong/edge-sparkles.svg?v=sea2');
+                url('assets/dancheong/edge-sparkles.svg?v=flower1'),
+                url('assets/dancheong/edge-sparkles.svg?v=flower1');
             background-repeat: no-repeat;
-            background-position: center top 4px, center bottom 4px;
-            background-size: min(100%, 460px) 12px;
+            background-position: center top 3px, center bottom 3px;
+            background-size: min(100%, 520px) 16px;
         }
         .content-card::before,
         .content-card::after {
@@ -528,7 +528,7 @@
             width: 26px; height: 26px; opacity: .82;
         }
         .content-card.compact-card {
-            background-size: min(100%, 360px) 12px;
+            background-size: min(100%, 400px) 14px;
         }
         .content-card[style*="transparent"] {
             background-image: none;
@@ -540,8 +540,8 @@
         @media (prefers-reduced-motion: reduce) {
             .content-card {
                 background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=sea2'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=sea2');
+                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1'),
+                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1');
             }
             .content-card::before,
             .content-card::after {
@@ -559,7 +559,7 @@
             .dc-c.br { top: calc(100% + 12px); left: calc(100% + 12px); bottom: auto; right: auto; }
             .content-card::before,
             .content-card::after { width: 24px; height: 24px; opacity: .7; }
-            .content-card { background-size: min(100%, 300px) 11px; }
+            .content-card { background-size: min(100%, 340px) 14px; }
         }
         .dash-shell {
             width: 100%;
@@ -15531,12 +15531,11 @@
                     if (!days.includes(dayKey)) return;
                     const tr = parseTimeRange(clsItem.time);
                     const baseTitle = pickLangText(clsItem, 'title') || clsItem.title || '';
-                    const title = clsItem.room ? `${baseTitle} · ${clsItem.room}` : baseTitle;
                     const students = Array.isArray(clsItem.students) ? clsItem.students.filter(s => s && s.name) : [];
                     items.push({
                         teacherId: tea.id,
                         teacherName: displayName(tea),
-                        title,
+                        title: baseTitle,
                         time: tr.label || clsItem.time || '',
                         start: tr.start,
                         room: clsItem.room || '',
@@ -21813,8 +21812,9 @@
                             ? it.students.map(s => `<span title="${esc(s.note || '')}">${esc(s.name)}</span>`).join('')
                             : `<span style="background:#f1f5f9;color:#94a3b8">${t('noStudents')}</span>`;
                         const stBadge = classStatusBadgeHtml(it.classStatus, { hideNormal: true });
+                        const roomHtml = it.room ? ` ${roomBadgeHtml(it.room, esc)}` : '';
                         return `<div class="week-class-card" style="border-left-color:${it.color.accent};background:${it.color.bg}">
-                            <div class="wc-title" style="color:${it.color.accent}">${esc(it.title || '—')} <span class="wc-teacher">· ${esc(it.teacherName)}</span></div>
+                            <div class="wc-title" style="color:${it.color.accent}">${esc(it.title || '—')}${roomHtml} <span class="wc-teacher">· ${esc(it.teacherName)}</span></div>
                             <div class="wc-meta">${esc(it.time || '—')} · ${t('weekTaughtBy')}: ${esc(it.teacherName)}${it.students.length ? ` · ${it.students.length} ${t('studentsUnit')}` : ''}</div>
                             ${stBadge}
                             <div class="wc-students">${names}</div>
@@ -25579,6 +25579,9 @@
                     const typeBadge = `<span class="sched-type-badge ${ctype}">${classTypeLabel(ctype)}</span>`;
                     const statusBadge = (!isDayOff && !cancelled) ? classStatusBadgeHtml(item.classStatus) : '';
                     const titleText = String(pickLangText(item, 'title') || '').replace(/</g,'&lt;');
+                    const roomBlockEarly = item.roomSlotId ? getRoomBlockById(item.roomSlotId) : null;
+                    const roomCode = item.room || roomBlockEarly?.room || '';
+                    const roomTitleHtml = roomCode ? ` · ${roomBadgeHtml(roomCode)}` : '';
                     const meta = cancelled ? `<div class="cancel-meta">
                         <span class="badge" style="background:#ffedd5;color:#9a3412;margin-right:.35rem">${t('cancelledBadge')}</span>
                         ${item.cancelReason || item.cancelReasonKo || item.cancelReasonTh || item.cancelReasonEn ? `<div><strong>${t('cancelReason')}:</strong> ${String(pickLangText(item, 'cancelReason')).replace(/</g,'&lt;')}</div>` : ''}
@@ -25604,7 +25607,7 @@
                             ${typeBadge}
                             <div class="sched-item-summary">
                                 <span class="si-time">${item.start}–${item.end}</span>
-                                <span class="si-title">${titleText}</span>
+                                <span class="si-title">${titleText}${roomTitleHtml}</span>
                             </div>
                             ${meta}
                             <div class="sched-item-actions">${delBtn}</div>
@@ -25612,7 +25615,7 @@
                     }
                     const subjKey = matchTeachSubjectKey(item, user);
                     const otherVal = subjKey === 'other' ? String(pickLangText(item, 'title') || '').replace(/"/g, '&quot;') : '';
-                    const roomBlock = item.roomSlotId ? getRoomBlockById(item.roomSlotId) : null;
+                    const roomBlock = roomBlockEarly;
                     const canStatus = canEditClassStatus(user, roomBlock || { teacherId: user.id, isBreak: false });
                     const statusEdit = canStatus
                         ? `<div class="full">
@@ -25624,7 +25627,7 @@
                         <div class="cls-run-row">${typeBadge}${statusBadge}</div>
                         <div class="sched-item-summary">
                             <span class="si-time">${item.start}–${item.end}</span>
-                            <span class="si-title">${titleText}</span>
+                            <span class="si-title">${titleText}${roomTitleHtml}</span>
                         </div>
                         <div class="sched-edit-grid">
                             <div>
