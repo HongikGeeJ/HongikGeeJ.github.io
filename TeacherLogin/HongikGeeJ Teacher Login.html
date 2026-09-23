@@ -14196,6 +14196,8 @@
                 systemBackupFail: '이 PC에는 백업됨 · 클라우드 동기화 실패',
                 systemBackupFailHard: '시스템 백업 실패',
                 systemBackupNeedSql: ' · Supabase SQL Editor에서 FIX-systemBackup.sql 실행 필요',
+                portalSyncFail: '클라우드 동기화 실패 · 이 PC에는 저장됨 · 잠시 후 다시 시도',
+                portalSyncLocalOnly: '로컬만 저장 · Supabase/동기화 URL이 없으면 다른 PC에 안 보입니다',
                 shinAria: '짱구와 흰둥이',
                 shinHiMorning: '좋은 아침! 화이팅!',
                 shinHiDay: '오늘도 화이팅!',
@@ -15169,6 +15171,8 @@
                 systemBackupFail: 'สำรองในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
                 systemBackupFailHard: 'สำรองข้อมูลระบบล้มเหลว',
                 systemBackupNeedSql: ' · รัน FIX-systemBackup.sql ใน Supabase SQL Editor',
+                portalSyncFail: 'ซิงก์คลาวด์ล้มเหลว · บันทึกในเครื่องนี้แล้ว · ลองใหม่ภายหลัง',
+                portalSyncLocalOnly: 'บันทึกแค่เครื่องนี้ · ยังไม่มี Supabase/ลิงก์ซิงก์ เครื่องอื่นจะไม่เห็น',
                 shinAria: 'ชินจังกับชิโระ',
                 shinHiMorning: 'อรุณสวัสดิ์ครู!',
                 shinHiDay: 'วันนี้สู้ ๆ นะ!',
@@ -16142,6 +16146,8 @@
                 systemBackupFail: 'Saved on this PC · cloud sync failed',
                 systemBackupFailHard: 'System backup failed',
                 systemBackupNeedSql: ' · run FIX-systemBackup.sql in Supabase SQL Editor',
+                portalSyncFail: 'Cloud sync failed · saved on this PC · retry shortly',
+                portalSyncLocalOnly: 'Local only · no Supabase/sync URL — other PCs will not see changes',
                 shinAria: 'Shin-chan & Shiro',
                 shinHiMorning: 'Good morning!',
                 shinHiDay: 'You got this!',
@@ -22741,7 +22747,24 @@
                     portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, 100);
                 }
             }
+            try { notifyPortalPushResult(result); } catch (_) {}
             return result;
+        }
+        /** One clear toast on push fail / local-only — throttled so poll retries do not spam. */
+        function notifyPortalPushResult(result) {
+            if (!result || result.ok || result.busy || result.skipped && result.reason === 'nothing-to-push') return;
+            if (typeof showAppToast !== 'function') return;
+            if (result.reason === 'no-sync-backend' || portalSyncState.status === 'local-only') {
+                const msg = (typeof t === 'function' ? t('portalSyncLocalOnly') : '')
+                    || 'Local only · connect Supabase so other PCs can sync';
+                showAppToast(msg, 'warn', { throttleKey: 'portal-local-only' });
+                return;
+            }
+            if (result.error || portalSyncState.status === 'error') {
+                const msg = (typeof t === 'function' ? t('portalSyncFail') : '')
+                    || 'Cloud sync failed · saved on this PC';
+                showAppToast(msg, 'err', { throttleKey: 'portal-push-fail' });
+            }
         }
         async function syncPortalStoresFromCentral({ silent = true } = {}) {
             if (portalSyncInFlight) return { ok: false, busy: true, changed: false };
