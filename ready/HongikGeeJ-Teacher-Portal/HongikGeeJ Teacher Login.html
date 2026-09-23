@@ -8748,6 +8748,53 @@
             for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
             return new Blob([bytes], { type: mime });
         }
+        function photoEntryRecord(entry, fallbackAt = '') {
+            if (!entry) return null;
+            const publicUrl = photoEntryPublicUrl(entry);
+            const dataUrl = photoEntryDataUrl(entry);
+            if (!publicUrl && !dataUrl) return null;
+            const updatedAt = String(photoEntryUpdatedAt(entry) || fallbackAt || '').trim();
+            if (publicUrl && dataUrl && String(dataUrl).startsWith('data:')) {
+                return { dataUrl, url: publicUrl, updatedAt };
+            }
+            if (publicUrl) return { url: publicUrl, updatedAt };
+            return { dataUrl, updatedAt };
+        }
+        function pickNewerPhotoEntry(localEntry, remoteEntry) {
+            const a = photoEntryRecord(localEntry);
+            const b = photoEntryRecord(remoteEntry);
+            if (!a) return b;
+            if (!b) return a;
+            const atA = String(a.updatedAt || '');
+            const atB = String(b.updatedAt || '');
+            if (atA && atB) {
+                if (atA > atB) return a;
+                if (atB > atA) return b;
+            } else if (atB && !atA) return b;
+            else if (atA && !atB) return a;
+            // Same clock: prefer Storage/CDN URL over bulky dataUrl
+            const aUrl = photoEntryPublicUrl(a);
+            const bUrl = photoEntryPublicUrl(b);
+            if (bUrl && !aUrl) return b;
+            if (aUrl && !bUrl) return a;
+            return a;
+        }
+        function mergePhotoMaps(localMap, remoteMap) {
+            const out = {};
+            const ids = new Set([
+                ...Object.keys(localMap && typeof localMap === 'object' ? localMap : {}),
+                ...Object.keys(remoteMap && typeof remoteMap === 'object' ? remoteMap : {})
+            ]);
+            ids.forEach((id) => {
+                if (!id) return;
+                const picked = pickNewerPhotoEntry(
+                    localMap ? localMap[id] : null,
+                    remoteMap ? remoteMap[id] : null
+                );
+                if (picked) out[id] = picked;
+            });
+            return out;
+        }
         function collectPhotosPortalPayload() {
             const store = loadPhotosStore();
             const meta = loadPhotosMeta();
@@ -8758,6 +8805,7 @@
                 const dataUrl = photoEntryDataUrl(entry);
                 const updatedAt = String(meta[id] || photoEntryUpdatedAt(entry) || new Date().toISOString());
                 if (publicUrl) {
+                    // Prefer URL-only in cloud payload (small; cross-PC safe)
                     photos[id] = { url: publicUrl, updatedAt };
                 } else if (dataUrl) {
                     // Fallback when Storage upload unavailable — still sync via portal_stores
@@ -8765,6 +8813,46 @@
                 }
             });
             return { version: 1, updatedAt: new Date().toISOString(), source: 'portal', photos };
+        }
+        async function fetchRemotePhotosMap(sb) {
+            if (!sb) return {};
+            try {
+                const { data, error } = await sb
+                    .from('portal_stores')
+                    .select('data, updated_at')
+                    .eq('store_name', 'photos')
+                    .maybeSingle();
+                if (error || !data?.data) return {};
+                return normalizePhotosMap(data.data);
+            } catch (_) {
+                return {};
+            }
+        }
+        async function buildMergedPhotosPortalPayload(sb, { removeUserId = '' } = {}) {
+            const localPayload = collectPhotosPortalPayload();
+            const localMap = normalizePhotosMap(localPayload);
+            const remoteMap = await fetchRemotePhotosMap(sb);
+            const merged = mergePhotoMaps(localMap, remoteMap);
+            if (removeUserId) delete merged[removeUserId];
+            // Cloud index: prefer URL-only entries to stay under row size limits
+            const photos = {};
+            Object.keys(merged).forEach((id) => {
+                const rec = photoEntryRecord(merged[id]);
+                if (!rec) return;
+                const url = photoEntryPublicUrl(rec);
+                if (url) photos[id] = { url, updatedAt: rec.updatedAt || '' };
+                else if (rec.dataUrl) photos[id] = { dataUrl: rec.dataUrl, updatedAt: rec.updatedAt || '' };
+            });
+            return {
+                version: 1,
+                updatedAt: new Date().toISOString(),
+                source: 'portal',
+                photos
+            };
+        }
+        function applyMergedPhotosLocally(mergedMap) {
+            if (!mergedMap || typeof mergedMap !== 'object') return false;
+            return mergePhotosFromRemote(mergedMap, { source: 'merge-local' });
         }
         async function uploadTeacherPhotoToStorage(sb, userId, dataUrl) {
             if (!sb || !userId || !dataUrl) return '';
@@ -8831,7 +8919,30 @@
             try { localStorage.setItem(PHOTOS_META_STORE, JSON.stringify(meta || {})); } catch (_) {}
         }
         function savePhotosStore(store, { tick = true } = {}) {
-            localStorage.setItem(PHOTOS_STORE, JSON.stringify(store || {}));
+            try {
+                // Compact: drop base64 when a public URL exists (avoids localStorage quota wipe)
+                const compact = {};
+                Object.keys(store || {}).forEach((id) => {
+                    const entry = store[id];
+                    const url = photoEntryPublicUrl(entry);
+                    const dataUrl = photoEntryDataUrl(entry);
+                    const at = photoEntryUpdatedAt(entry) || '';
+                    if (url) compact[id] = at ? { url, updatedAt: at } : { url };
+                    else if (dataUrl) compact[id] = (typeof entry === 'string') ? entry : (at ? { dataUrl, updatedAt: at } : { dataUrl });
+                });
+                localStorage.setItem(PHOTOS_STORE, JSON.stringify(compact));
+            } catch (err) {
+                try {
+                    const urlsOnly = {};
+                    Object.keys(store || {}).forEach((id) => {
+                        const url = photoEntryPublicUrl(store[id]);
+                        if (url) urlsOnly[id] = { url, updatedAt: photoEntryUpdatedAt(store[id]) || '' };
+                    });
+                    localStorage.setItem(PHOTOS_STORE, JSON.stringify(urlsOnly));
+                } catch (_) {
+                    console.warn('hongik photos localStorage save failed', err);
+                }
+            }
             if (tick) {
                 try { localStorage.setItem(PHOTOS_STORE + ':tick', String(Date.now())); } catch (_) {}
                 try {
@@ -8841,15 +8952,16 @@
         }
         function getUserPhoto(userId) {
             if (!userId) return '';
-            const shared = photoEntryDataUrl(loadPhotosStore()[userId]);
+            const uid = (typeof canonicalAccountId === 'function' ? canonicalAccountId(userId) : userId) || userId;
+            const shared = photoEntryDataUrl(loadPhotosStore()[uid]);
             if (shared) return shared;
             try {
-                const legacy = localStorage.getItem(PHOTO_KEY(userId));
+                const legacy = localStorage.getItem(PHOTO_KEY(uid)) || localStorage.getItem(PHOTO_KEY(userId));
                 if (legacy) {
                     const store = loadPhotosStore();
-                    store[userId] = legacy;
+                    store[uid] = legacy;
                     const meta = loadPhotosMeta();
-                    if (!meta[userId]) meta[userId] = new Date().toISOString();
+                    if (!meta[uid]) meta[uid] = new Date().toISOString();
                     savePhotosMeta(meta);
                     savePhotosStore(store);
                     return legacy;
@@ -8879,24 +8991,25 @@
         }
         function setUserPhoto(userId, dataUrl, { updatedAt, syncRemote = true } = {}) {
             if (!userId) return Promise.resolve({ ok: false, skipped: true, reason: 'no-user' });
+            const uid = (typeof canonicalAccountId === 'function' ? canonicalAccountId(userId) : userId) || userId;
             const store = loadPhotosStore();
             const meta = loadPhotosMeta();
             const at = updatedAt || new Date().toISOString();
             if (dataUrl) {
-                store[userId] = dataUrl;
-                meta[userId] = at;
+                store[uid] = dataUrl;
+                meta[uid] = at;
             } else {
-                delete store[userId];
-                delete meta[userId];
+                delete store[uid];
+                delete meta[uid];
             }
             savePhotosMeta(meta);
             savePhotosStore(store);
             try {
-                if (dataUrl) localStorage.setItem(PHOTO_KEY(userId), dataUrl);
-                else localStorage.removeItem(PHOTO_KEY(userId));
+                if (dataUrl) localStorage.setItem(PHOTO_KEY(uid), dataUrl);
+                else localStorage.removeItem(PHOTO_KEY(uid));
             } catch (_) {}
             if (!syncRemote) return Promise.resolve({ ok: true, local: true, skipped: true });
-            return pushUserPhotoRemote(userId, dataUrl || '', at);
+            return pushUserPhotoRemote(uid, dataUrl || '', at);
         }
         function clearUserPhoto(userId) {
             return setUserPhoto(userId, '');
@@ -9161,8 +9274,12 @@
                     savePhotosMeta(meta);
                     savePhotosStore(store);
 
-                    // Upsert photos blob (URLs preferred; dataUrl fallback if Storage missing)
-                    const payload = collectPhotosPortalPayload();
+                    // Merge with remote first — never replace whole map with this PC's subset
+                    // (that wiped other teachers' photos when another device saved).
+                    const payload = await buildMergedPhotosPortalPayload(sb, {
+                        removeUserId: (!dataUrl && !publicUrl) ? userId : ''
+                    });
+                    try { applyMergedPhotosLocally(normalizePhotosMap(payload)); } catch (_) {}
                     const { error } = await sb.rpc('upsert_portal_store', {
                         p_name: 'photos',
                         p_data: payload,
@@ -9176,7 +9293,8 @@
                         }, { onConflict: 'store_name' });
                         if (upErr) throw new Error(upErr.message || 'photos portal upsert failed');
                     }
-                    if (typeof queuePortalStorePush === 'function') queuePortalStorePush('photos');
+                    // Direct upsert already done — skip queuePortalStorePush('photos')
+                    // (redundant push used local-only map and could race/wipe).
                     photosSyncState = {
                         status: 'ok',
                         at: new Date().toISOString(),
@@ -14512,7 +14630,9 @@
                 try { ensureAutoOtSynced(); } catch (_) {}
                 if (currentUser) {
                     try {
-                        if (typeof softRefreshDashboard === 'function') softRefreshDashboard({ stores: ['otReports'] });
+                        if (typeof softRefreshDashboard === 'function') {
+                            softRefreshDashboard(currentUser, { stores: ['otReports'], reason: 'ot-sheet' });
+                        }
                     } catch (_) {}
                 }
                 if (!silent) {
@@ -15536,11 +15656,30 @@
             portalSyncPending.clear();
             const stores = {};
             const at = new Date().toISOString();
-            names.forEach((name) => {
-                stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
-            });
-
             const sb = await ensureSupabaseClient();
+            for (const name of names) {
+                if (name === 'photos') {
+                    const localPayload = collectPhotosPortalPayload();
+                    const localCount = Object.keys(localPayload.photos || {}).length;
+                    if (sb) {
+                        const merged = await buildMergedPhotosPortalPayload(sb);
+                        const remoteCount = Object.keys((merged && merged.photos) || {}).length;
+                        // Never publish an empty photos map over a non-empty cloud index
+                        if (localCount === 0 && remoteCount > 0) {
+                            try { applyMergedPhotosLocally(normalizePhotosMap(merged)); } catch (_) {}
+                            continue;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                        try { applyMergedPhotosLocally(normalizePhotosMap(merged)); } catch (_) {}
+                    } else if (localCount > 0) {
+                        stores[name] = { data: localPayload, updatedAt: at };
+                    }
+                    continue;
+                }
+                stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+            }
+            if (!Object.keys(stores).length) return { ok: true, skipped: true, reason: 'nothing-to-push' };
+
             if (sb) {
                 try {
                     const pushed = await pushPortalStoresToSupabase(stores);
@@ -15614,7 +15753,16 @@
                             }
                         }
                     });
-                    const missing = PORTAL_STORE_IDS.filter((name) => !stores[name]);
+                    const missing = PORTAL_STORE_IDS.filter((name) => {
+                        if (stores[name]) return false;
+                        if (name === 'photos') {
+                            try {
+                                const p = collectPhotosPortalPayload();
+                                return Object.keys(p.photos || {}).length > 0;
+                            } catch (_) { return false; }
+                        }
+                        return true;
+                    });
                     if (missing.length) queuePortalStorePush(...missing);
                     portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'supabase' };
                     if (changed) {
@@ -19333,6 +19481,17 @@
                     if (!keepTab || !studentSheetSyncTimer) startStudentSheetLiveSync();
                     if (!keepTab || !photosSyncTimer) startPhotosLiveSync();
                     if (!keepTab || !portalSyncTimer) startPortalLiveSync();
+                    // Header avatar: loadPhoto runs before cloud pull — refresh once stores arrive
+                    if (!keepTab) {
+                        Promise.resolve()
+                            .then(() => (typeof syncPhotosFromCentral === 'function'
+                                ? syncPhotosFromCentral({ silent: true })
+                                : null))
+                            .then(() => {
+                                try { refreshPhotosUi(); } catch (_) {}
+                            })
+                            .catch(() => {});
+                    }
                 } else {
                     stopStudentSheetLiveSync();
                     stopPhotosLiveSync();
@@ -19429,7 +19588,14 @@
                 } catch (_) {}
             }
 
-            softRefreshDashboard = function (user, { stores = null, reason = '' } = {}) {
+            softRefreshDashboard = function (user, opts) {
+                // Allow softRefreshDashboard({ stores, reason }) without a user arg
+                if (user && typeof user === 'object' && user.id == null && user.role == null
+                    && (Object.prototype.hasOwnProperty.call(user, 'stores') || Object.prototype.hasOwnProperty.call(user, 'reason'))) {
+                    opts = user;
+                    user = currentUser;
+                }
+                const { stores = null, reason = '' } = opts || {};
                 if (!user) return;
                 if (dashboardScreen?.classList.contains('hidden-screen')) return;
                 if (softRefreshBusy) {
@@ -19460,11 +19626,14 @@
                     softRefreshLastAt = now;
                 }
                 const stableId = canonicalAccountId(user) || user.id;
-                currentUser = { ...user, id: stableId };
+                const fresh = (stableId && typeof resolveAccountById === 'function')
+                    ? (resolveAccountById(stableId) || user)
+                    : user;
+                currentUser = { ...fresh, id: stableId || fresh.id };
                 try {
-                    document.getElementById('dash-name').textContent = displayName(user);
+                    document.getElementById('dash-name').textContent = displayName(currentUser);
                     const chip = document.getElementById('dash-role-chip');
-                    const roleText = displayRole(user);
+                    const roleText = displayRole(currentUser);
                     if (chip) {
                         if (roleText) {
                             chip.textContent = roleText;
@@ -19477,8 +19646,8 @@
                     const todayEl = document.getElementById('dash-today');
                     if (todayEl) todayEl.textContent = formatToday();
                 } catch (_) {}
-                try { loadPhoto(user.id); } catch (_) {}
-                try { renderStats(user); } catch (_) {}
+                try { loadPhoto(currentUser.id); } catch (_) {}
+                try { renderStats(currentUser); } catch (_) {}
                 try { updateHelpFabBadge(); } catch (_) {}
 
                 // Always patch ack pills first (works even while typing / other tabs)
@@ -19487,8 +19656,8 @@
                 }
 
                 if (isDashboardUiBusy()) {
-                    softRefreshDeferred = { user, stores, reason };
-                    try { maybeShowAlertPopups(user); } catch (_) {}
+                    softRefreshDeferred = { user: currentUser, stores, reason };
+                    try { maybeShowAlertPopups(currentUser); } catch (_) {}
                     return;
                 }
 
@@ -19496,31 +19665,31 @@
                 const runSoftRefreshPaint = () => {
                     try {
                         // Data-only: never remount theme FX / never wipe #tab-panels (that caused global flicker)
-                        refreshMountedDataBoards(user, { stores });
+                        refreshMountedDataBoards(currentUser, { stores });
 
                         // Director panels baked into renderPanels (orders / leave / cancels) — refresh shell only when needed & idle
                         // Never rebuild "today" schedule form shell on sync (that flashed 종료 시간 inputs)
                         const shellStores = ['headOrders', 'orderAcks', 'leaveRequests', 'classCancels', 'schedChanges', 'directorTodos'];
                         const orderOnly = !!(stores && stores.length && stores.every((s) => s === 'headOrders' || s === 'orderAcks'));
                         const needShell = !stores || !stores.length || stores.some((s) => shellStores.includes(s));
-                        const directorShellTab = user.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab);
+                        const directorShellTab = currentUser.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab);
                         // Order ack: patch pills in place (no remount flicker). Other shell stores remount when idle on that tab.
                         if (needShell && directorShellTab && typeof renderPanels === 'function') {
                             if (orderOnly) {
                                 try { patchDirectorOrderAckBadges(); } catch (_) {}
                             } else {
-                                renderPanels(user);
+                                renderPanels(currentUser);
                                 setTab(currentTab);
                             }
                         }
-                        try { maybeShowAlertPopups(user); } catch (_) {}
+                        try { maybeShowAlertPopups(currentUser); } catch (_) {}
                     } finally {
                         softRefreshBusy = false;
                         if (softRefreshDeferred) {
                             const pending = softRefreshDeferred;
                             softRefreshDeferred = null;
                             if (!isDashboardUiBusy()) {
-                                softRefreshDashboard(pending.user || user, { stores: pending.stores, reason: pending.reason || 'deferred' });
+                                softRefreshDashboard(pending.user || currentUser, { stores: pending.stores, reason: pending.reason || 'deferred' });
                             } else {
                                 softRefreshDeferred = pending;
                             }

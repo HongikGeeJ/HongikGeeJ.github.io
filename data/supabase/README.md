@@ -94,7 +94,7 @@ Priority when saving / syncing portal stores:
 2. Else **Apps Script** if `data/photos/sync-config.json` `syncUrl` is set  
 3. Else **localStorage only** (no crash)
 
-**Profile photos:** upload JPEG → Supabase Storage bucket `teacher-photos` (public URL) + `portal_stores.photos` index so every role sees the same avatar (profiles + room timetable). Quality stays high (~720px JPEG q≈0.92). If Storage is not created yet, photos still sync as data URLs inside `portal_stores.photos` after you run `storage-photos.sql` step 1 (allow `photos` store name).
+**Profile photos:** upload JPEG → Supabase Storage bucket `teacher-photos` (public URL) + `portal_stores.photos` index (per-account merge, never wipe other teachers). Quality stays high (~720px JPEG q≈0.92). **One-time SQL:** paste `data/supabase/FIX-RUN-IN-SQL-EDITOR.sql` in Supabase SQL Editor if cloud save fails (`store_name_check` or Storage bucket missing). Until then, photos stay on that PC only.
 
 Live site:
 
