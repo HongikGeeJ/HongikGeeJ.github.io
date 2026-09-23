@@ -18643,7 +18643,6 @@
         }
         migrateAdminPasscode();
         migrateOfficialTimetable();
-        migrateStripSampleEmergency();
 
         function getPasswordForId(id) {
             const custom = loadPasswords()[id];
@@ -18979,6 +18978,8 @@
             if (!entry) return null;
             return mergeAccount(entry[1], getPasswordForId(id));
         }
+
+        try { migrateStripSampleEmergency(); } catch (_) {}
 
         function matchAccountByPasscode(passcode) {
             const code = String(passcode || '').trim();

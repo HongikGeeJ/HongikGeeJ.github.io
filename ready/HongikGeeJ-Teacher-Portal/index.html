@@ -12805,6 +12805,26 @@
                 localStorage.setItem(TIMETABLE_VER_KEY, TIMETABLE_VER);
             } catch (_) {}
         }
+        /** Drop hardcoded sample emergency rows previously seeded into accountData. */
+        function migrateStripSampleEmergency() {
+            try {
+                if (localStorage.getItem('hongik-em-strip-seed-v1') === '1') return;
+                const store = loadOverrides();
+                let changed = false;
+                Object.keys(store || {}).forEach((uid) => {
+                    const row = store[uid];
+                    if (!row || !Array.isArray(row.emergency)) return;
+                    const next = normalizeEmergencyContacts(row.emergency);
+                    if (JSON.stringify(next) !== JSON.stringify(row.emergency)) {
+                        row.emergency = next;
+                        row.updatedAt = new Date().toISOString();
+                        changed = true;
+                    }
+                });
+                if (changed) saveOverrides(store);
+                localStorage.setItem('hongik-em-strip-seed-v1', '1');
+            } catch (_) {}
+        }
 
         // ---- Accounts ----
         const ACCOUNTS = {
@@ -18958,6 +18978,8 @@
             if (!entry) return null;
             return mergeAccount(entry[1], getPasswordForId(id));
         }
+
+        try { migrateStripSampleEmergency(); } catch (_) {}
 
         function matchAccountByPasscode(passcode) {
             const code = String(passcode || '').trim();
