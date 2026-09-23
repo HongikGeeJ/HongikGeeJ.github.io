@@ -2168,7 +2168,8 @@
         .theme-teacher-c .stat-card {
             border-color: rgba(91,140,90,.14);
             box-shadow: 0 8px 22px rgba(91,140,90,.07);
-            background: rgba(255,255,255,.88);
+            /* background-color only — keep edge flower strip (background-image) */
+            background-color: rgba(255,255,255,.88);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
         }
@@ -2180,6 +2181,79 @@
         .theme-teacher-c .dash-identity-text { padding-left: .7rem; margin-left: 0; }
         .theme-teacher-c .ko-header-tag { color: #3f6212; border-left-color: #65a30d; }
         .theme-teacher-c #dash-name { color: #2d3b2c !important; line-height: 1.55 !important; padding-bottom: .2em; overflow: visible; }
+
+        /*
+          Sua only (.theme-teacher-c): ~3× floral chrome.
+          Edge mini-flower strip + card corner blooms + dash-shell .dc-c.
+          Other accounts keep the shared base sizes.
+        */
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c {
+            width: 216px;
+            height: 216px;
+        }
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl,
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
+            width: 156px;
+            height: 156px;
+        }
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -18px; left: 0; }
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
+            top: -18px; left: 100%; right: auto;
+        }
+        .theme-teacher-c .content-card {
+            background-image:
+                url('assets/dancheong/edge-sparkles.svg?v=flower1'),
+                url('assets/dancheong/edge-sparkles.svg?v=flower1');
+            background-repeat: no-repeat;
+            background-position: center top 3px, center bottom 3px;
+            background-size: min(100%, 520px) 48px;
+            padding-top: 3.35rem;
+            padding-bottom: 3.35rem;
+        }
+        .theme-teacher-c .content-card::before,
+        .theme-teacher-c .content-card::after {
+            width: 96px;
+            height: 96px;
+        }
+        .theme-teacher-c .content-card.compact-card {
+            background-size: min(100%, 400px) 42px;
+            padding-top: 2.9rem;
+            padding-bottom: 2.9rem;
+        }
+        .theme-teacher-c .content-card.compact-card::before,
+        .theme-teacher-c .content-card.compact-card::after {
+            width: 78px;
+            height: 78px;
+        }
+        @media (max-width: 720px) {
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c {
+                width: 168px; height: 168px;
+            }
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl,
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
+                width: 126px; height: 126px;
+            }
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -12px; left: 0; }
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr { top: -12px; left: 100%; }
+        }
+        @media (max-width: 480px) {
+            .theme-teacher-c .content-card {
+                background-size: min(100%, 340px) 42px;
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+            .theme-teacher-c .content-card::before,
+            .theme-teacher-c .content-card::after {
+                width: 72px; height: 72px;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .theme-teacher-c .content-card {
+                background-image:
+                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1'),
+                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1');
+            }
+        }
 
         /* 원장: masculine composed · slate navy · Korean head FX */
         .theme-director {

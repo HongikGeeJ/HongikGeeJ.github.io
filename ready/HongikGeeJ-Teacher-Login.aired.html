@@ -2168,7 +2168,8 @@
         .theme-teacher-c .stat-card {
             border-color: rgba(91,140,90,.14);
             box-shadow: 0 8px 22px rgba(91,140,90,.07);
-            background: rgba(255,255,255,.88);
+            /* background-color only — keep edge flower strip (background-image) */
+            background-color: rgba(255,255,255,.88);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
         }
@@ -2180,6 +2181,79 @@
         .theme-teacher-c .dash-identity-text { padding-left: .7rem; margin-left: 0; }
         .theme-teacher-c .ko-header-tag { color: #3f6212; border-left-color: #65a30d; }
         .theme-teacher-c #dash-name { color: #2d3b2c !important; line-height: 1.55 !important; padding-bottom: .2em; overflow: visible; }
+
+        /*
+          Sua only (.theme-teacher-c): ~3× floral chrome.
+          Edge mini-flower strip + card corner blooms + dash-shell .dc-c.
+          Other accounts keep the shared base sizes.
+        */
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c {
+            width: 216px;
+            height: 216px;
+        }
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl,
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
+            width: 156px;
+            height: 156px;
+        }
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -18px; left: 0; }
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
+            top: -18px; left: 100%; right: auto;
+        }
+        .theme-teacher-c .content-card {
+            background-image:
+                url('assets/dancheong/edge-sparkles.svg?v=flower1'),
+                url('assets/dancheong/edge-sparkles.svg?v=flower1');
+            background-repeat: no-repeat;
+            background-position: center top 3px, center bottom 3px;
+            background-size: min(100%, 520px) 48px;
+            padding-top: 3.35rem;
+            padding-bottom: 3.35rem;
+        }
+        .theme-teacher-c .content-card::before,
+        .theme-teacher-c .content-card::after {
+            width: 96px;
+            height: 96px;
+        }
+        .theme-teacher-c .content-card.compact-card {
+            background-size: min(100%, 400px) 42px;
+            padding-top: 2.9rem;
+            padding-bottom: 2.9rem;
+        }
+        .theme-teacher-c .content-card.compact-card::before,
+        .theme-teacher-c .content-card.compact-card::after {
+            width: 78px;
+            height: 78px;
+        }
+        @media (max-width: 720px) {
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c {
+                width: 168px; height: 168px;
+            }
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl,
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
+                width: 126px; height: 126px;
+            }
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -12px; left: 0; }
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr { top: -12px; left: 100%; }
+        }
+        @media (max-width: 480px) {
+            .theme-teacher-c .content-card {
+                background-size: min(100%, 340px) 42px;
+                padding-top: 3rem;
+                padding-bottom: 3rem;
+            }
+            .theme-teacher-c .content-card::before,
+            .theme-teacher-c .content-card::after {
+                width: 72px; height: 72px;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .theme-teacher-c .content-card {
+                background-image:
+                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1'),
+                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1');
+            }
+        }
 
         /* 원장: masculine composed · slate navy · Korean head FX */
         .theme-director {
@@ -4677,9 +4751,18 @@
             margin: .2rem 0 .85rem; border-radius: 1.1rem; border: 1.5px solid #e2e8f0;
             background: #fff; overflow: hidden;
         }
+        .pt-cal-heading {
+            display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem .55rem;
+            padding: .85rem 1rem .25rem; margin: 0;
+            font-size: clamp(1.35rem, 3.2vw, 1.75rem); font-weight: 900;
+            letter-spacing: -0.02em; color: #0f172a; line-height: 1.15;
+        }
+        .pt-cal-heading .pt-cal-ym {
+            font-size: .88rem; font-weight: 750; color: #64748b; letter-spacing: 0;
+        }
         .pt-cal-grid {
             display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
-            padding: .55rem .6rem .75rem;
+            padding: .45rem .6rem .75rem;
         }
         .pt-cal-dow {
             text-align: center; font-size: .72rem; font-weight: 850; color: #94a3b8; padding: .3rem 0 .4rem;
@@ -4687,14 +4770,22 @@
         .pt-cal-dow.sun { color: #f87171; }
         .pt-cal-cell {
             min-height: 76px; border-radius: .7rem; padding: .35rem .28rem .4rem;
-            background: #fafbfd; color: #334155; position: relative;
+            background: #e8eef6; color: #334155; position: relative;
             display: flex; flex-direction: column; gap: .2rem;
+            box-shadow: inset 0 0 0 1px rgba(148,163,184,.22);
         }
-        .pt-cal-cell.out { opacity: .28; background: transparent; }
+        .pt-cal-cell.out { opacity: .28; background: transparent; box-shadow: none; }
         .pt-cal-cell.sun .pt-cal-num { color: #dc2626; }
+        .pt-cal-cell.has-entries {
+            background: linear-gradient(160deg, #fce7f3 0%, #fbcfe8 100%);
+            box-shadow: inset 0 0 0 1.5px rgba(236,72,153,.35);
+        }
         .pt-cal-cell.today {
             border: 2px solid #f97316; background: #fff7ed;
             box-shadow: 0 0 0 2px rgba(249,115,22,.18);
+        }
+        .pt-cal-cell.today.has-entries {
+            background: linear-gradient(160deg, #ffedd5 0%, #fce7f3 100%);
         }
         .pt-cal-num { font-weight: 850; font-size: .95rem; line-height: 1.2; }
         .pt-cal-add {
@@ -8734,7 +8825,7 @@
                 </div>
                 <div>
                     <label class="sched-label" for="pt-calc-date"></label>
-                    <input type="date" id="pt-calc-date" class="sched-text" min="2026-10-01" max="2027-12-31">
+                    <input type="date" id="pt-calc-date" class="sched-text" min="2026-09-01" max="2027-12-31">
                 </div>
                 <div>
                     <label class="sched-label" for="pt-calc-start"></label>
@@ -11432,7 +11523,7 @@
                 ptRateFixed: '시급 고정 ฿300',
                 ptCalcTotal: '이달 합계',
                 ptSaveRecord: '계산 결과 저장',
-                ptAddRecord: '항목 추가',
+                ptAddRecord: '선생님 항목 추가',
                 ptNoRecords: '이달 기록 없음',
                 ptPickMonth: '월 선택',
                 ptLookback: '2026.10–2027.12 · 창 밖 기록 자동 정리',
@@ -12305,7 +12396,7 @@
                 ptRateFixed: 'เรทคงที่ ฿300/ชม.',
                 ptCalcTotal: 'รวมเดือนนี้',
                 ptSaveRecord: 'บันทึกผลคำนวณ',
-                ptAddRecord: 'เพิ่มรายการ',
+                ptAddRecord: 'เพิ่มรายการคุณครู',
                 ptNoRecords: 'ยังไม่มีรายการเดือนนี้',
                 ptPickMonth: 'เลือกเดือน',
                 ptLookback: 'ต.ค. 2026 – ธ.ค. 2027 · ลบนอกช่วงอัตโนมัติ',
@@ -12888,6 +12979,8 @@
                 emTeacherProfileStart: 'Start date',
                 emTeacherProfileCode: 'Code',
                 emTeacherProfileBirth: 'Date of birth',
+                emTeacherProfileEmail: 'Email',
+                emTeacherProfileBlood: 'Blood type',
                 emTeacherRoleTeacher: 'Teacher',
                 emTeacherLangKo: 'Korean',
                 emTeacherLangEn: 'English',
@@ -13178,7 +13271,7 @@
                 ptRateFixed: 'Fixed rate ฿300/hr',
                 ptCalcTotal: 'Month total',
                 ptSaveRecord: 'Save calculation',
-                ptAddRecord: 'Add entry',
+                ptAddRecord: 'Add teacher entry',
                 ptNoRecords: 'No records this month',
                 ptPickMonth: 'Pick month',
                 ptLookback: 'Oct 2026 – Dec 2027 · auto-prune outside window',
@@ -24520,7 +24613,6 @@
                     ${buildPtCalendarHtml(ym, records, canEdit, esc)}
                     <div class="pt-hist-head">
                         <h4><i class="ph ph-list-bullets" style="color:var(--accent)"></i> ${t('ptHistory')}</h4>
-                        ${canEdit ? `<button type="button" class="pt-add-primary" data-pt-add-empty="1" style="padding:.45rem .9rem;font-size:.82rem">${t('ptAddRecord')}</button>` : ''}
                     </div>
                     <div class="pt-calc-table-wrap">
                         <table class="pt-calc-table">
