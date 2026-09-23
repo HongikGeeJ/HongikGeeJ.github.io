@@ -5829,8 +5829,27 @@
         .em-profile-meta .badge {
             font-size: .78rem; font-weight: 750; padding: .28rem .65rem;
         }
+        /* Language-flag identity chip — roomy so TH/KR/UK aren't squeezed */
+        .em-profile-meta .ov-lang-flags.badge,
+        .em-profile-meta .badge.ov-lang-flags {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: .34rem .78rem !important;
+            min-width: 5.1rem;
+            line-height: 1;
+            background: #f8fafc !important;
+            color: inherit !important;
+            border: 1px solid #e2e8f0 !important;
+            font-weight: 700 !important;
+        }
         .em-profile-meta .ov-lang-flags img {
             width: 16px; height: 16px; border-radius: 2px;
+            flex-shrink: 0;
+            object-fit: cover;
+            display: block;
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, .08);
         }
         .em-profile-bio {
             display: grid; gap: .45rem; margin: 0 0 1rem;
@@ -6212,8 +6231,10 @@
         .theme-director .ov-teacher-btn .ov-lang-flags.badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: .22rem .45rem !important;
+            justify-content: center;
+            gap: 8px;
+            padding: .3rem .7rem !important;
+            min-width: 5.1rem;
             line-height: 1;
             background: #f8fafc !important;
             color: inherit !important;
@@ -6241,6 +6262,7 @@
             width: 18px;
             height: 18px;
             border-radius: 2px;
+            flex-shrink: 0;
             object-fit: cover;
             display: block;
             box-shadow: 0 0 0 1px rgba(15, 23, 42, .08);
