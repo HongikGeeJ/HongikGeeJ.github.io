@@ -31427,7 +31427,7 @@
                 if (!el) return;
                 const uid = userOrId || (typeof currentUser !== 'undefined' ? currentUser : null);
                 const label = formatLocationDisplay(accountLocation(uid));
-                const next = `<span class="dash-loc-ico" aria-hidden="true">🛕</span><span class="dash-loc-text">${String(label).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
+                const next = `<span class="dash-loc-ico" aria-hidden="true">⛰️</span><span class="dash-loc-text">${String(label).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
                 if (el.dataset.locLabel === label && el.querySelector('.dash-loc-text')) return;
                 el.dataset.locLabel = label;
                 el.innerHTML = next;
