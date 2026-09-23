@@ -9520,7 +9520,7 @@
                 animation: roomTtLiveSpin .7s linear infinite !important;
             }
         }
-        /* Compact week navigator — ALL room-TT accounts (minimal + flower + soft light-play) */
+        /* Compact week navigator — ALL room-TT accounts (minimal + flower + soft light-play) WEEKNAV_SHIMMER_V11 */
         .room-tt-nav {
             display: flex; align-items: center; gap: .36rem; flex-wrap: wrap;
             margin: 0; padding: 0;
@@ -34762,13 +34762,18 @@
             function resolveDashboardTab(user, preferred) {
                 let id = preferred == null ? '' : String(preferred);
                 if (id === 'classes') id = 'rooms';
+                const u = user || currentUser;
+                /* Non-OT-eligible teachers must never land on otpay → ptcalc (part-time) or today. */
+                if (id === 'otpay' && u && u.role === 'teacher' && !isOtEligibleTeacher(u.id)) {
+                    id = isPartTimeTeacher(u) ? 'ptcalc' : (defaultTabForRole(u) || 'today');
+                }
                 const btns = Array.from(document.querySelectorAll('#dash-tabs .tab-btn'));
                 const panels = Array.from(document.querySelectorAll('#tab-panels .tab-panel'));
                 const btnIds = new Set(btns.map((b) => b.dataset.tab).filter(Boolean));
                 const panelIds = new Set(panels.map((p) => p.dataset.panel).filter(Boolean));
                 const usable = (tid) => !!(tid && btnIds.has(tid) && (panelIds.has(tid) || !panelIds.size));
                 if (usable(id)) return id;
-                const fallback = defaultTabForRole(user || currentUser);
+                const fallback = defaultTabForRole(u);
                 if (usable(fallback)) return fallback;
                 for (const b of btns) {
                     const tid = b.dataset.tab;
