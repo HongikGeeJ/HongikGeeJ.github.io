@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "proxyUrl": "",
+  "proxyUrl": "https://script.google.com/macros/s/AKfycbxYWbNdDuSJU1Nm-GxOpwPHdYcvsxLpAtGrbaoLJgQXc7Q_qgQMOEbwXMS6C3sRpdatLQ/exec",
   "model": "gemini-2.0-flash",
   "note": "ใส่ Apps Script Web App URL จาก apps-script/gemini-proxy/Code.gs แล้ว git push — คีย์ Gemini เก็บใน Script Properties (GEMINI_API_KEY) ไม่ใส่ในไฟล์นี้"
 }
