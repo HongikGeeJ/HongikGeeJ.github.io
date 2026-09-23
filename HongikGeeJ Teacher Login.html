@@ -19911,30 +19911,80 @@
             if (!remote) return { data: local, changed: false };
             const localAt = String(local.updatedAt || '');
             const remoteAt = String(remote.updatedAt || '');
-            const localBlocks = local.blocks && typeof local.blocks === 'object' ? { ...local.blocks } : {};
+            const localBlocks = local.blocks && typeof local.blocks === 'object' ? local.blocks : {};
             const remoteBlocks = remote.blocks && typeof remote.blocks === 'object' ? remote.blocks : {};
             let changed = false;
-            const outBlocks = { ...localBlocks };
-            Object.keys(remoteBlocks).forEach((id) => {
+            const outBlocks = {};
+            const ids = new Set([...Object.keys(localBlocks), ...Object.keys(remoteBlocks)]);
+            ids.forEach((id) => {
+                const lb = localBlocks[id];
                 const rb = remoteBlocks[id];
-                const lb = outBlocks[id];
-                const rAt = String((rb && rb.updatedAt) || remoteAt || '');
-                const lAt = String((lb && lb.updatedAt) || localAt || '');
-                if (!lb || (rAt && rAt > lAt)) {
+                if (lb && !rb) {
+                    // Remote missing id: drop if remote store is newer (deleted elsewhere), else keep local create
+                    if (remoteAt && localAt && remoteAt > localAt) {
+                        changed = true;
+                        return;
+                    }
+                    outBlocks[id] = lb;
+                    return;
+                }
+                if (!lb && rb) {
                     outBlocks[id] = rb;
                     changed = true;
+                    return;
+                }
+                const rAt = String((rb && rb.updatedAt) || remoteAt || '');
+                const lAt = String((lb && lb.updatedAt) || localAt || '');
+                if (rAt && (!lAt || rAt > lAt)) {
+                    outBlocks[id] = rb;
+                    if (JSON.stringify(rb) !== JSON.stringify(lb)) changed = true;
+                } else if (lAt && (!rAt || lAt > rAt)) {
+                    outBlocks[id] = lb;
+                    // local newer — no local apply change; still needed for merge-on-push
+                } else {
+                    // Equal / missing stamps — prefer remote so cancels from other PCs win ties
+                    const preferRemote = JSON.stringify(rb) !== JSON.stringify(lb);
+                    outBlocks[id] = preferRemote ? rb : lb;
+                    if (preferRemote) changed = true;
                 }
             });
             let seedVer = local.seedVer || '';
-            if (remoteAt && remoteAt > localAt && remote.seedVer && remote.seedVer !== seedVer) {
+            if (remote.seedVer && remoteAt && (!localAt || remoteAt >= localAt) && remote.seedVer !== seedVer) {
                 seedVer = remote.seedVer;
                 changed = true;
+            } else if (!seedVer && remote.seedVer) {
+                seedVer = remote.seedVer;
             }
-            const updatedAt = remoteAt && remoteAt > localAt ? remoteAt : (localAt || remoteAt || new Date().toISOString());
+            const updatedAt = remoteAt && (!localAt || remoteAt > localAt)
+                ? remoteAt
+                : (localAt || remoteAt || new Date().toISOString());
             return {
                 data: { seedVer, blocks: outBlocks, updatedAt },
                 changed
             };
+        }
+        /** Pull cloud roomTt and LWW-merge with local before push — never clobber fresher cancels. */
+        async function buildMergedRoomTtPayload(sb) {
+            const local = loadRoomTimetable();
+            if (!sb) return local;
+            try {
+                const { data, error } = await sb
+                    .from('portal_stores')
+                    .select('data, updated_at')
+                    .eq('store_name', 'roomTt')
+                    .maybeSingle();
+                if (error || !data) return local;
+                const remoteRaw = data.data && typeof data.data === 'object' ? data.data : {};
+                const remote = {
+                    seedVer: remoteRaw.seedVer || '',
+                    blocks: remoteRaw.blocks && typeof remoteRaw.blocks === 'object' ? remoteRaw.blocks : {},
+                    updatedAt: String(remoteRaw.updatedAt || data.updated_at || '')
+                };
+                const merged = mergeRoomTtData(local, remote);
+                return merged.data;
+            } catch (_) {
+                return local;
+            }
         }
         function mergeUpdatedAtMaps(localMap, remoteMap) {
             const out = { ...(localMap && typeof localMap === 'object' ? localMap : {}) };
@@ -20227,9 +20277,23 @@
                     return false;
                 }
                 if (name === 'roomTt') {
-                    const merged = mergeRoomTtData(loadRoomTimetable(), remoteData);
+                    const before = loadRoomTimetable();
+                    const merged = mergeRoomTtData(before, remoteData);
                     if (merged.changed) {
                         saveRoomTimetable(merged.data, { syncRemote: false });
+                        try {
+                            // Keep today schedules in sync with live room-TT status (cancel / postpone)
+                            Object.keys(merged.data.blocks || {}).forEach((id) => {
+                                const nb = merged.data.blocks[id];
+                                const ob = before.blocks && before.blocks[id];
+                                if (!nb || nb.isBreak || nb.teacherId === 'break' || nb.teacherId === 'parttime') return;
+                                if (!ob || normalizeClassStatus(ob.classStatus) !== normalizeClassStatus(nb.classStatus)
+                                    || String(ob.start || '') !== String(nb.start || '')
+                                    || String(ob.end || '') !== String(nb.end || '')) {
+                                    upsertDayScheduleFromRoomSlot(nb);
+                                }
+                            });
+                        } catch (_) {}
                         return true;
                     }
                     if ((!localStorage.getItem(ROOM_TT_STORE) || localStorage.getItem(ROOM_TT_STORE) === 'null')
@@ -20472,6 +20536,22 @@
                         try {
                             portalSyncApplying = true;
                             saveOverrides(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'roomTt') {
+                    // Merge with remote first — a stale PC must not wipe another teacher's cancel/book.
+                    try {
+                        const merged = await buildMergedRoomTtPayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            saveRoomTimetable(merged, { syncRemote: false });
                         } finally {
                             portalSyncApplying = false;
                         }
@@ -25190,8 +25270,11 @@
                     if (document.querySelector('.sched-item.is-editing')) return true;
                     const ae = document.activeElement;
                     if (ae && typeof ae.closest === 'function') {
+                        // Passive room-TT chrome (week nav / month / live) must not block live cancel sync
+                        const roomTtPassive = ae.closest('#room-tt-board')
+                            && !ae.closest('#room-tt-modal, #room-tt-month-modal, .room-tt-book-form, .modal.open');
                         if (ae.matches('input, select, textarea, button, [contenteditable="true"]')) {
-                            if (ae.closest('#tab-panels, #admin-editor, .modal, .teach-shell, .sched-form, #room-tt-board, #notes-app, #help-panel')) {
+                            if (!roomTtPassive && ae.closest('#tab-panels, #admin-editor, .modal, .teach-shell, .sched-form, #room-tt-board, #notes-app, #help-panel')) {
                                 return true;
                             }
                         }
@@ -25356,6 +25439,23 @@
                             }
                             if (typeof renderTeacherEmergencyApp === 'function' && document.getElementById('em-teacher-app')) {
                                 renderTeacherEmergencyApp(currentUser);
+                            }
+                        } catch (_) {}
+                    }
+                    // Room timetable: still paint cancels/books while viewing rooms (not editing a form)
+                    if (!stores || !stores.length || stores.includes('roomTt') || stores.includes('daySchedules') || stores.includes('classCancels')) {
+                        try {
+                            if (document.getElementById('room-tt-board')
+                                && !document.getElementById('room-tt-modal')?.classList.contains('open')
+                                && !document.getElementById('room-tt-month-modal')?.classList.contains('open')
+                                && !roomTtMonthBusy && !roomTtMonthPick && !roomTtRangePick) {
+                                refreshMountedDataBoards(currentUser, {
+                                    stores: (stores && stores.length)
+                                        ? stores.filter((s) => s === 'roomTt' || s === 'daySchedules' || s === 'classCancels')
+                                        : ['roomTt']
+                                });
+                            } else {
+                                try { updateClassStatus(); } catch (_) {}
                             }
                         } catch (_) {}
                     }
