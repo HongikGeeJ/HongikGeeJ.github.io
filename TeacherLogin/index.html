@@ -9212,13 +9212,21 @@
             flex: 1 1 auto;
             display: flex;
             flex-direction: column;
+            margin-top: 0 !important;
             margin-bottom: 0 !important;
             min-height: 100%;
             background-color: #fff !important;
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
             box-shadow: 0 1px 0 rgba(15, 23, 42, .04) !important;
-            padding: 1.2rem 1.35rem 1.35rem !important;
+            /* Equal L/R (no bloom clearance) so ตารางห้อง isn’t stuck right; shorter top sits higher */
+            padding: .8rem 1.55rem 1.1rem !important;
+        }
+        .dash-body:has(> #tab-panels > .tab-panel[data-panel="rooms"].active) {
+            padding-top: .85rem;
+        }
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="rooms"] > .content-card {
+            margin-top: 0 !important;
         }
         .tab-panel[data-panel="rooms"] > .content-card > h3 {
             font-size: 1.32rem;
@@ -9253,6 +9261,14 @@
         }
         .tab-panel[data-panel="rooms"] .room-tt-scroll {
             min-height: min(58vh, 640px);
+        }
+        @media (max-width: 720px) {
+            .tab-panel[data-panel="rooms"] > .content-card {
+                padding: .7rem .9rem .95rem !important;
+            }
+            .dash-body:has(> #tab-panels > .tab-panel[data-panel="rooms"].active) {
+                padding-top: .7rem;
+            }
         }
 
         /* Big month overview modal */
