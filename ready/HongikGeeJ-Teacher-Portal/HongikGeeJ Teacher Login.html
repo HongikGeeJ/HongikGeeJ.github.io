@@ -471,7 +471,9 @@
             .dc-c.bl { transform: scaleY(-1); }
             .dc-c.br { transform: scale(-1); }
         }
-        /* Corner blooms + dense mini-flower rail on card edges (all roles) */
+        /* Corner blooms + mini-flower rail on card edges (all roles).
+           Rails are background-image only (never hit-test). Pseudos must stay
+           pointer-events:none so they cannot cover #dash-tabs / header / cards. */
         .content-card {
             position: relative;
             overflow: visible;
@@ -480,16 +482,16 @@
                 url('assets/dancheong/edge-sparkles.svg?v=flower1'),
                 url('assets/dancheong/edge-sparkles.svg?v=flower1');
             background-repeat: no-repeat;
-            background-position: center top 3px, center bottom 3px;
-            /* ~5× prior 16px rail (top + bottom) */
-            background-size: min(100%, 520px) 80px;
+            /* Tuck flush to card edges — less content intrusion */
+            background-position: center top 0, center bottom 0;
+            background-size: min(100%, 480px) 48px;
         }
         .content-card::before,
         .content-card::after {
             content: '';
             position: absolute;
             width: 32px; height: 32px;
-            pointer-events: none;
+            pointer-events: none !important;
             /* Under card content so blooms never cover text/icons */
             z-index: 0;
             background-repeat: no-repeat;
@@ -534,7 +536,7 @@
             width: 26px; height: 26px; opacity: .82;
         }
         .content-card.compact-card {
-            background-size: min(100%, 400px) 70px;
+            background-size: min(100%, 380px) 42px;
         }
         .content-card[style*="transparent"] {
             background-image: none;
@@ -565,7 +567,7 @@
             .dc-c.br { top: calc(100% + 12px); left: calc(100% + 12px); bottom: auto; right: auto; }
             .content-card::before,
             .content-card::after { width: 24px; height: 24px; opacity: .7; }
-            .content-card { background-size: min(100%, 340px) 70px; }
+            .content-card { background-size: min(100%, 320px) 40px; }
         }
         .dash-shell {
             width: 100%;
@@ -602,8 +604,8 @@
         @media (min-width: 1100px) {
             .dash-body { padding: 1.35rem 1.85rem 1.75rem; }
             .dash-header { padding-left: 1.5rem; padding-right: 1.5rem; }
-            .content-card { padding: 5.65rem 1.5rem; }
-            .content-card.compact-card { padding: 5rem 1.4rem; }
+            .content-card { padding: 3.35rem 1.5rem; }
+            .content-card.compact-card { padding: 3rem 1.4rem; }
             .tab-panel[data-panel="rooms"] .room-tt-wrap { max-height: none; }
         }
         @media (min-width: 1400px) {
@@ -1826,26 +1828,48 @@
         .dash-header-fx {
             position: absolute;
             inset: 0;
-            z-index: 6;
+            /* Décor only — stay under hangul name / clock / chrome */
+            z-index: 1;
             pointer-events: none;
             overflow: hidden;
             border-radius: inherit;
         }
         .dash-header > .dash-identity {
             position: relative;
-            z-index: 8;
+            z-index: 20;
         }
         .dash-header > .header-actions {
             position: relative;
-            /* Above FX + corner blooms (header stack is above .dc-corners) */
-            z-index: 8;
+            /* Above FX floats + wallpaper blooms; logout/logo stay clickable */
+            z-index: 30;
             pointer-events: auto;
         }
         .dash-header-fx .hangul-float-layer {
             z-index: 1;
         }
+        /* Hangul name + live clock + Korean date — frontmost over wallpaper/flowers */
+        .header-clock-cluster {
+            position: relative;
+            z-index: 50;
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            isolation: isolate;
+            pointer-events: none;
+        }
+        .header-clock-stack {
+            position: relative;
+            z-index: 51;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            gap: .1rem;
+            flex-shrink: 0;
+        }
         /* Personal/brand Hangul mark — always immediately before #digital-clock / #dash-clock */
-        .header-actions > .hangul-mark,
+        .header-actions .hangul-mark,
+        .header-clock-cluster > .hangul-mark,
         #dash-hangul-mark {
             position: relative;
             display: none;
@@ -1853,7 +1877,7 @@
             align-self: center;
             margin: 0 .45rem 0 0;
             padding: 0;
-            z-index: 2;
+            z-index: 55;
             font-size: clamp(1.35rem, 3.6vw, 2.05rem);
             font-weight: 900;
             letter-spacing: .06em;
@@ -1861,22 +1885,43 @@
             line-height: 1;
             white-space: nowrap;
             user-select: none;
-            opacity: .34;
+            opacity: .42;
             color: #4a6fa5;
             animation: hangulFloatCharm 9.5s ease-in-out infinite;
             pointer-events: none;
             will-change: transform, opacity;
         }
-        .header-actions > .hangul-mark.is-on,
+        .header-actions .hangul-mark.is-on,
+        .header-clock-cluster > .hangul-mark.is-on,
         #dash-hangul-mark.is-on {
             display: inline-flex;
             align-items: center;
         }
+        .dash-ko-date {
+            display: block;
+            margin: 0;
+            padding: 0 .12rem 0 0;
+            position: relative;
+            z-index: 55;
+            font-size: clamp(.62rem, 1.35vw, .78rem);
+            font-weight: 650;
+            letter-spacing: .02em;
+            line-height: 1.15;
+            white-space: nowrap;
+            color: #475569;
+            font-family: 'Noto Sans KR', 'Pretendard Variable', Pretendard, sans-serif;
+            pointer-events: none;
+            user-select: none;
+        }
         @media (max-width: 720px) {
-            .header-actions > .hangul-mark,
+            .header-actions .hangul-mark,
+            .header-clock-cluster > .hangul-mark,
             #dash-hangul-mark {
                 font-size: clamp(1.1rem, 4.6vw, 1.55rem);
                 margin-right: .3rem;
+            }
+            .dash-ko-date {
+                font-size: clamp(.56rem, 2.6vw, .68rem);
             }
         }
 
@@ -2656,7 +2701,7 @@
         .theme-director .dash-header-fx .hangul-float.c4 { color: rgba(30,58,95,.3); }
         .theme-director .taehyun-fx .hangul-float.c5,
         .theme-director .dash-header-fx .hangul-float.c5 { color: rgba(15,23,42,.34); }
-        .theme-director .header-actions > .hangul-mark,
+        .theme-director .header-actions .hangul-mark,
         .theme-director #dash-hangul-mark {
             color: #1e3a5f;
             opacity: .36;
@@ -2670,7 +2715,7 @@
            Lang menu (12000) / modals (20000) unchanged. */
         .dash-shell.theme-director > .dash-header .dash-header-fx {
             overflow: visible;
-            z-index: 6;
+            z-index: 1;
             pointer-events: none;
         }
         .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float-layer {
@@ -2679,7 +2724,7 @@
             pointer-events: none;
         }
         .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float,
-        .dash-shell.theme-director > .dash-header .header-actions > .hangul-mark,
+        .dash-shell.theme-director > .dash-header .header-actions .hangul-mark,
         .dash-shell.theme-director > .dash-header #dash-hangul-mark {
             pointer-events: none;
         }
@@ -5665,6 +5710,141 @@
         .admin-acct-card.role-teacher { border-left: 4px solid #3b82f6; }
         .admin-acct-card.role-director { border-left: 4px solid #1e3a5f; }
         .admin-acct-card.role-accounting { border-left: 4px solid #059669; }
+        /* Admin · today's systems hub */
+        .admin-hub {
+            margin: 0 0 1.15rem; padding: .15rem 0 .25rem;
+            position: relative;
+        }
+        .admin-hub-head {
+            margin-bottom: .75rem;
+            position: relative;
+            z-index: 1;
+        }
+        .admin-hub-head h3 {
+            margin: 0 0 .3rem; font-size: 1.02rem; font-weight: 850; color: #0f172a;
+            display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+        }
+        .admin-hub-head h3 i { color: #0f766e; }
+        .admin-hub-head p {
+            margin: 0; font-size: .78rem; color: #64748b; line-height: 1.45; max-width: 42rem;
+        }
+        .admin-hub-sparkle {
+            display: flex; justify-content: center; gap: .35rem; margin: .65rem 0 .85rem;
+            opacity: .85; pointer-events: none;
+        }
+        .admin-hub-sparkle span {
+            width: .42rem; height: .42rem; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff 0%, transparent 55%),
+                linear-gradient(135deg, #fdba74, #f9a8d4, #93c5fd, #6ee7b7);
+            animation: adminHubTwinkle 2.4s ease-in-out infinite;
+            box-shadow: 0 0 0 1px rgba(255,255,255,.5);
+        }
+        .admin-hub-sparkle span:nth-child(2) { animation-delay: .35s; transform: scale(1.15); }
+        .admin-hub-sparkle span:nth-child(3) { animation-delay: .7s; }
+        .admin-hub-sparkle span:nth-child(4) { animation-delay: 1.05s; transform: scale(.9); }
+        .admin-hub-sparkle span:nth-child(5) { animation-delay: 1.4s; }
+        @keyframes adminHubTwinkle {
+            0%, 100% { opacity: .45; transform: scale(.85); }
+            50% { opacity: 1; transform: scale(1.15); }
+        }
+        .admin-hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+            gap: .65rem;
+        }
+        .admin-hub-card {
+            --hub-accent: #334155;
+            --hub-soft: #f1f5f9;
+            --hub-border: #cbd5e1;
+            text-align: left;
+            border: 1.5px solid var(--hub-border);
+            border-left: 4px solid var(--hub-accent);
+            background: linear-gradient(165deg, var(--hub-soft), #fff 55%);
+            border-radius: .95rem;
+            padding: .8rem .85rem .75rem;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex; flex-direction: column; gap: .4rem; min-height: 7.4rem;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+            transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+            animation: adminHubFadeIn .45s ease both;
+        }
+        .admin-hub-card:nth-child(1) { animation-delay: .02s; }
+        .admin-hub-card:nth-child(2) { animation-delay: .06s; }
+        .admin-hub-card:nth-child(3) { animation-delay: .1s; }
+        .admin-hub-card:nth-child(4) { animation-delay: .14s; }
+        .admin-hub-card:nth-child(5) { animation-delay: .18s; }
+        .admin-hub-card:nth-child(6) { animation-delay: .22s; }
+        .admin-hub-card:nth-child(7) { animation-delay: .26s; }
+        .admin-hub-card:nth-child(8) { animation-delay: .3s; }
+        .admin-hub-card:nth-child(9) { animation-delay: .34s; }
+        .admin-hub-card:nth-child(10) { animation-delay: .38s; }
+        @keyframes adminHubFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .admin-hub-card:hover, .admin-hub-card:focus-visible {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 22px rgba(15, 23, 42, .1);
+            border-color: color-mix(in srgb, var(--hub-accent) 45%, white);
+            outline: none;
+        }
+        .admin-hub-card:active { transform: translateY(-1px); }
+        .admin-hub-card .hub-ico {
+            width: 1.7rem; height: 1.7rem; border-radius: .55rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #fff; color: var(--hub-accent);
+            border: 1px solid color-mix(in srgb, var(--hub-accent) 28%, white);
+            font-size: .95rem; flex-shrink: 0;
+        }
+        .admin-hub-card .hub-label {
+            margin: 0; font-size: .88rem; font-weight: 850; color: #0f172a; line-height: 1.25;
+        }
+        .admin-hub-card .hub-desc {
+            margin: 0; font-size: .7rem; color: #64748b; line-height: 1.35; flex: 1;
+        }
+        .admin-hub-card .hub-go {
+            align-self: flex-start;
+            margin-top: .15rem;
+            font-size: .72rem; font-weight: 800;
+            padding: .28rem .65rem; border-radius: .5rem;
+            border: 1.5px solid color-mix(in srgb, var(--hub-accent) 40%, white);
+            background: #fff; color: var(--hub-accent);
+            pointer-events: none;
+        }
+        .admin-hub-card.hub-accounts { --hub-accent: #2563eb; --hub-soft: #eff6ff; --hub-border: #93c5fd; }
+        .admin-hub-card.hub-rooms { --hub-accent: #0d9488; --hub-soft: #f0fdfa; --hub-border: #5eead4; }
+        .admin-hub-card.hub-orders { --hub-accent: #c2410c; --hub-soft: #fff7ed; --hub-border: #fdba74; }
+        .admin-hub-card.hub-otpay { --hub-accent: #1e3a5f; --hub-soft: #eef2f7; --hub-border: #94a3b8; }
+        .admin-hub-card.hub-ptcalc { --hub-accent: #ea580c; --hub-soft: #fff7ed; --hub-border: #fb923c; }
+        .admin-hub-card.hub-backup { --hub-accent: #475569; --hub-soft: #f8fafc; --hub-border: #cbd5e1; }
+        .admin-hub-card.hub-gemini { --hub-accent: #0369a1; --hub-soft: #f0f9ff; --hub-border: #7dd3fc; }
+        .admin-hub-card.hub-emergency { --hub-accent: #dc2626; --hub-soft: #fef2f2; --hub-border: #fca5a5; }
+        .admin-hub-card.hub-students { --hub-accent: #059669; --hub-soft: #ecfdf5; --hub-border: #6ee7b7; }
+        .admin-hub-card.hub-overview { --hub-accent: #0f766e; --hub-soft: #f0fdfa; --hub-border: #5eead4; }
+        .admin-hub-backup-note {
+            margin: .65rem 0 0; padding: .65rem .8rem; border-radius: .75rem;
+            background: #f8fafc; border: 1px dashed #cbd5e1;
+            font-size: .74rem; color: #475569; line-height: 1.4;
+        }
+        .admin-hub-backup-note.is-warn {
+            background: #fff7ed; border-color: #fdba74; color: #9a3412;
+        }
+        .admin-accounts-anchor {
+            scroll-margin-top: 1rem;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .admin-hub-card, .admin-hub-sparkle span {
+                animation: none !important;
+            }
+            .admin-hub-card:hover, .admin-hub-card:focus-visible {
+                transform: none;
+            }
+        }
+        @media (max-width: 640px) {
+            .admin-hub-grid { grid-template-columns: 1fr 1fr; gap: .5rem; }
+            .admin-hub-card { min-height: 0; padding: .7rem .7rem .65rem; }
+        }
         .admin-editor-block {
             margin-top: .85rem; padding: .85rem; border-radius: .9rem; border: 1.5px solid #e2e8f0;
             background: #f8fafc;
@@ -8486,7 +8666,7 @@
                 will-change: transform, opacity;
                 opacity: .7;
             }
-            .header-actions > .hangul-mark,
+            .header-actions .hangul-mark,
             #dash-hangul-mark {
                 animation: hangulFloatCharm 11s ease-in-out infinite !important;
                 will-change: transform, opacity;
@@ -10979,12 +11159,12 @@
                 if (currentUser && typeof loadPhotoRef === 'function') loadPhotoRef(currentUser.id);
             } catch (_) {}
             try {
-                if (currentUser?.role === 'director' && typeof renderOverviewBoardRef === 'function') {
+                if ((currentUser?.role === 'director' || currentUser?.role === 'admin') && typeof renderOverviewBoardRef === 'function') {
                     renderOverviewBoardRef(resolveAccountById(currentUser.id) || currentUser);
                 }
             } catch (_) {}
             try {
-                if (currentUser?.role === 'director' && typeof renderDirectorEmergencyBoardRef === 'function' && document.getElementById('em-dir-board')) {
+                if ((currentUser?.role === 'director' || currentUser?.role === 'admin') && typeof renderDirectorEmergencyBoardRef === 'function' && document.getElementById('em-dir-board')) {
                     renderDirectorEmergencyBoardRef(resolveAccountById(currentUser.id) || currentUser);
                 }
             } catch (_) {}
@@ -11591,6 +11771,34 @@
                 adminMapTeachersHint: '태현 · 은나 · 수아 · 파트타임 등 교사',
                 adminMapDirectorHint: '원장 / Head',
                 adminMapAccountingHint: '회계 1–3',
+                adminHubTitle: '오늘 다룬 시스템 · 바로 열기',
+                adminHubHint: '카테고리를 누르면 해당 화면으로 이동합니다 · 바로 확인하고 수정할 수 있습니다',
+                adminHubOpen: '열기 / 수정',
+                adminHubAccounts: '계정',
+                adminHubAccountsHint: '교사·원장·회계 · 이름·비번·일정·비상연락',
+                adminHubRooms: '교실 시간표',
+                adminHubRoomsHint: '방별 라이브 보드 · 예약 추가·수정',
+                adminHubOrders: '지시',
+                adminHubOrdersHint: '원장 지시 작성 · 읽음 현황',
+                adminHubOt: 'OT / 초과근무',
+                adminHubOtHint: '이번 달 OT 지급 보드 · 시트 새로고침',
+                adminHubPt: '파트타임 계산',
+                adminHubPtHint: '파트타임 비용 계산기',
+                adminHubBackup: '시스템 백업',
+                adminHubBackupHint: '20분마다 자동 · 상태 확인·수동 백업',
+                adminHubBackupRun: '지금 백업',
+                adminHubBackupTipOk: '최근 백업 정상 · 클라우드 동기화됨',
+                adminHubBackupTipFix: '클라우드 백업 실패 가능 · Supabase에서 FIX-systemBackup.sql 실행',
+                adminHubBackupTipNone: '아직 백업 기록 없음 · 버튼을 눌러 시작',
+                adminHubGemini: 'Gemini / Help AI',
+                adminHubGeminiHint: '도움말 AI · 프록시 URL 상태',
+                adminHubGeminiTip: 'Apps Script gemini-proxy를 Anyone으로 배포했는지 확인하세요',
+                adminHubEmergency: '프로필 / 비상연락',
+                adminHubEmergencyHint: '교사 비상연락 · accountData 동기화',
+                adminHubStudents: '전체 학생',
+                adminHubStudentsHint: '전체 학생 DB · 검색·상세',
+                adminHubOverview: '오늘 업무 보드',
+                adminHubOverviewHint: '교사별 오늘 수업·상태 한눈에',
                 adminBlkProfile: '① 프로필 · 이름',
                 adminBlkSecurity: '② 비밀번호 · 보안',
                 adminBlkData: '③ 데이터 (고급 · JSON)',
@@ -11808,7 +12016,8 @@
                 weekWorkHint: '이번 주 근무일 그래프',
                 daysThisWeek: '이번 주',
                 tabOthers: '기타',
-                othersTitle: '근무 · OT · 기타',
+                tabOt: 'OT',
+                othersTitle: '근무 · 기타',
                 workPercent: '출근률',
                 otTitle: 'OT (본인 · 8개월)',
                 otHint: '출석 기준 자동 OT · 19:00 이후 · 시간당 ฿300',
@@ -12492,6 +12701,34 @@
                 adminMapTeachersHint: 'แทฮยอน · อึนนา · ซูอา · part time ฯลฯ',
                 adminMapDirectorHint: 'ผู้อำนวยการ / หัวหน้า',
                 adminMapAccountingHint: 'บัญชี 1–3',
+                adminHubTitle: 'ระบบที่พูดถึงวันนี้ · เปิดดูได้ทันที',
+                adminHubHint: 'กดหมวดแล้วลิงก์เข้าไปแก้ไขได้เลย · แยกสีชัดเจน',
+                adminHubOpen: 'เปิด / แก้ไข',
+                adminHubAccounts: 'บัญชี',
+                adminHubAccountsHint: 'คุณครู·หัวหน้า·บัญชี · ชื่อ รหัส ตาราง เบอร์ฉุกเฉิน',
+                adminHubRooms: 'ตารางห้อง',
+                adminHubRoomsHint: 'บอร์ดตารางห้องสด · จอง/แก้ได้ทันที',
+                adminHubOrders: 'คำสั่ง',
+                adminHubOrdersHint: 'สั่งงานด่วน · สถานะอ่าน',
+                adminHubOt: 'OT / ล่วงเวลา',
+                adminHubOtHint: 'บอร์ดจ่าย OT + รีเฟรชชีต',
+                adminHubPt: 'พาร์ตไทม์',
+                adminHubPtHint: 'เครื่องคิดพาร์ตไทม์',
+                adminHubBackup: 'สำรองระบบ',
+                adminHubBackupHint: 'อัตโนมัติทุก 20 นาที · ดูสถานะ / สำรองมือ',
+                adminHubBackupRun: 'สำรองตอนนี้',
+                adminHubBackupTipOk: 'สำรองล่าสุดปกติ · ซิงก์คลาวด์แล้ว',
+                adminHubBackupTipFix: 'สำรองคลาวด์อาจล้ม · รัน FIX-systemBackup.sql ใน Supabase',
+                adminHubBackupTipNone: 'ยังไม่มีประวัติสำรอง · กดปุ่มเพื่อเริ่ม',
+                adminHubGemini: 'Gemini / Help AI',
+                adminHubGeminiHint: 'ผู้ช่วย AI · สถานะ proxy',
+                adminHubGeminiTip: 'ตรวจว่า gemini-proxy Deploy เป็น Anyone แล้ว',
+                adminHubEmergency: 'โปรไฟล์ / ฉุกเฉิน',
+                adminHubEmergencyHint: 'เบอร์ฉุกเฉินคุณครู · accountData',
+                adminHubStudents: 'นักเรียนทั้งหมด',
+                adminHubStudentsHint: 'ฐานข้อมูลนักเรียน · ค้นหา/ดูรายละเอียด',
+                adminHubOverview: 'บอร์ดงานวันนี้',
+                adminHubOverviewHint: 'ภาพรวมคุณครูวันนี้ · เปิดแก้ได้ทันที',
                 adminBlkProfile: '① โปรไฟล์ · ชื่อ',
                 adminBlkSecurity: '② รหัสผ่าน · ความปลอดภัย',
                 adminBlkData: '③ ข้อมูลงาน (ขั้นสูง · JSON)',
@@ -12709,7 +12946,8 @@
                 weekWorkHint: 'กราฟวันทำงานในสัปดาห์นี้',
                 daysThisWeek: 'สัปดาห์นี้',
                 tabOthers: 'อื่นๆ',
-                othersTitle: 'งาน · OT · อื่นๆ',
+                tabOt: 'OT',
+                othersTitle: 'งาน · อื่นๆ',
                 workPercent: 'เปอร์เซ็นต์การทำงาน',
                 otTitle: 'OT (ของตัวเอง · 8 เดือน)',
                 otHint: 'คำนวณอัตโนมัติจากเช็คชื่อ · หลัง 19:00 · ชม.ละ ฿300',
@@ -13393,6 +13631,34 @@
                 adminMapTeachersHint: 'Taehyun · Eunna · Sua · Part time, etc.',
                 adminMapDirectorHint: 'Director / Head',
                 adminMapAccountingHint: 'Accounting 1–3',
+                adminHubTitle: "Today's systems · open & edit",
+                adminHubHint: 'Tap a category to jump straight in · view and edit immediately',
+                adminHubOpen: 'Open / Edit',
+                adminHubAccounts: 'Accounts',
+                adminHubAccountsHint: 'Teachers · director · accounting — names, passwords, schedules, emergency',
+                adminHubRooms: 'Room timetable',
+                adminHubRoomsHint: 'Live room board · book and edit now',
+                adminHubOrders: 'Orders',
+                adminHubOrdersHint: 'Quick compose · read status',
+                adminHubOt: 'OT / overtime',
+                adminHubOtHint: 'OT pay board + sheet refresh',
+                adminHubPt: 'Part-time calc',
+                adminHubPtHint: 'Part-time expense calculator',
+                adminHubBackup: 'System backup',
+                adminHubBackupHint: 'Auto every 20 min · status & manual backup',
+                adminHubBackupRun: 'Backup now',
+                adminHubBackupTipOk: 'Latest backup OK · cloud synced',
+                adminHubBackupTipFix: 'Cloud backup may fail · run FIX-systemBackup.sql in Supabase',
+                adminHubBackupTipNone: 'No backup yet · tap to start',
+                adminHubGemini: 'Gemini / Help AI',
+                adminHubGeminiHint: 'Help AI · proxy status',
+                adminHubGeminiTip: 'Confirm gemini-proxy is Deployed with access: Anyone',
+                adminHubEmergency: 'Profiles / emergency',
+                adminHubEmergencyHint: 'Teacher emergency contacts · accountData',
+                adminHubStudents: 'All students',
+                adminHubStudentsHint: 'Student DB · search & details',
+                adminHubOverview: "Today's teacher board",
+                adminHubOverviewHint: "Today's teacher status at a glance",
                 adminBlkProfile: '① Profile · names',
                 adminBlkSecurity: '② Password · security',
                 adminBlkData: '③ Work data (advanced · JSON)',
@@ -13610,7 +13876,8 @@
                 weekWorkHint: 'Weekly work-day chart',
                 daysThisWeek: 'This week',
                 tabOthers: 'More',
-                othersTitle: 'Work · OT · More',
+                tabOt: 'OT',
+                othersTitle: 'Work · More',
                 workPercent: 'Work rate',
                 otTitle: 'OT (yours · 8 months)',
                 otHint: 'Auto from attendance · after 19:00 · ฿300/hr',
@@ -16148,7 +16415,7 @@
             if (!block || !block.id) return { ok: false, msg: t('none') };
             const store = loadRoomTimetable();
             const prev = store.blocks[block.id];
-            const isDirector = user && user.role === 'director';
+            const isDirector = user && (user.role === 'director' || user.role === 'admin');
             if (prev && prev.teacherId !== 'break' && prev.teacherId !== 'parttime'
                 && user && prev.teacherId !== user.id && !isDirector && user.role === 'teacher') {
                 // allow note/student edits for all teachers/director; title meta only owner/director
@@ -16191,7 +16458,7 @@
             if (!user || !date || !room || !resolved?.ok) return { ok: false, msg: t('teachNeedPick') };
             const store = loadRoomTimetable();
             const existing = blockId ? store.blocks[blockId] : findRoomBlock(date, room, start);
-            const isDirector = user.role === 'director';
+            const isDirector = user.role === 'director' || user.role === 'admin';
             if (existing && existing.teacherId !== user.id && existing.teacherId !== 'parttime' && !isDirector
                 && existing.teacherId !== 'break') {
                 // editing title of another's class blocked unless director
@@ -16262,7 +16529,7 @@
             const store = loadRoomTimetable();
             const existing = blockId ? store.blocks[blockId] : findRoomBlock(date, room, start);
             if (!existing) return { ok: true };
-            const isDirector = user.role === 'director';
+            const isDirector = user.role === 'director' || user.role === 'admin';
             if (existing.teacherId !== user.id && existing.teacherId !== 'parttime' && !isDirector) {
                 return { ok: false, msg: t('roomTtViewOnly') };
             }
@@ -16344,7 +16611,7 @@
             const store = loadRoomTimetable();
             const prev = store.blocks[blockId];
             if (!prev || !newDate) return { ok: false, msg: t('none') };
-            const isDirector = user && user.role === 'director';
+            const isDirector = user && (user.role === 'director' || user.role === 'admin');
             if (user && user.role === 'teacher' && prev.teacherId !== user.id && prev.teacherId !== 'parttime' && !isDirector) {
                 return { ok: false, msg: t('roomTtViewOnly') };
             }
@@ -21547,7 +21814,16 @@
         migrateMiskeyedOrderAcks();
 
         function editableAccountsForAdmin() {
-            return Object.values(ACCOUNTS).filter(a => a.role !== 'admin' && !isAccountDeleted(a.id));
+            const rank = (role) => (role === 'teacher' ? 0 : role === 'director' ? 1 : role === 'accounting' ? 2 : 9);
+            const list = Object.values(ACCOUNTS).filter(a => a && a.role !== 'admin' && !isAccountDeleted(a.id));
+            // Keep parttime (8888) visible with teachers
+            return list.slice().sort((a, b) => {
+                const ra = rank(a.role) - rank(b.role);
+                if (ra !== 0) return ra;
+                if (a.id === 'parttime') return 1;
+                if (b.id === 'parttime') return -1;
+                return String(a.id).localeCompare(String(b.id));
+            });
         }
 
         function todayKey() {
@@ -23146,6 +23422,9 @@
                     if ((has('headOrders') || has('orderAcks')) && document.getElementById('order-board')) {
                         renderOrderBoard(user);
                     }
+                    if ((has('headOrders') || has('orderAcks')) && document.getElementById('admin-order-feed') && typeof renderAdminOrderFeed === 'function') {
+                        try { renderAdminOrderFeed(user); } catch (_) {}
+                    }
                     if ((has('headOrders') || has('orderAcks')) && user.role === 'director') {
                         try { patchDirectorOrderAckBadges(); } catch (_) {}
                     }
@@ -24137,7 +24416,7 @@
                 const lastDate = new Date(y, m, 0).getDate();
                 const startPad = (first.getDay() + 6) % 7; // Mon=0
                 const today = todayKey();
-                const canEdit = user.role === 'teacher' || user.role === 'director';
+                const canEdit = user.role === 'teacher' || user.role === 'director' || user.role === 'admin';
                 const monthLabel = (() => {
                     if (lang === 'th') return `${m}/${y}`;
                     if (lang === 'en') {
@@ -24354,14 +24633,14 @@
             function renderRoomTimetableBoard(user) {
                 const board = document.getElementById('room-tt-board');
                 if (!board || !user) return;
-                if (user.role !== 'teacher' && user.role !== 'director' && user.role !== 'accounting') return;
+                if (user.role !== 'teacher' && user.role !== 'director' && user.role !== 'accounting' && user.role !== 'admin') return;
                 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
                 roomTtWeekOffset = clampRoomTtOffset(roomTtWeekOffset);
                 ensureRoomTtWeekSeeded(roomTtWeekOffset);
                 const store = loadRoomTimetable();
                 const days = roomTtWeekDates(roomTtWeekOffset);
                 const today = todayKey();
-                const canBook = user.role === 'teacher' || user.role === 'director';
+                const canBook = user.role === 'teacher' || user.role === 'director' || user.role === 'admin';
                 const dayNames = lang === 'th'
                     ? ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา']
                     : lang === 'en'
@@ -25610,7 +25889,7 @@
 
             function renderOverviewBoard(user) {
                 const board = document.getElementById('overview-board');
-                if (!board || !user || user.role !== 'director') return;
+                if (!board || !user || (user.role !== 'director' && user.role !== 'admin')) return;
                 try {
                 const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                 const teachers = (typeof overviewTeacherList === 'function' ? overviewTeacherList() : teacherAccounts());
@@ -25837,7 +26116,7 @@
             }
             function renderDirectorEmergencyBoard(user) {
                 const board = document.getElementById('em-dir-board');
-                if (!board || !user || user.role !== 'director') return;
+                if (!board || !user || (user.role !== 'director' && user.role !== 'admin')) return;
                 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
                 const teachers = teacherAccounts();
                 const go = (next, anim) => {
@@ -26930,7 +27209,7 @@
 
             // room booking
             if (/room|จอง|ตารางห้อง|예약|강의실|timetable|book/.test(q)) {
-                if (user.role !== 'teacher' && user.role !== 'director' && user.role !== 'accounting') return no();
+                if (user.role !== 'teacher' && user.role !== 'director' && user.role !== 'accounting' && user.role !== 'admin') return no();
                 go('rooms', 'helpGoRooms');
                 pushDraft();
                 return {
@@ -27489,13 +27768,6 @@
                 const updatedLabel = fin.incomeUpdatedAt
                     ? fin.incomeUpdatedAt.slice(0, 16).replace('T', ' ')
                     : '—';
-                const now = new Date();
-                const ymOt = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-                let otGrand = 0;
-                try { ensureAutoOtSynced(); } catch (_) {}
-                teachers.filter((tea) => isOtEligibleTeacher(tea.id)).forEach((tea) => {
-                    otGrand += otMonthPaySum(otEntriesForMonth(tea.id, ymOt));
-                });
 
                 return `<div class="tab-panel" data-panel="others"><div class="content-card compact-card">
                     <p class="admin-label" style="margin-top:0">${t('othersSecDaily')}</p>
@@ -27535,13 +27807,6 @@
 
                     <p class="admin-label">${t('othersSecHeavy')}</p>
                     <div id="week-class-board"></div>
-                    <button type="button" class="attend-graph-notice" id="ot-others-open-btn" style="margin-top:.55rem;border-color:#fdba74;background:linear-gradient(135deg,#fff7ed,#fff);box-shadow:inset 3px 0 0 #ea580c">
-                        <div>
-                            <div class="dn-title"><i class="ph ph-currency-circle-dollar" style="color:#c2410c"></i> ${t('payThisMonth')}</div>
-                            <div class="dn-meta">${t('otOthersHint')}</div>
-                        </div>
-                        <span class="dn-count" style="background:#c2410c">${t('baht')}${otGrand.toLocaleString()}</span>
-                    </button>
                     <p class="admin-label">${t('othersSecAccount')}</p>
                     ${selfPasswordFormHtml()}
                 </div></div>`;
@@ -27589,30 +27854,36 @@
                     </div>`;
             }
 
-            /** Same sections for every teacher (and accounting): textbook · OT · password · waitlist last */
-            function buildTeacherOthersPanel(user) {
+            /** Teacher / accounting dedicated OT tab (same panel id as director pay board: otpay). */
+            function buildTeacherOtPanel(user) {
                 if (!teacherOtYm) teacherOtYm = todayKey().slice(0, 7);
                 const ym = teacherOtYm;
                 const eligible = isOtEligibleTeacher(user.id);
-                return `<div class="tab-panel" data-panel="others"><div class="content-card compact-card teacher-others-shared">
-                    ${canViewSalesStats(user) ? `<p class="admin-label" style="margin-top:0">${t('othersSecStudents') || t('studentDbTitle')}</p>
-                    <div id="sales-stats-board"></div>` : `<p class="admin-label" style="margin-top:0">${t('tabOthers')}</p>`}
-                    <div id="textbook-board"></div>
-                    ${eligible ? `<div class="admin-actions" style="margin-top:1rem">
+                return `<div class="tab-panel" data-panel="otpay"><div class="content-card compact-card">
+                    ${eligible ? `<div class="admin-actions" style="margin-top:0">
                         <button type="button" class="soft-btn" id="ot-add-btn">${t('otAdd')}</button>
                         <button type="button" class="soft-btn" id="ot-refresh-sheet-btn">${t('otRefreshSheet')}</button>
                     </div>
                     <p class="text-xs text-slate-500" id="ot-sheet-sync-msg" style="margin:.35rem 0 0"></p>
-                    <h3 class="mt-3" style="margin-top:2.85rem">${t('otTitle')}</h3>
+                    <h3 class="mt-3">${t('otTitle')}</h3>
                     <p class="text-xs text-slate-500 mb-1">${t('otPayLinked')} · ${t('otLookback')} · ${t('otNoSelfOthers')}</p>
                     <p class="text-xs text-slate-500 mb-2">${t('otSheetRules')}</p>
                     <label class="text-xs" style="font-weight:700;color:#64748b;display:block;margin-bottom:.55rem">${t('otPickMonth')}
                         <select id="teacher-ot-month-sel" class="sched-select" style="margin-left:.35rem">${otMonthOptionsHtml(ym)}</select>
                     </label>
                     <div id="ot-list"></div>
-                    <div class="pct-readable ot-total-frame" id="ot-total-frame"></div>` : `<h3 class="mt-3" style="margin-top:2.85rem">${t('otTitle')}</h3>
+                    <div class="pct-readable ot-total-frame" id="ot-total-frame"></div>` : `<h3 style="margin-top:0">${t('otTitle')}</h3>
                     <div id="ot-list"></div>
                     <div class="pct-readable ot-total-frame" id="ot-total-frame"></div>`}
+                </div></div>`;
+            }
+
+            /** Same sections for every teacher (and accounting): textbook · password · waitlist last */
+            function buildTeacherOthersPanel(user) {
+                return `<div class="tab-panel" data-panel="others"><div class="content-card compact-card teacher-others-shared">
+                    ${canViewSalesStats(user) ? `<p class="admin-label" style="margin-top:0">${t('othersSecStudents') || t('studentDbTitle')}</p>
+                    <div id="sales-stats-board"></div>` : `<p class="admin-label" style="margin-top:0">${t('tabOthers')}</p>`}
+                    <div id="textbook-board"></div>
                     ${selfPasswordFormHtml()}
                     <div id="job-app-board" style="margin-top:1.25rem"></div>
                     <div id="waitlist-board" style="margin-top:1.25rem"></div>
@@ -27628,6 +27899,7 @@
                     { id: 'leave', label: t('tabLeave'), icon: 'ph-airplane-tilt' },
                     { id: 'emergency', label: t('tabEmergency'), icon: 'ph-first-aid' },
                     { id: 'students', label: t('tabStudents'), icon: 'ph-users-three' },
+                    { id: 'otpay', label: t('tabOt'), icon: 'ph-currency-circle-dollar' },
                     { id: 'others', label: t('tabOthers'), icon: 'ph-dots-three-circle' }
                 ];
                 if (user.role === 'director') {
@@ -27637,11 +27909,11 @@
                         { id: 'assign', label: t('assignTask'), icon: 'ph-paper-plane-tilt' },
                         { id: 'leave', label: t('leaveInbox'), icon: 'ph-airplane-tilt' },
                         { id: 'cancels', label: t('cancelInbox'), icon: 'ph-calendar-x' },
-                        { id: 'otpay', label: t('payThisMonth'), icon: 'ph-currency-circle-dollar' },
                         { id: 'orders', label: t('readStatus'), icon: 'ph-checks' },
                         { id: 'emergency', label: t('tabEmergency'), icon: 'ph-first-aid' },
                         { id: 'students', label: t('tabStudents'), icon: 'ph-users-three' },
                         { id: 'ptcalc', label: t('tabPtCalc'), icon: 'ph-calculator' },
+                        { id: 'otpay', label: t('tabOt'), icon: 'ph-currency-circle-dollar' },
                         { id: 'others', label: t('tabOthers'), icon: 'ph-dots-three-circle' }
                     ];
                 }
@@ -27653,10 +27925,16 @@
                     { id: 'leave', label: t('tabLeave'), icon: 'ph-airplane-tilt' },
                     { id: 'emergency', label: t('tabEmergency'), icon: 'ph-first-aid' },
                     { id: 'students', label: t('tabStudents'), icon: 'ph-users-three' },
+                    { id: 'otpay', label: t('tabOt'), icon: 'ph-currency-circle-dollar' },
                     { id: 'others', label: t('tabOthers'), icon: 'ph-dots-three-circle' }
                 ];
                 if (user.role === 'admin') tabs = [
                     { id: 'school', label: t('adminSchoolTab'), icon: 'ph-chart-bar' },
+                    { id: 'overview', label: t('todayBoard'), icon: 'ph-kanban' },
+                    { id: 'rooms', label: t('tabRooms'), icon: 'ph-door-open' },
+                    { id: 'orders', label: t('tabOrders'), icon: 'ph-megaphone' },
+                    { id: 'otpay', label: t('tabOt'), icon: 'ph-currency-circle-dollar' },
+                    { id: 'emergency', label: t('tabEmergency'), icon: 'ph-first-aid' },
                     { id: 'students', label: t('tabStudents'), icon: 'ph-users-three' },
                     { id: 'ptcalc', label: t('tabPtCalc'), icon: 'ph-calculator' },
                     { id: 'admin', label: t('tabAdmin'), icon: 'ph-sliders-horizontal' }
@@ -27748,16 +28026,103 @@
                             </div>
                         </div>
                     </div>`;
+                    const teaOpts = teacherAccounts().map((tea) =>
+                        `<option value="${String(tea.id).replace(/"/g, '&quot;')}">${String(displayName(tea)).replace(/</g, '&lt;')}</option>`
+                    ).join('');
+                    const hubCard = (key, cls, icon, labelKey, hintKey) => `
+                        <button type="button" class="admin-hub-card ${cls}" data-admin-hub="${key}">
+                            <span class="hub-ico" aria-hidden="true"><i class="ph ${icon}"></i></span>
+                            <p class="hub-label">${t(labelKey)}</p>
+                            <p class="hub-desc">${t(hintKey)}</p>
+                            <span class="hub-go">${t('adminHubOpen')}</span>
+                        </button>`;
+                    const hubHtml = `<section class="admin-hub" id="admin-systems-hub" aria-label="${t('adminHubTitle')}">
+                        <div class="admin-hub-head">
+                            <h3><i class="ph ph-squares-four"></i> ${t('adminHubTitle')}</h3>
+                            <p>${t('adminHubHint')}</p>
+                        </div>
+                        <div class="admin-hub-sparkle" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+                        <div class="admin-hub-grid">
+                            ${hubCard('accounts', 'hub-accounts', 'ph-sliders-horizontal', 'adminHubAccounts', 'adminHubAccountsHint')}
+                            ${hubCard('rooms', 'hub-rooms', 'ph-door-open', 'adminHubRooms', 'adminHubRoomsHint')}
+                            ${hubCard('orders', 'hub-orders', 'ph-megaphone', 'adminHubOrders', 'adminHubOrdersHint')}
+                            ${hubCard('otpay', 'hub-otpay', 'ph-currency-circle-dollar', 'adminHubOt', 'adminHubOtHint')}
+                            ${hubCard('ptcalc', 'hub-ptcalc', 'ph-calculator', 'adminHubPt', 'adminHubPtHint')}
+                            ${hubCard('backup', 'hub-backup', 'ph-cloud-arrow-up', 'adminHubBackup', 'adminHubBackupHint')}
+                            ${hubCard('gemini', 'hub-gemini', 'ph-robot', 'adminHubGemini', 'adminHubGeminiHint')}
+                            ${hubCard('emergency', 'hub-emergency', 'ph-first-aid', 'adminHubEmergency', 'adminHubEmergencyHint')}
+                            ${hubCard('students', 'hub-students', 'ph-users-three', 'adminHubStudents', 'adminHubStudentsHint')}
+                            ${hubCard('overview', 'hub-overview', 'ph-kanban', 'adminHubOverview', 'adminHubOverviewHint')}
+                        </div>
+                        <div class="admin-hub-backup-note" id="admin-hub-backup-note" hidden></div>
+                    </section>`;
                     panels.innerHTML = `
                     <div class="tab-panel" data-panel="school"><div class="content-card">
                         ${heading('ph-chart-bar','adminSchoolTitle')}
                         <p class="text-xs text-slate-500 mt-1 mb-3">${t('adminSchoolHint')}</p>
                         <div id="sales-stats-board" style="margin-bottom:1rem"></div>
                         <div id="admin-ops-board" style="margin-bottom:1rem"></div>
-                        <div id="ot-pay-board" style="margin-bottom:1rem"></div>
                         <div id="job-app-board" style="margin-bottom:1rem"></div>
                         <div id="admin-school-board"></div>
                     </div></div>
+                    <div class="tab-panel" data-panel="overview"><div class="content-card compact-card">
+                        <div id="overview-board"></div>
+                    </div></div>
+                    <div class="tab-panel" data-panel="rooms">
+                        <div class="content-card compact-card">${heading('ph-door-open','roomTtTitle')}
+                            <div id="room-tt-board"></div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" data-panel="orders"><div class="content-card compact-card">
+                        ${heading('ph-megaphone','tabOrders')}
+                        <p class="text-xs text-slate-500 mb-2">${t('adminHubOrdersHint')}</p>
+                        <div class="order-quick-compose" id="order-quick-compose">
+                            <textarea id="order-quick-text" class="sched-text" rows="2" placeholder="${t('orderQuickPh')}" aria-label="${t('orderQuickPh')}"></textarea>
+                            <div class="order-quick-compose-bar">
+                                <select id="order-quick-target" class="sched-select" aria-label="${t('assignAll')}">
+                                    <option value="all">${t('assignAll')}</option>
+                                    ${teaOpts}
+                                </select>
+                                <button type="button" class="soft-btn" id="order-quick-send">${t('orderQuickSend')}</button>
+                                <span id="order-quick-msg" class="text-xs text-slate-500"></span>
+                            </div>
+                        </div>
+                        <div class="sched-form" style="margin-top:.85rem">
+                            <div class="full">
+                                <label class="sched-label">${t('assignLangKo')}</label>
+                                <textarea id="assign-text-ko" class="sched-text" rows="2" style="resize:vertical"></textarea>
+                            </div>
+                            <div class="full">
+                                <label class="sched-label">${t('assignLangTh')}</label>
+                                <textarea id="assign-text-th" class="sched-text" rows="2" style="resize:vertical"></textarea>
+                            </div>
+                            <div class="full">
+                                <label class="sched-label">${t('assignLangEn')}</label>
+                                <textarea id="assign-text-en" class="sched-text" rows="2" style="resize:vertical"></textarea>
+                            </div>
+                            <div class="full">
+                                <label class="sched-label">${t('assignAll')}</label>
+                                <select id="assign-target" class="sched-select">
+                                    <option value="all">${t('assignAll')}</option>
+                                    ${teaOpts}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="admin-actions">
+                            <button type="button" class="soft-btn" id="assign-send-btn">${t('assignSend')}</button>
+                            <span id="assign-msg" class="text-xs text-slate-500"></span>
+                        </div>
+                        <div id="admin-order-feed" style="margin-top:1rem"></div>
+                    </div></div>
+                    <div class="tab-panel" data-panel="otpay"><div class="content-card compact-card">
+                        <div id="ot-pay-board"></div>
+                    </div></div>
+                    <div class="tab-panel" data-panel="emergency">
+                        <div class="content-card compact-card">${heading('ph-first-aid','teachersEmergency')}
+                            <p class="text-xs text-slate-500 mb-2">${t('teachersEmergencyHint')}</p>
+                            <div class="em-teacher-board" id="em-dir-board"></div>
+                        </div>
+                    </div>
                     <div class="tab-panel" data-panel="students"><div class="content-card compact-card">
                         ${heading('ph-users-three','studentDbTitle')}
                         <p class="text-xs text-slate-500 mt-1 mb-2">${t('allStudentsHint')}</p>
@@ -27769,10 +28134,13 @@
                     <div class="tab-panel active" data-panel="admin"><div class="content-card">
                         ${heading('ph-sliders-horizontal','adminTitle')}
                         <p class="text-xs text-slate-500 mt-1 mb-2">${t('adminPickHint')}</p>
-                        <h3 style="margin:1rem 0 .35rem;font-size:.95rem;color:#0f172a">${t('adminMapTitle')}</h3>
-                        ${mapHtml}
-                        <div class="admin-acct-grid">${cards}</div>
-                        <div id="admin-editor"></div>
+                        ${hubHtml}
+                        <div class="admin-accounts-anchor" id="admin-accounts-section">
+                            <h3 style="margin:1rem 0 .35rem;font-size:.95rem;color:#0f172a">${t('adminMapTitle')}</h3>
+                            ${mapHtml}
+                            <div class="admin-acct-grid">${cards}</div>
+                            <div id="admin-editor"></div>
+                        </div>
                     </div></div>`;
                     panels.querySelectorAll('[data-admin-acct]').forEach((btn) => {
                         btn.addEventListener('click', () => {
@@ -27781,14 +28149,23 @@
                             setTab('admin');
                         });
                     });
+                    panels.querySelectorAll('[data-admin-hub]').forEach((btn) => {
+                        btn.addEventListener('click', () => adminHubGo(btn.dataset.adminHub, user));
+                    });
                     renderAdminSchoolBoard(user);
                     renderAdminOpsBoard(user);
                     renderStudentDbBoard(user);
+                    renderAdminOrderFeed(user);
                     if (document.getElementById('ot-pay-board')) renderOtPayBoard(user);
                     if (document.getElementById('sales-stats-board')) renderSalesStatsBoard(user);
                     if (document.getElementById('job-app-board')) renderJobAppBoard(user);
                     if (document.querySelector('.pt-app')) renderPartTimeApp(user);
+                    if (document.getElementById('overview-board')) renderOverviewBoard(user);
+                    if (document.getElementById('em-dir-board')) renderDirectorEmergencyBoard(user);
+                    if (document.getElementById('room-tt-board')) renderRoomTimetableBoard(user);
                     if (adminSelectedId) fillAdminEditor(adminSelectedId);
+                    paintAdminHubBackupNote();
+                    wireAdminOrderCompose(user);
                     return;
                 }
                 const schedule = loadDaySchedule(user.id);
@@ -28306,6 +28683,7 @@
                             <div id="student-db-board"></div>
                         </div>
                     </div>` : ''}
+                    ${(user.role === 'teacher' || user.role === 'accounting') ? buildTeacherOtPanel(user) : ''}
                     ${(user.role === 'teacher' || user.role === 'accounting' || user.role === 'director') ? buildOthersPanel(user) : ''}
                     <div class="tab-panel" data-panel="emergency">
                         ${user.role === 'director' ? `
@@ -28563,10 +28941,6 @@
                 if (document.getElementById('textbook-board')) renderTextbookBoard(user);
                 if (document.getElementById('room-tt-board')) renderRoomTimetableBoard(user);
                 if (document.getElementById('week-class-board')) renderWeekClassBoard(user);
-
-                document.getElementById('ot-others-open-btn')?.addEventListener('click', () => {
-                    setTab('otpay');
-                });
 
                 // teacher · head-order slide detail
                 if (document.getElementById('order-board')) renderOrderBoard(user);
@@ -29741,6 +30115,171 @@
                 });
             }
 
+            function paintAdminHubBackupNote() {
+                const note = document.getElementById('admin-hub-backup-note');
+                if (!note) return;
+                let tip = t('adminHubBackupTipNone');
+                let warn = false;
+                try {
+                    const st = typeof window.hongikSystemBackupStatus === 'function' ? window.hongikSystemBackupStatus() : null;
+                    const last = st?.items?.[0] || (st?.at ? st : null);
+                    if (st?.error || /fail|sql|FIX/i.test(String(st?.error || ''))) {
+                        tip = t('adminHubBackupTipFix');
+                        warn = true;
+                    } else if (last?.at || st?.ok) {
+                        tip = t('adminHubBackupTipOk') + (last?.at ? ` · ${String(last.at).slice(0, 16).replace('T', ' ')}` : '');
+                    }
+                } catch (_) {}
+                note.hidden = false;
+                note.classList.toggle('is-warn', warn);
+                note.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between">
+                    <span>${tip}</span>
+                    <button type="button" class="soft-btn" id="admin-hub-backup-run" style="font-size:.75rem;padding:.35rem .75rem">${t('adminHubBackupRun')}</button>
+                </div>`;
+                document.getElementById('admin-hub-backup-run')?.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const btn = document.getElementById('admin-hub-backup-run');
+                    if (btn) btn.disabled = true;
+                    try {
+                        if (typeof window.hongikSystemBackupNow === 'function') await window.hongikSystemBackupNow();
+                        else if (typeof runSystemBackup === 'function') await runSystemBackup({ reason: 'manual', toast: true });
+                    } catch (_) {}
+                    if (btn) btn.disabled = false;
+                    paintAdminHubBackupNote();
+                });
+            }
+
+            function adminHubGo(key, user) {
+                const k = String(key || '');
+                const scrollTo = (sel) => {
+                    requestAnimationFrame(() => {
+                        try { document.querySelector(sel)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) {}
+                    });
+                };
+                if (k === 'accounts') {
+                    setTab('admin');
+                    scrollTo('#admin-accounts-section');
+                    return;
+                }
+                if (k === 'backup') {
+                    setTab('admin');
+                    paintAdminHubBackupNote();
+                    scrollTo('#admin-hub-backup-note');
+                    return;
+                }
+                if (k === 'gemini') {
+                    try {
+                        if (typeof showAppToast === 'function') showAppToast(t('adminHubGeminiTip'), 'ok');
+                    } catch (_) {}
+                    try { openHelpPanel('ai'); } catch (_) {}
+                    return;
+                }
+                const tabMap = {
+                    rooms: 'rooms',
+                    orders: 'orders',
+                    otpay: 'otpay',
+                    ptcalc: 'ptcalc',
+                    emergency: 'emergency',
+                    students: 'students',
+                    overview: 'overview',
+                    school: 'school'
+                };
+                const tab = tabMap[k];
+                if (tab) {
+                    setTab(tab);
+                    if (k === 'otpay' && document.getElementById('ot-pay-board') && user) {
+                        try { renderOtPayBoard(user); } catch (_) {}
+                    }
+                    if (k === 'rooms' && document.getElementById('room-tt-board') && user) {
+                        try { renderRoomTimetableBoard(user); } catch (_) {}
+                    }
+                    if (k === 'overview' && document.getElementById('overview-board') && user) {
+                        try { renderOverviewBoard(user); } catch (_) {}
+                    }
+                    if (k === 'emergency' && document.getElementById('em-dir-board') && user) {
+                        try { renderDirectorEmergencyBoard(user); } catch (_) {}
+                    }
+                }
+            }
+
+            function renderAdminOrderFeed(user) {
+                const feed = document.getElementById('admin-order-feed');
+                if (!feed || !user || user.role !== 'admin') return;
+                const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+                try { purgeStaleHeadOrders({ syncRemote: true }); } catch (_) {}
+                const orders = loadHeadOrders().slice().reverse().slice(0, 12);
+                if (!orders.length) {
+                    feed.innerHTML = `<p class="empty-note">${t('orderMonthEmpty')}</p>`;
+                    return;
+                }
+                const teachers = teacherAccounts();
+                feed.innerHTML = `<p class="admin-label" style="margin-top:0">${t('readStatus') || t('tabOrders')}</p>` + orders.map((o) => {
+                    const cancelled = isOrderCancelled(o);
+                    const when = `${formatOrderDate(o)}${o.from ? ` · ${esc(o.from)}` : ''}`;
+                    const ackN = teachers.filter((tea) => orderTargetsUser(o, tea.id) && isOrderRead(String(tea.id), String(o.id))).length;
+                    const tgtN = teachers.filter((tea) => orderTargetsUser(o, tea.id)).length;
+                    return `<div class="item-row" style="flex-direction:column;align-items:stretch;${cancelled ? 'opacity:.75' : ''}">
+                        <div class="text-xs text-slate-500">${when}${cancelled ? ` · ${t('orderCancelledStatus')}` : ''}</div>
+                        <strong style="margin:.2rem 0">${esc(orderText(o) || '—')}</strong>
+                        <div class="text-xs" style="color:#64748b">${t('readDone') || 'Read'} · ${ackN}/${tgtN}</div>
+                    </div>`;
+                }).join('');
+            }
+
+            function wireAdminOrderCompose(user) {
+                if (!user || user.role !== 'admin') return;
+                const afterSent = (msgEl) => {
+                    if (msgEl) msgEl.textContent = t('saved');
+                    renderAdminOrderFeed(user);
+                    setTab('orders');
+                };
+                document.getElementById('assign-send-btn')?.addEventListener('click', () => {
+                    const ko = (document.getElementById('assign-text-ko')?.value || '').trim();
+                    const th = (document.getElementById('assign-text-th')?.value || '').trim();
+                    const en = (document.getElementById('assign-text-en')?.value || '').trim();
+                    const target = document.getElementById('assign-target')?.value || 'all';
+                    const msgEl = document.getElementById('assign-msg');
+                    if (!ko && !th && !en) {
+                        if (msgEl) msgEl.textContent = t('assignTask');
+                        return;
+                    }
+                    const created = createHeadOrder(user, { ko, th, en, target });
+                    if (!created) {
+                        if (msgEl) msgEl.textContent = t('assignTask');
+                        return;
+                    }
+                    ['assign-text-ko', 'assign-text-th', 'assign-text-en'].forEach((id) => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+                    afterSent(msgEl);
+                });
+                document.getElementById('order-quick-send')?.addEventListener('click', () => {
+                    const raw = (document.getElementById('order-quick-text')?.value || '').trim();
+                    const target = document.getElementById('order-quick-target')?.value || 'all';
+                    const msgEl = document.getElementById('order-quick-msg');
+                    if (!raw) {
+                        if (msgEl) msgEl.textContent = t('orderQuickPh');
+                        return;
+                    }
+                    const stamped = stampLangText({}, 'text', raw);
+                    const created = createHeadOrder(user, {
+                        ko: stamped.textKo || '',
+                        th: stamped.textTh || '',
+                        en: stamped.textEn || '',
+                        target
+                    });
+                    if (!created) {
+                        if (msgEl) msgEl.textContent = t('orderQuickPh');
+                        return;
+                    }
+                    const ta = document.getElementById('order-quick-text');
+                    if (ta) ta.value = '';
+                    afterSent(msgEl);
+                });
+            }
+
             function renderAdminOpsBoard(user) {
                 const board = document.getElementById('admin-ops-board');
                 if (!board || !user || user.role !== 'admin') return;
@@ -30896,7 +31435,7 @@
                 msg.textContent = t('saved');
                 closeOtModal();
                 openDashboard(resolveAccountById(currentUser.id), true);
-                setTab('others');
+                setTab('otpay');
             });
             document.getElementById('leave-modal-x')?.addEventListener('click', () => leaveModal.classList.remove('open'));
             document.getElementById('leave-cancel-btn')?.addEventListener('click', () => leaveModal.classList.remove('open'));
