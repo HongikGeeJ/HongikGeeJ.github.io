@@ -372,10 +372,11 @@
         .dc-c {
             position: absolute; width: 88px; height: 88px;
             background-repeat: no-repeat; background-size: contain;
-            background-image: url('assets/dancheong/corner-flower.svg?v=cluster5');
-            opacity: .97;
-            filter: drop-shadow(0 1px 2px rgba(200,140,160,.14));
-            will-change: transform, filter;
+            background-image: url('assets/dancheong/corner-flower.svg?v=cluster6');
+            opacity: 1;
+            /* Static shadow only — never animate filter (caused color flicker) */
+            filter: drop-shadow(0 1px 1.5px rgba(120,90,110,.12));
+            will-change: transform;
             /* decorative only — never capture taps over inputs */
             pointer-events: none;
             /*
@@ -388,106 +389,70 @@
         }
         /*
           Paper-edge tuck: origin stays on the outer vertex (0 0).
-          Stronger outward kiss so the pink bloom mass (SVG ~26,26)
+          Stronger outward kiss so the bloom mass (SVG ~26,26)
           lands on the rounded stroke, not floating inside.
         */
         .dc-c.tl {
             top: -16px; left: -16px;
-            animation: dcSwayTl 6.2s ease-in-out infinite;
+            animation: dcSwayTl 8.4s ease-in-out infinite;
         }
         .dc-c.tr {
             top: -16px; left: calc(100% + 16px); right: auto;
             transform: scaleX(-1);
-            animation: dcSwayTr 6.8s ease-in-out infinite;
-            animation-delay: -1.6s;
+            animation: dcSwayTr 9s ease-in-out infinite;
+            animation-delay: -2.1s;
         }
         .dc-c.bl {
             top: calc(100% + 16px); left: -16px; bottom: auto;
             transform: scaleY(-1);
-            animation: dcSwayBl 6.5s ease-in-out infinite;
-            animation-delay: -3.1s;
+            animation: dcSwayBl 8.7s ease-in-out infinite;
+            animation-delay: -4s;
         }
         .dc-c.br {
             top: calc(100% + 16px); left: calc(100% + 16px); bottom: auto; right: auto;
             transform: scale(-1);
-            animation: dcSwayBr 7.1s ease-in-out infinite;
-            animation-delay: -4.4s;
+            animation: dcSwayBr 9.4s ease-in-out infinite;
+            animation-delay: -5.6s;
         }
-        /* Soft back-and-forth rotate — keep flip transforms in keyframes */
+        /* Gentle transform-only sway — no filter/brightness pulse */
         @keyframes dcSwayTl {
-            0%, 100% {
-                transform: rotate(-3.2deg);
-                filter: drop-shadow(0 1px 2px rgba(200,140,160,.12)) brightness(1);
-            }
-            50% {
-                transform: rotate(3.8deg);
-                filter:
-                    drop-shadow(0 0 5px rgba(244,160,184,.32))
-                    drop-shadow(0 0 9px rgba(168,213,181,.18))
-                    brightness(1.04);
-            }
+            0%, 100% { transform: rotate(-1.6deg); }
+            50% { transform: rotate(1.9deg); }
         }
         @keyframes dcSwayTr {
-            0%, 100% {
-                transform: scaleX(-1) rotate(-3.2deg);
-                filter: drop-shadow(0 1px 2px rgba(200,140,160,.12)) brightness(1);
-            }
-            50% {
-                transform: scaleX(-1) rotate(3.8deg);
-                filter:
-                    drop-shadow(0 0 5px rgba(184,221,184,.32))
-                    drop-shadow(0 0 9px rgba(246,226,122,.16))
-                    brightness(1.04);
-            }
+            0%, 100% { transform: scaleX(-1) rotate(-1.6deg); }
+            50% { transform: scaleX(-1) rotate(1.9deg); }
         }
         @keyframes dcSwayBl {
-            0%, 100% {
-                transform: scaleY(-1) rotate(-3.2deg);
-                filter: drop-shadow(0 1px 2px rgba(200,140,160,.12)) brightness(1);
-            }
-            50% {
-                transform: scaleY(-1) rotate(3.8deg);
-                filter:
-                    drop-shadow(0 0 5px rgba(244,160,184,.3))
-                    drop-shadow(0 0 9px rgba(184,221,184,.18))
-                    brightness(1.04);
-            }
+            0%, 100% { transform: scaleY(-1) rotate(-1.6deg); }
+            50% { transform: scaleY(-1) rotate(1.9deg); }
         }
         @keyframes dcSwayBr {
-            0%, 100% {
-                transform: scale(-1) rotate(-3.2deg);
-                filter: drop-shadow(0 1px 2px rgba(200,140,160,.12)) brightness(1);
-            }
-            50% {
-                transform: scale(-1) rotate(3.8deg);
-                filter:
-                    drop-shadow(0 0 5px rgba(246,226,122,.28))
-                    drop-shadow(0 0 9px rgba(244,160,184,.18))
-                    brightness(1.04);
-            }
+            0%, 100% { transform: scale(-1) rotate(-1.6deg); }
+            50% { transform: scale(-1) rotate(1.9deg); }
         }
-        /* Mobile / lite: smaller angle, no glow pulse — still visibly swaying */
+        /* Mobile / lite: even quieter sway */
         @keyframes dcSwayTlLite {
-            0%, 100% { transform: rotate(-1.6deg); }
-            50% { transform: rotate(1.8deg); }
+            0%, 100% { transform: rotate(-1.1deg); }
+            50% { transform: rotate(1.3deg); }
         }
         @keyframes dcSwayTrLite {
-            0%, 100% { transform: scaleX(-1) rotate(-1.6deg); }
-            50% { transform: scaleX(-1) rotate(1.8deg); }
+            0%, 100% { transform: scaleX(-1) rotate(-1.1deg); }
+            50% { transform: scaleX(-1) rotate(1.3deg); }
         }
         @keyframes dcSwayBlLite {
-            0%, 100% { transform: scaleY(-1) rotate(-1.6deg); }
-            50% { transform: scaleY(-1) rotate(1.8deg); }
+            0%, 100% { transform: scaleY(-1) rotate(-1.1deg); }
+            50% { transform: scaleY(-1) rotate(1.3deg); }
         }
         @keyframes dcSwayBrLite {
-            0%, 100% { transform: scale(-1) rotate(-1.6deg); }
-            50% { transform: scale(-1) rotate(1.8deg); }
+            0%, 100% { transform: scale(-1) rotate(-1.1deg); }
+            50% { transform: scale(-1) rotate(1.3deg); }
         }
         @media (prefers-reduced-motion: reduce) {
             .dc-c {
                 animation: none !important;
-                opacity: .96;
-                filter: drop-shadow(0 1px 2px rgba(200,140,160,.14));
+                opacity: 1;
+                filter: drop-shadow(0 1px 1.5px rgba(120,90,110,.12));
             }
             .dc-c.tl { transform: none; }
             .dc-c.tr { transform: scaleX(-1); }
@@ -516,8 +481,8 @@
             z-index: 0;
             background-repeat: no-repeat;
             background-size: contain;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom4');
-            opacity: .78;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom5');
+            opacity: .88;
             /*
               SVG authored for TL (outer L at 0,0). Always pin that vertex with
               transform-origin: 0 0, then place top-left on each corner and flip —
@@ -532,26 +497,26 @@
         .content-card::before {
             top: -1px; left: -1px;
             transform: none;
-            animation: cardBloomSway 3.6s ease-in-out infinite;
+            animation: cardBloomSway 5.6s ease-in-out infinite;
         }
         .content-card::after {
             top: calc(100% + 1px); left: calc(100% + 1px);
             bottom: auto; right: auto;
             transform: scale(-1);
-            animation: cardBloomSwayFlip 3.6s ease-in-out infinite;
-            animation-delay: .45s;
+            animation: cardBloomSwayFlip 5.6s ease-in-out infinite;
+            animation-delay: .7s;
         }
         @keyframes cardBloomSway {
-            0%, 100% { transform: rotate(-4deg); }
-            50% { transform: rotate(4deg); }
+            0%, 100% { transform: rotate(-1.8deg); }
+            50% { transform: rotate(2deg); }
         }
         @keyframes cardBloomSwayFlip {
-            0%, 100% { transform: scale(-1) rotate(-4deg); }
-            50% { transform: scale(-1) rotate(4deg); }
+            0%, 100% { transform: scale(-1) rotate(-1.8deg); }
+            50% { transform: scale(-1) rotate(2deg); }
         }
         .content-card.compact-card::before,
         .content-card.compact-card::after {
-            width: 26px; height: 26px; opacity: .72;
+            width: 26px; height: 26px; opacity: .82;
         }
         .content-card.compact-card {
             background-size: min(100%, 360px) 12px;
@@ -7036,22 +7001,22 @@
             */
             .dc-c {
                 will-change: auto;
-                filter: drop-shadow(0 1px 2px rgba(200,140,160,.14));
+                filter: drop-shadow(0 1px 1.5px rgba(120,90,110,.12));
             }
             #login-screen .panel > .dc-corners .dc-c.tl {
-                animation: dcSwayTlLite 7.2s ease-in-out infinite;
+                animation: dcSwayTlLite 9s ease-in-out infinite;
             }
             #login-screen .panel > .dc-corners .dc-c.tr {
-                animation: dcSwayTrLite 7.8s ease-in-out infinite;
-                animation-delay: -1.6s;
+                animation: dcSwayTrLite 9.6s ease-in-out infinite;
+                animation-delay: -2.1s;
             }
             #login-screen .panel > .dc-corners .dc-c.bl {
-                animation: dcSwayBlLite 7.5s ease-in-out infinite;
-                animation-delay: -3.1s;
+                animation: dcSwayBlLite 9.3s ease-in-out infinite;
+                animation-delay: -4s;
             }
             #login-screen .panel > .dc-corners .dc-c.br {
-                animation: dcSwayBrLite 8.1s ease-in-out infinite;
-                animation-delay: -4.4s;
+                animation: dcSwayBrLite 10s ease-in-out infinite;
+                animation-delay: -5.6s;
             }
             .dash-shell > .dc-corners .dc-c {
                 animation: none !important;
