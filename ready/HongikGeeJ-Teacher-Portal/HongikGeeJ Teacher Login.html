@@ -532,6 +532,69 @@
             40% { transform: scale(-1.04) rotate(1.6deg); }
             75% { transform: scale(-1.02) rotate(2.3deg); }
         }
+        /*
+          Eunha only (#dash-shell.is-eunha-shin): content-card corner blooms → Shin décor.
+          TL = cheek circle, BR = pajama sit. Other accounts keep corner-bloom.svg.
+        */
+        .dash-shell.is-eunha-shin .content-card::before,
+        .dash-shell.is-eunha-shin .content-card::after {
+            opacity: 1;
+            pointer-events: none !important;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+            will-change: transform;
+            filter:
+                drop-shadow(0 1px 1px rgba(255, 255, 255, .9))
+                drop-shadow(0 3px 8px rgba(236, 120, 160, .28))
+                drop-shadow(0 1px 3px rgba(15, 23, 42, .12));
+        }
+        .dash-shell.is-eunha-shin .content-card::before {
+            width: 46px;
+            height: 46px;
+            top: -8px;
+            left: -8px;
+            background-image: url('assets/decor/shinchan-cheek.png?v=cheek1');
+            transform: none;
+            transform-origin: 35% 75%;
+            animation: eunhaShinCheekBob 3.5s ease-in-out infinite;
+        }
+        .dash-shell.is-eunha-shin .content-card::after {
+            width: 54px;
+            height: 68px;
+            top: calc(100% - 4px);
+            left: calc(100% - 8px);
+            bottom: auto;
+            right: auto;
+            background-image: url('assets/decor/shinchan-pajamas.png?v=pj1');
+            /* Do not mirror — character faces naturally into the card */
+            transform: none;
+            transform-origin: 70% 100%;
+            animation: eunhaShinPajamaSway 3.8s ease-in-out infinite;
+            animation-delay: .35s;
+        }
+        .dash-shell.is-eunha-shin .content-card.compact-card::before {
+            width: 38px;
+            height: 38px;
+            top: -6px;
+            left: -6px;
+        }
+        .dash-shell.is-eunha-shin .content-card.compact-card::after {
+            width: 44px;
+            height: 56px;
+            top: calc(100% - 2px);
+            left: calc(100% - 6px);
+        }
+        @keyframes eunhaShinCheekBob {
+            0%, 100% { transform: translateY(0) rotate(-2.2deg) scale(1); }
+            40% { transform: translateY(-2.5px) rotate(2deg) scale(1.045); }
+            70% { transform: translateY(-1px) rotate(1deg) scale(1.02); }
+        }
+        @keyframes eunhaShinPajamaSway {
+            0%, 100% { transform: translate(0, 0) rotate(-2.5deg) scale(1); }
+            35% { transform: translate(-1.5px, -2px) rotate(2.2deg) scale(1.03); }
+            65% { transform: translate(1px, -1px) rotate(1.2deg) scale(1.015); }
+        }
         .content-card.compact-card::before,
         .content-card.compact-card::after {
             width: 26px; height: 26px; opacity: .82;
@@ -558,6 +621,11 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: scale(-1); }
+            .dash-shell.is-eunha-shin .content-card::before,
+            .dash-shell.is-eunha-shin .content-card::after {
+                animation: none !important;
+                transform: none !important;
+            }
         }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.45rem; }
@@ -569,6 +637,15 @@
             .content-card::before,
             .content-card::after { width: 24px; height: 24px; opacity: .7; }
             .content-card { background-size: min(100%, 320px) 40px; }
+            .dash-shell.is-eunha-shin .content-card::before {
+                width: 36px; height: 36px; opacity: 1;
+                top: -6px; left: -6px;
+            }
+            .dash-shell.is-eunha-shin .content-card::after {
+                width: 42px; height: 54px; opacity: 1;
+                top: calc(100% - 2px); left: calc(100% - 6px);
+                transform: none;
+            }
         }
         .dash-shell {
             width: 100%;
@@ -4349,12 +4426,37 @@
             opacity: .92;
             filter: grayscale(.35);
         }
+        /* Cancelled: dark red + strikethrough; still released for re-booking */
+        .room-tt-booked.is-cancelled {
+            background: #7f1d1d !important;
+            border-color: #991b1b !important;
+            color: #fecaca !important;
+            opacity: 1;
+            filter: none;
+        }
+        .room-tt-booked.is-cancelled .rt-name,
+        .room-tt-booked.is-cancelled .rt-subj {
+            text-decoration: line-through;
+            text-decoration-thickness: 1.5px;
+            text-decoration-color: rgba(254, 202, 202, .85);
+        }
+        .room-tt-booked.is-cancelled .cls-run-badge {
+            text-decoration: none;
+            background: #fecaca;
+            color: #7f1d1d;
+            border-color: #fca5a5;
+        }
+        .room-tt-booked.is-cancelled .rt-avatar {
+            opacity: .75;
+            filter: grayscale(.2);
+        }
         .room-tt-released-stack {
             display: flex; flex-direction: column; gap: .2rem; align-items: stretch;
             width: 100%; height: 100%; min-height: 2.2rem; padding: .15rem;
             box-sizing: border-box;
         }
-        .room-tt-released-stack .room-tt-booked.is-released {
+        .room-tt-released-stack .room-tt-booked.is-released,
+        .room-tt-released-stack .room-tt-booked.is-cancelled {
             flex: 1; min-height: 1.6rem; font-size: .62rem;
         }
         .room-tt-released-stack .room-tt-plus {
@@ -4373,6 +4475,10 @@
         .rt-month-chip.is-released {
             background: #e2e8f0 !important; border-color: #94a3b8 !important; color: #64748b !important;
             filter: grayscale(.3);
+        }
+        .rt-month-chip.is-cancelled {
+            background: #7f1d1d !important; border-color: #991b1b !important; color: #fecaca !important;
+            text-decoration: line-through; filter: none;
         }
         .sched-item .cls-run-badge { margin-left: .25rem; }
         .sched-item.dayoff-item {
@@ -8740,6 +8846,10 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: scale(-1); }
+            .dash-shell.is-eunha-shin .content-card::before,
+            .dash-shell.is-eunha-shin .content-card::after {
+                transform: none !important;
+            }
             /*
               Login panel corners must keep sway on mobile/iPad — do not kill .dc-c.
               Use lighter keyframes (no glow pulse). Dash-shell corners stay static.
@@ -8968,6 +9078,15 @@
             .content-card { padding: 3rem .85rem; margin-bottom: .7rem; }
             .content-card::before,
             .content-card::after { width: 24px; height: 24px; opacity: .7; pointer-events: none !important; }
+            .dash-shell.is-eunha-shin .content-card::before {
+                width: 38px; height: 38px; opacity: 1;
+                top: -6px; left: -6px;
+            }
+            .dash-shell.is-eunha-shin .content-card::after {
+                width: 44px; height: 56px; opacity: 1;
+                top: calc(100% - 2px); left: calc(100% - 6px);
+                transform: none;
+            }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
             .login-sea { height: min(96px, 16vh); }
             .lang-float {
@@ -8998,6 +9117,11 @@
             .header-shin-wrap.is-play .header-shin-decor,
             .header-shin-wrap.is-sync-pulse::before {
                 animation: none !important;
+            }
+            .dash-shell.is-eunha-shin .content-card::before,
+            .dash-shell.is-eunha-shin .content-card::after {
+                animation: none !important;
+                transform: none !important;
             }
             .header-shin-bubble { transition: none !important; }
             #order-modal .order-sakura,
@@ -12232,6 +12356,7 @@
                 schedAlertSummaryStudentPostpone: '학생이 수업을 연기해 교실이 비었습니다',
                 schedActionClassStatus: '수업 상태',
                 roomTtReleasedHint: '학생 연기 · 다른 선생님 예약 가능',
+                roomTtCancelledHint: '취소 · 다른 선생님 예약 가능',
                 schedDayOffBtn: '오늘 수업 없음',
                 schedDayOffHint: '오늘은 수업이 없을 때 · 시간·과목 입력 없이 바로 표시',
                 schedDayOffTitle: '오늘 수업 없음',
@@ -13162,6 +13287,7 @@
                 schedAlertSummaryStudentPostpone: 'นักเรียนเลื่อนคลาส — ห้องว่างให้จองทับได้',
                 schedActionClassStatus: 'สถานะคลาส',
                 roomTtReleasedHint: 'นักเรียนเลื่อน · ครูอื่นจองทับได้',
+                roomTtCancelledHint: 'ยกเลิก · ครูอื่นจองทับได้',
                 schedDayOffBtn: 'วันนี้ไม่มีคลาส',
                 schedDayOffHint: 'วันที่ไม่มีสอน · ไม่ต้องใส่เวลาหรือวิชา',
                 schedDayOffTitle: 'วันนี้ไม่มีคลาส',
@@ -14092,6 +14218,7 @@
                 schedAlertSummaryStudentPostpone: 'Student postponed — room freed for rebooking',
                 schedActionClassStatus: 'Class status',
                 roomTtReleasedHint: 'Student postponed · others may book over',
+                roomTtCancelledHint: 'Cancelled · others may book over',
                 schedDayOffBtn: 'No class today',
                 schedDayOffHint: 'Day off teaching · no time or subject needed',
                 schedDayOffTitle: 'No class today',
@@ -15589,9 +15716,85 @@
                 return `<option value="${k}"${cur === k ? ' selected' : ''}>${t(key)}</option>`;
             }).join('');
         }
-        /** นักเรียนเลื่อนคลาส releases room occupancy (others may book over) while keeping the record. */
+        /** student_postponed / cancelled release room occupancy (others may book over) while keeping the record. */
         function roomTtReleasesOccupancy(block) {
-            return normalizeClassStatus(block?.classStatus) === 'student_postponed';
+            const st = normalizeClassStatus(block?.classStatus);
+            return st === 'student_postponed' || st === 'cancelled';
+        }
+        /** Active lessons for next-class banner / overview — excludes cancelled reports + released statuses. */
+        function isActiveClassForBanner(it) {
+            if (!it) return false;
+            if (it.cancelled) return false;
+            if (it.kind === 'dayoff' || it.classType === 'dayoff') return false;
+            if (roomTtReleasesOccupancy(it)) return false;
+            return true;
+        }
+        /** Cancelled / occupancy-released statuses must not drive the 「คาบถัดไป」 banner. */
+        function classStatusSkipsNextBanner(status) {
+            return roomTtReleasesOccupancy({ classStatus: status });
+        }
+        /**
+         * Live classes for the next/now banner: prefer hongik-room-timetable-v2 for this teacher,
+         * then manual day-schedule rows that are not room-backed. Excludes cancelled / released.
+         */
+        function listTeacherClassesForStatusBanner(userId) {
+            const tid = String(userId || '');
+            if (!tid) return [];
+            const date = todayKey();
+            const byKey = new Map();
+            const roomIds = new Set();
+            listTeacherRoomBlocksForDate(tid, date).forEach((b) => {
+                if (!b || b.isBreak || b.teacherId === 'break') return;
+                if (normalizeClassType(b.classType) === 'dayoff') return;
+                if (classStatusSkipsNextBanner(b.classStatus)) return;
+                roomIds.add(String(b.id));
+                byKey.set(`room:${b.id}`, {
+                    start: b.start || '',
+                    end: b.end || '',
+                    title: b.title || '',
+                    titleKo: b.titleKo || '',
+                    titleTh: b.titleTh || '',
+                    titleEn: b.titleEn || '',
+                    classType: normalizeClassType(b.classType),
+                    classStatus: normalizeClassStatus(b.classStatus),
+                    roomSlotId: b.id,
+                    fromRoom: true
+                });
+            });
+            const daySched = loadScheduleForDate(tid, date);
+            // Director cancel-report on a room-linked row still drops that slot from the banner
+            daySched.forEach((it) => {
+                if (!it || !it.cancelled || !it.roomSlotId) return;
+                byKey.delete(`room:${it.roomSlotId}`);
+            });
+            daySched.forEach((it) => {
+                if (!it || it.cancelled) return;
+                if (it.kind === 'dayoff' || it.classType === 'dayoff') return;
+                if (classStatusSkipsNextBanner(it.classStatus)) return;
+                if (it.roomSlotId) {
+                    // Room TT is source of truth when the block still exists
+                    if (roomIds.has(String(it.roomSlotId)) || getRoomBlockById(it.roomSlotId)) return;
+                }
+                if (it.fromRoom && it.roomSlotId) return;
+                const key = it.roomSlotId
+                    ? `room:${it.roomSlotId}`
+                    : `day:${it.start}|${it.end}|${pickLangText(it, 'title') || it.title || ''}`;
+                if (byKey.has(key)) return;
+                byKey.set(key, {
+                    start: it.start || '',
+                    end: it.end || '',
+                    title: it.title || '',
+                    titleKo: it.titleKo || '',
+                    titleTh: it.titleTh || '',
+                    titleEn: it.titleEn || '',
+                    classType: normalizeClassType(it.classType),
+                    classStatus: normalizeClassStatus(it.classStatus),
+                    roomSlotId: it.roomSlotId || '',
+                    fromRoom: !!it.fromRoom
+                });
+            });
+            return [...byKey.values()].sort((a, b) => String(a.start || '').localeCompare(String(b.start || ''))
+                || String(a.end || '').localeCompare(String(b.end || '')));
         }
         function canEditClassStatus(user, block) {
             if (!user) return false;
@@ -23208,7 +23411,10 @@
                     bar.classList.remove('show');
                     return;
                 }
-                const list = loadDaySchedule(currentUser.id).filter(it => !it.cancelled && it.kind !== 'dayoff' && it.classType !== 'dayoff');
+                // Live room TT (hongik-room-timetable-v2) + non-room day rows; skips ยกเลิก / occupancy-released
+                const list = (typeof listTeacherClassesForStatusBanner === 'function')
+                    ? listTeacherClassesForStatusBanner(currentUser.id)
+                    : [];
                 if (!list.length) { bar.classList.remove('show'); return; }
                 const now = minutesNow();
                 let current = null;
@@ -23216,6 +23422,7 @@
                 for (const item of list) {
                     const s = parseHM(item.start);
                     const e = parseHM(item.end);
+                    if (!Number.isFinite(s) || !Number.isFinite(e) || e <= s) continue;
                     if (now >= s && now < e) { current = item; break; }
                     if (now < s && (!upcoming || s < parseHM(upcoming.start))) upcoming = item;
                 }
@@ -23224,13 +23431,13 @@
                 let message = '';
                 if (current) {
                     const curTitle = pickLangText(current, 'title') || current.title || '';
-                    key = `now:${current.start}-${current.end}:${curTitle}`;
+                    key = `now:${current.start}-${current.end}:${curTitle}:${normalizeClassStatus(current.classStatus)}`;
                     message = `${t('nowClass')}: ${curTitle} (${current.start}–${current.end}) · ${leftLabel(parseHM(current.end) - now)}`;
                 } else if (upcoming) {
                     const left = parseHM(upcoming.start) - now;
                     if (left <= 90) {
                         const upTitle = pickLangText(upcoming, 'title') || upcoming.title || '';
-                        key = `next:${upcoming.start}:${upTitle}`;
+                        key = `next:${upcoming.start}:${upTitle}:${normalizeClassStatus(upcoming.classStatus)}`;
                         message = `${t('nextClass')}: ${upTitle} @ ${upcoming.start} · ${leftLabel(left)}`;
                     }
                 }
@@ -23498,6 +23705,10 @@
                         } else if (monthModalOpen && !roomTtMonthPick) {
                             try { renderRoomTtMonthBody(user); } catch (_) {}
                         }
+                    }
+                    // Next-class banner tracks live room TT / day schedule — recompute without remounting today form
+                    if (all || has('roomTt') || has('daySchedules') || has('classCancels')) {
+                        try { updateClassStatus(); } catch (_) {}
                     }
                     if ((has('headOrders') || has('orderAcks')) && document.getElementById('order-board')) {
                         renderOrderBoard(user);
@@ -24539,12 +24750,17 @@
                         const c = roomTtTeacherColor(b.teacherId);
                         const st = normalizeClassStatus(b.classStatus);
                         const released = roomTtReleasesOccupancy(b);
+                        const cancelled = st === 'cancelled';
                         const label = `${shortTeacherLabel(b.teacherId) || b.teacherName || ''} ${b.start || ''}`.trim();
                         const picked = roomTtMonthPick === b.id ? ' is-picked' : '';
                         const drag = canEdit && !released ? `draggable="true" data-rt-month-drag="${esc(b.id)}"` : '';
                         const stDot = st === 'normal' ? '' : `<span class="cls-run-dot ${st}" title="${esc(classStatusLabel(st))}"></span>`;
-                        return `<button type="button" class="rt-month-chip${picked}${released ? ' is-released' : ''}" data-rt-month-chip="${esc(b.id)}"
-                            style="background:${released ? '#e2e8f0' : c.bg};border-color:${released ? '#94a3b8' : c.border};color:${released ? '#64748b' : c.accent}" ${drag}
+                        const chipMod = cancelled ? ' is-cancelled' : released ? ' is-released' : '';
+                        const bg = cancelled ? '#7f1d1d' : released ? '#e2e8f0' : c.bg;
+                        const bd = cancelled ? '#991b1b' : released ? '#94a3b8' : c.border;
+                        const fg = cancelled ? '#fecaca' : released ? '#64748b' : c.accent;
+                        return `<button type="button" class="rt-month-chip${picked}${chipMod}" data-rt-month-chip="${esc(b.id)}"
+                            style="background:${bg};border-color:${bd};color:${fg}" ${drag}
                             title="${esc(label)}${st !== 'normal' ? ' · ' + classStatusLabel(st) : ''}">${esc(label)}${stDot}</button>`;
                     }).join('');
                     cells += `<div class="rt-month-day${isToday ? ' is-today' : ''}${roomTtMonthPick ? ' is-drop-target' : ''}" data-rt-month-day="${esc(date)}" tabindex="0">
@@ -24699,9 +24915,11 @@
                     if (document.getElementById('week-class-board') && typeof renderWeekClassBoard === 'function') {
                         try { renderWeekClassBoard(user); } catch (_) {}
                     }
+                    try { updateClassStatus(); } catch (_) {}
                 } catch (_) {
                     showAppToast(t('roomTtRefreshOk'), 'warn');
                     try { renderRoomTimetableBoard(user); } catch (_) {}
+                    try { updateClassStatus(); } catch (_) {}
                 } finally {
                     if (btn) {
                         btn.classList.remove('is-loading');
@@ -24773,7 +24991,7 @@
                 });
 
                 // occupancy map: date|room|half -> block
-                // student_postponed keeps a gray record but frees the cell for re-booking
+                // student_postponed (gray) / cancelled (dark red) keep a record but free the cell for re-booking
                 const byCell = {};
                 const releasedByCell = {};
                 Object.values(store.blocks || {}).forEach((b) => {
@@ -24827,16 +25045,20 @@
                                 if (showReleased) {
                                     const rSubj = cleanClassTitleDisplay(pickLangText(releasedSlot, 'title') || releasedSlot.title || '');
                                     const rTea = shortTeacherLabel(releasedSlot.teacherId) || releasedSlot.teacherName || '';
+                                    const rSt = normalizeClassStatus(releasedSlot.classStatus);
+                                    const rCancelled = rSt === 'cancelled';
+                                    const rMod = rCancelled ? 'is-cancelled' : 'is-released';
+                                    const rHint = rCancelled ? t('roomTtCancelledHint') : t('roomTtReleasedHint');
                                     const rBadge = classStatusBadgeHtml(releasedSlot.classStatus);
                                     const plusBtn = canBook
-                                        ? `<button type="button" class="room-tt-plus" data-rt-book="${esc(date)}|${room}|${bookHalf}" title="${esc(t('roomTtReleasedHint'))}" aria-label="+"><i class="ph ph-plus"></i></button>`
+                                        ? `<button type="button" class="room-tt-plus" data-rt-book="${esc(date)}|${room}|${bookHalf}" title="${esc(rHint)}" aria-label="+"><i class="ph ph-plus"></i></button>`
                                         : '';
                                     body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
                                         <div class="room-tt-released-stack">
-                                            <button type="button" class="room-tt-booked is-released"
+                                            <button type="button" class="room-tt-booked ${rMod}"
                                                 data-rt-edit="${esc(releasedSlot.id)}"
                                                 data-teacher="${esc(releasedSlot.teacherId || '')}"
-                                                title="${esc(t('roomTtReleasedHint'))}">
+                                                title="${esc(rHint)}">
                                                 <span class="rt-name">${esc(rTea)}</span>
                                                 <span class="rt-subj">${esc(rSubj)}</span>
                                                 <span class="rt-subj" style="opacity:.8">${esc(releasedSlot.start)}–${esc(releasedSlot.end)}</span>
@@ -26056,7 +26278,7 @@
                 const list = teachers.map((tea, i) => {
                     try {
                     const { lessons, dayOff } = overviewLessonsForTeacher(tea.id, todayKey());
-                    const activeSched = lessons.filter((it) => !it.cancelled);
+                    const activeSched = lessons.filter((it) => isActiveClassForBanner(it));
                     const myLeave = leaves.find(L => L.fromId === tea.id && L.status === 'pending');
                     let status = '—';
                     let note = t('noSchedule');
@@ -31558,6 +31780,7 @@
                 const tab = document.querySelector('.tab-btn.active')?.dataset?.tab || 'rooms';
                 openDashboard(resolveAccountById(currentUser.id), true);
                 setTab(tab);
+                try { statusDismissedKey = ''; updateClassStatus(); } catch (_) {}
             };
             document.getElementById('room-tt-modal-x')?.addEventListener('click', closeRoomTtModal);
             document.getElementById('room-tt-modal-cancel')?.addEventListener('click', closeRoomTtModal);
