@@ -366,13 +366,13 @@
         /* Bottom pair: distinct asset + slightly wider horizontal tuck */
         .dash-shell > .dc-corners .dc-c.bl,
         .dash-shell > .dc-corners .dc-c.br {
-            width: 52px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             opacity: .9;
         }
-        .dash-shell > .dc-corners .dc-c.bl { top: calc(100% + 2px); left: -2px; }
+        .dash-shell > .dc-corners .dc-c.bl { top: calc(100% + 6px); left: -6px; }
         .dash-shell > .dc-corners .dc-c.br {
-            top: calc(100% + 2px); left: calc(100% + 2px);
+            top: calc(100% + 6px); left: calc(100% + 6px);
         }
         @media (max-width: 720px) {
             .dash-shell > .dc-corners .dc-c {
@@ -386,10 +386,10 @@
             .dash-shell > .dc-corners .dc-c.tr { top: -3px; left: 100%; }
             .dash-shell > .dc-corners .dc-c.bl,
             .dash-shell > .dc-corners .dc-c.br {
-                width: 44px; height: 34px;
+                width: 40px; height: 40px;
             }
-            .dash-shell > .dc-corners .dc-c.bl { top: calc(100% + 1px); left: -1px; }
-            .dash-shell > .dc-corners .dc-c.br { top: calc(100% + 1px); left: calc(100% + 1px); }
+            .dash-shell > .dc-corners .dc-c.bl { top: calc(100% + 4px); left: -4px; }
+            .dash-shell > .dc-corners .dc-c.br { top: calc(100% + 4px); left: calc(100% + 4px); }
         }
         /* Geometric rails replaced by shared flower chrome */
         .taehyun-fx .dancheong-rail { display: none !important; }
@@ -427,27 +427,29 @@
             animation: dcSwayTr 8.2s ease-in-out infinite;
             animation-delay: -2.1s;
         }
-        /* Bottom pair: peach/cream horizontal spray (not flipped pink L-cluster) */
+        /* Bottom pair: peach/cream arc spray hugging panel border-radius (not flipped top L) */
         .dc-c.bl,
         .dc-c.br {
-            background-image: url('assets/dancheong/corner-flower-bottom.svg?v=bottom1');
+            background-image: url('assets/dancheong/corner-flower-bottom.svg?v=hug2');
         }
         .dc-c.bl {
-            top: calc(100% + 10px); left: -10px; bottom: auto;
-            width: 96px; height: 72px;
+            /* Kiss flush to BL curve (panel radius ~1.6rem); modest ~88px */
+            top: calc(100% + 14px); left: -14px; bottom: auto;
+            width: 88px; height: 88px;
             transform: scaleY(-1);
-            animation: dcSwayBl 7.9s ease-in-out infinite;
-            animation-delay: -4s;
+            animation: dcBloomBl 6.8s ease-in-out infinite;
+            animation-delay: -3.2s;
         }
         .dc-c.br {
-            top: calc(100% + 10px); left: calc(100% + 10px); bottom: auto; right: auto;
-            width: 96px; height: 72px;
+            top: calc(100% + 14px); left: calc(100% + 14px); bottom: auto; right: auto;
+            width: 88px; height: 88px;
             transform: scale(-1);
-            animation: dcSwayBr 8.6s ease-in-out infinite;
-            animation-delay: -5.6s;
+            animation: dcBloomBr 7.4s ease-in-out infinite;
+            animation-delay: -4.8s;
         }
         /*
-          Cluster presence: rotate + soft breathe (scale) + tiny float.
+          Top: rotate sway + soft float (dcSwayTl/Tr).
+          Bottom: gentle bloom pulse + edge drift (dcBloomBl/Br) — distinct motion.
           No filter/brightness — internal bloom/leaf/petal motion lives in the SVG (SMIL).
         */
         @keyframes dcSwayTl {
@@ -460,17 +462,20 @@
             35% { transform: scaleX(-1) rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
             70% { transform: scaleX(-1) rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
         }
-        @keyframes dcSwayBl {
-            0%, 100% { transform: scaleY(-1) rotate(-2.1deg) translate(0, 0) scale(1); }
-            35% { transform: scaleY(-1) rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
-            70% { transform: scaleY(-1) rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
+        /* Bottom: bloom open from corner origin + soft horizontal edge drift (no rotate sway) */
+        @keyframes dcBloomBl {
+            0%, 100% { transform: scaleY(-1) translate(0, 0) scale(1); }
+            28% { transform: scaleY(-1) translate(1.4px, 0.5px) scale(1.06); }
+            52% { transform: scaleY(-1) translate(-0.6px, -0.35px) scale(1.02); }
+            78% { transform: scaleY(-1) translate(0.9px, 0.7px) scale(1.045); }
         }
-        @keyframes dcSwayBr {
-            0%, 100% { transform: scale(-1) rotate(-2.1deg) translate(0, 0) scale(1); }
-            35% { transform: scale(-1) rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
-            70% { transform: scale(-1) rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
+        @keyframes dcBloomBr {
+            0%, 100% { transform: scale(-1) translate(0, 0) scale(1); }
+            28% { transform: scale(-1) translate(1.4px, 0.5px) scale(1.06); }
+            52% { transform: scale(-1) translate(-0.6px, -0.35px) scale(1.02); }
+            78% { transform: scale(-1) translate(0.9px, 0.7px) scale(1.045); }
         }
-        /* Mobile / lite: quieter sway, still a soft breathe */
+        /* Mobile / lite: quieter — top keeps sway, bottom keeps soft bloom */
         @keyframes dcSwayTlLite {
             0%, 100% { transform: rotate(-1.3deg) scale(1); }
             50% { transform: rotate(1.6deg) scale(1.02); }
@@ -479,13 +484,13 @@
             0%, 100% { transform: scaleX(-1) rotate(-1.3deg) scale(1); }
             50% { transform: scaleX(-1) rotate(1.6deg) scale(1.02); }
         }
-        @keyframes dcSwayBlLite {
-            0%, 100% { transform: scaleY(-1) rotate(-1.3deg) scale(1); }
-            50% { transform: scaleY(-1) rotate(1.6deg) scale(1.02); }
+        @keyframes dcBloomBlLite {
+            0%, 100% { transform: scaleY(-1) scale(1); }
+            50% { transform: scaleY(-1) translate(0.8px, 0.3px) scale(1.035); }
         }
-        @keyframes dcSwayBrLite {
-            0%, 100% { transform: scale(-1) rotate(-1.3deg) scale(1); }
-            50% { transform: scale(-1) rotate(1.6deg) scale(1.02); }
+        @keyframes dcBloomBrLite {
+            0%, 100% { transform: scale(-1) scale(1); }
+            50% { transform: scale(-1) translate(0.8px, 0.3px) scale(1.035); }
         }
         @media (prefers-reduced-motion: reduce) {
             .dc-c {
@@ -748,11 +753,11 @@
             #login-screen .panel > .dc-corners .dc-c.tl,
             #login-screen .panel > .dc-corners .dc-c.tr { width: 68px; height: 68px; opacity: .95; }
             #login-screen .panel > .dc-corners .dc-c.bl,
-            #login-screen .panel > .dc-corners .dc-c.br { width: 76px; height: 56px; opacity: .95; }
+            #login-screen .panel > .dc-corners .dc-c.br { width: 72px; height: 72px; opacity: .95; }
             #login-screen .panel > .dc-corners .dc-c.tl { top: -12px; left: -12px; }
             #login-screen .panel > .dc-corners .dc-c.tr { top: -12px; left: calc(100% + 12px); right: auto; }
-            #login-screen .panel > .dc-corners .dc-c.bl { top: calc(100% + 8px); left: -8px; bottom: auto; }
-            #login-screen .panel > .dc-corners .dc-c.br { top: calc(100% + 8px); left: calc(100% + 8px); bottom: auto; right: auto; }
+            #login-screen .panel > .dc-corners .dc-c.bl { top: calc(100% + 11px); left: -11px; bottom: auto; }
+            #login-screen .panel > .dc-corners .dc-c.br { top: calc(100% + 11px); left: calc(100% + 11px); bottom: auto; right: auto; }
             .dash-shell .content-card::before,
             .dash-shell .content-card::after { width: 52px; height: 52px; opacity: .86; }
             .dash-shell .content-card::before { top: -4px; left: -4px; }
@@ -9486,12 +9491,12 @@
                 animation-delay: -2.1s;
             }
             #login-screen .panel > .dc-corners .dc-c.bl {
-                animation: dcSwayBlLite 9.3s ease-in-out infinite;
-                animation-delay: -4s;
+                animation: dcBloomBlLite 8.4s ease-in-out infinite;
+                animation-delay: -3.2s;
             }
             #login-screen .panel > .dc-corners .dc-c.br {
-                animation: dcSwayBrLite 10s ease-in-out infinite;
-                animation-delay: -5.6s;
+                animation: dcBloomBrLite 9s ease-in-out infinite;
+                animation-delay: -4.8s;
             }
             .dash-shell > .dc-corners .dc-c {
                 animation: none !important;
