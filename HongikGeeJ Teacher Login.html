@@ -4848,6 +4848,14 @@
             opacity: 1;
             pointer-events: auto;
         }
+        /* Other teachers: view booking only — no Save */
+        #room-tt-modal.is-view-only #room-tt-modal-save {
+            display: none !important;
+        }
+        #room-tt-modal.is-view-only #room-tt-edit-fields,
+        #room-tt-modal.is-view-only #room-tt-extra-fields {
+            pointer-events: none;
+        }
         .room-tt-booked .cls-run-badge {
             font-size: .58rem; padding: .08rem .28rem; margin-top: .12rem;
             max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -26261,13 +26269,43 @@
                 const clearBtn = document.getElementById('room-tt-modal-clear');
                 const canEditMeta = !existing || existing.teacherId === user.id || existing.teacherId === 'parttime'
                     || user.role === 'director' || user.role === 'admin';
+                const viewOnly = !!existing && !canEditMeta;
                 if (clearBtn) {
                     clearBtn.style.display = (existing && canEditMeta && !existing.isBreak) ? '' : 'none';
                 }
                 const editFields = document.getElementById('room-tt-edit-fields');
-                if (editFields) editFields.style.opacity = canEditMeta ? '1' : '.65';
+                const extraFields = document.getElementById('room-tt-extra-fields');
+                modal.classList.toggle('is-view-only', viewOnly);
+                if (editFields) {
+                    editFields.style.opacity = viewOnly ? '.72' : (canEditMeta ? '1' : '.65');
+                    editFields.querySelectorAll('input, select, textarea, button').forEach((el) => {
+                        if (el.id === 'room-tt-class-status') return; // handled above
+                        el.disabled = viewOnly;
+                    });
+                }
+                if (extraFields) {
+                    extraFields.style.opacity = viewOnly ? '.72' : '1';
+                    extraFields.querySelectorAll('input, select, textarea, button').forEach((el) => {
+                        el.disabled = viewOnly;
+                    });
+                }
+                if (addBtn) addBtn.disabled = viewOnly;
+                // Hide delete-student controls when view-only (re-rendered above)
+                if (viewOnly) {
+                    document.querySelectorAll('#room-tt-students [data-stu-del]').forEach((btn) => {
+                        btn.style.display = 'none';
+                        btn.disabled = true;
+                    });
+                }
                 const saveBtn = document.getElementById('room-tt-modal-save');
-                if (saveBtn) saveBtn.style.display = '';
+                if (saveBtn) {
+                    saveBtn.style.display = '';
+                    saveBtn.disabled = viewOnly;
+                    saveBtn.setAttribute('aria-disabled', viewOnly ? 'true' : 'false');
+                    saveBtn.title = viewOnly ? t('roomTtViewOnly') : '';
+                    if (viewOnly) saveBtn.style.display = 'none';
+                }
+                if (viewOnly && msg) msg.textContent = t('roomTtViewOnly');
                 if (existing?.isBreak) {
                     if (msg) msg.textContent = 'Break';
                     if (saveBtn) saveBtn.style.display = 'none';
@@ -33551,6 +33589,12 @@
                 const existing = draft.blockId
                     ? getRoomBlockById(draft.blockId)
                     : findRoomBlock(draft.date, draft.room, draft.start || draft.half);
+                const canEditMeta = !existing || existing.teacherId === currentUser.id || existing.teacherId === 'parttime'
+                    || currentUser.role === 'director' || currentUser.role === 'admin';
+                if (existing && !canEditMeta) {
+                    if (msg) msg.textContent = t('roomTtViewOnly');
+                    return;
+                }
                 const subjectUser = (existing && existing.teacherId !== 'parttime' && existing.teacherId !== 'break')
                     ? (resolveAccountById(existing.teacherId) || currentUser)
                     : currentUser;
@@ -33558,8 +33602,6 @@
                 const end = document.getElementById('room-tt-end')?.value || existing?.end || draft.end || roomTtFromMin(roomTtToMin(start) + 30);
                 const note = document.getElementById('room-tt-note')?.value || '';
                 const students = Array.isArray(draft.students) ? draft.students : [];
-                const canEditMeta = !existing || existing.teacherId === currentUser.id || existing.teacherId === 'parttime'
-                    || currentUser.role === 'director' || currentUser.role === 'admin';
                 const ownerCanStatus = canEditClassStatus(currentUser, existing);
                 const prevStatus = normalizeClassStatus(existing?.classStatus);
                 const nextStatusRaw = document.getElementById('room-tt-class-status')?.value;
