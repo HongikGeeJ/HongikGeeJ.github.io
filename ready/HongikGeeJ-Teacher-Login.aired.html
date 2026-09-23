@@ -5746,6 +5746,69 @@
         .ot-pay-panel .pay-ok-total {
             background: #9a3412; border-color: #9a3412;
         }
+        /* OT lookback month strip (ย้อนหลัง 8 เดือน) */
+        .ot-month-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(10.75rem, 1fr));
+            gap: .5rem;
+            margin: .35rem 0 .85rem;
+        }
+        .ot-month-chip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .55rem;
+            width: 100%;
+            min-width: 10.75rem;
+            padding: .58rem .75rem;
+            border-radius: .7rem;
+            border: 1.5px solid #e2e8f0;
+            background: #fff;
+            color: #0f172a;
+            font-family: inherit;
+            cursor: pointer;
+            text-align: left;
+            transition: border-color .18s, box-shadow .18s, background .18s, transform .15s;
+        }
+        .ot-month-chip .ot-month-ym {
+            font-weight: 800;
+            font-size: .84rem;
+            letter-spacing: .015em;
+            white-space: nowrap;
+            flex: 0 1 auto;
+            line-height: 1.25;
+            color: #0f172a;
+        }
+        .ot-month-chip .pay-ok-badge {
+            font-size: .7rem;
+            padding: .22rem .52rem;
+            flex: 0 0 auto;
+        }
+        .ot-month-chip.has-pay {
+            border-color: #fdba74;
+            box-shadow: inset 3px 0 0 #c2410c;
+        }
+        .ot-month-chip.zero-pay .ot-month-ym {
+            color: #64748b;
+            font-weight: 700;
+        }
+        .ot-month-chip.is-active {
+            border-color: #ea580c;
+            outline: 2px solid #ea580c;
+            outline-offset: 2px;
+            background: #fff7ed;
+            box-shadow: 0 3px 10px rgba(234, 88, 12, .16);
+        }
+        .ot-month-chip.has-pay.is-active {
+            box-shadow: inset 3px 0 0 #c2410c, 0 3px 10px rgba(234, 88, 12, .16);
+        }
+        .ot-month-chip:hover {
+            border-color: #fb923c;
+            transform: translateY(-1px);
+        }
+        .ot-pay-panel .ot-month-chip.has-pay .pay-ok-badge.due {
+            background: #c2410c; border-color: #c2410c; color: #fff;
+        }
         .pay-ok-board { display: grid; gap: .55rem; margin-top: .55rem; }
         .pay-ok-card {
             display: flex; align-items: center; justify-content: space-between; gap: .75rem;
@@ -22289,10 +22352,10 @@
                 const monthOverview = lookback.map((m) => {
                     let sum = 0;
                     teachers.forEach((tea) => { sum += otMonthPaySum(otEntriesForMonth(tea.id, m)); });
-                    const active = m === ym ? ' style="outline:2px solid #ea580c;outline-offset:1px"' : '';
-                    return `<button type="button" class="pay-ok-card ${sum > 0 ? 'has-pay' : 'zero-pay'}" data-ot-ym="${m}"${active} style="padding:.55rem .7rem;min-height:auto">
-                        <div class="pay-name" style="font-size:.82rem">${esc(m)}</div>
-                        <span class="pay-ok-badge${sum > 0 ? ' due' : ''}" style="font-size:.72rem">${t('baht')}${sum.toLocaleString()}</span>
+                    const active = m === ym ? ' is-active' : '';
+                    return `<button type="button" class="ot-month-chip ${sum > 0 ? 'has-pay' : 'zero-pay'}${active}" data-ot-ym="${m}">
+                        <span class="ot-month-ym">${esc(m)}</span>
+                        <span class="pay-ok-badge${sum > 0 ? ' due' : ''}">${t('baht')}${sum.toLocaleString()}</span>
                     </button>`;
                 }).join('');
 
@@ -22303,7 +22366,7 @@
                         <p class="ot-pay-sub text-xs mb-2">${t('otSheetRules')}</p>
                         ${monthBar}
                         <p class="admin-label" style="margin:.35rem 0 .4rem">${t('otLookback')}</p>
-                        <div class="pay-ok-board" style="grid-template-columns:repeat(auto-fill,minmax(7.5rem,1fr));gap:.45rem;margin-bottom:.85rem">${monthOverview}</div>
+                        <div class="ot-month-board">${monthOverview}</div>
                         <div class="pay-ok-board">${list || `<p class="empty-note">${t('none')}</p>`}</div>
                         <div class="pay-ok-total"><span>${t('payGrandTotal')} (${ym})</span><span>${t('baht')}${payGrand.toLocaleString()}</span></div>
                     </div>`;
