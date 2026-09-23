@@ -75,3 +75,19 @@ hongikPortalSyncStatus()
 Until step 5–6 (and with empty Supabase config), every PC still works **local-only** (no crash). Multi-PC realtime needs Supabase keys or that Apps Script URL.
 
 Priority: **Supabase** → Apps Script → localStorage.
+
+---
+
+## Daily cancel / status-alert reset (Asia/Bangkok)
+
+School calendar day = `todayKey()` → `Asia/Bangkok` (`YYYY-MM-DD`).
+
+Each night / on load / portal sync / Bangkok day rollover, clients **hard-delete** yesterday-and-older day-scoped noise so every account starts a fresh count:
+
+| Purged | Kept |
+|--------|------|
+| `classCancels` with `date` (or createdAt day) **&lt; today** | Today’s cancel reports |
+| Day-scoped `schedChanges` (`add` / `edit` / `delete` / `dayoff` / `class_status` / `room_*` / …) with date **&lt; today** | Today’s alerts + non-alert rows |
+| Past `daySchedules` **cancel flags** (`cancelled`, `cancelId`, reason…) | Class bookings themselves; **roomTt** bookings untouched |
+
+One client writes the cleaned blob and flushes `portal_stores`; others re-filter after merge so stale rows cannot resurrect.
