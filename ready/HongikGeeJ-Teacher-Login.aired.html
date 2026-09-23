@@ -26668,6 +26668,21 @@
                     updatedAt: new Date().toISOString()
                 };
                 saveOverrides(store);
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                if (typeof queuePortalStorePush === 'function') queuePortalStorePush('accountData');
+                if (typeof flushPortalStorePush === 'function') {
+                    Promise.resolve()
+                        .then(() => flushPortalStorePush())
+                        .then((res) => {
+                            try { notifyAccountDataSaveResult(res); } catch (_) {}
+                            try {
+                                if (typeof softRefreshDashboard === 'function' && currentUser) {
+                                    softRefreshDashboard(currentUser, { stores: ['accountData'], reason: 'birthDate-save' });
+                                }
+                            } catch (_) {}
+                        })
+                        .catch(() => {});
+                }
                 return next;
             }
             function birthDatePillHtml(birthDate, { editable = false, id = 'em-dob-pill', escFn } = {}) {
