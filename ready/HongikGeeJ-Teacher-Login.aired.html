@@ -990,9 +990,8 @@
             line-height: 0;
             -webkit-tap-highlight-color: transparent;
         }
-        .theme-teacher-a .header-shin-wrap,
-        .theme-teacher-b .header-shin-wrap,
-        .theme-teacher-c .header-shin-wrap {
+        /* Eunha only — toggled on #dash-shell via syncHeaderShinVisibility */
+        .dash-shell.is-eunha-shin .header-shin-wrap {
             display: block;
         }
         .header-shin-wrap::before {
@@ -4247,6 +4246,16 @@
             margin: .15rem 0 .35rem;
         }
         #room-tt-modal .cls-run-field { margin-bottom: .15rem; }
+        /* Non-normal status: status + Save only — other booking fields optional */
+        #room-tt-modal.is-status-only #room-tt-edit-fields > *:not(.cls-run-field),
+        #room-tt-modal.is-status-only #room-tt-extra-fields {
+            opacity: .42;
+            pointer-events: none;
+        }
+        #room-tt-modal.is-status-only #room-tt-modal-save {
+            opacity: 1;
+            pointer-events: auto;
+        }
         .room-tt-booked .cls-run-badge {
             font-size: .58rem; padding: .08rem .28rem; margin-top: .12rem;
             max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -8965,7 +8974,7 @@
                     <p class="room-tt-range-hint" data-i18n="roomTtRangeHint">เลือกเริ่ม–จบแล้วเชื่อมตารางทันทีเมื่อบันทึก</p>
                 </div>
             </div>
-            <div style="margin-top:1rem;padding-top:.85rem;border-top:1px solid rgba(15,23,42,.08)">
+            <div id="room-tt-extra-fields" style="margin-top:1rem;padding-top:.85rem;border-top:1px solid rgba(15,23,42,.08)">
                 <p class="sched-label" style="margin-bottom:.45rem" data-i18n="roomTtStudents">รายชื่อนักเรียน</p>
                 <div id="room-tt-students" class="room-tt-stu-list"></div>
                 <div class="sched-form" style="margin-top:.55rem">
@@ -11542,7 +11551,7 @@
                 accessBlockedMsg: '이 계정은 접근이 차단되어 로그인할 수 없습니다',
                 accessBlockedContact: '담당 직원 / 관리자에게 문의해 주세요',
                 accessBlockedOk: '확인',
-                adminSchoolTab: '학원 수치',
+                adminSchoolTab: '전체 정보',
                 adminSchoolTitle: '학원 수치 · 원장에게 공유',
                 adminSchoolHint: '학생 수 · 휴학 · 매출은 관리자만 입력 · 원장 요약에 바로 반영',
                 adminStudentTotal: '전체 학생 수',
@@ -11901,12 +11910,12 @@
                 schedTypeDayOff: '수업 없음',
                 classStatusLabel: '수업 상태',
                 classStatusNormal: '정상',
-                classStatusPostponed: '수업 연기',
+                classStatusPostponed: '선생님 연기',
                 classStatusStudentPostponed: '학생 수업 연기',
                 classStatusCancelled: '취소',
                 classStatusWaiting: '연락 대기',
-                classStatusHint: '이 수업의 진행 상태를 선택하세요 (담당 선생님만)',
-                classStatusOwnerOnly: '담당 선생님만 상태를 바꿀 수 있어요',
+                classStatusHint: '수업 상태 선택 (담당 선생님 · 원장 · 관리자)',
+                classStatusOwnerOnly: '담당 선생님·원장·관리자만 상태를 바꿀 수 있어요',
                 schedAlertKindClassStatus: '수업 상태 변경',
                 schedAlertSummaryStudentPostpone: '학생이 수업을 연기해 교실이 비었습니다',
                 schedActionClassStatus: '수업 상태',
@@ -12443,7 +12452,7 @@
                 accessBlockedMsg: 'คุณไม่สามารถเข้าสู่ระบบได้',
                 accessBlockedContact: 'กรุณาติดต่อเจ้าหน้าที่ / แอดมิน',
                 accessBlockedOk: 'ตกลง',
-                adminSchoolTab: 'ตัวเลขสถาบัน',
+                adminSchoolTab: 'ข้อมูลโดยรวมทั้งหมด',
                 adminSchoolTitle: 'ตัวเลขสถาบัน · แชร์ให้หัวหน้า',
                 adminSchoolHint: 'จำนวนนักเรียน · พักการเรียน · รายได้ แก้ได้เฉพาะแอดมิน · หัวหน้าเห็นในสรุปทันที',
                 adminStudentTotal: 'จำนวนนักเรียนทั้งหมด',
@@ -12802,12 +12811,12 @@
                 schedTypeDayOff: 'ไม่มีคลาส',
                 classStatusLabel: 'สถานะคลาส',
                 classStatusNormal: 'ปกติ',
-                classStatusPostponed: 'เลื่อนคลาส',
+                classStatusPostponed: 'คุณครูขอเลื่อน',
                 classStatusStudentPostponed: 'นักเรียนเลื่อนคลาส',
                 classStatusCancelled: 'ยกเลิก',
                 classStatusWaiting: 'รอติดต่อ',
-                classStatusHint: 'เลือกสถานะคลาสนี้ (เฉพาะครูเจ้าของคลาส)',
-                classStatusOwnerOnly: 'เฉพาะครูเจ้าของคลาสเท่านั้นที่เปลี่ยนสถานะได้',
+                classStatusHint: 'เลือกสถานะคลาส (ครูเจ้าของคลาส · ผู้อำนวยการ · แอดมิน)',
+                classStatusOwnerOnly: 'เฉพาะครูเจ้าของคลาส · ผู้อำนวยการ · แอดมิน ที่เปลี่ยนสถานะได้',
                 schedAlertKindClassStatus: 'เปลี่ยนสถานะคลาส',
                 schedAlertSummaryStudentPostpone: 'นักเรียนเลื่อนคลาส — ห้องว่างให้จองทับได้',
                 schedActionClassStatus: 'สถานะคลาส',
@@ -13344,7 +13353,7 @@
                 accessBlockedMsg: 'You cannot log in to this portal',
                 accessBlockedContact: 'Please contact staff / admin',
                 accessBlockedOk: 'OK',
-                adminSchoolTab: 'School figures',
+                adminSchoolTab: 'Overall',
                 adminSchoolTitle: 'School figures · shared with head',
                 adminSchoolHint: 'Student count · study pause · revenue — admin only · shows on head summary',
                 adminStudentTotal: 'Total students',
@@ -13703,12 +13712,12 @@
                 schedTypeDayOff: 'No class',
                 classStatusLabel: 'Class status',
                 classStatusNormal: 'Normal',
-                classStatusPostponed: 'Postponed',
+                classStatusPostponed: 'Teacher postponed',
                 classStatusStudentPostponed: 'Student postponed',
                 classStatusCancelled: 'Cancelled',
                 classStatusWaiting: 'Waiting to contact',
-                classStatusHint: 'Set class status (owning teacher only)',
-                classStatusOwnerOnly: 'Only the owning teacher can change status',
+                classStatusHint: 'Set class status (owning teacher · director · admin)',
+                classStatusOwnerOnly: 'Only the owning teacher, director, or admin can change status',
                 schedAlertKindClassStatus: 'Class status changed',
                 schedAlertSummaryStudentPostpone: 'Student postponed — room freed for rebooking',
                 schedActionClassStatus: 'Class status',
@@ -14130,6 +14139,28 @@
         let shinPlayTimer = null;
         let shinBubbleTimer = null;
         let shinMoodTimer = null;
+        function isEunhaUser(user) {
+            const id = (typeof canonicalAccountId === 'function')
+                ? canonicalAccountId(user)
+                : String((user && typeof user === 'object' ? user.id : user) || '').trim();
+            return id === 'eunha';
+        }
+        function syncHeaderShinVisibility(user) {
+            const shell = document.getElementById('dash-shell');
+            const wrap = document.getElementById('header-shin-btn');
+            const on = !!(user && isEunhaUser(user));
+            if (shell) shell.classList.toggle('is-eunha-shin', on);
+            if (wrap) {
+                wrap.setAttribute('aria-hidden', on ? 'false' : 'true');
+                if (!on) {
+                    wrap.classList.remove('is-say', 'is-play', 'is-sync-pulse', 'is-morning', 'is-night');
+                    const bubble = document.getElementById('header-shin-bubble');
+                    if (bubble) bubble.textContent = '';
+                } else {
+                    try { refreshShinHourMood(); } catch (_) {}
+                }
+            }
+        }
         function getShinHourBucket(h) {
             const hour = Number.isFinite(h) ? h : new Date().getHours();
             if (hour >= 5 && hour < 11) return 'morning';
@@ -14139,7 +14170,7 @@
         }
         function refreshShinHourMood() {
             const wrap = document.getElementById('header-shin-btn');
-            if (!wrap) return;
+            if (!wrap || !isEunhaUser(currentUser)) return;
             const bucket = getShinHourBucket();
             wrap.classList.toggle('is-morning', bucket === 'morning');
             wrap.classList.toggle('is-night', bucket === 'night');
@@ -14152,7 +14183,7 @@
         }
         function pokeShinSyncPulse() {
             const wrap = document.getElementById('header-shin-btn');
-            if (!wrap || wrap.offsetParent === null) return;
+            if (!wrap || !isEunhaUser(currentUser) || wrap.offsetParent === null) return;
             wrap.classList.remove('is-sync-pulse');
             void wrap.offsetWidth;
             wrap.classList.add('is-sync-pulse');
@@ -14161,7 +14192,7 @@
         function playShinGreeting(opts) {
             const wrap = document.getElementById('header-shin-btn');
             const bubble = document.getElementById('header-shin-bubble');
-            if (!wrap || wrap.offsetParent === null) return;
+            if (!wrap || !isEunhaUser(currentUser) || wrap.offsetParent === null) return;
             const forceTip = !!(opts && opts.tip);
             const bucket = getShinHourBucket();
             const key = forceTip || Math.random() < 0.28
@@ -15192,10 +15223,16 @@
             return normalizeClassStatus(block?.classStatus) === 'student_postponed';
         }
         function canEditClassStatus(user, block) {
-            if (!user || user.role === 'director' || user.role === 'admin') return false;
+            if (!user) return false;
+            if (block?.isBreak || block?.teacherId === 'break') return false;
+            // Director/admin may change status on any room TT class (same as other room TT meta).
+            if (user.role === 'director' || user.role === 'admin') return true;
             if (!block) return true; // new booking by this teacher
-            if (block.isBreak || block.teacherId === 'break') return false;
+            if (block.teacherId === 'parttime') return true;
             return String(block.teacherId || '') === String(user.id || '');
+        }
+        function isNonNormalClassStatus(status) {
+            return normalizeClassStatus(status) !== 'normal';
         }
         function notifyClassStatusToDirector({ user, slot, beforeStatus, afterStatus }) {
             if (!user || !slot || user.role === 'director' || user.role === 'admin') return;
@@ -22637,6 +22674,7 @@
                 loginScreen.classList.remove('hidden-screen');
                 setLangVisibility(false);
                 applyStaticI18n();
+                try { syncHeaderShinVisibility(null); } catch (_) {}
                 setHelpFabVisible(false);
                 closeHelpPanel();
                 helpAiLog = [];
@@ -22939,6 +22977,7 @@
                         if (user.id === 'taehyun') shell.classList.add('theme-teacher-a');
                     }
                 } catch (_) {}
+                try { syncHeaderShinVisibility(currentUser || user); } catch (_) {}
                 // keepTab: do not remount theme FX (sun/flowers) — remounting replays enter animations = flicker
                 if (!keepTab) {
                     try { mountThemeFx(user); } catch (err) {
@@ -23139,6 +23178,7 @@
                     ? (resolveAccountById(stableId) || user)
                     : user;
                 currentUser = { ...fresh, id: stableId || fresh.id };
+                try { syncHeaderShinVisibility(currentUser); } catch (_) {}
                 try {
                     document.getElementById('dash-name').textContent = displayName(currentUser);
                     const chip = document.getElementById('dash-role-chip');
@@ -30778,7 +30818,7 @@
             const roomTtReauthModal = document.getElementById('room-tt-reauth-modal');
             let roomTtReauthPending = null;
             const closeRoomTtModal = () => {
-                roomTtModal?.classList.remove('open');
+                roomTtModal?.classList.remove('open', 'is-status-only');
                 roomTtDraft = null;
             };
             const closeRoomTtReauth = () => {
@@ -30864,30 +30904,35 @@
                     : currentUser;
                 const start = document.getElementById('room-tt-start')?.value || existing?.start || draft.start || '10:00';
                 const end = document.getElementById('room-tt-end')?.value || existing?.end || draft.end || roomTtFromMin(roomTtToMin(start) + 30);
-                if (roomTtToMin(end) <= roomTtToMin(start)) {
-                    if (msg) msg.textContent = t('roomTtBadRange');
-                    return;
-                }
                 const note = document.getElementById('room-tt-note')?.value || '';
                 const students = Array.isArray(draft.students) ? draft.students : [];
-                const canEditMeta = !existing || existing.teacherId === currentUser.id || existing.teacherId === 'parttime' || currentUser.role === 'director';
+                const canEditMeta = !existing || existing.teacherId === currentUser.id || existing.teacherId === 'parttime'
+                    || currentUser.role === 'director' || currentUser.role === 'admin';
                 const ownerCanStatus = canEditClassStatus(currentUser, existing);
                 const prevStatus = normalizeClassStatus(existing?.classStatus);
                 const nextStatusRaw = document.getElementById('room-tt-class-status')?.value;
                 const nextStatus = ownerCanStatus
                     ? normalizeClassStatus(nextStatusRaw)
                     : prevStatus;
+                const statusOnly = isNonNormalClassStatus(nextStatus);
+
+                // Non-normal status: skip subject/title requirements — status change is enough to save.
+                // Normal status keeps full booking-field validation.
+                if (!statusOnly && roomTtToMin(end) <= roomTtToMin(start)) {
+                    if (msg) msg.textContent = t('roomTtBadRange');
+                    return;
+                }
 
                 // Save (progress / booking edits): silent — no password popup.
                 // Status นักเรียนเลื่อนคลาส → director sched-alert notify.
                 if (existing) {
                     const next = {
                         ...existing,
-                        note,
-                        students,
+                        note: statusOnly ? (existing.note || note) : note,
+                        students: statusOnly ? (existing.students || students) : students,
                         userEdited: true
                     };
-                    if (canEditMeta) {
+                    if (canEditMeta && !statusOnly) {
                         const resolved = resolveTeachTitleFromFields(
                             document.getElementById('room-tt-subject')?.value,
                             document.getElementById('room-tt-title-other')?.value,
@@ -30920,14 +30965,23 @@
                         });
                     }
                 } else {
-                    const resolved = resolveTeachTitleFromFields(
+                    let resolved = resolveTeachTitleFromFields(
                         document.getElementById('room-tt-subject')?.value,
                         document.getElementById('room-tt-title-other')?.value,
                         currentUser
                     );
                     if (!resolved.ok) {
-                        if (msg) msg.textContent = resolved.msg;
-                        return;
+                        if (statusOnly) {
+                            resolved = {
+                                ok: true,
+                                subjectKey: 'other',
+                                useParts: false,
+                                title: classStatusLabel(nextStatus)
+                            };
+                        } else {
+                            if (msg) msg.textContent = resolved.msg;
+                            return;
+                        }
                     }
                     const classType = normalizeClassType(document.getElementById('room-tt-type')?.value);
                     const result = bookRoomSlot({
@@ -30947,8 +31001,8 @@
                     if (result.slot) {
                         const saved = saveRoomBlock({
                             ...result.slot,
-                            note,
-                            students,
+                            note: statusOnly ? '' : note,
+                            students: statusOnly ? [] : students,
                             classStatus: nextStatus,
                             userEdited: true
                         }, currentUser);
