@@ -14,8 +14,8 @@ text = (root / 'HongikGeeJ Teacher Login.html').read_text(encoding='utf-8')
 assets = {
     'assets/dancheong/corner-flower.svg?v=cluster7': root / 'assets/dancheong/corner-flower.svg',
     'assets/dancheong/corner-bloom.svg?v=bloom6': root / 'assets/dancheong/corner-bloom.svg',
-    'assets/dancheong/edge-sparkles.svg?v=sea2': root / 'assets/dancheong/edge-sparkles.svg',
-    'assets/dancheong/edge-sparkles-static.svg?v=sea2': root / 'assets/dancheong/edge-sparkles-static.svg',
+    'assets/dancheong/edge-sparkles.svg?v=flower1': root / 'assets/dancheong/edge-sparkles.svg',
+    'assets/dancheong/edge-sparkles-static.svg?v=flower1': root / 'assets/dancheong/edge-sparkles-static.svg',
     # logo.png is only a JS fallback string; school logo is already SCHOOL_LOGO_B64_PARTS
 }
 out = text
