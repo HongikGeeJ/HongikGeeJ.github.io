@@ -6963,9 +6963,10 @@
             color: #64748b;
             line-height: 1.4;
         }
+        /* Boxy teacher cards in a responsive grid (like the pre-mess layout). */
         #overview-board .ov-board-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: .75rem;
             align-items: stretch;
         }
@@ -6983,15 +6984,16 @@
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            gap: .55rem;
-            padding: .85rem .9rem .75rem;
+            gap: .35rem;
+            padding: .85rem .9rem;
             margin: 0;
             border: 1.5px solid #e2e8f0;
             border-radius: 1rem;
             background: #fff;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, .04);
             transition: transform .18s, box-shadow .18s, border-color .18s;
             position: relative;
-            min-height: 0;
+            min-height: 7.5rem;
             box-sizing: border-box;
         }
         .ov-teacher-card:hover,
@@ -7120,6 +7122,17 @@
             align-items: center;
             gap: .4rem;
             flex-wrap: wrap;
+        }
+        #overview-board .ov-empty-wrap,
+        #tab-panels .ov-empty-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .65rem;
+            padding: .5rem 0 1rem;
+            pointer-events: auto;
+            position: relative;
+            z-index: 2;
         }
         /* Room pills — same tones as ตารางห้องเรียน column headers (A blue / B pink / C purple) */
         .room-badge {
@@ -8131,6 +8144,15 @@
             display: flex;
             flex-direction: column;
             min-height: 0;
+            position: relative;
+            z-index: 2;
+            pointer-events: auto;
+        }
+        .dash-tabs,
+        .dash-body {
+            position: relative;
+            z-index: 2;
+            pointer-events: auto;
         }
         .tab-panel[data-panel="rooms"].active {
             display: flex !important;
@@ -12207,6 +12229,7 @@
                 overviewTodayTeach: '오늘 수업 일정',
                 overviewClickHint: '이름을 누르면 오늘 수업 상세를 볼 수 있습니다',
                 overviewClickMore: '자세히 보기',
+                reloadBoard: '다시 불러오기',
                 overviewNoClass: '오늘 등록된 수업이 없습니다',
                 ptTitle: '파트타임 교사',
                 ptHint: '언어별 파트타임 일정·출석·시급(฿300) 관리',
@@ -13107,6 +13130,7 @@
                 overviewTodayTeach: 'ตารางสอนวันนี้',
                 overviewClickHint: 'คลิกชื่อคุณครูเพื่อดูว่าวันนี้สอนอะไร',
                 overviewClickMore: 'คลิกดูเพิ่มเติม',
+                reloadBoard: 'โหลดใหม่',
                 overviewNoClass: 'วันนี้ยังไม่มีตารางสอน',
                 ptTitle: 'คุณครูพาร์ทไทม์',
                 ptHint: 'จัดการตาราง · เช็คชื่อ · ค่าสอนพาร์ทไทม์ (฿300/ชม.) แยกตามภาษา',
@@ -14007,6 +14031,7 @@
                 overviewTodayTeach: "Today's classes",
                 overviewClickHint: 'Tap a teacher name to see today’s classes',
                 overviewClickMore: 'Click for more',
+                reloadBoard: 'Reload',
                 overviewNoClass: 'No classes registered today',
                 ptTitle: 'Part-time teachers',
                 ptHint: 'Manage PT schedules, attendance & pay (฿300/hr) by language',
@@ -21330,6 +21355,39 @@
                 .filter(Boolean);
         }
 
+        /** Director overview cards: Taehyun → Eunha → Sua → others → part-time LAST. */
+        function overviewTeacherList() {
+            const preferred = ['taehyun', 'eunha', 'sua'];
+            const byId = new Map();
+            try {
+                teacherAccounts().forEach((tea) => {
+                    if (tea && tea.id) byId.set(String(tea.id), tea);
+                });
+            } catch (_) {}
+            // Always include part-time as a card (even if missing from ACCOUNTS overrides)
+            try {
+                if (!byId.has('parttime') && typeof parttimePseudoTeacher === 'function') {
+                    byId.set('parttime', parttimePseudoTeacher());
+                }
+            } catch (_) {}
+            const out = [];
+            const seen = new Set();
+            preferred.forEach((id) => {
+                const tea = byId.get(id);
+                if (tea) {
+                    out.push(tea);
+                    seen.add(id);
+                }
+            });
+            byId.forEach((tea, id) => {
+                if (seen.has(id) || id === 'parttime') return;
+                out.push(tea);
+                seen.add(id);
+            });
+            if (byId.has('parttime') && !seen.has('parttime')) out.push(byId.get('parttime'));
+            return out;
+        }
+
         /** One-time: remap order.acks / mirror keys wrongly stored as passcodes (9900→sua). */
         function migrateMiskeyedOrderAcks() {
             try {
@@ -22788,8 +22846,24 @@
                 if (!panelsEl.querySelector('.tab-panel')) {
                     const fid = defaultTabForRole(user) || 'today';
                     const title = (typeof t === 'function' ? (t('todayBoard') || t('todaySchedule') || t('none')) : '') || '—';
-                    panelsEl.innerHTML = `<div class="tab-panel active" data-panel="${fid}"><div class="content-card"><h3>${title}</h3><p class="empty-note">${typeof t === 'function' ? (t('none') || '—') : '—'}</p></div></div>`;
+                    const noneTxt = typeof t === 'function' ? (t('none') || '—') : '—';
+                    const reloadTxt = typeof t === 'function' ? (t('reloadBoard') || 'Reload') : 'Reload';
+                    panelsEl.innerHTML = `<div class="tab-panel active" data-panel="${fid}"><div class="content-card">
+                        <h3>${title}</h3>
+                        <div class="ov-empty-wrap">
+                            <p class="empty-note">${noneTxt}</p>
+                            <button type="button" class="soft-btn" id="panel-empty-reload"><i class="ph ph-arrow-clockwise"></i> ${reloadTxt}</button>
+                        </div>
+                    </div></div>`;
                     try { renderTabs(user); } catch (_) {}
+                    try {
+                        document.getElementById('panel-empty-reload')?.addEventListener('click', () => {
+                            const u = currentUser || user;
+                            Promise.resolve()
+                                .then(() => (typeof forceFullPortalReload === 'function' ? forceFullPortalReload(u) : null))
+                                .then(() => { try { ensureDashboardPanels(u, true); } catch (_) {} });
+                        });
+                    } catch (_) {}
                 }
                 try {
                     setTab(resolveDashboardTab(user, preferred));
@@ -25423,7 +25497,7 @@
                 if (!board || !user || user.role !== 'director') return;
                 try {
                 const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
-                const teachers = teacherAccounts();
+                const teachers = (typeof overviewTeacherList === 'function' ? overviewTeacherList() : teacherAccounts());
                 const nowM = minutesNow();
                 const leaves = loadLeaveRequests();
                 const go = (next, anim) => {
@@ -25435,6 +25509,24 @@
                         void el.offsetWidth;
                         el.classList.add(anim || 'ov-slide-in');
                     }
+                };
+                const bindEmptyReload = () => {
+                    const btn = document.getElementById('ov-empty-reload');
+                    if (!btn) return;
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const u = currentUser || user;
+                        Promise.resolve()
+                            .then(() => (typeof forceFullPortalReload === 'function' ? forceFullPortalReload(u) : null))
+                            .then(() => {
+                                try { renderOverviewBoard(u); } catch (_) {}
+                            })
+                            .catch(() => {
+                                try { ensureDashboardPanels(u, true); } catch (_) {}
+                                try { renderOverviewBoard(u); } catch (_) {}
+                            });
+                    });
                 };
 
                 if (overviewNav.view === 'detail' && overviewNav.teacherId) {
@@ -25544,6 +25636,7 @@
                         </div>
                         ${statusRow}
                         ${lessonLines}
+                        <div class="text-xs text-slate-400 text-left">${t('overviewClickHint')}</div>
                         ${clickMorePill}
                     </article>`;
                     } catch (_) {
@@ -25558,7 +25651,9 @@
                     </div>
                     ${list
                         ? `<div class="ov-board-grid">${list}</div>`
-                        : `<p class="empty-note">${t('none')}</p>`}`;
+                        : `<div class="ov-empty-wrap"><p class="empty-note">${t('none')}</p>
+                            <button type="button" class="soft-btn" id="ov-empty-reload"><i class="ph ph-arrow-clockwise"></i> ${t('reloadBoard') || 'Reload'}</button></div>`}`;
+                if (!list) bindEmptyReload();
                 const openTea = (id) => {
                     if (!id) return;
                     go({ view: 'detail', teacherId: id }, 'ov-slide-in');
@@ -25581,7 +25676,16 @@
                 });
                 } catch (err) {
                     try {
-                        board.innerHTML = `<div class="ov-board-head"><h3><i class="ph ph-kanban" style="color:var(--accent)"></i> ${typeof t === 'function' ? t('todayBoard') : 'Overview'}</h3></div><p class="empty-note">${typeof t === 'function' ? t('none') : '—'}</p>`;
+                        board.innerHTML = `<div class="ov-board-head"><h3><i class="ph ph-kanban" style="color:var(--accent)"></i> ${typeof t === 'function' ? t('todayBoard') : 'Overview'}</h3></div>
+                            <div class="ov-empty-wrap"><p class="empty-note">${typeof t === 'function' ? t('none') : '—'}</p>
+                            <button type="button" class="soft-btn" id="ov-empty-reload"><i class="ph ph-arrow-clockwise"></i> ${typeof t === 'function' ? (t('reloadBoard') || 'Reload') : 'Reload'}</button></div>`;
+                        const btn = document.getElementById('ov-empty-reload');
+                        btn?.addEventListener('click', () => {
+                            const u = currentUser || user;
+                            Promise.resolve()
+                                .then(() => (typeof forceFullPortalReload === 'function' ? forceFullPortalReload(u) : null))
+                                .then(() => { try { renderOverviewBoard(u); } catch (_) {} });
+                        });
                     } catch (_) {}
                     try { console.warn('renderOverviewBoard', err); } catch (_) {}
                 }
