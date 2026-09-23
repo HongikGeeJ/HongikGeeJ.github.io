@@ -16864,8 +16864,13 @@
                 return `<option value="${k}"${cur === k ? ' selected' : ''}>${t(key)}</option>`;
             }).join('');
         }
+        /** Tombstoned (ลบการจอง) blocks — kept for LWW cloud merge so deletes sync & templates do not reappear. */
+        function isRoomTtBlockAlive(block) {
+            return !!(block && typeof block === 'object' && !block.deleted);
+        }
         /** postponed / student_postponed / cancelled — drop from room grid (others may book); record kept in store. */
         function roomTtReleasesOccupancy(block) {
+            if (!isRoomTtBlockAlive(block)) return true;
             const st = normalizeClassStatus(block?.classStatus);
             return st === 'postponed' || st === 'student_postponed' || st === 'cancelled';
         }
@@ -17092,7 +17097,7 @@
         function isDirectorSchedAlertAction(action) {
             return action === 'add' || action === 'edit' || action === 'delete'
                 || action === 'dayoff' || action === 'undodayoff' || action === 'room_edit'
-                || action === 'class_status';
+                || action === 'room_clear' || action === 'class_status';
         }
         /** Every schedule board add / edit / delete / no-class → director alert inbox (+ cloud sync). */
         function notifySchedChange({ user, action, item = {}, extra = {} }) {
@@ -17123,38 +17128,30 @@
             });
             saveSchedChanges(list);
         }
-        /** Room TT cancel → class-cancel inbox (director popup + admin ops cancels). */
+        /** Room TT ลบการจอง → director sched-alert (ack) for today's classes only. */
         function notifyRoomTtClear({ user, slot }) {
             if (!user || !slot || user.role === 'director' || user.role === 'admin') return;
-            const titleStamp = {
-                title: pickLangText(slot, 'title') || slot.title || '',
-                titleKo: slot.titleKo || slot.title || '',
-                titleTh: slot.titleTh || slot.title || '',
-                titleEn: slot.titleEn || slot.title || ''
-            };
+            const date = String(slot.date || todayKey());
+            // Director popup is today-only (same prune as other sched-alerts)
+            if (date !== todayKey()) return;
             const roomNote = roomLabel(slot.room || 'A');
-            const cancels = loadClassCancels();
-            const cancelRec = stampAllLangText({
-                id: 'RTCX' + Date.now() + Math.floor(Math.random() * 900),
-                teacherId: user.id,
-                teacherName: displayName(user),
-                date: slot.date || todayKey(),
-                start: slot.start || '',
-                end: slot.end || '',
-                ...titleStamp,
-                makeupDate: '',
-                note: roomNote,
-                room: slot.room || '',
-                source: 'room_tt',
-                status: 'pending_director',
-                createdAt: new Date().toISOString()
-            }, 'reason', {
-                ko: I18N.ko.roomTtCancelNotifyReason,
-                th: I18N.th.roomTtCancelNotifyReason,
-                en: I18N.en.roomTtCancelNotifyReason
+            notifySchedChange({
+                user,
+                action: 'room_clear',
+                item: {
+                    ...slot,
+                    date,
+                    classType: slot.classType || 'regular'
+                },
+                extra: {
+                    source: 'room_tt',
+                    roomSlotId: slot.id || '',
+                    note: roomNote,
+                    noteKo: I18N.ko.schedAlertSummaryRoomClear,
+                    noteTh: I18N.th.schedAlertSummaryRoomClear,
+                    noteEn: I18N.en.schedAlertSummaryRoomClear
+                }
             });
-            cancels.push(cancelRec);
-            saveClassCancels(cancels);
         }
         /** Meaningful room TT edit → sched-change inbox (director popup + admin ops). */
         function notifyRoomTtChange({ user, slot, before }) {
@@ -20403,12 +20400,19 @@
                     if (merged.changed) {
                         saveRoomTimetable(merged.data, { syncRemote: false });
                         try {
-                            // Keep today schedules in sync with live room-TT status (cancel / postpone)
+                            // Keep today schedules in sync with live room-TT status (cancel / postpone / delete)
                             Object.keys(merged.data.blocks || {}).forEach((id) => {
                                 const nb = merged.data.blocks[id];
                                 const ob = before.blocks && before.blocks[id];
-                                if (!nb || nb.isBreak || nb.teacherId === 'break' || nb.teacherId === 'parttime') return;
-                                if (!ob || normalizeClassStatus(ob.classStatus) !== normalizeClassStatus(nb.classStatus)
+                                if (!nb) return;
+                                if (nb.deleted) {
+                                    if (ob && !ob.deleted) {
+                                        try { removeDayScheduleFromRoomSlot(ob); } catch (_) {}
+                                    }
+                                    return;
+                                }
+                                if (nb.isBreak || nb.teacherId === 'break' || nb.teacherId === 'parttime') return;
+                                if (!ob || ob.deleted || normalizeClassStatus(ob.classStatus) !== normalizeClassStatus(nb.classStatus)
                                     || String(ob.start || '') !== String(nb.start || '')
                                     || String(ob.end || '') !== String(nb.end || '')) {
                                     upsertDayScheduleFromRoomSlot(nb);
@@ -26694,6 +26698,10 @@
                     btn.setAttribute('aria-busy', 'true');
                 }
                 try {
+                    try {
+                        if (typeof queuePortalStorePush === 'function') queuePortalStorePush('roomTt');
+                        if (typeof flushPortalStorePush === 'function') await flushPortalStorePush();
+                    } catch (_) {}
                     const res = await syncPortalStoresFromCentral({ silent: true });
                     if (res?.busy) {
                         showAppToast(t('roomTtRefreshBusy'), 'warn');
@@ -33464,41 +33472,45 @@
                     const isOff = c.action === 'dayoff' || c.classType === 'dayoff';
                     const isUndoOff = c.action === 'undodayoff';
                     const isRoomEdit = c.action === 'room_edit';
+                    const isRoomClear = c.action === 'room_clear';
                     const isClassStatus = c.action === 'class_status';
                     const isCancelledStatus = isClassStatus && normalizeClassStatus(c.classStatus) === 'cancelled';
                     const isEdit = c.action === 'edit';
-                    const isDelete = c.action === 'delete';
+                    const isDelete = c.action === 'delete' || isRoomClear;
                     const kind = isCancelledStatus ? t('schedAlertKindClassCancelled')
                         : (isClassStatus ? t('schedAlertKindClassStatus')
+                        : (isRoomClear ? t('schedActionRoomClear')
                         : (isRoomEdit ? t('schedAlertKindRoomEdit')
                         : (isUndoOff ? t('schedAlertKindUndoOff')
                         : (isOff ? t('schedAlertKindOff')
                         : (isEdit ? t('schedAlertKindEdit')
-                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd')))))));
+                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd'))))))));
                     const summary = isCancelledStatus ? t('schedAlertSummaryClassCancelled')
                         : (isClassStatus ? t('schedAlertSummaryStudentPostpone')
+                        : (isRoomClear ? t('schedAlertSummaryRoomClear')
                         : (isRoomEdit ? t('schedAlertSummaryRoomEdit')
                         : (isUndoOff ? t('schedAlertSummaryUndoOff')
                         : (isOff ? t('schedAlertSummaryOff')
                         : (isEdit ? t('schedAlertSummaryEdit')
-                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd')))))));
+                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd'))))))));
                     const subject = pickLangText(c, 'title') || c.title || (isOff || isUndoOff ? t('schedDayOffTitle') : '—');
                     const time = (!isOff && !isUndoOff && (c.start || c.end))
                         ? `${c.start || '—'}–${c.end || '—'}`
                         : '—';
                     const typeLbl = isClassStatus
                         ? classStatusLabel(c.classStatus || (isCancelledStatus ? 'cancelled' : 'student_postponed'))
-                        : (isRoomEdit
-                        ? (c.room ? roomLabel(c.room) : t('schedActionRoomEdit'))
+                        : (isRoomClear || isRoomEdit
+                        ? (c.room ? roomLabel(c.room) : t('schedActionRoomClear'))
                         : classTypeLabel((isOff || isUndoOff) ? 'dayoff' : (c.classType || 'regular')));
                     const pill = isCancelledStatus ? t('schedActionClassCancelled')
                         : (isClassStatus ? t('schedActionClassStatus')
+                        : (isRoomClear ? t('schedActionRoomClear')
                         : (isRoomEdit ? t('schedActionRoomEdit')
                         : (isUndoOff ? t('schedActionUndoDayOff')
                         : (isOff ? t('schedActionDayOff')
                         : (isEdit ? t('schedActionEdit')
-                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd')))))));
-                    const cardClass = (isOff || isUndoOff || isCancelledStatus ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
+                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd'))))))));
+                    const cardClass = (isOff || isUndoOff || isCancelledStatus || isRoomClear || isDelete ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
                     const teaLbl = schedAlertTeacherLabel(c);
                     const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                     return `<div class="sched-alert-card ${cardClass}">
@@ -33648,11 +33660,32 @@
                 openTeachPop(roomTtReauthModal);
                 setTimeout(() => pw?.focus(), 40);
             };
-            const refreshRoomTtAfterMutate = () => {
-                const tab = document.querySelector('.tab-btn.active')?.dataset?.tab || 'rooms';
-                openDashboard(resolveAccountById(currentUser.id), true);
-                setTab(tab);
+            const refreshRoomTtAfterMutate = async () => {
+                try {
+                    if (typeof queuePortalStorePush === 'function') {
+                        queuePortalStorePush('roomTt', 'schedChanges', 'daySchedules');
+                    }
+                    if (typeof flushPortalStorePush === 'function') await flushPortalStorePush();
+                } catch (_) {}
+                try {
+                    if (currentUser && typeof renderRoomTimetableBoard === 'function') {
+                        renderRoomTimetableBoard(currentUser);
+                    }
+                } catch (_) {}
+                try {
+                    if (document.getElementById('week-class-board') && typeof renderWeekClassBoard === 'function') {
+                        renderWeekClassBoard(currentUser);
+                    }
+                } catch (_) {}
                 try { statusDismissedKey = ''; updateClassStatus(); } catch (_) {}
+                try {
+                    if (typeof softRefreshDashboard === 'function' && currentUser) {
+                        softRefreshDashboard(currentUser, {
+                            stores: ['roomTt', 'schedChanges', 'daySchedules'],
+                            reason: 'room-tt-mutate'
+                        });
+                    }
+                } catch (_) {}
             };
             document.getElementById('room-tt-modal-x')?.addEventListener('click', closeRoomTtModal);
             document.getElementById('room-tt-modal-cancel')?.addEventListener('click', closeRoomTtModal);
