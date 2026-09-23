@@ -15250,7 +15250,8 @@
             const v = String(status || '').toLowerCase().trim();
             if (v === 'student_postponed' || v === 'student-postponed' || v === 'stu_postpone'
                 || v === 'นักเรียนเลื่อนคลาส' || v === 'นักเรียนเลื่อน') return 'student_postponed';
-            if (v === 'postponed' || v === 'postpone' || v === 'เลื่อน' || v === 'เลื่อนคลาส') return 'postponed';
+            if (v === 'postponed' || v === 'postpone' || v === 'เลื่อน' || v === 'เลื่อนคลาส'
+                || v === 'คุณครูขอเลื่อน' || v === 'teacher_postponed' || v === 'teacher-postponed') return 'postponed';
             if (v === 'cancelled' || v === 'canceled' || v === 'cancel' || v === 'ยกเลิก') return 'cancelled';
             if (v === 'waiting' || v === 'wait' || v === 'contact' || v === 'รอติดต่อ' || v === 'รอ') return 'waiting';
             return 'normal';
