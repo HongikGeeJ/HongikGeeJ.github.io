@@ -1741,23 +1741,34 @@
             filter: brightness(1.02);
         }
         #ot-refresh-sheet-btn.soft-btn {
+            display: inline-flex !important;
+            align-items: center;
+            gap: .42rem;
             font-size: .92rem !important;
             padding: .7rem 1.05rem !important;
-            font-weight: 850 !important;
-            background: linear-gradient(95deg, #e8f9d4 0%, #d6f2b8 55%, #c8ebb0 100%) !important;
-            color: #14532d !important;
-            border: 1.5px solid rgba(134, 209, 120, .55);
-            box-shadow: 0 8px 18px rgba(134, 209, 120, .22), inset 0 1px 0 rgba(255, 255, 255, .72);
+            font-weight: 600 !important;
+            letter-spacing: .01em;
+            background: linear-gradient(95deg, #6fbf58 0%, #4fa83e 55%, #3f9432 100%) !important;
+            color: #ecfdf3 !important;
+            border: 1.5px solid rgba(30, 90, 28, .42);
+            box-shadow: 0 8px 18px rgba(46, 125, 40, .32), inset 0 1px 0 rgba(255, 255, 255, .28);
         }
         #ot-refresh-sheet-btn.soft-btn:hover {
-            background: linear-gradient(95deg, #f7fcee 0%, #e8f9d4 50%, #d6f2b8 100%) !important;
-            filter: brightness(1.02);
-            box-shadow: 0 12px 22px rgba(134, 209, 120, .28), inset 0 1px 0 rgba(255, 255, 255, .8);
+            background: linear-gradient(95deg, #7dcb66 0%, #5bb648 50%, #4a9f38 100%) !important;
+            filter: brightness(1.03);
+            box-shadow: 0 12px 22px rgba(46, 125, 40, .38), inset 0 1px 0 rgba(255, 255, 255, .34);
         }
         #ot-refresh-sheet-btn.soft-btn:disabled {
             opacity: .65;
             cursor: wait;
             filter: none;
+        }
+        #ot-refresh-sheet-btn .ot-refresh-mark {
+            flex: 0 0 auto;
+            width: 1.12em;
+            height: 1.12em;
+            display: block;
+            color: inherit;
         }
         /*
           Eunha only: starred cheek Shin sits inside the green Refresh bar,
@@ -6389,7 +6400,7 @@
         .pt-calc-toolbar .pt-calc-chip-range {
             margin-left: .15rem;
         }
-        /* PT self income summary — green-yellow Hangul ambient + corner blooms
+        /* PT self income summary — minimal green-yellow Hangul + flush blooms + fall stream
            Gated: #pt-app-self only (parttime). Director .pt-calc-sum--dir stays formal slate. */
         #pt-app-self .pt-calc-sum {
             position: relative;
@@ -6398,10 +6409,9 @@
             margin: 1rem 0 0; padding: 1.2rem 1.25rem 1.3rem;
             border-radius: 1.25rem;
             background:
-                radial-gradient(120% 90% at 8% -10%, rgba(255, 255, 255, .95) 0%, transparent 42%),
-                radial-gradient(90% 70% at 92% 110%, rgba(187, 247, 208, .55) 0%, transparent 48%),
-                radial-gradient(70% 55% at 55% 40%, rgba(254, 240, 138, .28) 0%, transparent 55%),
-                linear-gradient(155deg, #f8fdf3 0%, #eef9e0 38%, #dff4c8 72%, #d4eeb8 100%);
+                radial-gradient(110% 80% at 92% -8%, rgba(254, 243, 166, .55) 0%, transparent 46%),
+                radial-gradient(90% 70% at 6% 108%, rgba(187, 247, 208, .4) 0%, transparent 50%),
+                linear-gradient(155deg, #f7fcee 0%, #eef9e2 42%, #e2f4c9 100%);
             color: #14532d;
             border: 1px solid rgba(134, 209, 120, .42);
             box-shadow:
@@ -6415,24 +6425,25 @@
             border-radius: inherit;
             background: linear-gradient(
                 105deg,
-                transparent 12%,
-                rgba(255, 255, 255, .62) 44%,
-                transparent 62%
+                transparent 18%,
+                rgba(255, 255, 255, .5) 48%,
+                transparent 68%
             );
-            background-size: 240% 100%;
-            animation: ptSumShimmer 6s ease-in-out infinite;
+            background-size: 220% 100%;
+            animation: ptSumShimmer 7s ease-in-out infinite;
             pointer-events: none;
             z-index: 0;
-            opacity: .75;
+            opacity: .55;
         }
+        /* Soft sunlight glow — top-right */
         #pt-app-self .pt-calc-sum::after {
             content: '';
             position: absolute;
-            width: 9rem; height: 9rem;
-            right: -2.2rem; top: -2.8rem;
+            width: 11rem; height: 11rem;
+            right: -3rem; top: -3.4rem;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(254, 240, 138, .45) 0%, transparent 68%);
-            animation: ptSumGlowPulse 5.2s ease-in-out infinite;
+            background: radial-gradient(circle, rgba(254, 240, 138, .55) 0%, rgba(253, 224, 71, .18) 42%, transparent 70%);
+            animation: ptSumGlowPulse 5.6s ease-in-out infinite;
             pointer-events: none;
             z-index: 0;
         }
@@ -6443,7 +6454,29 @@
             overflow: hidden;
             border-radius: inherit;
         }
-        /* Ambient Hangul — dash-header drift pattern, green-yellow palette */
+        /* Sunlight rays — sparse, top-right */
+        #pt-app-self .pt-sum-rays {
+            position: absolute;
+            top: -35%; right: -18%;
+            width: 72%; height: 120%;
+            pointer-events: none;
+            z-index: 0;
+            background: repeating-conic-gradient(
+                from 210deg at 78% 18%,
+                rgba(254, 240, 138, .0) 0deg,
+                rgba(254, 240, 138, .0) 9deg,
+                rgba(254, 243, 166, .22) 10deg,
+                rgba(253, 224, 71, .08) 14deg,
+                rgba(254, 240, 138, .0) 16deg,
+                rgba(254, 240, 138, .0) 28deg
+            );
+            mask-image: radial-gradient(ellipse 70% 65% at 78% 18%, #000 0%, transparent 72%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 65% at 78% 18%, #000 0%, transparent 72%);
+            opacity: .72;
+            animation: ptSumRaySweep 9s ease-in-out infinite;
+            will-change: opacity, transform;
+        }
+        /* Hangul — fewer, larger, more elevated / เด่น */
         #pt-app-self .pt-sum-hangul {
             position: absolute; inset: 0;
             pointer-events: none;
@@ -6452,92 +6485,89 @@
         }
         #pt-app-self .pt-sum-hangul .pt-hangul {
             position: absolute;
-            bottom: -0.4em;
-            font-weight: 800;
+            bottom: 12%;
+            font-weight: 900;
             line-height: 1;
             user-select: none;
             pointer-events: none;
             will-change: transform, opacity;
-            color: rgba(132, 204, 22, .4);
-            text-shadow: 0 3px 14px rgba(202, 138, 4, .14);
+            color: rgba(101, 163, 13, .68);
+            text-shadow:
+                0 2px 10px rgba(250, 204, 21, .28),
+                0 0 1px rgba(255, 255, 255, .55);
             animation: ptSumHangulDrift linear infinite;
+            letter-spacing: -.02em;
         }
-        #pt-app-self .pt-sum-hangul .pt-hangul.c2 { color: rgba(202, 138, 4, .42); }
-        #pt-app-self .pt-sum-hangul .pt-hangul.c3 { color: rgba(74, 222, 128, .4); }
-        #pt-app-self .pt-sum-hangul .pt-hangul.c4 { color: rgba(163, 230, 53, .42); }
-        #pt-app-self .pt-sum-hangul .pt-hangul.c5 { color: rgba(250, 204, 21, .44); }
-        /* Corner flower SVGs — recolor purple/pink blooms toward green-yellow */
-        #pt-app-self .pt-sum-bloom,
-        #pt-app-self .pt-sum-flower {
+        #pt-app-self .pt-sum-hangul .pt-hangul.c2 { color: rgba(202, 138, 4, .72); }
+        #pt-app-self .pt-sum-hangul .pt-hangul.c3 { color: rgba(34, 197, 94, .7); }
+        #pt-app-self .pt-sum-hangul .pt-hangul.c4 { color: rgba(132, 204, 22, .74); }
+        #pt-app-self .pt-sum-hangul .pt-hangul.c5 { color: rgba(234, 179, 8, .76); }
+        /* Flush corner blooms only (TL + BR) — pinned to card edges */
+        #pt-app-self .pt-sum-bloom {
             position: absolute;
             pointer-events: none;
             z-index: 0;
             background-repeat: no-repeat;
             background-size: contain;
             filter:
-                hue-rotate(78deg) saturate(1.22) brightness(1.04)
-                drop-shadow(0 2px 6px rgba(74, 140, 70, .16));
-            opacity: .78;
+                hue-rotate(72deg) saturate(1.18) brightness(1.03)
+                drop-shadow(0 1px 4px rgba(74, 140, 70, .14));
+            opacity: .88;
             will-change: transform, opacity;
         }
         #pt-app-self .pt-sum-bloom.tl {
-            top: -0.35rem; left: -0.35rem;
-            width: 4.6rem; height: 4.6rem;
+            top: -1px; left: -1px;
+            width: 5.75rem; height: 5.75rem;
             background-image: url('assets/dancheong/corner-bloom.svg?v=bloom6');
+            background-position: top left;
             transform-origin: 0 0;
-            animation: ptSumBloomBreathe 5.4s ease-in-out infinite;
+            animation: ptSumBloomBreathe 5.8s ease-in-out infinite;
         }
         #pt-app-self .pt-sum-bloom.br {
-            bottom: -0.45rem; right: -0.4rem;
-            width: 5.1rem; height: 5.1rem;
-            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bloom6');
+            bottom: -1px; right: -1px;
+            width: 6rem; height: 6rem;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom6');
+            background-position: top left;
+            transform: scale(-1, -1);
             transform-origin: 100% 100%;
-            animation: ptSumBloomBreatheBr 5.8s ease-in-out 0.7s infinite;
+            animation: ptSumBloomBreatheBr 6.2s ease-in-out .6s infinite;
         }
-        #pt-app-self .pt-sum-flower.tr {
-            top: -0.2rem; right: 1.6rem;
-            width: 2.6rem; height: 2.6rem;
-            background-image: url('assets/dancheong/corner-flower.svg?v=cluster7');
-            background-position: top right;
-            transform-origin: 50% 0;
-            opacity: .68;
-            animation: ptSumFlowerSwayFlip 4.8s ease-in-out infinite;
-        }
-        #pt-app-self .pt-sum-flower.bl {
-            bottom: -0.15rem; left: 1.35rem;
-            width: 2.35rem; height: 2.35rem;
-            background-image: url('assets/dancheong/corner-flower-bottom.svg?v=cluster7');
-            opacity: .62;
-            animation: ptSumFlowerSway 5.6s ease-in-out 1.1s infinite;
-        }
-        #pt-app-self .pt-calc-sum-deco .pt-deco {
-            position: absolute;
-            font-size: 1rem;
-            line-height: 1;
-            opacity: .72;
-            filter: drop-shadow(0 2px 6px rgba(74, 140, 70, .18)) saturate(1.08);
-            will-change: transform, opacity, filter;
-            user-select: none;
+        /* Sparse fall stream: sakura + leaf + star */
+        #pt-app-self .pt-sum-fall {
+            position: absolute; inset: 0;
+            pointer-events: none;
             z-index: 1;
+            overflow: hidden;
         }
-        #pt-app-self .pt-calc-sum-deco .pt-deco-a {
-            top: .35rem; right: .55rem;
-            animation: ptSumFloatA 3.8s ease-in-out infinite;
+        #pt-app-self .pt-sum-fall .pt-fall {
+            position: absolute;
+            top: -14px;
+            pointer-events: none;
+            will-change: transform, opacity;
+            animation: ptSumFallStream linear infinite;
         }
-        #pt-app-self .pt-calc-sum-deco .pt-deco-b {
-            top: 42%; right: .35rem;
-            font-size: .82rem;
-            animation: ptSumTwinkle 2.4s ease-in-out infinite;
+        #pt-app-self .pt-sum-fall .pt-fall.petal {
+            width: 11px; height: 10px;
+            background: radial-gradient(circle at 30% 30%, #fff7fa, #fda4af 52%, #fb7185);
+            border-radius: 80% 0 80% 0;
+            filter: drop-shadow(0 1px 2px rgba(251, 113, 133, .28));
+            opacity: .78;
         }
-        #pt-app-self .pt-calc-sum-deco .pt-deco-c {
-            bottom: .45rem; right: 3.4rem;
-            font-size: .88rem;
-            animation: ptSumFloatB 4.6s ease-in-out infinite;
+        #pt-app-self .pt-sum-fall .pt-fall.leaf {
+            width: 12px; height: 9px;
+            background: linear-gradient(135deg, #bbf7d0 0%, #4ade80 48%, #16a34a 100%);
+            border-radius: 2px 70% 2px 70%;
+            box-shadow: inset -2px 0 0 rgba(21, 128, 61, .18);
+            filter: drop-shadow(0 1px 2px rgba(22, 163, 74, .18));
+            opacity: .72;
         }
-        #pt-app-self .pt-calc-sum-deco .pt-deco-d {
-            top: .45rem; left: 42%;
-            font-size: .78rem;
-            animation: ptSumTwinkle 3.1s ease-in-out .5s infinite;
+        #pt-app-self .pt-sum-fall .pt-fall.star {
+            width: 9px; height: 9px;
+            background: #facc15;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            filter: drop-shadow(0 0 4px rgba(250, 204, 21, .55));
+            opacity: .85;
+            animation-name: ptSumStarStream;
         }
         #pt-app-self .pt-calc-sum-title {
             position: relative; z-index: 2;
@@ -6551,19 +6581,18 @@
         }
         @media (max-width: 560px) {
             #pt-app-self .pt-calc-sum-grid { grid-template-columns: 1fr; gap: .75rem; }
-            #pt-app-self .pt-calc-sum-deco .pt-deco-d { display: none; }
-            #pt-app-self .pt-sum-flower.tr,
-            #pt-app-self .pt-sum-flower.bl { display: none; }
-            #pt-app-self .pt-sum-hangul .pt-hangul:nth-child(n+7) { display: none; }
-            #pt-app-self .pt-sum-bloom.tl { width: 3.6rem; height: 3.6rem; }
-            #pt-app-self .pt-sum-bloom.br { width: 4rem; height: 4rem; }
+            #pt-app-self .pt-sum-hangul .pt-hangul:nth-child(n+5) { display: none; }
+            #pt-app-self .pt-sum-fall .pt-fall:nth-child(n+5) { display: none; }
+            #pt-app-self .pt-sum-bloom.tl { width: 4.4rem; height: 4.4rem; }
+            #pt-app-self .pt-sum-bloom.br { width: 4.6rem; height: 4.6rem; }
+            #pt-app-self .pt-sum-rays { opacity: .45; }
         }
         #pt-app-self .pt-sum-metric {
             position: relative; z-index: 2;
             display: flex; flex-direction: column; gap: .22rem; min-width: 0;
             padding: .65rem .75rem; border-radius: 1rem;
-            background: rgba(255, 255, 255, .78);
-            border: 1px solid rgba(255, 255, 255, .94);
+            background: rgba(255, 255, 255, .82);
+            border: 1px solid rgba(255, 255, 255, .95);
             box-shadow:
                 0 6px 16px rgba(74, 140, 70, .07),
                 0 1px 0 rgba(255, 255, 255, .9) inset;
@@ -6571,7 +6600,7 @@
             -webkit-backdrop-filter: blur(8px);
             transition: transform .25s ease, box-shadow .25s ease;
         }
-        #pt-app-self .pt-sum-metric:hover {
+#pt-app-self .pt-sum-metric:hover {
             transform: translateY(-2px);
             box-shadow:
                 0 10px 22px rgba(74, 140, 70, .12),
@@ -6697,67 +6726,62 @@
             50% { background-position: -20% 0; }
         }
         @keyframes ptSumGlowPulse {
-            0%, 100% { opacity: .55; transform: scale(1); }
-            50% { opacity: .9; transform: scale(1.12); }
+            0%, 100% { opacity: .5; transform: scale(1); }
+            50% { opacity: .85; transform: scale(1.1); }
         }
         @keyframes ptSumPayGlow {
             0%, 100% { box-shadow: 0 6px 18px rgba(74, 140, 70, .1), 0 0 0 1px rgba(134, 239, 172, .28) inset, 0 0 14px rgba(134, 239, 172, .14); }
             50% { box-shadow: 0 8px 22px rgba(74, 140, 70, .14), 0 0 0 1px rgba(134, 239, 172, .4) inset, 0 0 26px rgba(134, 239, 172, .28); }
         }
-        @keyframes ptSumFloatA {
-            0%, 100% { transform: translateY(0) rotate(-8deg) scale(1); }
-            35% { transform: translateY(-7px) rotate(10deg) scale(1.08); }
-            70% { transform: translateY(-2px) rotate(-4deg) scale(1.02); }
+        @keyframes ptSumRaySweep {
+            0%, 100% { opacity: .55; transform: rotate(-2deg); }
+            50% { opacity: .82; transform: rotate(2deg); }
         }
-        @keyframes ptSumFloatB {
-            0%, 100% { transform: translate(0, 0) rotate(6deg) scale(1); }
-            50% { transform: translate(-6px, -8px) rotate(-12deg) scale(1.1); }
-        }
-        @keyframes ptSumTwinkle {
-            0%, 100% { opacity: .4; transform: scale(.88) rotate(0deg); filter: drop-shadow(0 0 0 transparent); }
-            50% { opacity: 1; transform: scale(1.14) rotate(12deg); filter: drop-shadow(0 0 6px rgba(254, 240, 138, .55)); }
-        }
-        /* Continuous Hangul rise — mirrors dash-header taeHangulDrift, green-yellow tone */
+        /* Hangul rises higher / more visible */
         @keyframes ptSumHangulDrift {
-            0% { transform: translate3d(0, 6px, 0) rotate(-8deg); opacity: 0; }
-            10% { opacity: .82; }
-            55% { opacity: .55; }
-            100% { transform: translate3d(22px, -112px, 0) rotate(12deg); opacity: 0; }
+            0% { transform: translate3d(0, 18px, 0) rotate(-6deg) scale(.92); opacity: 0; }
+            12% { opacity: .88; }
+            55% { opacity: .62; }
+            100% { transform: translate3d(14px, -130px, 0) rotate(10deg) scale(1.06); opacity: 0; }
         }
+        /* Corner-pinned breathe — scale from corner, stay flush */
         @keyframes ptSumBloomBreathe {
-            0%, 100% { opacity: .7; transform: scale(.96); }
-            40% { opacity: .88; transform: scale(1.05); }
-            70% { opacity: .78; transform: scale(1); }
+            0%, 100% { opacity: .82; transform: scale(1); }
+            45% { opacity: .95; transform: scale(1.05); }
         }
         @keyframes ptSumBloomBreatheBr {
-            0%, 100% { opacity: .68; transform: scale(.95); }
-            40% { opacity: .86; transform: scale(1.06); }
-            70% { opacity: .76; transform: scale(1.01); }
+            0%, 100% { opacity: .8; transform: scale(-1, -1); }
+            45% { opacity: .94; transform: scale(-1.05, -1.05); }
         }
-        @keyframes ptSumFlowerSway {
-            0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); }
-            50% { transform: translateY(-5px) rotate(6deg) scale(1.06); }
+        @keyframes ptSumFallStream {
+            0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+            8% { opacity: .8; }
+            100% { transform: translate3d(var(--drift, 18px), 160px, 0) rotate(280deg); opacity: 0; }
         }
-        @keyframes ptSumFlowerSwayFlip {
-            0%, 100% { transform: scaleX(-1) translateY(0) rotate(4deg); }
-            50% { transform: scaleX(-1) translateY(-5px) rotate(-6deg) scale(1.06); }
+        @keyframes ptSumStarStream {
+            0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(.7); opacity: 0; }
+            10% { opacity: .95; }
+            50% { opacity: .7; filter: drop-shadow(0 0 6px rgba(250, 204, 21, .75)); }
+            100% { transform: translate3d(var(--drift, 12px), 170px, 0) rotate(160deg) scale(1.05); opacity: 0; }
         }
         @media (prefers-reduced-motion: reduce) {
             #pt-app-self .pt-calc-sum::before,
             #pt-app-self .pt-calc-sum::after,
-            #pt-app-self .pt-calc-sum-deco .pt-deco,
+            #pt-app-self .pt-sum-rays,
             #pt-app-self .pt-sum-hangul .pt-hangul,
             #pt-app-self .pt-sum-bloom,
-            #pt-app-self .pt-sum-flower,
+            #pt-app-self .pt-sum-fall .pt-fall,
             #pt-app-self .pt-sum-metric.pay,
             #pt-app .pt-calc-sum::before,
             .pt-calc-sum.pt-calc-sum--dir::before {
                 animation: none !important;
             }
-            #pt-app-self .pt-calc-sum::before { opacity: .35; }
-            #pt-app-self .pt-sum-hangul .pt-hangul { opacity: .35; }
+            #pt-app-self .pt-calc-sum::before { opacity: .3; }
+            #pt-app-self .pt-sum-hangul .pt-hangul { opacity: .45; bottom: 28%; }
+            #pt-app-self .pt-sum-fall { display: none; }
             #pt-app-self .pt-sum-metric:hover { transform: none; }
         }
+
         .pt-cal {
             margin: .2rem 0 .85rem; border-radius: 1.1rem; border: 1.5px solid #e2e8f0;
             background: #fff; overflow: hidden;
@@ -14905,7 +14929,7 @@
                 otSheetBadge: '시트 OT',
                 otAutoBadge: '출석 자동',
                 otFromRoomTt: '시간표+출석',
-                otRefreshSheet: '🔄 Refresh การรายงาน OT',
+                otRefreshSheet: 'Refresh การรายงาน OT',
                 otRefreshSheetOk: '시트 OT를 새로고침했습니다',
                 otRefreshSheetFail: '시트 OT 동기화 실패',
                 otRefreshSheetBusy: '시트에서 OT 불러오는 중…',
@@ -15882,7 +15906,7 @@
                 otSheetBadge: 'OT จากชีต',
                 otAutoBadge: 'อัตโนมัติจากเช็คชื่อ',
                 otFromRoomTt: 'ตารางสอน+เช็คชื่อ',
-                otRefreshSheet: '🔄 Refresh การรายงาน OT',
+                otRefreshSheet: 'Refresh การรายงาน OT',
                 otRefreshSheetOk: 'รีเฟรช OT จากชีตแล้ว',
                 otRefreshSheetFail: 'ซิงก์ OT จากชีตไม่สำเร็จ',
                 otRefreshSheetBusy: 'กำลังดึง OT จากชีต…',
@@ -16859,7 +16883,7 @@
                 otSheetBadge: 'Sheet OT',
                 otAutoBadge: 'Auto from attendance',
                 otFromRoomTt: 'Timetable + attendance',
-                otRefreshSheet: '🔄 Refresh การรายงาน OT',
+                otRefreshSheet: 'Refresh การรายงาน OT',
                 otRefreshSheetOk: 'OT refreshed from sheet',
                 otRefreshSheetFail: 'Sheet OT sync failed',
                 otRefreshSheetBusy: 'Fetching OT from sheet…',
@@ -21428,19 +21452,27 @@
         function otTitleLabel(date = new Date()) {
             return String(t('otTitle')).replace(/\{month\}/g, currentMonthLabel(date));
         }
-        /** Eunha: starred Shin sits after 「การรายงาน」 inside the morning-grass Refresh label. */
+        /** Eunha: starred Shin sits after 「การรายงาน」 inside the green Refresh label. */
         function otRefreshSheetBtnHtml() {
             let label = String(t('otRefreshSheet') || '');
-            if (label && !label.includes('🔄')) label = `🔄 ${label}`;
+            label = label.replace(/🔄/g, '').replace(/\s+/g, ' ').trim();
+            const icon = '<svg class="ot-refresh-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+                + '<path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M19.6 8.2A7.6 7.6 0 0 0 5.4 7.9"/>'
+                + '<path fill="currentColor" d="M19.2 3.4l.55 5.15-4.85-.95z"/>'
+                + '<path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M4.4 15.8a7.6 7.6 0 0 0 14.2.3"/>'
+                + '<path fill="currentColor" d="M4.8 20.6l-.55-5.15 4.85.95z"/>'
+                + '</svg>';
             const safe = label.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const eunhaOn = !!(typeof currentUser !== 'undefined' && currentUser && currentUser.id === 'eunha')
                 || !!document.querySelector('.dash-shell.is-eunha-shin');
-            if (!eunhaOn) return safe;
+            if (!eunhaOn) return `${icon}<span>${safe}</span>`;
             const shin = '<span class="eunha-ot-refresh-shin" aria-hidden="true"></span>';
             const marker = 'การรายงาน';
             const idx = safe.indexOf(marker);
-            if (idx < 0) return `${safe}${shin}`;
-            return `${safe.slice(0, idx + marker.length)}${shin}${safe.slice(idx + marker.length)}`;
+            const body = idx < 0
+                ? `${safe}${shin}`
+                : `${safe.slice(0, idx + marker.length)}${shin}${safe.slice(idx + marker.length)}`;
+            return `${icon}<span>${body}</span>`;
         }
 
         function loadDaySchedulesBundle() {
@@ -31528,28 +31560,25 @@
                 const sumHtmlSelf = `
                     <div class="pt-calc-sum" title="${t('ptCalcTotal')}" aria-live="polite">
                         <div class="pt-calc-sum-deco" aria-hidden="true">
+                            <div class="pt-sum-rays"></div>
                             <div class="pt-sum-hangul">
-                                <span class="pt-hangul c1" style="left:6%;font-size:1.05rem;animation-duration:9.5s;animation-delay:-0.4s">홍</span>
-                                <span class="pt-hangul c2" style="left:18%;font-size:0.88rem;animation-duration:11.2s;animation-delay:-2.1s">익</span>
-                                <span class="pt-hangul c3" style="left:31%;font-size:1.2rem;animation-duration:8.6s;animation-delay:-4.8s">빛</span>
-                                <span class="pt-hangul c4" style="left:44%;font-size:0.95rem;animation-duration:12.4s;animation-delay:-1.2s">길</span>
-                                <span class="pt-hangul c5" style="left:57%;font-size:1.12rem;animation-duration:10.1s;animation-delay:-6.3s">꿈</span>
-                                <span class="pt-hangul c1" style="left:69%;font-size:0.82rem;animation-duration:13s;animation-delay:-3.5s">학</span>
-                                <span class="pt-hangul c3" style="left:78%;font-size:1rem;animation-duration:9.2s;animation-delay:-7.1s">원</span>
-                                <span class="pt-hangul c2" style="left:88%;font-size:1.15rem;animation-duration:11.8s;animation-delay:-5s">정</span>
-                                <span class="pt-hangul c5" style="left:12%;font-size:0.78rem;animation-duration:14.2s;animation-delay:-8.4s">성</span>
-                                <span class="pt-hangul c4" style="left:52%;font-size:0.92rem;animation-duration:10.8s;animation-delay:-0.9s">힘</span>
-                                <span class="pt-hangul c1" style="left:36%;font-size:0.72rem;animation-duration:12.6s;animation-delay:-9.2s">덕</span>
-                                <span class="pt-hangul c3" style="left:83%;font-size:0.85rem;animation-duration:8.9s;animation-delay:-2.8s">한</span>
+                                <span class="pt-hangul c1" style="left:8%;font-size:1.55rem;animation-duration:8.2s;animation-delay:-0.6s">홍</span>
+                                <span class="pt-hangul c5" style="left:28%;font-size:1.85rem;animation-duration:9.5s;animation-delay:-2.4s">빛</span>
+                                <span class="pt-hangul c2" style="left:48%;font-size:1.45rem;animation-duration:7.8s;animation-delay:-4.1s">꿈</span>
+                                <span class="pt-hangul c4" style="left:66%;font-size:1.7rem;animation-duration:10.2s;animation-delay:-1.5s">길</span>
+                                <span class="pt-hangul c3" style="left:84%;font-size:1.5rem;animation-duration:8.8s;animation-delay:-5.8s">원</span>
+                                <span class="pt-hangul c5" style="left:18%;font-size:1.25rem;animation-duration:11s;animation-delay:-7.2s">정</span>
                             </div>
                             <span class="pt-sum-bloom tl"></span>
                             <span class="pt-sum-bloom br"></span>
-                            <span class="pt-sum-flower tr"></span>
-                            <span class="pt-sum-flower bl"></span>
-                            <span class="pt-deco pt-deco-a">🌼</span>
-                            <span class="pt-deco pt-deco-b">✨</span>
-                            <span class="pt-deco pt-deco-c">🌿</span>
-                            <span class="pt-deco pt-deco-d">⭐</span>
+                            <div class="pt-sum-fall">
+                                <span class="pt-fall petal" style="left:14%;--drift:22px;animation-duration:7.2s;animation-delay:-0.4s"></span>
+                                <span class="pt-fall leaf" style="left:36%;--drift:-16px;animation-duration:8.4s;animation-delay:-2.1s"></span>
+                                <span class="pt-fall star" style="left:55%;--drift:10px;animation-duration:6.6s;animation-delay:-3.5s"></span>
+                                <span class="pt-fall petal" style="left:72%;--drift:-20px;animation-duration:7.8s;animation-delay:-1.2s"></span>
+                                <span class="pt-fall leaf" style="left:88%;--drift:14px;animation-duration:9s;animation-delay:-4.8s"></span>
+                                <span class="pt-fall star" style="left:24%;--drift:-8px;animation-duration:7.5s;animation-delay:-5.6s"></span>
+                            </div>
                         </div>
                         <div class="pt-calc-sum-title">${t('ptCalcTotal')}</div>
                         ${sumMetrics}
