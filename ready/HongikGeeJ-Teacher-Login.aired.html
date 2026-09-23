@@ -677,11 +677,13 @@
         }
         /*
           Title-tail Shin: right of framed h3 border box (visible, in front).
-          Targets first heading of each panel content-card (today / rooms / orders / …).
+          Only the FIRST heading() wrapper per content-card — secondary framed
+          titles (e.g. leave 「สรุปการทำงาน」 under 「ลา · ชดเชย」) must not get a
+          second starred Shin.
         */
         /* heading() wraps <div><h3>…; some panels use bare > h3 */
         .dash-shell.is-eunha-shin .tab-panel > .content-card > h3,
-        .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child,
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child,
         .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3,
         .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3 {
             position: relative;
@@ -690,7 +692,7 @@
             margin-right: 3.85rem;
         }
         .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
-        .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child::after,
         .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
         .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after {
             content: '' !important;
@@ -740,7 +742,7 @@
                 eunhaCheekStarsOrbit 28s linear infinite !important;
             will-change: transform, background-size, background-position;
         }
-        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child::after,
         .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
             --eunha-cheek-size: 60px;
             width: 82px !important;
@@ -872,20 +874,20 @@
                 height: 90px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3,
-            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3 {
                 margin-right: 3.1rem;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
-            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after {
                 --eunha-cheek-size: 46px;
                 width: 66px !important;
                 height: 66px !important;
             }
-            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
                 --eunha-cheek-size: 52px;
                 width: 72px !important;
@@ -10058,7 +10060,7 @@
                 animation-duration: 10s !important;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
-            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after {
                 animation:
@@ -10067,7 +10069,7 @@
                     eunhaCheekStarsOrbit 28s linear infinite !important;
                 will-change: transform, background-size, background-position;
             }
-            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
                 animation:
                     eunhaShinWobbleTitle 9.5s ease-in-out infinite,
@@ -10314,20 +10316,20 @@
                 height: 68px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3,
-            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3 {
                 margin-right: 3.2rem;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
-            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after {
                 --eunha-cheek-size: 48px;
                 width: 68px !important;
                 height: 68px !important;
             }
-            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
                 --eunha-cheek-size: 54px;
                 width: 74px !important;
@@ -10379,7 +10381,7 @@
                 transform: none !important;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
-            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after,
             .dash-shell.is-eunha-shin .profile-btn::before,
