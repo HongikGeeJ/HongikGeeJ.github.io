@@ -2959,6 +2959,21 @@
             display: flex; gap: .45rem; flex-wrap: wrap; margin-top: .75rem; align-items: end;
         }
         .notes-add-row .sched-text { flex: 1; min-width: 140px; }
+        .notes-student-profile {
+            margin: 0 0 .85rem;
+            padding: .75rem .85rem;
+            border: 1px solid #dbe7f5;
+            border-radius: .85rem;
+            background: linear-gradient(180deg, #f7fbff 0%, #fff 100%);
+        }
+        .notes-student-profile .sched-form { margin: 0; }
+        .notes-student-profile-actions {
+            display: flex; align-items: center; gap: .55rem; flex-wrap: wrap;
+            margin-top: .65rem;
+        }
+        .notes-student-btn .meta-phone {
+            color: #0369a1; font-weight: 650;
+        }
 
         /* 은나: yellow · pink · soft blue pastel */
         .theme-teacher-b {
@@ -13218,6 +13233,12 @@
                 notesCount: '기록',
                 notesSharedHint: '모든 선생님이 함께 보는 공유 기록 · 실시간 동기화',
                 notesSuggestHint: '이름 입력 시 학생 추천이 뜹니다',
+                notesStudentFirstName: '이름',
+                notesStudentLastName: '성',
+                notesStudentPhone: '연락처',
+                notesStudentInfoSave: '학생 정보 저장',
+                notesStudentInfoSaved: '저장됨 · 전체 계정 실시간 동기화',
+                notesStudentInfoNeedName: '이름을 입력해 주세요',
                 notesDeleteAsk: '이 기록을 삭제할까요?',
                 notesDeleteWarn: '삭제하면 다른 선생님 화면에서도 사라집니다',
                 notesBy: '작성',
@@ -14177,6 +14198,12 @@
                 notesCount: 'รายการ',
                 notesSharedHint: 'บันทึกแชร์ร่วมกันทุกคุณครู · อัปเดตแบบเรียลไทม์',
                 notesSuggestHint: 'พิมพ์ชื่อแล้วจะมีรายชื่อแนะนำให้เลือก',
+                notesStudentFirstName: 'ชื่อ',
+                notesStudentLastName: 'นามสกุล',
+                notesStudentPhone: 'เบอร์โทรติดต่อ',
+                notesStudentInfoSave: 'บันทึกข้อมูลนักเรียน',
+                notesStudentInfoSaved: 'บันทึกแล้ว · ซิงก์ทุกบัญชีแบบเรียลไทม์',
+                notesStudentInfoNeedName: 'กรุณาใส่ชื่อ',
                 notesDeleteAsk: 'ต้องการลบบันทึกนี้ใช่ไหม?',
                 notesDeleteWarn: 'เมื่อลบแล้ว จะหายจากหน้าจอคุณครูคนอื่นด้วย',
                 notesBy: 'โดย',
@@ -15136,6 +15163,12 @@
                 notesCount: 'notes',
                 notesSharedHint: 'Shared across all teachers · live sync',
                 notesSuggestHint: 'Type a name to see student suggestions',
+                notesStudentFirstName: 'First name',
+                notesStudentLastName: 'Last name',
+                notesStudentPhone: 'Contact phone',
+                notesStudentInfoSave: 'Save student info',
+                notesStudentInfoSaved: 'Saved · synced to all accounts in realtime',
+                notesStudentInfoNeedName: 'Please enter a first name',
                 notesDeleteAsk: 'Delete this note?',
                 notesDeleteWarn: 'Deleting removes it for every teacher',
                 notesBy: 'by',
@@ -18627,19 +18660,92 @@
                 if (raw && typeof raw === 'object') {
                     return {
                         ko: Array.isArray(raw.ko) ? raw.ko.slice() : [],
-                        en: Array.isArray(raw.en) ? raw.en.slice() : []
+                        en: Array.isArray(raw.en) ? raw.en.slice() : [],
+                        profiles: (raw.profiles && typeof raw.profiles === 'object') ? { ...raw.profiles } : {}
                     };
                 }
             } catch (_) {}
-            return { ko: [], en: [] };
+            return { ko: [], en: [], profiles: {} };
         }
         function saveSharedNoteStudents(data, { syncRemote = true } = {}) {
             localStorage.setItem(SHARED_NOTE_STUDENTS_STORE, JSON.stringify({
                 ko: (data && data.ko) || [],
-                en: (data && data.en) || []
+                en: (data && data.en) || [],
+                profiles: (data && data.profiles && typeof data.profiles === 'object') ? data.profiles : {}
             }));
             try { localStorage.setItem(SHARED_NOTE_STUDENTS_STORE + ':tick', String(Date.now())); } catch (_) {}
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('sharedNoteStudents');
+        }
+        function noteStudentProfileKey(lang, name) {
+            return `${lang || 'ko'}|${String(name || '').trim()}`;
+        }
+        function splitNoteStudentName(full) {
+            const s = String(full || '').trim();
+            if (!s) return { firstName: '', lastName: '' };
+            const i = s.search(/\s+/);
+            if (i < 0) return { firstName: s, lastName: '' };
+            return { firstName: s.slice(0, i).trim(), lastName: s.slice(i).trim() };
+        }
+        function composeNoteStudentName(firstName, lastName, fallback) {
+            const f = String(firstName || '').trim();
+            const l = String(lastName || '').trim();
+            const composed = [f, l].filter(Boolean).join(' ').trim();
+            return composed || String(fallback || '').trim();
+        }
+        function getNoteStudentProfile(lang, name) {
+            const store = loadSharedNoteStudents();
+            const key = noteStudentProfileKey(lang, name);
+            const p = (store.profiles && store.profiles[key]) || {};
+            const split = splitNoteStudentName(name);
+            return {
+                firstName: String(p.firstName != null && String(p.firstName).trim() !== '' ? p.firstName : split.firstName).trim(),
+                lastName: String(p.lastName != null ? p.lastName : split.lastName).trim(),
+                phone: String(p.phone || '').trim(),
+                updatedAt: p.updatedAt || '',
+                updatedBy: p.updatedBy || '',
+                updatedByName: p.updatedByName || ''
+            };
+        }
+        /** Persist phone + first/last name; rename roster + shared notes when display name changes. */
+        function applyNoteStudentProfile(user, lang, oldName, { firstName, lastName, phone } = {}) {
+            const prev = String(oldName || '').trim();
+            const nextName = composeNoteStudentName(firstName, lastName, prev);
+            if (!nextName) return { ok: false, reason: 'name' };
+            const store = loadSharedNoteStudents();
+            if (!store.profiles || typeof store.profiles !== 'object') store.profiles = {};
+            const list = Array.isArray(store[lang]) ? store[lang].slice() : [];
+            if (prev && list.includes(prev)) {
+                store[lang] = [...new Set(list.map((n) => (n === prev ? nextName : n)))];
+            } else {
+                if (!list.includes(nextName)) list.push(nextName);
+                store[lang] = [...new Set(list)];
+            }
+            const oldKey = noteStudentProfileKey(lang, prev);
+            const newKey = noteStudentProfileKey(lang, nextName);
+            const profile = {
+                firstName: String(firstName || '').trim(),
+                lastName: String(lastName || '').trim(),
+                phone: String(phone || '').trim(),
+                updatedAt: new Date().toISOString(),
+                updatedBy: user && user.id ? user.id : '',
+                updatedByName: user ? (typeof displayName === 'function' ? displayName(user) : '') : ''
+            };
+            if (oldKey !== newKey && store.profiles[oldKey]) delete store.profiles[oldKey];
+            store.profiles[newKey] = profile;
+            saveSharedNoteStudents(store);
+            if (prev && prev !== nextName) {
+                const notes = loadSharedNotes();
+                let notesChanged = false;
+                notes.forEach((n) => {
+                    if (!n) return;
+                    if ((n.lang || 'ko') === lang && n.student === prev) {
+                        n.student = nextName;
+                        notesChanged = true;
+                    }
+                });
+                if (notesChanged) saveSharedNotes(notes);
+            }
+            return { ok: true, name: nextName, profile };
         }
         function ensureNoteRosterSeeded() {
             const store = loadSharedNoteStudents();
@@ -20310,8 +20416,8 @@
             return merged.map || {};
         }
         function mergeNameLists(localData, remoteData) {
-            const local = localData && typeof localData === 'object' ? localData : { ko: [], en: [] };
-            const remote = remoteData && typeof remoteData === 'object' ? remoteData : { ko: [], en: [] };
+            const local = localData && typeof localData === 'object' ? localData : { ko: [], en: [], profiles: {} };
+            const remote = remoteData && typeof remoteData === 'object' ? remoteData : { ko: [], en: [], profiles: {} };
             const union = (a, b) => {
                 const seen = new Set();
                 const out = [];
@@ -20323,11 +20429,30 @@
                 });
                 return out;
             };
+            const mergeProfiles = (lp, rp) => {
+                const out = { ...(lp && typeof lp === 'object' ? lp : {}) };
+                Object.entries(rp && typeof rp === 'object' ? rp : {}).forEach(([k, rv]) => {
+                    if (!rv || typeof rv !== 'object') return;
+                    const lv = out[k];
+                    if (!lv || typeof lv !== 'object') {
+                        out[k] = { ...rv };
+                        return;
+                    }
+                    const lAt = String(lv.updatedAt || '');
+                    const rAt = String(rv.updatedAt || '');
+                    if (rAt > lAt) out[k] = { ...rv };
+                    else if (!lAt && (rv.phone || rv.firstName || rv.lastName)) out[k] = { ...lv, ...rv };
+                });
+                return out;
+            };
             const next = {
                 ko: union(local.ko, remote.ko),
-                en: union(local.en, remote.en)
+                en: union(local.en, remote.en),
+                profiles: mergeProfiles(local.profiles, remote.profiles)
             };
-            const changed = JSON.stringify(local) !== JSON.stringify(next);
+            const changed = JSON.stringify({
+                ko: local.ko || [], en: local.en || [], profiles: local.profiles || {}
+            }) !== JSON.stringify(next);
             return { data: next, changed };
         }
         function mergeHelpChats(localData, remoteData) {
@@ -28957,14 +29082,17 @@
 
                 if (notesNav.view === 'students') {
                     const students = noteStudentsForLang(user.id, lang);
-                    const rows = students.length ? students.map((s, i) => `
+                    const rows = students.length ? students.map((s, i) => {
+                        const phone = getNoteStudentProfile(lang, s.name).phone;
+                        return `
                         <button type="button" class="notes-student-btn" data-notes-student="${esc(s.name)}" style="animation-delay:${(i*0.04).toFixed(2)}s">
                             <div>
                                 <strong>${esc(s.name)}</strong>
-                                <div class="meta">${s.count} ${t('notesCount')}</div>
+                                <div class="meta">${s.count} ${t('notesCount')}${phone ? ` · <span class="meta-phone">${esc(phone)}</span>` : ''}</div>
                             </div>
                             <span class="badge">${t('notesOpenLog')}</span>
-                        </button>`).join('') : `<p class="empty-note">${t('notesNoStudents')}</p>`;
+                        </button>`;
+                    }).join('') : `<p class="empty-note">${t('notesNoStudents')}</p>`;
                     app.innerHTML = `<div class="notes-view">
                         <div class="notes-toolbar">
                             <button type="button" class="notes-back" id="notes-back-langs"><i class="ph ph-arrow-left"></i> ${t('notesBack')}</button>
@@ -29004,6 +29132,7 @@
 
                 // detail · student log (shared)
                 const student = notesNav.student || '';
+                const profile = getNoteStudentProfile(lang, student);
                 const notes = loadNotes(user.id)
                     .map((n, idx) => ({ ...n, _idx: idx }))
                     .filter(n => (n.lang || 'ko') === lang && n.student === student)
@@ -29027,6 +29156,26 @@
                         <span class="notes-crumb">${langLabel} · ${esc(student)}</span>
                     </div>
                     <p class="text-xs text-slate-400" style="margin:0 0 .55rem">${t('notesSharedHint')}</p>
+                    <div class="notes-student-profile">
+                        <div class="sched-form">
+                            <div>
+                                <label class="sched-label" for="note-stu-first">${t('notesStudentFirstName')}</label>
+                                <input type="text" id="note-stu-first" class="sched-text" value="${esc(profile.firstName)}" autocomplete="given-name">
+                            </div>
+                            <div>
+                                <label class="sched-label" for="note-stu-last">${t('notesStudentLastName')}</label>
+                                <input type="text" id="note-stu-last" class="sched-text" value="${esc(profile.lastName)}" autocomplete="family-name">
+                            </div>
+                            <div class="full">
+                                <label class="sched-label" for="note-stu-phone">${t('notesStudentPhone')}</label>
+                                <input type="tel" id="note-stu-phone" class="sched-text" value="${esc(profile.phone)}" autocomplete="tel" inputmode="tel">
+                            </div>
+                        </div>
+                        <div class="notes-student-profile-actions">
+                            <button type="button" class="soft-btn" id="note-stu-profile-save">${t('notesStudentInfoSave')}</button>
+                            <span id="note-stu-profile-msg" class="text-xs text-slate-500"></span>
+                        </div>
+                    </div>
                     <div id="notes-list">${listHtml}</div>
                     <div class="sched-form" style="margin-top:.85rem">
                         <div class="full">
@@ -29045,6 +29194,22 @@
                 </div>`;
 
                 document.getElementById('notes-back-students')?.addEventListener('click', () => go({ view: 'students', student: null }));
+                document.getElementById('note-stu-profile-save')?.addEventListener('click', () => {
+                    const firstName = document.getElementById('note-stu-first')?.value || '';
+                    const lastName = document.getElementById('note-stu-last')?.value || '';
+                    const phone = document.getElementById('note-stu-phone')?.value || '';
+                    const msg = document.getElementById('note-stu-profile-msg');
+                    const result = applyNoteStudentProfile(user, lang, student, { firstName, lastName, phone });
+                    if (!result.ok) {
+                        if (msg) msg.textContent = t('notesStudentInfoNeedName');
+                        return;
+                    }
+                    if (msg) msg.textContent = t('notesStudentInfoSaved');
+                    if (typeof flushPortalStorePush === 'function') {
+                        try { flushPortalStorePush(); } catch (_) {}
+                    }
+                    go({ view: 'detail', lang, student: result.name });
+                });
                 document.getElementById('note-save-btn')?.addEventListener('click', () => {
                     const classTitle = document.getElementById('note-class').value.trim();
                     const progress = document.getElementById('note-progress').value.trim();
