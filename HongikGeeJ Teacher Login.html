@@ -2199,21 +2199,21 @@
             display: inline-flex;
             align-items: center;
             justify-content: flex-end;
-            gap: .28rem;
-            margin: .1rem 0 0;
+            gap: .36rem;
+            margin: .16rem 0 0;
             padding: 0 .12rem 0 0;
             position: relative;
             z-index: 2;
-            font-size: clamp(.72rem, 1.55vw, .9rem);
-            font-weight: 700;
-            letter-spacing: .04em;
-            line-height: 1.2;
+            font-size: clamp(.98rem, 2.15vw, 1.22rem);
+            font-weight: 800;
+            letter-spacing: .03em;
+            line-height: 1.15;
             white-space: nowrap;
-            color: #3d5a80;
+            color: #141414;
             font-family: 'Noto Sans KR', 'Pretendard Variable', Pretendard, sans-serif;
             pointer-events: none !important;
             user-select: none;
-            opacity: .95;
+            opacity: 1;
             animation: dashLocPulse 3.6s ease-in-out infinite;
             will-change: opacity, transform, filter;
         }
@@ -2222,8 +2222,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 1.42em;
-            height: 1.42em;
+            width: 1.28em;
+            height: 1.28em;
             flex: 0 0 auto;
             line-height: 1;
             transform-origin: center;
@@ -2232,15 +2232,15 @@
         }
         .dash-location .dash-loc-umbrellas {
             display: block;
-            width: 1.32em;
+            width: 1.22em;
             height: auto;
-            max-width: 22px;
+            max-width: 26px;
             object-fit: contain;
             pointer-events: none !important;
             user-select: none;
             filter:
-                drop-shadow(0 0 2px rgba(255, 220, 120, .55))
-                drop-shadow(0 1px 2px rgba(61, 90, 128, .22));
+                drop-shadow(0 0 2px rgba(255, 220, 120, .5))
+                drop-shadow(0 1px 2px rgba(20, 20, 20, .18));
         }
         .dash-location .dash-loc-stars {
             position: absolute;
@@ -2287,22 +2287,14 @@
         .dash-location .dash-loc-stars i:nth-child(5) { left: 58%; top: 86%; animation-delay: -1.55s; width: 2px; height: 2px; }
         .dash-location .dash-loc-text {
             display: inline-block;
-            background: linear-gradient(105deg,
-                #3d5a80 0%,
-                #5b7aa5 38%,
-                #8eb0d4 50%,
-                #5b7aa5 62%,
-                #3d5a80 100%);
-            background-size: 220% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            -webkit-text-fill-color: transparent;
-            animation: dashLocShimmer 4.8s ease-in-out infinite;
+            color: #141414;
+            -webkit-text-fill-color: #141414;
+            background: none;
+            font-weight: 800;
         }
         @keyframes dashLocPulse {
-            0%, 100% { opacity: .88; transform: translateY(0) scale(1); }
-            50% { opacity: 1; transform: translateY(-0.6px) scale(1.04); }
+            0%, 100% { opacity: .94; transform: translateY(0) scale(1); }
+            50% { opacity: 1; transform: translateY(-0.5px) scale(1.025); }
         }
         @keyframes dashLocIco {
             0%, 100% {
@@ -2324,10 +2316,6 @@
             55% { opacity: .55; transform: scale(.9); }
             75% { opacity: .95; transform: scale(1.05); }
         }
-        @keyframes dashLocShimmer {
-            0%, 100% { background-position: 100% 50%; }
-            50% { background-position: 0% 50%; }
-        }
         @media (prefers-reduced-motion: reduce) {
             .dash-location,
             .dash-location .dash-loc-ico,
@@ -2337,8 +2325,8 @@
             }
             .dash-location .dash-loc-stars i { opacity: .55; }
             .dash-location .dash-loc-text {
-                color: #3d5a80;
-                -webkit-text-fill-color: #3d5a80;
+                color: #141414;
+                -webkit-text-fill-color: #141414;
                 background: none;
             }
         }
@@ -2350,8 +2338,8 @@
         }
         html.lite-fx .dash-location .dash-loc-stars i { opacity: .5; }
         html.lite-fx .dash-location .dash-loc-text {
-            color: #3d5a80;
-            -webkit-text-fill-color: #3d5a80;
+            color: #141414;
+            -webkit-text-fill-color: #141414;
             background: none;
         }
         /* Tabs / body stay clickable — above header (600) so décor overflow never steals nav taps */
@@ -2382,8 +2370,9 @@
                 font-size: clamp(.56rem, 2.6vw, .68rem);
             }
             .dash-location {
-                font-size: clamp(.66rem, 2.9vw, .82rem);
-                gap: .22rem;
+                font-size: clamp(.88rem, 3.6vw, 1.08rem);
+                gap: .3rem;
+                margin-top: .12rem;
             }
         }
 
@@ -31540,7 +31529,7 @@
                 if (!el) return;
                 const uid = userOrId || (typeof currentUser !== 'undefined' ? currentUser : null);
                 const label = formatLocationDisplay(accountLocation(uid));
-                const next = `<span class="dash-loc-ico" aria-hidden="true"><img class="dash-loc-umbrellas" src="assets/decor/chiangmai-umbrellas.png?v=umb1" alt="" width="22" height="21" decoding="async"><span class="dash-loc-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></span><span class="dash-loc-text">${String(label).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
+                const next = `<span class="dash-loc-ico" aria-hidden="true"><img class="dash-loc-umbrellas" src="assets/decor/chiangmai-umbrellas.png?v=umb1" alt="" width="26" height="25" decoding="async"><span class="dash-loc-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></span><span class="dash-loc-text">${String(label).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
                 if (el.dataset.locLabel === label && el.querySelector('.dash-loc-umbrellas') && el.querySelector('.dash-loc-text')) return;
                 el.dataset.locLabel = label;
                 el.innerHTML = next;
