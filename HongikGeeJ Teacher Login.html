@@ -17814,7 +17814,11 @@
         /** Statuses shown as อ่านแล้ว / Read on the director cancel+sched inbox board. */
         function isInboxReadStatus(status) {
             const s = String(status || '');
-            return !!s && s !== 'pending_director' && s !== 'voided_admin';
+            // 'deleted' is a sync tombstone — hide from inbox / read counts
+            return !!s && s !== 'pending_director' && s !== 'voided_admin' && s !== 'deleted';
+        }
+        function isReportTombstone(row) {
+            return String(row?.status || '') === 'deleted';
         }
         function canDeleteReadReports(user) {
             return !!(user && (user.role === 'director' || user.role === 'admin'));
@@ -17832,7 +17836,9 @@
             const now = new Date().toISOString();
             c.status = c.source === 'room_tt' ? 'acked' : 'acked_pending_teacher';
             c.directorAckAt = now;
+            c.updatedAt = now;
             saveClassCancels(list);
+            try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
             return true;
         }
         /** Same transition as sched-alert-confirm, for one report. Pushes via saveSchedChanges → portal_stores. */
@@ -17842,9 +17848,12 @@
             const list = loadSchedChanges();
             const c = list.find((row) => String(row.id) === key);
             if (!c || c.status !== 'pending_director' || !isDirectorSchedAlertAction(c.action)) return false;
+            const now = new Date().toISOString();
             c.status = 'acked';
-            c.directorAckAt = new Date().toISOString();
+            c.directorAckAt = now;
+            c.updatedAt = now;
             saveSchedChanges(list);
+            try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
             return true;
         }
         function countReadReportMessages() {
@@ -17854,38 +17863,56 @@
             ).length;
             return cancels + scheds;
         }
-        /** Remove read cancel + schedule-change inbox rows; leave pending (รออนุมัติ) untouched. */
+        /**
+         * Tombstone read cancel + schedule-change inbox rows (status=deleted).
+         * Hard-delete would be restored by merge-before-push union; tombstones win via status rank.
+         */
         function deleteReadReportMessages() {
+            const now = new Date().toISOString();
             const prevCancels = loadClassCancels();
             const prevScheds = loadSchedChanges();
-            const nextCancels = prevCancels.filter((c) => !isInboxReadStatus(c.status));
-            const nextScheds = prevScheds.filter((s) => {
-                if (!isDirectorSchedAlertAction(s.action)) return true;
-                return !isInboxReadStatus(s.status);
+            let removed = 0;
+            const nextCancels = prevCancels.map((c) => {
+                if (!isInboxReadStatus(c.status)) return c;
+                removed += 1;
+                return { ...c, status: 'deleted', deletedAt: now, updatedAt: now };
             });
-            const removed =
-                (prevCancels.length - nextCancels.length) +
-                (prevScheds.length - nextScheds.length);
+            const nextScheds = prevScheds.map((s) => {
+                if (!isDirectorSchedAlertAction(s.action)) return s;
+                if (!isInboxReadStatus(s.status)) return s;
+                removed += 1;
+                return { ...s, status: 'deleted', deletedAt: now, updatedAt: now };
+            });
             if (!removed) return 0;
             saveClassCancels(nextCancels);
             saveSchedChanges(nextScheds);
+            try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
             return removed;
         }
         function deleteOneReadReport(kind, id) {
             const key = String(id || '');
             if (!key) return false;
+            const now = new Date().toISOString();
             if (kind === 'cancel') {
                 const list = loadClassCancels();
                 const hit = list.find((c) => String(c.id) === key);
                 if (!hit || !isInboxReadStatus(hit.status)) return false;
-                saveClassCancels(list.filter((c) => String(c.id) !== key));
+                hit.status = 'deleted';
+                hit.deletedAt = now;
+                hit.updatedAt = now;
+                saveClassCancels(list);
+                try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
                 return true;
             }
             if (kind === 'sched') {
                 const list = loadSchedChanges();
                 const hit = list.find((s) => String(s.id) === key);
                 if (!hit || !isInboxReadStatus(hit.status) || !isDirectorSchedAlertAction(hit.action)) return false;
-                saveSchedChanges(list.filter((s) => String(s.id) !== key));
+                hit.status = 'deleted';
+                hit.deletedAt = now;
+                hit.updatedAt = now;
+                saveSchedChanges(list);
+                try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
                 return true;
             }
             return false;
@@ -20080,6 +20107,15 @@
                 });
                 if (notesChanged) saveSharedNotes(notes);
             }
+            try {
+                if (typeof queuePortalStorePush === 'function') {
+                    queuePortalStorePush('sharedNotes', 'sharedNoteStudents');
+                }
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                if (typeof flushPortalStorePush === 'function') {
+                    Promise.resolve().then(() => flushPortalStorePush()).catch(() => {});
+                }
+            } catch (_) {}
             return { ok: true, name: nextName, profile };
         }
         function ensureNoteRosterSeeded() {
@@ -21113,6 +21149,7 @@
         let portalSyncApplying = false;
         let portalSyncInFlight = false;
         let portalSyncPushTimer = null;
+        let portalSyncPushInFlight = false;
         let portalSyncPending = new Set();
         let portalSyncState = { status: 'idle', at: '', error: '' };
         const PORTAL_STORE_IDS = [
@@ -21126,7 +21163,7 @@
         const PORTAL_PUSH_URGENT = new Set([
             'headOrders', 'orderAcks', 'helpChats', 'classCancels',
             'leaveRequests', 'daySchedules', 'roomTt', 'schedChanges', 'photos',
-            'accountData', 'partTime'
+            'accountData', 'partTime', 'sharedNotes', 'sharedNoteStudents'
         ]);
 
         const SUPABASE_CONFIG_JSON = 'data/supabase/supabase-config.json';
@@ -21760,6 +21797,53 @@
                 return localArr;
             }
         }
+        async function fetchPortalStoreRow(sb, storeName) {
+            if (!sb) return null;
+            try {
+                const { data, error } = await sb
+                    .from('portal_stores')
+                    .select('data, updated_at')
+                    .eq('store_name', storeName)
+                    .maybeSingle();
+                if (error || !data) return null;
+                return data;
+            } catch (_) {
+                return null;
+            }
+        }
+        /** Merge-before-push for partTime registry (director calc ↔ PT self). */
+        async function buildMergedPartTimePayload(sb) {
+            const local = loadPartTime();
+            const row = await fetchPortalStoreRow(sb, 'partTime');
+            if (!row) return local;
+            return mergePartTimeData(local, row.data).data;
+        }
+        async function buildMergedHeadOrdersPayload(sb) {
+            const local = loadHeadOrders();
+            const row = await fetchPortalStoreRow(sb, 'headOrders');
+            if (!row) return local;
+            const remoteRaw = Array.isArray(row.data) ? row.data : [];
+            return mergeOrderRows(local, remoteRaw, { remoteAt: String(row.updated_at || '') });
+        }
+        async function buildMergedOrderAcksPayload(sb) {
+            const local = loadOrderAckMirror();
+            const row = await fetchPortalStoreRow(sb, 'orderAcks');
+            if (!row) return local;
+            const remoteRaw = row.data && typeof row.data === 'object' && !Array.isArray(row.data) ? row.data : {};
+            return mergeAckMirrorMaps(local, remoteRaw);
+        }
+        async function buildMergedSharedNoteStudentsPayload(sb) {
+            const local = loadSharedNoteStudents();
+            const row = await fetchPortalStoreRow(sb, 'sharedNoteStudents');
+            if (!row) return local;
+            return mergeNameLists(local, row.data).data;
+        }
+        async function buildMergedHelpChatsPayload(sb) {
+            const local = loadHelpChats();
+            const row = await fetchPortalStoreRow(sb, 'helpChats');
+            if (!row) return local;
+            return mergeHelpChats(local, row.data).data;
+        }
         function mergeUpdatedAtMaps(localMap, remoteMap) {
             const out = { ...(localMap && typeof localMap === 'object' ? localMap : {}) };
             const remote = remoteMap && typeof remoteMap === 'object' ? remoteMap : {};
@@ -22331,11 +22415,20 @@
             portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, delay);
         }
         async function flushPortalStorePush() {
+            if (portalSyncPushInFlight) {
+                // Serialize pushes — overlapping flushes used to drop pending store names
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, 140);
+                return { ok: false, busy: true };
+            }
             if (!portalSyncPending.size) return { ok: false, skipped: true };
+            portalSyncPushInFlight = true;
             const names = [...portalSyncPending];
             portalSyncPending.clear();
             const stores = {};
             const at = new Date().toISOString();
+            let result = { ok: false, skipped: true };
+            try {
             const sb = await ensureSupabaseClient();
             for (const name of names) {
                 if (name === 'photos') {
@@ -22460,16 +22553,121 @@
                     }
                     continue;
                 }
+                if (name === 'partTime') {
+                    try {
+                        const merged = await buildMergedPartTimePayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            savePartTime(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'headOrders') {
+                    try {
+                        const merged = await buildMergedHeadOrdersPayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            saveHeadOrders(merged, { silent: true, syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'orderAcks') {
+                    try {
+                        const merged = await buildMergedOrderAcksPayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            saveOrderAckMirror(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'sharedNotes') {
+                    try {
+                        const merged = await buildMergedPortalListPayload(sb, 'sharedNotes', loadSharedNotes);
+                        try {
+                            portalSyncApplying = true;
+                            saveSharedNotes(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'sharedNoteStudents') {
+                    try {
+                        const merged = await buildMergedSharedNoteStudentsPayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            saveSharedNoteStudents(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'leaveRequests') {
+                    try {
+                        const merged = await buildMergedPortalListPayload(sb, 'leaveRequests', loadLeaveRequests);
+                        try {
+                            portalSyncApplying = true;
+                            saveLeaveRequests(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'helpChats') {
+                    try {
+                        const merged = await buildMergedHelpChatsPayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            saveHelpChats(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
                 stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
             }
-            if (!Object.keys(stores).length) return { ok: true, skipped: true, reason: 'nothing-to-push' };
-
-            if (sb) {
+            if (!Object.keys(stores).length) {
+                result = { ok: true, skipped: true, reason: 'nothing-to-push' };
+            } else if (sb) {
                 try {
                     const pushed = await pushPortalStoresToSupabase(stores);
                     if (!pushed.ok) throw new Error(pushed.reason || 'supabase push failed');
                     portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'supabase' };
-                    return { ok: true, source: 'supabase' };
+                    result = { ok: true, source: 'supabase' };
                 } catch (err) {
                     names.forEach((n) => portalSyncPending.add(n));
                     portalSyncState = {
@@ -22478,43 +22676,52 @@
                         error: String(err?.message || err || 'supabase push failed'),
                         source: 'supabase'
                     };
-                    return { ok: false, error: portalSyncState.error, source: 'supabase' };
+                    result = { ok: false, error: portalSyncState.error, source: 'supabase' };
+                }
+            } else {
+                const url = typeof getPhotosSyncUrl === 'function' ? getPhotosSyncUrl() : '';
+                if (!url) {
+                    portalSyncState = { ...portalSyncState, status: 'local-only', error: 'no-sync-backend' };
+                    result = { ok: false, skipped: true, reason: 'no-sync-backend' };
+                } else {
+                    try {
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            mode: 'cors',
+                            credentials: 'omit',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'putStores', stores })
+                        });
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        let payload = null;
+                        try { payload = await res.json(); } catch (_) { payload = null; }
+                        if (payload?.stores) {
+                            Object.keys(payload.stores).forEach((name) => {
+                                applyPortalStoreFromRemote(name, payload.stores[name]);
+                            });
+                        }
+                        portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'gas' };
+                        result = { ok: true, source: 'gas' };
+                    } catch (err) {
+                        names.forEach((n) => portalSyncPending.add(n));
+                        portalSyncState = {
+                            ...portalSyncState,
+                            status: 'error',
+                            error: String(err?.message || err || 'portal push failed'),
+                            source: 'gas'
+                        };
+                        result = { ok: false, error: portalSyncState.error, source: 'gas' };
+                    }
                 }
             }
-
-            const url = typeof getPhotosSyncUrl === 'function' ? getPhotosSyncUrl() : '';
-            if (!url) {
-                portalSyncState = { ...portalSyncState, status: 'local-only', error: 'no-sync-backend' };
-                return { ok: false, skipped: true, reason: 'no-sync-backend' };
-            }
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    mode: 'cors',
-                    credentials: 'omit',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'putStores', stores })
-                });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                let payload = null;
-                try { payload = await res.json(); } catch (_) { payload = null; }
-                if (payload?.stores) {
-                    Object.keys(payload.stores).forEach((name) => {
-                        applyPortalStoreFromRemote(name, payload.stores[name]);
-                    });
+            } finally {
+                portalSyncPushInFlight = false;
+                if (portalSyncPending.size) {
+                    try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                    portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, 100);
                 }
-                portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'gas' };
-                return { ok: true, source: 'gas' };
-            } catch (err) {
-                names.forEach((n) => portalSyncPending.add(n));
-                portalSyncState = {
-                    ...portalSyncState,
-                    status: 'error',
-                    error: String(err?.message || err || 'portal push failed'),
-                    source: 'gas'
-                };
-                return { ok: false, error: portalSyncState.error, source: 'gas' };
             }
+            return result;
         }
         async function syncPortalStoresFromCentral({ silent = true } = {}) {
             if (portalSyncInFlight) return { ok: false, busy: true, changed: false };
@@ -24769,12 +24976,17 @@
         function savePartTime(data, { syncRemote = true } = {}) {
             let pruned = prunePartTimeData(data || defaultPartTime());
             pruned = syncPartTimeSessionsFromRecords(pruned);
+            // Preserve remote clock when applying a pull — avoid bumping updatedAt and ping-ponging
+            const at = (!syncRemote && data && data.updatedAt)
+                ? String(data.updatedAt)
+                : new Date().toISOString();
             localStorage.setItem(PT_STORE, JSON.stringify({
                 teachers: pruned.teachers || [],
                 sessions: pruned.sessions || [],
                 records: pruned.records || [],
-                updatedAt: new Date().toISOString()
+                updatedAt: at
             }));
+            try { localStorage.setItem(PT_STORE + ':tick', String(Date.now())); } catch (_) {}
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('partTime');
         }
         /** Mirror a PT registration onto central daySchedules (parttime) so boards see it live. */
@@ -26008,6 +26220,21 @@
             } catch (_) {}
             return Promise.resolve();
         }
+        /** Immediate portal push after cancel/sched approve, ack, or tombstone delete. */
+        function flushCancelSchedPortalAfterMutate() {
+            try {
+                if (typeof queuePortalStorePush === 'function') {
+                    queuePortalStorePush('classCancels', 'schedChanges', 'daySchedules');
+                }
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                if (typeof flushPortalStorePush === 'function') {
+                    return Promise.resolve()
+                        .then(() => flushPortalStorePush())
+                        .catch(() => {});
+                }
+            } catch (_) {}
+            return Promise.resolve();
+        }
         function canSelfCancelDirectorReport(user) {
             return !!(user && user.role === 'admin');
         }
@@ -26025,8 +26252,10 @@
             const cancels = loadClassCancels();
             const C = cancels.find((c) => c.id === cancelId);
             if (!C || (C.status !== 'pending_director' && C.status !== 'acked_pending_teacher')) return false;
+            const now = new Date().toISOString();
             C.status = 'voided_admin';
-            C.adminVoidAt = new Date().toISOString();
+            C.adminVoidAt = now;
+            C.updatedAt = now;
             saveClassCancels(cancels);
             const dateKey = C.date || todayKey();
             const list = loadScheduleForDate(C.teacherId, dateKey);
@@ -26047,15 +26276,19 @@
                 }
             });
             if (changed) saveScheduleForDate(C.teacherId, dateKey, list);
+            try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
             return true;
         }
         function adminVoidSchedChange(changeId) {
             const list = loadSchedChanges();
             const row = list.find((S) => S.id === changeId);
             if (!row || row.status !== 'pending_director') return false;
+            const now = new Date().toISOString();
             row.status = 'voided_admin';
-            row.adminVoidAt = new Date().toISOString();
+            row.adminVoidAt = now;
+            row.updatedAt = now;
             saveSchedChanges(list);
+            try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
             return true;
         }
         function timeOptions(selected) {
@@ -32634,7 +32867,7 @@
 
                     const canPurgeRead = canDeleteReadReports(user);
                     const canApproveReports = canApproveReportInbox(user);
-                    const allCancels = loadClassCancels().slice().reverse();
+                    const allCancels = loadClassCancels().filter((C) => !isReportTombstone(C)).slice().reverse();
                     const cancelInbox = allCancels.length ? allCancels.map(C => {
                         const cid = String(C.id || '').replace(/"/g, '');
                         const isPending = C.status === 'pending_director';
@@ -32679,7 +32912,7 @@
                     }).join('') : `<p class="empty-note">${t('noCancels')}</p>`;
 
                     const allSchedCh = loadSchedChanges()
-                        .filter(S => isDirectorSchedAlertAction(S.action))
+                        .filter(S => isDirectorSchedAlertAction(S.action) && !isReportTombstone(S))
                         .slice()
                         .reverse();
                     const schedChangeInbox = allSchedCh.length ? allSchedCh.map(S => {
@@ -36536,6 +36769,7 @@
                     }
                 });
                 saveClassCancels(list);
+                try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
                 cancelAlertModal?.classList.remove('open');
                 openDashboard(resolveAccountById(currentUser.id), true);
             });
@@ -36937,6 +37171,7 @@
                 HELP_CHAT_STORE, HELP_CHAT_STORE + ':tick',
                 SHARED_NOTES_STORE, SHARED_NOTES_STORE + ':tick',
                 SHARED_NOTE_STUDENTS_STORE, SHARED_NOTE_STUDENTS_STORE + ':tick',
+                PT_STORE, PT_STORE + ':tick',
                 DATA_KEY, DATA_KEY + ':tick'
             ]);
             const isSharedStoreKey = (key) =>
@@ -37053,6 +37288,7 @@
                         if (k.startsWith(ATTEND_STORE)) return ['attendance'];
                         if (k.startsWith(FINANCE_STORE)) return ['schoolFinance'];
                         if (k.startsWith(DATA_KEY)) return ['accountData'];
+                        if (k.startsWith(PT_STORE)) return ['partTime'];
                         return null;
                     })();
                     if (typeof softRefreshDashboard === 'function') {

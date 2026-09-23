@@ -17177,6 +17177,8 @@
         const ORDER_RESEND_COOLDOWN_MS = 5 * 60 * 1000;
         const CANCEL_STORE = 'hongik-class-cancels-v1';
         const SCHED_CHANGE_STORE = 'hongik-sched-changes-v1';
+        /** Last Asia/Bangkok day we ran the cancel/report daily purge (YYYY-MM-DD). */
+        const DAY_CANCEL_PURGE_DAY_KEY = 'hongik-day-cancel-purge-bkk-v1';
         const DIR_TODOS_KEY = 'hongik-director-todos-v1';
         const FINANCE_STORE = 'hongik-school-finance-v1';
         const DORM_STORE = 'hongik-dorm-students-v1';
@@ -17812,7 +17814,11 @@
         /** Statuses shown as อ่านแล้ว / Read on the director cancel+sched inbox board. */
         function isInboxReadStatus(status) {
             const s = String(status || '');
-            return !!s && s !== 'pending_director' && s !== 'voided_admin';
+            // 'deleted' is a sync tombstone — hide from inbox / read counts
+            return !!s && s !== 'pending_director' && s !== 'voided_admin' && s !== 'deleted';
+        }
+        function isReportTombstone(row) {
+            return String(row?.status || '') === 'deleted';
         }
         function canDeleteReadReports(user) {
             return !!(user && (user.role === 'director' || user.role === 'admin'));
@@ -17830,7 +17836,9 @@
             const now = new Date().toISOString();
             c.status = c.source === 'room_tt' ? 'acked' : 'acked_pending_teacher';
             c.directorAckAt = now;
+            c.updatedAt = now;
             saveClassCancels(list);
+            try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
             return true;
         }
         /** Same transition as sched-alert-confirm, for one report. Pushes via saveSchedChanges → portal_stores. */
@@ -17840,9 +17848,12 @@
             const list = loadSchedChanges();
             const c = list.find((row) => String(row.id) === key);
             if (!c || c.status !== 'pending_director' || !isDirectorSchedAlertAction(c.action)) return false;
+            const now = new Date().toISOString();
             c.status = 'acked';
-            c.directorAckAt = new Date().toISOString();
+            c.directorAckAt = now;
+            c.updatedAt = now;
             saveSchedChanges(list);
+            try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
             return true;
         }
         function countReadReportMessages() {
@@ -17852,38 +17863,56 @@
             ).length;
             return cancels + scheds;
         }
-        /** Remove read cancel + schedule-change inbox rows; leave pending (รออนุมัติ) untouched. */
+        /**
+         * Tombstone read cancel + schedule-change inbox rows (status=deleted).
+         * Hard-delete would be restored by merge-before-push union; tombstones win via status rank.
+         */
         function deleteReadReportMessages() {
+            const now = new Date().toISOString();
             const prevCancels = loadClassCancels();
             const prevScheds = loadSchedChanges();
-            const nextCancels = prevCancels.filter((c) => !isInboxReadStatus(c.status));
-            const nextScheds = prevScheds.filter((s) => {
-                if (!isDirectorSchedAlertAction(s.action)) return true;
-                return !isInboxReadStatus(s.status);
+            let removed = 0;
+            const nextCancels = prevCancels.map((c) => {
+                if (!isInboxReadStatus(c.status)) return c;
+                removed += 1;
+                return { ...c, status: 'deleted', deletedAt: now, updatedAt: now };
             });
-            const removed =
-                (prevCancels.length - nextCancels.length) +
-                (prevScheds.length - nextScheds.length);
+            const nextScheds = prevScheds.map((s) => {
+                if (!isDirectorSchedAlertAction(s.action)) return s;
+                if (!isInboxReadStatus(s.status)) return s;
+                removed += 1;
+                return { ...s, status: 'deleted', deletedAt: now, updatedAt: now };
+            });
             if (!removed) return 0;
             saveClassCancels(nextCancels);
             saveSchedChanges(nextScheds);
+            try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
             return removed;
         }
         function deleteOneReadReport(kind, id) {
             const key = String(id || '');
             if (!key) return false;
+            const now = new Date().toISOString();
             if (kind === 'cancel') {
                 const list = loadClassCancels();
                 const hit = list.find((c) => String(c.id) === key);
                 if (!hit || !isInboxReadStatus(hit.status)) return false;
-                saveClassCancels(list.filter((c) => String(c.id) !== key));
+                hit.status = 'deleted';
+                hit.deletedAt = now;
+                hit.updatedAt = now;
+                saveClassCancels(list);
+                try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
                 return true;
             }
             if (kind === 'sched') {
                 const list = loadSchedChanges();
                 const hit = list.find((s) => String(s.id) === key);
                 if (!hit || !isInboxReadStatus(hit.status) || !isDirectorSchedAlertAction(hit.action)) return false;
-                saveSchedChanges(list.filter((s) => String(s.id) !== key));
+                hit.status = 'deleted';
+                hit.deletedAt = now;
+                hit.updatedAt = now;
+                saveSchedChanges(list);
+                try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
                 return true;
             }
             return false;
@@ -17915,10 +17944,152 @@
         function clearSchedAlertSessionSkips() {
             schedAlertSkipIds = new Set();
         }
-        /** Drop pending rows whose action is unknown / not a director alert, or whose class date is not today. */
-        function pruneNonFirstSchedAlerts() {
-            const list = loadSchedChanges();
+        /**
+         * Calendar day for a cancel / sched-alert report (Asia/Bangkok YYYY-MM-DD).
+         * Prefers row.date; falls back to createdAt / ack clocks.
+         */
+        function reportDayKey(row) {
+            const d = String(row?.date || '').trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+            const iso = String(row?.createdAt || row?.directorAckAt || row?.updatedAt || row?.at || '');
+            if (!iso) return '';
+            try {
+                const dt = new Date(iso);
+                if (Number.isNaN(dt.getTime())) return '';
+                return dt.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+            } catch (_) {
+                return '';
+            }
+        }
+        /** Keep today + future-dated day-scoped reports; drop yesterday-and-older (and undated junk). */
+        function keepDayScopedReportForToday(row, today = todayKey()) {
+            const d = reportDayKey(row);
+            if (!d) return false;
+            return d >= today;
+        }
+        function filterClassCancelsForPortalToday(list, today = todayKey()) {
+            return (Array.isArray(list) ? list : []).filter((c) => keepDayScopedReportForToday(c, today));
+        }
+        function filterSchedChangesForPortalToday(list, today = todayKey()) {
+            return (Array.isArray(list) ? list : []).filter((s) => {
+                if (!s) return false;
+                // Non-director-alert rows are not day-scoped cancel/status noise — keep
+                if (typeof isDirectorSchedAlertAction === 'function' && !isDirectorSchedAlertAction(s.action)) {
+                    return true;
+                }
+                return keepDayScopedReportForToday(s, today);
+            });
+        }
+        /**
+         * Strip cancelled-report flags from past Asia/Bangkok daySchedules rows.
+         * Does not delete class bookings — only cancel/ack UI noise (pink cancelled rows).
+         */
+        function stripPastDayScheduleCancelMarks({ syncRemote = true } = {}) {
+            try {
+                const today = todayKey();
+                const bundle = loadDaySchedulesBundle();
+                let changed = false;
+                Object.keys(bundle || {}).forEach((bk) => {
+                    const pipe = String(bk).lastIndexOf('|');
+                    if (pipe < 0) return;
+                    const userId = String(bk).slice(0, pipe);
+                    const dateKey = String(bk).slice(pipe + 1);
+                    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey) || dateKey >= today) return;
+                    const entry = bundle[bk];
+                    const items = normalizeScheduleList(entry);
+                    let localChanged = false;
+                    const next = items.map((it) => {
+                        if (!it || !it.cancelled) return it;
+                        localChanged = true;
+                        const n = { ...it };
+                        delete n.cancelled;
+                        delete n.cancelId;
+                        delete n.cancelReason;
+                        delete n.cancelReasonKo;
+                        delete n.cancelReasonTh;
+                        delete n.cancelReasonEn;
+                        delete n.makeupDate;
+                        delete n.cancelNote;
+                        return n;
+                    });
+                    if (!localChanged) return;
+                    bundle[bk] = {
+                        items: next,
+                        updatedAt: new Date().toISOString()
+                    };
+                    try {
+                        if (typeof SCHEDULE_KEY === 'function') {
+                            localStorage.setItem(SCHEDULE_KEY(userId, dateKey), JSON.stringify(next));
+                        }
+                    } catch (_) {}
+                    changed = true;
+                });
+                if (!changed) return false;
+                saveDaySchedulesBundle(bundle, { syncRemote, tick: true });
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+        /**
+         * Asia/Bangkok daily reset for all accounts via portal_stores:
+         * hard-delete yesterday-and-older classCancels + day-scoped schedChanges,
+         * strip past daySchedules cancel marks. Keeps future/today bookings (roomTt intact).
+         */
+        function purgeStaleDayScopedCancelNoise({ syncRemote = true } = {}) {
+            try {
+                const today = todayKey();
+                let changed = false;
+                const cancels = loadClassCancels();
+                const nextCancels = filterClassCancelsForPortalToday(cancels, today);
+                if (nextCancels.length !== cancels.length) {
+                    saveClassCancels(nextCancels, { syncRemote: false });
+                    changed = true;
+                }
+                const scheds = loadSchedChanges();
+                const nextScheds = filterSchedChangesForPortalToday(scheds, today);
+                if (nextScheds.length !== scheds.length) {
+                    saveSchedChanges(nextScheds, { syncRemote: false });
+                    changed = true;
+                }
+                if (stripPastDayScheduleCancelMarks({ syncRemote: false })) changed = true;
+                if (changed && syncRemote && typeof queuePortalStorePush === 'function') {
+                    queuePortalStorePush('classCancels', 'schedChanges', 'daySchedules');
+                    try {
+                        if (typeof flushPortalStorePush === 'function') {
+                            clearTimeout(portalSyncPushTimer);
+                            flushPortalStorePush();
+                        }
+                    } catch (_) {}
+                }
+                return changed;
+            } catch (_) {
+                return false;
+            }
+        }
+        /** Run purge; on Bangkok day rollover also clear session alert skips / snooze. */
+        function ensureDayScopedCancelNoisePurged({ syncRemote = true } = {}) {
             const today = todayKey();
+            let rolled = false;
+            try {
+                const prev = localStorage.getItem(DAY_CANCEL_PURGE_DAY_KEY) || '';
+                if (prev !== today) {
+                    rolled = true;
+                    localStorage.setItem(DAY_CANCEL_PURGE_DAY_KEY, today);
+                    try { clearSchedAlertSessionSkips(); } catch (_) {}
+                    try { schedAlertPopupSnoozed = false; } catch (_) {}
+                }
+            } catch (_) {}
+            const purged = purgeStaleDayScopedCancelNoise({ syncRemote });
+            return purged || rolled;
+        }
+        /**
+         * Soft-skip unknown pending actions for today; hard-purge yesterday-and-older
+         * cancel/status reports (Asia/Bangkok) so every account starts a fresh count.
+         */
+        function pruneNonFirstSchedAlerts() {
+            try { ensureDayScopedCancelNoisePurged({ syncRemote: true }); } catch (_) {}
+            const list = loadSchedChanges();
             const now = new Date().toISOString();
             let changed = false;
             const next = list.map((c) => {
@@ -17926,10 +18097,6 @@
                 if (!isDirectorSchedAlertAction(c.action)) {
                     changed = true;
                     return { ...c, status: 'director_skipped', skippedAt: now };
-                }
-                if (String(c.date || '') !== today) {
-                    changed = true;
-                    return { ...c, status: 'expired_day', expiredAt: now, expiredDay: String(c.date || '') };
                 }
                 return c;
             });
@@ -19940,6 +20107,15 @@
                 });
                 if (notesChanged) saveSharedNotes(notes);
             }
+            try {
+                if (typeof queuePortalStorePush === 'function') {
+                    queuePortalStorePush('sharedNotes', 'sharedNoteStudents');
+                }
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                if (typeof flushPortalStorePush === 'function') {
+                    Promise.resolve().then(() => flushPortalStorePush()).catch(() => {});
+                }
+            } catch (_) {}
             return { ok: true, name: nextName, profile };
         }
         function ensureNoteRosterSeeded() {
@@ -20973,6 +21149,7 @@
         let portalSyncApplying = false;
         let portalSyncInFlight = false;
         let portalSyncPushTimer = null;
+        let portalSyncPushInFlight = false;
         let portalSyncPending = new Set();
         let portalSyncState = { status: 'idle', at: '', error: '' };
         const PORTAL_STORE_IDS = [
@@ -20986,7 +21163,7 @@
         const PORTAL_PUSH_URGENT = new Set([
             'headOrders', 'orderAcks', 'helpChats', 'classCancels',
             'leaveRequests', 'daySchedules', 'roomTt', 'schedChanges', 'photos',
-            'accountData', 'partTime'
+            'accountData', 'partTime', 'sharedNotes', 'sharedNoteStudents'
         ]);
 
         const SUPABASE_CONFIG_JSON = 'data/supabase/supabase-config.json';
@@ -21620,6 +21797,53 @@
                 return localArr;
             }
         }
+        async function fetchPortalStoreRow(sb, storeName) {
+            if (!sb) return null;
+            try {
+                const { data, error } = await sb
+                    .from('portal_stores')
+                    .select('data, updated_at')
+                    .eq('store_name', storeName)
+                    .maybeSingle();
+                if (error || !data) return null;
+                return data;
+            } catch (_) {
+                return null;
+            }
+        }
+        /** Merge-before-push for partTime registry (director calc ↔ PT self). */
+        async function buildMergedPartTimePayload(sb) {
+            const local = loadPartTime();
+            const row = await fetchPortalStoreRow(sb, 'partTime');
+            if (!row) return local;
+            return mergePartTimeData(local, row.data).data;
+        }
+        async function buildMergedHeadOrdersPayload(sb) {
+            const local = loadHeadOrders();
+            const row = await fetchPortalStoreRow(sb, 'headOrders');
+            if (!row) return local;
+            const remoteRaw = Array.isArray(row.data) ? row.data : [];
+            return mergeOrderRows(local, remoteRaw, { remoteAt: String(row.updated_at || '') });
+        }
+        async function buildMergedOrderAcksPayload(sb) {
+            const local = loadOrderAckMirror();
+            const row = await fetchPortalStoreRow(sb, 'orderAcks');
+            if (!row) return local;
+            const remoteRaw = row.data && typeof row.data === 'object' && !Array.isArray(row.data) ? row.data : {};
+            return mergeAckMirrorMaps(local, remoteRaw);
+        }
+        async function buildMergedSharedNoteStudentsPayload(sb) {
+            const local = loadSharedNoteStudents();
+            const row = await fetchPortalStoreRow(sb, 'sharedNoteStudents');
+            if (!row) return local;
+            return mergeNameLists(local, row.data).data;
+        }
+        async function buildMergedHelpChatsPayload(sb) {
+            const local = loadHelpChats();
+            const row = await fetchPortalStoreRow(sb, 'helpChats');
+            if (!row) return local;
+            return mergeHelpChats(local, row.data).data;
+        }
         function mergeUpdatedAtMaps(localMap, remoteMap) {
             const out = { ...(localMap && typeof localMap === 'object' ? localMap : {}) };
             const remote = remoteMap && typeof remoteMap === 'object' ? remoteMap : {};
@@ -21905,17 +22129,29 @@
             try {
                 if (name === 'daySchedules') {
                     const merged = mergeDaySchedulesMaps(loadDaySchedulesBundle(), remoteData);
-                    if (merged.changed) {
+                    let changed = merged.changed;
+                    if (changed) {
                         saveDaySchedulesBundle(merged.map, { syncRemote: false, tick: true });
-                        return true;
                     }
-                    return false;
+                    // Asia/Bangkok: clear past-day cancel flags after merge (bookings kept)
+                    try {
+                        if (stripPastDayScheduleCancelMarks({ syncRemote: false })) {
+                            changed = true;
+                            try { queuePortalStorePush('daySchedules'); } catch (_) {}
+                        }
+                    } catch (_) {}
+                    return changed;
                 }
                 if (name === 'schedChanges') {
                     const local = loadSchedChanges();
                     const merged = mergePortalListById(local, Array.isArray(remoteData) ? remoteData : []);
-                    if (JSON.stringify(local) !== JSON.stringify(merged)) {
-                        saveSchedChanges(merged, { syncRemote: false });
+                    // Asia/Bangkok: drop yesterday-and-older day-scoped alerts after merge
+                    const cleaned = filterSchedChangesForPortalToday(merged);
+                    if (cleaned.length !== merged.length) {
+                        try { queuePortalStorePush('schedChanges'); } catch (_) {}
+                    }
+                    if (JSON.stringify(local) !== JSON.stringify(cleaned)) {
+                        saveSchedChanges(cleaned, { syncRemote: false });
                         return true;
                     }
                     return false;
@@ -21923,8 +22159,13 @@
                 if (name === 'classCancels') {
                     const local = loadClassCancels();
                     const merged = mergePortalListById(local, Array.isArray(remoteData) ? remoteData : []);
-                    if (JSON.stringify(local) !== JSON.stringify(merged)) {
-                        saveClassCancels(merged, { syncRemote: false });
+                    // Asia/Bangkok: drop yesterday-and-older cancel reports after merge
+                    const cleaned = filterClassCancelsForPortalToday(merged);
+                    if (cleaned.length !== merged.length) {
+                        try { queuePortalStorePush('classCancels'); } catch (_) {}
+                    }
+                    if (JSON.stringify(local) !== JSON.stringify(cleaned)) {
+                        saveClassCancels(cleaned, { syncRemote: false });
                         return true;
                     }
                     return false;
@@ -22174,11 +22415,20 @@
             portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, delay);
         }
         async function flushPortalStorePush() {
+            if (portalSyncPushInFlight) {
+                // Serialize pushes — overlapping flushes used to drop pending store names
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, 140);
+                return { ok: false, busy: true };
+            }
             if (!portalSyncPending.size) return { ok: false, skipped: true };
+            portalSyncPushInFlight = true;
             const names = [...portalSyncPending];
             portalSyncPending.clear();
             const stores = {};
             const at = new Date().toISOString();
+            let result = { ok: false, skipped: true };
+            try {
             const sb = await ensureSupabaseClient();
             for (const name of names) {
                 if (name === 'photos') {
@@ -22254,11 +22504,13 @@
                         try {
                             portalSyncApplying = true;
                             saveDaySchedulesBundle(merged, { syncRemote: false, tick: true });
+                            try { stripPastDayScheduleCancelMarks({ syncRemote: false }); } catch (_) {}
                         } finally {
                             portalSyncApplying = false;
                         }
-                        stores[name] = { data: merged, updatedAt: at };
+                        stores[name] = { data: loadDaySchedulesBundle(), updatedAt: at };
                     } catch (_) {
+                        try { stripPastDayScheduleCancelMarks({ syncRemote: false }); } catch (__) {}
                         stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
                     }
                     continue;
@@ -22266,9 +22518,47 @@
                 if (name === 'schedChanges') {
                     try {
                         const merged = await buildMergedPortalListPayload(sb, 'schedChanges', loadSchedChanges);
+                        const cleaned = filterSchedChangesForPortalToday(merged);
                         try {
                             portalSyncApplying = true;
-                            saveSchedChanges(merged, { syncRemote: false });
+                            saveSchedChanges(cleaned, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: cleaned, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = {
+                            data: filterSchedChangesForPortalToday(collectPortalStorePayload(name)),
+                            updatedAt: at
+                        };
+                    }
+                    continue;
+                }
+                if (name === 'classCancels') {
+                    try {
+                        const merged = await buildMergedPortalListPayload(sb, 'classCancels', loadClassCancels);
+                        const cleaned = filterClassCancelsForPortalToday(merged);
+                        try {
+                            portalSyncApplying = true;
+                            saveClassCancels(cleaned, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: cleaned, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = {
+                            data: filterClassCancelsForPortalToday(collectPortalStorePayload(name)),
+                            updatedAt: at
+                        };
+                    }
+                    continue;
+                }
+                if (name === 'partTime') {
+                    try {
+                        const merged = await buildMergedPartTimePayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            savePartTime(merged, { syncRemote: false });
                         } finally {
                             portalSyncApplying = false;
                         }
@@ -22278,12 +22568,87 @@
                     }
                     continue;
                 }
-                if (name === 'classCancels') {
+                if (name === 'headOrders') {
                     try {
-                        const merged = await buildMergedPortalListPayload(sb, 'classCancels', loadClassCancels);
+                        const merged = await buildMergedHeadOrdersPayload(sb);
                         try {
                             portalSyncApplying = true;
-                            saveClassCancels(merged, { syncRemote: false });
+                            saveHeadOrders(merged, { silent: true, syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'orderAcks') {
+                    try {
+                        const merged = await buildMergedOrderAcksPayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            saveOrderAckMirror(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'sharedNotes') {
+                    try {
+                        const merged = await buildMergedPortalListPayload(sb, 'sharedNotes', loadSharedNotes);
+                        try {
+                            portalSyncApplying = true;
+                            saveSharedNotes(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'sharedNoteStudents') {
+                    try {
+                        const merged = await buildMergedSharedNoteStudentsPayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            saveSharedNoteStudents(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'leaveRequests') {
+                    try {
+                        const merged = await buildMergedPortalListPayload(sb, 'leaveRequests', loadLeaveRequests);
+                        try {
+                            portalSyncApplying = true;
+                            saveLeaveRequests(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'helpChats') {
+                    try {
+                        const merged = await buildMergedHelpChatsPayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            saveHelpChats(merged, { syncRemote: false });
                         } finally {
                             portalSyncApplying = false;
                         }
@@ -22295,14 +22660,14 @@
                 }
                 stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
             }
-            if (!Object.keys(stores).length) return { ok: true, skipped: true, reason: 'nothing-to-push' };
-
-            if (sb) {
+            if (!Object.keys(stores).length) {
+                result = { ok: true, skipped: true, reason: 'nothing-to-push' };
+            } else if (sb) {
                 try {
                     const pushed = await pushPortalStoresToSupabase(stores);
                     if (!pushed.ok) throw new Error(pushed.reason || 'supabase push failed');
                     portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'supabase' };
-                    return { ok: true, source: 'supabase' };
+                    result = { ok: true, source: 'supabase' };
                 } catch (err) {
                     names.forEach((n) => portalSyncPending.add(n));
                     portalSyncState = {
@@ -22311,43 +22676,52 @@
                         error: String(err?.message || err || 'supabase push failed'),
                         source: 'supabase'
                     };
-                    return { ok: false, error: portalSyncState.error, source: 'supabase' };
+                    result = { ok: false, error: portalSyncState.error, source: 'supabase' };
+                }
+            } else {
+                const url = typeof getPhotosSyncUrl === 'function' ? getPhotosSyncUrl() : '';
+                if (!url) {
+                    portalSyncState = { ...portalSyncState, status: 'local-only', error: 'no-sync-backend' };
+                    result = { ok: false, skipped: true, reason: 'no-sync-backend' };
+                } else {
+                    try {
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            mode: 'cors',
+                            credentials: 'omit',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'putStores', stores })
+                        });
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        let payload = null;
+                        try { payload = await res.json(); } catch (_) { payload = null; }
+                        if (payload?.stores) {
+                            Object.keys(payload.stores).forEach((name) => {
+                                applyPortalStoreFromRemote(name, payload.stores[name]);
+                            });
+                        }
+                        portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'gas' };
+                        result = { ok: true, source: 'gas' };
+                    } catch (err) {
+                        names.forEach((n) => portalSyncPending.add(n));
+                        portalSyncState = {
+                            ...portalSyncState,
+                            status: 'error',
+                            error: String(err?.message || err || 'portal push failed'),
+                            source: 'gas'
+                        };
+                        result = { ok: false, error: portalSyncState.error, source: 'gas' };
+                    }
                 }
             }
-
-            const url = typeof getPhotosSyncUrl === 'function' ? getPhotosSyncUrl() : '';
-            if (!url) {
-                portalSyncState = { ...portalSyncState, status: 'local-only', error: 'no-sync-backend' };
-                return { ok: false, skipped: true, reason: 'no-sync-backend' };
-            }
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    mode: 'cors',
-                    credentials: 'omit',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'putStores', stores })
-                });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                let payload = null;
-                try { payload = await res.json(); } catch (_) { payload = null; }
-                if (payload?.stores) {
-                    Object.keys(payload.stores).forEach((name) => {
-                        applyPortalStoreFromRemote(name, payload.stores[name]);
-                    });
+            } finally {
+                portalSyncPushInFlight = false;
+                if (portalSyncPending.size) {
+                    try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                    portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, 100);
                 }
-                portalSyncState = { status: 'ok', at: new Date().toISOString(), error: '', source: 'gas' };
-                return { ok: true, source: 'gas' };
-            } catch (err) {
-                names.forEach((n) => portalSyncPending.add(n));
-                portalSyncState = {
-                    ...portalSyncState,
-                    status: 'error',
-                    error: String(err?.message || err || 'portal push failed'),
-                    source: 'gas'
-                };
-                return { ok: false, error: portalSyncState.error, source: 'gas' };
             }
+            return result;
         }
         async function syncPortalStoresFromCentral({ silent = true } = {}) {
             if (portalSyncInFlight) return { ok: false, busy: true, changed: false };
@@ -24602,12 +24976,17 @@
         function savePartTime(data, { syncRemote = true } = {}) {
             let pruned = prunePartTimeData(data || defaultPartTime());
             pruned = syncPartTimeSessionsFromRecords(pruned);
+            // Preserve remote clock when applying a pull — avoid bumping updatedAt and ping-ponging
+            const at = (!syncRemote && data && data.updatedAt)
+                ? String(data.updatedAt)
+                : new Date().toISOString();
             localStorage.setItem(PT_STORE, JSON.stringify({
                 teachers: pruned.teachers || [],
                 sessions: pruned.sessions || [],
                 records: pruned.records || [],
-                updatedAt: new Date().toISOString()
+                updatedAt: at
             }));
+            try { localStorage.setItem(PT_STORE + ':tick', String(Date.now())); } catch (_) {}
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('partTime');
         }
         /** Mirror a PT registration onto central daySchedules (parttime) so boards see it live. */
@@ -25083,6 +25462,8 @@
         migrateSeedSuaTestOrder();
         migrateOrderAcksFromLocalReads();
         try { purgeStaleHeadOrders({ syncRemote: true }); } catch (_) {}
+        // Asia/Bangkok: wipe yesterday-and-older cancel / sched-alert noise for a fresh daily count
+        try { ensureDayScopedCancelNoisePurged({ syncRemote: true }); } catch (_) {}
         migrateLegacyNotesToShared();
         ensureNoteRosterSeeded();
 
@@ -25839,6 +26220,21 @@
             } catch (_) {}
             return Promise.resolve();
         }
+        /** Immediate portal push after cancel/sched approve, ack, or tombstone delete. */
+        function flushCancelSchedPortalAfterMutate() {
+            try {
+                if (typeof queuePortalStorePush === 'function') {
+                    queuePortalStorePush('classCancels', 'schedChanges', 'daySchedules');
+                }
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                if (typeof flushPortalStorePush === 'function') {
+                    return Promise.resolve()
+                        .then(() => flushPortalStorePush())
+                        .catch(() => {});
+                }
+            } catch (_) {}
+            return Promise.resolve();
+        }
         function canSelfCancelDirectorReport(user) {
             return !!(user && user.role === 'admin');
         }
@@ -25856,8 +26252,10 @@
             const cancels = loadClassCancels();
             const C = cancels.find((c) => c.id === cancelId);
             if (!C || (C.status !== 'pending_director' && C.status !== 'acked_pending_teacher')) return false;
+            const now = new Date().toISOString();
             C.status = 'voided_admin';
-            C.adminVoidAt = new Date().toISOString();
+            C.adminVoidAt = now;
+            C.updatedAt = now;
             saveClassCancels(cancels);
             const dateKey = C.date || todayKey();
             const list = loadScheduleForDate(C.teacherId, dateKey);
@@ -25878,15 +26276,19 @@
                 }
             });
             if (changed) saveScheduleForDate(C.teacherId, dateKey, list);
+            try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
             return true;
         }
         function adminVoidSchedChange(changeId) {
             const list = loadSchedChanges();
             const row = list.find((S) => S.id === changeId);
             if (!row || row.status !== 'pending_director') return false;
+            const now = new Date().toISOString();
             row.status = 'voided_admin';
-            row.adminVoidAt = new Date().toISOString();
+            row.adminVoidAt = now;
+            row.updatedAt = now;
             saveSchedChanges(list);
+            try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
             return true;
         }
         function timeOptions(selected) {
@@ -26750,6 +27152,22 @@
             function tickClock() {
                 if (document.hidden) return;
                 const now = new Date();
+                // Bangkok midnight rollover: purge stale cancel reports once, then soft-refresh boards
+                try {
+                    const bkkDay = todayKey();
+                    if (tickClock._bkkDay && tickClock._bkkDay !== bkkDay) {
+                        try { ensureDayScopedCancelNoisePurged({ syncRemote: true }); } catch (_) {}
+                        try {
+                            if (currentUser && typeof softRefreshDashboard === 'function') {
+                                softRefreshDashboard(currentUser, {
+                                    stores: ['classCancels', 'schedChanges', 'daySchedules'],
+                                    reason: 'bkk-day-rollover'
+                                });
+                            }
+                        } catch (_) {}
+                    }
+                    tickClock._bkkDay = bkkDay;
+                } catch (_) {}
                 tickKoHeaderDate(now);
                 const locale = lang === 'th' ? 'th-TH' : lang === 'en' ? 'en-US' : 'ko-KR';
                 const lite = isLiteClient();
@@ -32449,7 +32867,7 @@
 
                     const canPurgeRead = canDeleteReadReports(user);
                     const canApproveReports = canApproveReportInbox(user);
-                    const allCancels = loadClassCancels().slice().reverse();
+                    const allCancels = loadClassCancels().filter((C) => !isReportTombstone(C)).slice().reverse();
                     const cancelInbox = allCancels.length ? allCancels.map(C => {
                         const cid = String(C.id || '').replace(/"/g, '');
                         const isPending = C.status === 'pending_director';
@@ -32494,7 +32912,7 @@
                     }).join('') : `<p class="empty-note">${t('noCancels')}</p>`;
 
                     const allSchedCh = loadSchedChanges()
-                        .filter(S => isDirectorSchedAlertAction(S.action))
+                        .filter(S => isDirectorSchedAlertAction(S.action) && !isReportTombstone(S))
                         .slice()
                         .reverse();
                     const schedChangeInbox = allSchedCh.length ? allSchedCh.map(S => {
@@ -36351,6 +36769,7 @@
                     }
                 });
                 saveClassCancels(list);
+                try { flushCancelSchedPortalAfterMutate(); } catch (_) {}
                 cancelAlertModal?.classList.remove('open');
                 openDashboard(resolveAccountById(currentUser.id), true);
             });
@@ -36752,6 +37171,7 @@
                 HELP_CHAT_STORE, HELP_CHAT_STORE + ':tick',
                 SHARED_NOTES_STORE, SHARED_NOTES_STORE + ':tick',
                 SHARED_NOTE_STUDENTS_STORE, SHARED_NOTE_STUDENTS_STORE + ':tick',
+                PT_STORE, PT_STORE + ':tick',
                 DATA_KEY, DATA_KEY + ':tick'
             ]);
             const isSharedStoreKey = (key) =>
@@ -36868,6 +37288,7 @@
                         if (k.startsWith(ATTEND_STORE)) return ['attendance'];
                         if (k.startsWith(FINANCE_STORE)) return ['schoolFinance'];
                         if (k.startsWith(DATA_KEY)) return ['accountData'];
+                        if (k.startsWith(PT_STORE)) return ['partTime'];
                         return null;
                     })();
                     if (typeof softRefreshDashboard === 'function') {
