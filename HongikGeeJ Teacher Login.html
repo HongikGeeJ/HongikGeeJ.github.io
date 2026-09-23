@@ -6063,7 +6063,7 @@
         }
         .pt-calc-form { margin-bottom: .35rem; }
         .pt-calc-toolbar {
-            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start;
             gap: .55rem .75rem; margin: 0 0 .65rem; position: sticky; top: 0; z-index: 3;
             padding: .55rem .65rem; border-radius: .95rem;
             background: linear-gradient(120deg, #fff 0%, #f8fafc 100%);
@@ -6075,13 +6075,44 @@
             font-size: .78rem; font-weight: 750; color: #64748b;
         }
         .pt-calc-sum {
-            display: inline-flex; flex-wrap: wrap; align-items: center; gap: .35rem .65rem;
-            padding: .4rem .7rem; border-radius: .8rem;
-            background: linear-gradient(120deg, #047857, #10b981); color: #fff;
-            font-weight: 800; font-size: .82rem; white-space: nowrap;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, .32);
+            margin: 1rem 0 0; padding: 1.15rem 1.2rem 1.25rem;
+            border-radius: 1.15rem;
+            background: linear-gradient(135deg, #065f46 0%, #047857 42%, #10b981 100%);
+            color: #fff;
+            box-shadow: 0 12px 28px rgba(4, 120, 87, .28);
         }
-        .pt-calc-sum .pt-sum-hrs { opacity: .9; font-weight: 700; }
+        .pt-calc-sum-title {
+            margin: 0 0 .85rem; font-size: .92rem; font-weight: 800;
+            letter-spacing: .01em; opacity: .92;
+        }
+        .pt-calc-sum-grid {
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem 1rem;
+        }
+        @media (max-width: 560px) {
+            .pt-calc-sum-grid { grid-template-columns: 1fr; gap: .85rem; }
+        }
+        .pt-sum-metric {
+            display: flex; flex-direction: column; gap: .2rem; min-width: 0;
+            padding: .55rem .7rem; border-radius: .85rem;
+            background: rgba(255,255,255,.12);
+        }
+        .pt-sum-metric.pay {
+            background: rgba(255,255,255,.18);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+        }
+        .pt-sum-label {
+            font-size: .72rem; font-weight: 750; opacity: .88; letter-spacing: .01em;
+        }
+        .pt-sum-value {
+            font-size: clamp(1.55rem, 4.8vw, 2.2rem); font-weight: 900;
+            letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums;
+        }
+        .pt-sum-metric.pay .pt-sum-value {
+            font-size: clamp(1.85rem, 5.5vw, 2.55rem);
+        }
+        .pt-sum-unit {
+            font-size: .78rem; font-weight: 750; opacity: .88; margin-left: .2rem;
+        }
         .pt-cal {
             margin: .2rem 0 .85rem; border-radius: 1.1rem; border: 1.5px solid #e2e8f0;
             background: #fff; overflow: hidden;
@@ -29719,12 +29750,6 @@
                             <label class="pt-month-wrap">${t('ptPickMonth')}
                                 <select class="sched-select pt-calc-month">${monthSel}</select>
                             </label>
-                            <div class="pt-calc-sum" title="${t('ptCalcTotal')}">
-                                <span>${t('ptCalcTotal')}</span>
-                                <span class="pt-sum-hrs">${daysSum}${t('ptDaysCount')}</span>
-                                <span class="pt-sum-hrs">${hrsSum}${t('ptHours')}</span>
-                                <span>${t('baht')}${paySum.toLocaleString()}</span>
-                            </div>
                         </div>
                     </div>
                     ${buildPtCalendarHtml(ym, records, canEdit, esc)}
@@ -29747,6 +29772,23 @@
                             </thead>
                             <tbody>${rows}</tbody>
                         </table>
+                    </div>
+                    <div class="pt-calc-sum" title="${t('ptCalcTotal')}" aria-live="polite">
+                        <div class="pt-calc-sum-title">${t('ptCalcTotal')}</div>
+                        <div class="pt-calc-sum-grid">
+                            <div class="pt-sum-metric">
+                                <span class="pt-sum-label">${t('ptDaysCount')}</span>
+                                <span class="pt-sum-value">${daysSum}</span>
+                            </div>
+                            <div class="pt-sum-metric">
+                                <span class="pt-sum-label">${t('ptTotalHours')}</span>
+                                <span class="pt-sum-value">${hrsSum}<span class="pt-sum-unit">${t('ptHours')}</span></span>
+                            </div>
+                            <div class="pt-sum-metric pay">
+                                <span class="pt-sum-label">${t('ptPay')}</span>
+                                <span class="pt-sum-value">${t('baht')}${paySum.toLocaleString()}</span>
+                            </div>
+                        </div>
                     </div>`;
 
                 mounts.forEach((app) => {
