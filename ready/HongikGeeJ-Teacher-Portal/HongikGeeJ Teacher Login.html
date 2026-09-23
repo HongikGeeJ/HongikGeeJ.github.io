@@ -17756,17 +17756,74 @@
             } catch (_) {}
             return { seedVer: '', blocks: {}, updatedAt: '' };
         }
-        function saveRoomTimetable(data, { syncRemote = true } = {}) {
+        const ROOM_TT_EPOCH = '1970-01-01T00:00:00.000Z';
+        /** Bare weekly filler — must never LWW-beat real edits/tombstones (cloud used to stamp these with "now"). */
+        function isBareRoomTtTemplate(b) {
+            if (!b || typeof b !== 'object' || b.deleted) return false;
+            if (!b.fromTemplate) return false;
+            if (b.userEdited) return false;
+            if (typeof isNonNormalClassStatus === 'function' && isNonNormalClassStatus(b.classStatus)) return false;
+            if (Array.isArray(b.students) && b.students.length) return false;
+            if (String(b.note || '').trim()) return false;
+            return true;
+        }
+        function roomTtEffectiveStamp(b, fallback) {
+            if (!b) return String(fallback || '');
+            if (isBareRoomTtTemplate(b)) return ROOM_TT_EPOCH;
+            return String(b.updatedAt || fallback || '');
+        }
+        /** Normalize template poison stamps + pin store clock for portal upsert (mirrors photos reliability). */
+        function prepareRoomTtPortalPayload(data, at) {
+            const stamp = String(at || new Date().toISOString());
+            const blocksIn = (data && data.blocks && typeof data.blocks === 'object') ? data.blocks : {};
+            const blocks = {};
+            Object.keys(blocksIn).forEach((id) => {
+                const b = blocksIn[id];
+                if (!b || typeof b !== 'object') return;
+                if (isBareRoomTtTemplate(b)) {
+                    blocks[id] = { ...b, updatedAt: ROOM_TT_EPOCH };
+                } else {
+                    blocks[id] = b;
+                }
+            });
+            return {
+                seedVer: (data && data.seedVer) || ROOM_TT_SEED_VER,
+                blocks,
+                updatedAt: stamp
+            };
+        }
+        let roomTtDirectPushTimer = null;
+        function saveRoomTimetable(data, { syncRemote = true, touchUpdatedAt = true } = {}) {
             const payload = {
                 seedVer: (data && data.seedVer) || ROOM_TT_SEED_VER,
                 blocks: (data && data.blocks) || {},
-                updatedAt: new Date().toISOString()
+                updatedAt: touchUpdatedAt
+                    ? new Date().toISOString()
+                    : String((data && data.updatedAt) || ROOM_TT_EPOCH)
             };
             localStorage.setItem(ROOM_TT_STORE, JSON.stringify(payload));
             try { localStorage.setItem(ROOM_TT_STORE + ':tick', String(Date.now())); } catch (_) {}
             try { archiveRoomTtMonth(roomTtMonthKeyFromOffset(roomTtWeekOffset), payload); } catch (_) {}
             // Template week-seeds must not cloud-push (fresh stamps used to beat remote cancels/deletes).
-            if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('roomTt');
+            if (syncRemote) {
+                if (typeof queuePortalStorePush === 'function') queuePortalStorePush('roomTt');
+                // Photos-style: direct upsert shortly after mutate so poll/apply windows cannot swallow it
+                try { clearTimeout(roomTtDirectPushTimer); } catch (_) {}
+                roomTtDirectPushTimer = setTimeout(() => {
+                    try {
+                        if (typeof pushRoomTtPortalNow === 'function') {
+                            pushRoomTtPortalNow().catch(() => {});
+                        }
+                    } catch (_) {}
+                }, 70);
+            }
+        }
+        /** Outer hook — DOMContentLoaded assigns the real remount (same pattern as refreshPhotosUi). */
+        let refreshRoomTtUiImpl = null;
+        function refreshRoomTtUi() {
+            try {
+                if (typeof refreshRoomTtUiImpl === 'function') refreshRoomTtUiImpl();
+            } catch (_) {}
         }
         function roomTtWeekMonday(offset = roomTtWeekOffset) {
             return addDaysDate(currentMondayDate(), offset * 7);
@@ -17829,13 +17886,22 @@
                         fromTemplate: true,
                         templateKey: tKey,
                         // Epoch stamp so cloud cancels/deletes always win LWW over local filler seeds
-                        updatedAt: '1970-01-01T00:00:00.000Z'
+                        updatedAt: ROOM_TT_EPOCH
                     };
                     changed = true;
                 });
             });
+            // Demote legacy "fresh-stamped" template poison still sitting in localStorage / old cloud pulls
+            Object.keys(store.blocks || {}).forEach((id) => {
+                const b = store.blocks[id];
+                if (!isBareRoomTtTemplate(b)) return;
+                if (String(b.updatedAt || '') === ROOM_TT_EPOCH) return;
+                store.blocks[id] = { ...b, updatedAt: ROOM_TT_EPOCH };
+                changed = true;
+            });
             // Local-only: deterministic templates must not push and clobber shared roomTt
-            if (changed) saveRoomTimetable(store, { syncRemote: false });
+            // Keep store clock untouched so seed paint cannot look "newer" than cloud edits.
+            if (changed) saveRoomTimetable(store, { syncRemote: false, touchUpdatedAt: false });
             return store;
         }
         function roomTtOffsetForDateKey(dateKey) {
@@ -20238,9 +20304,10 @@
             let changed = false;
             const outBlocks = {};
             const ids = new Set([...Object.keys(localBlocks), ...Object.keys(remoteBlocks)]);
-            const blockStamp = (b, fallback) => String((b && b.updatedAt) || fallback || '');
+            // Bare templates always count as epoch — prevents mass-seeded "now" stamps from beating real edits
+            const blockStamp = (b, fallback) => roomTtEffectiveStamp(b, fallback);
             const preferBlock = (a, b) => {
-                // Newer stamp wins; tombstones / user edits beat bare template seeds on ties
+                // Newer effective stamp wins; tombstones / user edits beat bare template seeds on ties
                 const aAt = blockStamp(a);
                 const bAt = blockStamp(b);
                 if (aAt && bAt && aAt !== bAt) return aAt > bAt ? a : b;
@@ -20250,7 +20317,7 @@
                     if (!x) return -1;
                     if (x.deleted) return 3;
                     if (x.userEdited || isNonNormalClassStatus(x.classStatus)) return 2;
-                    if (x.fromTemplate) return 0;
+                    if (isBareRoomTtTemplate(x) || x.fromTemplate) return 0;
                     return 1;
                 };
                 return rank(a) >= rank(b) ? a : b;
@@ -20309,15 +20376,76 @@
                     .maybeSingle();
                 if (error || !data) return local;
                 const remoteRaw = data.data && typeof data.data === 'object' ? data.data : {};
+                const colAt = String(data.updated_at || '');
+                const dataAt = String(remoteRaw.updatedAt || '');
                 const remote = {
                     seedVer: remoteRaw.seedVer || '',
                     blocks: remoteRaw.blocks && typeof remoteRaw.blocks === 'object' ? remoteRaw.blocks : {},
-                    updatedAt: String(remoteRaw.updatedAt || data.updated_at || '')
+                    // Column clock can be fresher than data.updatedAt (flush used to omit refreshing the blob)
+                    updatedAt: (colAt && dataAt) ? (colAt > dataAt ? colAt : dataAt) : (colAt || dataAt)
                 };
                 const merged = mergeRoomTtData(local, remote);
                 return merged.data;
             } catch (_) {
                 return local;
+            }
+        }
+        /** Direct roomTt upsert (same reliability path as pushUserPhotoRemote / photos). */
+        async function pushRoomTtPortalNow() {
+            const at = new Date().toISOString();
+            let sb = null;
+            try { sb = await ensureSupabaseClient(); } catch (_) { sb = null; }
+            let merged;
+            try {
+                merged = await buildMergedRoomTtPayload(sb);
+            } catch (_) {
+                merged = loadRoomTimetable();
+            }
+            const payload = prepareRoomTtPortalPayload(merged, at);
+            try {
+                portalSyncApplying = true;
+                saveRoomTimetable(payload, { syncRemote: false, touchUpdatedAt: false });
+            } finally {
+                portalSyncApplying = false;
+            }
+            if (!sb) {
+                portalSyncPending.add('roomTt');
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                return typeof flushPortalStorePush === 'function'
+                    ? flushPortalStorePush()
+                    : { ok: false, skipped: true, reason: 'no-supabase' };
+            }
+            try {
+                const { error } = await sb.rpc('upsert_portal_store', {
+                    p_name: 'roomTt',
+                    p_data: payload,
+                    p_updated_at: at
+                });
+                if (error) {
+                    const { error: upErr } = await sb.from('portal_stores').upsert({
+                        store_name: 'roomTt',
+                        data: payload,
+                        updated_at: at
+                    }, { onConflict: 'store_name' });
+                    if (upErr) throw new Error(upErr.message || 'roomTt portal upsert failed');
+                }
+                try { portalSyncPending.delete('roomTt'); } catch (_) {}
+                portalSyncState = {
+                    status: 'ok',
+                    at: new Date().toISOString(),
+                    error: '',
+                    source: 'supabase'
+                };
+                return { ok: true, source: 'supabase' };
+            } catch (err) {
+                portalSyncPending.add('roomTt');
+                portalSyncState = {
+                    ...portalSyncState,
+                    status: 'error',
+                    error: String(err?.message || err || 'roomTt upsert failed'),
+                    source: 'supabase'
+                };
+                return { ok: false, error: portalSyncState.error, source: 'supabase' };
             }
         }
         /** Pull cloud daySchedules and LWW-merge with local before push — never wipe another PC's edits. */
@@ -20668,13 +20796,31 @@
                 }
                 if (name === 'roomTt') {
                     const before = loadRoomTimetable();
-                    const merged = mergeRoomTtData(before, remoteData);
-                    if (merged.changed) {
-                        saveRoomTimetable(merged.data, { syncRemote: false });
+                    const remoteRaw = remoteData && typeof remoteData === 'object' ? remoteData : {};
+                    const dataAt = String(remoteRaw.updatedAt || '');
+                    const storeAt = String(remoteAt || '');
+                    const remoteForMerge = {
+                        seedVer: remoteRaw.seedVer || '',
+                        blocks: remoteRaw.blocks && typeof remoteRaw.blocks === 'object' ? remoteRaw.blocks : {},
+                        updatedAt: (storeAt && dataAt) ? (storeAt > dataAt ? storeAt : dataAt) : (storeAt || dataAt)
+                    };
+                    const merged = mergeRoomTtData(before, remoteForMerge);
+                    const prepared = prepareRoomTtPortalPayload(
+                        merged.data,
+                        merged.data.updatedAt || remoteForMerge.updatedAt || new Date().toISOString()
+                    );
+                    const beforeJson = JSON.stringify(before);
+                    const afterJson = JSON.stringify({
+                        seedVer: prepared.seedVer,
+                        blocks: prepared.blocks,
+                        updatedAt: prepared.updatedAt
+                    });
+                    if (merged.changed || beforeJson !== afterJson) {
+                        saveRoomTimetable(prepared, { syncRemote: false, touchUpdatedAt: false });
                         try {
                             // Keep today schedules in sync with live room-TT status (cancel / postpone / delete)
-                            Object.keys(merged.data.blocks || {}).forEach((id) => {
-                                const nb = merged.data.blocks[id];
+                            Object.keys(prepared.blocks || {}).forEach((id) => {
+                                const nb = prepared.blocks[id];
                                 const ob = before.blocks && before.blocks[id];
                                 if (!nb) return;
                                 if (nb.deleted) {
@@ -20691,15 +20837,17 @@
                                 }
                             });
                         } catch (_) {}
+                        try { refreshRoomTtUi(); } catch (_) {}
                         return true;
                     }
                     if ((!localStorage.getItem(ROOM_TT_STORE) || localStorage.getItem(ROOM_TT_STORE) === 'null')
-                        && remoteData && remoteData.blocks) {
-                        saveRoomTimetable({
-                            seedVer: remoteData.seedVer || ROOM_TT_SEED_VER,
-                            blocks: remoteData.blocks,
-                            updatedAt: remoteAt || new Date().toISOString()
-                        }, { syncRemote: false });
+                        && remoteRaw && remoteRaw.blocks) {
+                        saveRoomTimetable(prepareRoomTtPortalPayload({
+                            seedVer: remoteRaw.seedVer || ROOM_TT_SEED_VER,
+                            blocks: remoteRaw.blocks,
+                            updatedAt: remoteForMerge.updatedAt || new Date().toISOString()
+                        }, remoteForMerge.updatedAt || new Date().toISOString()), { syncRemote: false, touchUpdatedAt: false });
+                        try { refreshRoomTtUi(); } catch (_) {}
                         return true;
                     }
                     return false;
@@ -20877,7 +21025,6 @@
             return false;
         }
         function queuePortalStorePush(...names) {
-            if (portalSyncApplying) return;
             let urgent = false;
             names.flat().forEach((n) => {
                 if (PORTAL_STORE_IDS.includes(n)) {
@@ -20885,8 +21032,11 @@
                     if (PORTAL_PUSH_URGENT.has(n)) urgent = true;
                 }
             });
+            // Always enqueue — photos bypass this path with a direct upsert; roomTt must not lose mutates
+            // while applyPortalStoreFromRemote holds portalSyncApplying.
             clearTimeout(portalSyncPushTimer);
-            portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, urgent ? 80 : 420);
+            const delay = portalSyncApplying ? (urgent ? 160 : 520) : (urgent ? 80 : 420);
+            portalSyncPushTimer = setTimeout(() => { flushPortalStorePush(); }, delay);
         }
         async function flushPortalStorePush() {
             if (!portalSyncPending.size) return { ok: false, skipped: true };
@@ -20946,15 +21096,19 @@
                     // Merge with remote first — a stale PC must not wipe another teacher's cancel/book.
                     try {
                         const merged = await buildMergedRoomTtPayload(sb);
+                        const payload = prepareRoomTtPortalPayload(merged, at);
                         try {
                             portalSyncApplying = true;
-                            saveRoomTimetable(merged, { syncRemote: false });
+                            saveRoomTimetable(payload, { syncRemote: false, touchUpdatedAt: false });
                         } finally {
                             portalSyncApplying = false;
                         }
-                        stores[name] = { data: merged, updatedAt: at };
+                        stores[name] = { data: payload, updatedAt: at };
                     } catch (_) {
-                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                        stores[name] = {
+                            data: prepareRoomTtPortalPayload(collectPortalStorePayload(name), at),
+                            updatedAt: at
+                        };
                     }
                     continue;
                 }
@@ -26969,6 +27123,9 @@
                     showAppToast(t('roomTtMonthMoved'), 'ok');
                     renderRoomTtMonthBody(user);
                     renderRoomTimetableBoard(user);
+                    try {
+                        if (typeof pushRoomTtPortalNow === 'function') pushRoomTtPortalNow().catch(() => {});
+                    } catch (_) {}
                     return true;
                 };
 
@@ -27054,10 +27211,7 @@
                     btn.setAttribute('aria-busy', 'true');
                 }
                 try {
-                    try {
-                        if (typeof queuePortalStorePush === 'function') queuePortalStorePush('roomTt');
-                        if (typeof flushPortalStorePush === 'function') await flushPortalStorePush();
-                    } catch (_) {}
+                    // Pull first (photos-style) — never push this PC's stale templates over fresher cloud
                     const res = await syncPortalStoresFromCentral({ silent: true });
                     if (res?.busy) {
                         showAppToast(t('roomTtRefreshBusy'), 'warn');
@@ -27085,6 +27239,25 @@
                     }
                 }
             }
+            // Remount room TT as soon as portal apply lands (mirrors refreshPhotosUi)
+            refreshRoomTtUiImpl = function () {
+                try {
+                    if (!currentUser) return;
+                    if (!document.getElementById('room-tt-board')) return;
+                    const roomModalOpen = document.getElementById('room-tt-modal')?.classList.contains('open');
+                    const monthModalOpen = document.getElementById('room-tt-month-modal')?.classList.contains('open');
+                    if (monthModalOpen && typeof renderRoomTtMonthBody === 'function' && !roomTtMonthPick) {
+                        try { renderRoomTtMonthBody(currentUser); } catch (_) {}
+                    }
+                    if (!roomModalOpen && !monthModalOpen && !roomTtMonthBusy && !roomTtMonthPick && !roomTtRangePick) {
+                        if (typeof renderRoomTimetableBoard === 'function') renderRoomTimetableBoard(currentUser);
+                    }
+                    if (document.getElementById('week-class-board') && typeof renderWeekClassBoard === 'function') {
+                        try { renderWeekClassBoard(currentUser); } catch (_) {}
+                    }
+                    try { updateClassStatus(); } catch (_) {}
+                } catch (_) {}
+            };
 
             function renderRoomTimetableBoard(user) {
                 const board = document.getElementById('room-tt-board');
@@ -34062,10 +34235,18 @@
             };
             const refreshRoomTtAfterMutate = async () => {
                 try {
-                    if (typeof queuePortalStorePush === 'function') {
-                        queuePortalStorePush('roomTt', 'schedChanges', 'daySchedules');
+                    // Direct upsert like photos — bypasses queue drop races during portal apply
+                    if (typeof pushRoomTtPortalNow === 'function') {
+                        await pushRoomTtPortalNow();
+                    } else if (typeof queuePortalStorePush === 'function') {
+                        queuePortalStorePush('roomTt');
+                        if (typeof flushPortalStorePush === 'function') await flushPortalStorePush();
                     }
-                    if (typeof flushPortalStorePush === 'function') await flushPortalStorePush();
+                    if (typeof queuePortalStorePush === 'function') {
+                        queuePortalStorePush('schedChanges', 'daySchedules');
+                        try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                        if (typeof flushPortalStorePush === 'function') await flushPortalStorePush();
+                    }
                 } catch (_) {}
                 try {
                     if (currentUser && typeof renderRoomTimetableBoard === 'function') {
