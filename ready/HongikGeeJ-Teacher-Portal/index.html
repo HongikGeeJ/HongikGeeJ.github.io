@@ -6187,11 +6187,31 @@
             background: rgba(255,255,255,.55); border: 1px solid rgba(15,23,42,.06);
         }
         .em-profile-bio .em-bio-row {
-            display: flex; flex-wrap: wrap; gap: .35rem .75rem;
+            display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .75rem;
             font-size: .88rem; color: #334155;
         }
         .em-profile-bio .em-bio-label {
             font-weight: 750; color: #64748b; min-width: 5.5rem;
+        }
+        /* Soft pill highlight for teacher work-days (วันทำงาน) */
+        .em-workdays-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: .22rem .7rem;
+            border-radius: 999px;
+            font-size: .82rem;
+            font-weight: 750;
+            line-height: 1.25;
+            letter-spacing: .01em;
+            white-space: nowrap;
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+        }
+        .stat-card .em-workdays-pill {
+            font-size: .88rem;
+            padding: .28rem .75rem;
         }
         .em-profile-section-title {
             margin: 0 0 .55rem; font-size: .95rem; font-weight: 850;
@@ -8861,22 +8881,44 @@
             </div>
             <button type="button" class="modal-x" id="em-contact-x"><i class="ph ph-x"></i></button>
             <div class="teach-pop-head">
-                <div class="teach-pop-icon" aria-hidden="true"><i class="ph-fill ph-first-aid"></i></div>
-                <p class="teach-pop-title" id="em-contact-title" data-i18n="emAddPopupTitle">เพิ่มเบอร์ฉุกเฉิน</p>
+                <div class="teach-pop-icon" id="em-contact-icon" aria-hidden="true"><i class="ph-fill ph-user"></i></div>
+                <p class="teach-pop-title" id="em-contact-title" data-i18n="emProfilePopupTitle">ข้อมูลส่วนตัว</p>
                 <p class="teach-pop-sub" id="em-contact-kind-label"></p>
             </div>
             <div class="sched-form" style="margin-top:1rem">
                 <div>
                     <label class="sched-label" data-i18n="contactName">ชื่อ</label>
-                    <input type="text" id="em-modal-name" class="sched-text">
+                    <input type="text" id="em-modal-name" class="sched-text" autocomplete="name">
                 </div>
                 <div>
-                    <label class="sched-label" data-i18n="contactRole">ความสัมพันธ์ / บทบาท</label>
-                    <input type="text" id="em-modal-role" class="sched-text">
+                    <label class="sched-label" data-i18n="contactPhone">เบอร์โทร</label>
+                    <input type="tel" id="em-modal-phone" class="sched-text" autocomplete="tel">
                 </div>
                 <div class="full">
-                    <label class="sched-label" data-i18n="contactPhone">เบอร์โทร</label>
-                    <input type="tel" id="em-modal-phone" class="sched-text">
+                    <label class="sched-label" data-i18n="contactEmail">อีเมล</label>
+                    <input type="email" id="em-modal-email" class="sched-text" autocomplete="email" inputmode="email">
+                </div>
+                <div>
+                    <label class="sched-label" data-i18n="birthDate">วันเดือนปีเกิด</label>
+                    <input type="date" id="em-modal-dob" class="sched-text">
+                </div>
+                <div>
+                    <label class="sched-label" data-i18n="bloodType">กรุ๊ปเลือด</label>
+                    <select id="em-modal-blood" class="sched-select">
+                        <option value="">—</option>
+                        <option value="A">A</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B">B</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O">O</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB">AB</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
                 </div>
             </div>
             <p id="em-modal-msg" class="text-xs text-rose-600 text-center mt-2 mb-0"></p>
@@ -10996,6 +11038,9 @@
                 contactName: '이름',
                 contactRole: '관계 / 역할',
                 contactPhone: '전화번호',
+                contactEmail: '이메일',
+                bloodType: '혈액형',
+                bloodTypeUnset: '선택 안 함',
                 addContact: '연락처 추가',
                 myContacts: '내 비상 연락처',
                 contactHint: '본인 전화번호를 등록하세요',
@@ -11131,12 +11176,15 @@
                 otTotal: '합계',
                 baht: '฿',
                 primaryContact: '기본 비상 연락처',
-                emSelfTitle: '내 전화번호',
-                emSelfHint: '본인 연락처를 등록하세요',
-                emAddSelf: '내 번호 추가',
+                emSelfTitle: '내 프로필',
+                emSelfHint: '이름·전화·이메일·생년월일·혈액형을 등록하세요',
+                emAddSelf: '내 프로필 등록',
                 emAddPopupTitle: '비상 연락처 추가',
                 emEditPopupTitle: '비상 연락처 수정',
-                emEmptySelf: '아직 내 번호가 없습니다',
+                emProfilePopupTitle: '개인 프로필',
+                emProfilePopupEdit: '개인 프로필 수정',
+                emProfilePopupSub: '본인 정보',
+                emEmptySelf: '아직 프로필이 없습니다',
                 emSaveContact: '저장',
                 workSummary: '근무 요약',
                 taehyunBanner: '홍익지제이와 함께',
@@ -11233,6 +11281,8 @@
                 emTeacherProfileStart: '입사일',
                 emTeacherProfileCode: '코드',
                 emTeacherProfileBirth: '생년월일',
+                emTeacherProfileEmail: '이메일',
+                emTeacherProfileBlood: '혈액형',
                 emTeacherRoleTeacher: '선생님',
                 emTeacherLangKo: '한국어',
                 emTeacherLangEn: '영어',
@@ -11869,6 +11919,9 @@
                 contactName: 'ชื่อ',
                 contactRole: 'ความสัมพันธ์ / บทบาท',
                 contactPhone: 'เบอร์โทร',
+                contactEmail: 'อีเมล',
+                bloodType: 'กรุ๊ปเลือด',
+                bloodTypeUnset: 'ไม่ระบุ',
                 addContact: 'เพิ่มผู้ติดต่อ',
                 myContacts: 'เบอร์ฉุกเฉินของฉัน',
                 contactHint: 'ลงทะเบียนเบอร์โทรของตัวเอง',
@@ -12004,12 +12057,15 @@
                 otTotal: 'รวม',
                 baht: '฿',
                 primaryContact: 'เบอร์ฉุกเฉินหลัก',
-                emSelfTitle: 'เบอร์โทรตัวเอง',
-                emSelfHint: 'ลงทะเบียนเบอร์ของตัวเอง',
-                emAddSelf: 'เพิ่มเบอร์ตัวเอง',
+                emSelfTitle: 'โปรไฟล์ของฉัน',
+                emSelfHint: 'ลงทะเบียนชื่อ · เบอร์ · อีเมล · วันเกิด · กรุ๊ปเลือด',
+                emAddSelf: 'ลงทะเบียนโปรไฟล์',
                 emAddPopupTitle: 'เพิ่มเบอร์ฉุกเฉิน',
                 emEditPopupTitle: 'แก้ไขเบอร์ฉุกเฉิน',
-                emEmptySelf: 'ยังไม่มีเบอร์ตัวเอง',
+                emProfilePopupTitle: 'ข้อมูลส่วนตัว',
+                emProfilePopupEdit: 'แก้ไขข้อมูลส่วนตัว',
+                emProfilePopupSub: 'โปรไฟล์ของตัวเอง',
+                emEmptySelf: 'ยังไม่มีโปรไฟล์',
                 emSaveContact: 'บันทึก',
                 workSummary: 'สรุปการทำงาน',
                 taehyunBanner: '홍익지제이 · Hongik GeeJ',
@@ -12106,6 +12162,8 @@
                 emTeacherProfileStart: 'วันเริ่มงาน',
                 emTeacherProfileCode: 'รหัส',
                 emTeacherProfileBirth: 'วันเดือนปีเกิด',
+                emTeacherProfileEmail: 'อีเมล',
+                emTeacherProfileBlood: 'กรุ๊ปเลือด',
                 emTeacherRoleTeacher: 'คุณครู',
                 emTeacherLangKo: 'เกาหลี',
                 emTeacherLangEn: 'อังกฤษ',
@@ -12742,6 +12800,9 @@
                 contactName: 'Name',
                 contactRole: 'Relation / role',
                 contactPhone: 'Phone',
+                contactEmail: 'Email',
+                bloodType: 'Blood type',
+                bloodTypeUnset: 'Not specified',
                 addContact: 'Add contact',
                 myContacts: 'My emergency contacts',
                 contactHint: 'Register your own phone number',
@@ -12877,12 +12938,15 @@
                 otTotal: 'Total',
                 baht: '฿',
                 primaryContact: 'Primary emergency contact',
-                emSelfTitle: 'My phone number',
-                emSelfHint: 'Register your own phone number',
-                emAddSelf: 'Add my number',
+                emSelfTitle: 'My profile',
+                emSelfHint: 'Register name, phone, email, date of birth, and blood type',
+                emAddSelf: 'Register my profile',
                 emAddPopupTitle: 'Add emergency contact',
                 emEditPopupTitle: 'Edit emergency contact',
-                emEmptySelf: 'No personal number yet',
+                emProfilePopupTitle: 'Personal profile',
+                emProfilePopupEdit: 'Edit personal profile',
+                emProfilePopupSub: 'Your own info',
+                emEmptySelf: 'No personal profile yet',
                 emSaveContact: 'Save',
                 workSummary: 'Work summary',
                 taehyunBanner: 'Hongik GeeJ Chiang Mai',
@@ -13471,10 +13535,10 @@
             '1234': {
                 ...account('taehyun', 'A', '태현 선생님', 'Teacher Taehyun', 'คุณครูแทฮยอน', 'teacher', 'theme-teacher-a', '2025-12-01', 2),
                 classes: WEEKLY_CLASSES.taehyun,
-                workDaysNote: 'Wed–Sun · sheet schedule',
-                workDaysNoteKo: '수–일 · 시간표 기준',
-                workDaysNoteTh: 'พุธ–อาทิตย์ · ตามตาราง',
-                workDaysNoteEn: 'Wed–Sun · sheet schedule'
+                workDaysNote: 'Wed–Sun',
+                workDaysNoteKo: '수–일',
+                workDaysNoteTh: 'พุธ–อาทิตย์',
+                workDaysNoteEn: 'Wed–Sun'
             },
             '5678': {
                 ...account('eunha', 'B', '은나 선생님', 'Teacher Eunna', 'คุณครูอึนนา', 'teacher', 'theme-teacher-b', '2026-01-01', 0),
@@ -13487,10 +13551,10 @@
             '9900': {
                 ...account('sua', 'C', '수아 선생님', 'Teacher Sua', 'คุณครูซูอา', 'teacher', 'theme-teacher-c', '2026-02-25', 1),
                 classes: WEEKLY_CLASSES.sua,
-                workDaysNote: 'Wed–Sun · sheet schedule',
-                workDaysNoteKo: '수–일 · 시간표 기준',
-                workDaysNoteTh: 'พุธ–อาทิตย์ · ตามตาราง',
-                workDaysNoteEn: 'Wed–Sun · sheet schedule'
+                workDaysNote: 'Wed–Sun',
+                workDaysNoteKo: '수–일',
+                workDaysNoteTh: 'พุธ–อาทิตย์',
+                workDaysNoteEn: 'Wed–Sun'
             },
             '9999': {
                 ...account('director', 'HEAD', '원장님', 'Director', 'ผู้อำนวยการ', 'director', 'theme-director', '2020-06-01', 4),
@@ -16460,12 +16524,25 @@
             if (u.role === 'accounting') return lang === 'th' ? `บัญชี ${u.code.replace('ACC','')}` : lang === 'en' ? u.code : u.nameKo;
             return u.roleLabel;
         }
+        function stripWorkDaysScheduleNote(s) {
+            // Drop trailing 「· ตามตาราง / sheet schedule / 시간표 기준」 from any locale note
+            return String(s || '')
+                .replace(/\s*[·•]\s*(ตามตาราง|sheet\s*schedule|시간표\s*기준)\s*$/i, '')
+                .trim();
+        }
         function displayWorkDays(u) {
             if (!u) return '';
-            if (lang === 'th' && u.workDaysNoteTh) return u.workDaysNoteTh;
-            if (lang === 'en' && u.workDaysNoteEn) return u.workDaysNoteEn;
-            if (lang === 'ko' && u.workDaysNoteKo) return u.workDaysNoteKo;
-            return u.workDaysNote || '';
+            let raw = '';
+            if (lang === 'th' && u.workDaysNoteTh) raw = u.workDaysNoteTh;
+            else if (lang === 'en' && u.workDaysNoteEn) raw = u.workDaysNoteEn;
+            else if (lang === 'ko' && u.workDaysNoteKo) raw = u.workDaysNoteKo;
+            else raw = u.workDaysNote || '';
+            return stripWorkDaysScheduleNote(raw);
+        }
+        function workDaysBadgeHtml(text) {
+            const s = String(text || '').trim();
+            if (!s) return '';
+            return `<span class="em-workdays-pill">${esc(s)}</span>`;
         }
 
         function dateKeyFromDate(d) {
@@ -24202,6 +24279,8 @@
                     // Profile 「เบอร์ฉุกเฉินที่ลงทะเบียน」 = own phone for THIS teacher id only
                     const contacts = registeredEmergencyFor(tea.id).filter((ct) => ct.kind === 'self');
                     const birthDate = accountBirthDate(tea.id);
+                    const profileEmail = accountEmail(tea.id);
+                    const profileBlood = accountBloodType(tea.id);
                     const flagCodes = teacherTaughtLangCodes(tea.id);
                     const flagsHtml = flagCodes.length
                         ? flagCodes.map((code) => {
@@ -24225,9 +24304,15 @@
                             ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileLangs'))}</span><span>${esc(langLabels.join(' · '))}</span></div>`
                             : '',
                         workDays
-                            ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileWorkDays'))}</span><span>${esc(workDays)}</span></div>`
+                            ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileWorkDays'))}</span>${workDaysBadgeHtml(workDays)}</div>`
                             : '',
                         `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileBirth'))}</span><span>${esc(formatBirthDateDisplay(birthDate) || t('birthDatePlaceholder'))}</span></div>`,
+                        profileEmail
+                            ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileEmail'))}</span><span>${esc(profileEmail)}</span></div>`
+                            : '',
+                        profileBlood
+                            ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileBlood'))}</span><span>${esc(profileBlood)}</span></div>`
+                            : '',
                         tea.startDate
                             ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileStart'))}</span><span>${esc(tea.startDate)}</span></div>`
                             : '',
@@ -24239,8 +24324,9 @@
                         ? contacts.map((ct) => `
                             <div class="em-profile-contact">
                                 <span class="em-c-name" style="color:${c.accent}">${esc(ct.name || '—')}</span>
-                                ${ct.role ? `<span class="em-c-role">${esc(ct.role)}</span>` : ''}
                                 ${ct.phone ? `<a href="tel:${String(ct.phone).replace(/\s/g, '')}" style="color:${c.accent}">${esc(ct.phone)}</a>` : ''}
+                                ${profileEmail ? `<span class="em-c-role">${esc(profileEmail)}</span>` : ''}
+                                ${profileBlood ? `<span class="em-c-role">${esc(t('bloodType'))}: ${esc(profileBlood)}</span>` : ''}
                             </div>`).join('')
                         : `<p class="text-xs" style="color:#94a3b8;margin:0">${t('noTeacherEm')}</p>`;
                     board.innerHTML = `
@@ -24287,12 +24373,15 @@
                 const list = teachers.map((tea, i) => {
                     const c = teacherColor(tea, i);
                     const contacts = registeredEmergencyFor(tea.id).filter((ct) => ct.kind === 'self');
+                    const teaEmail = accountEmail(tea.id);
+                    const teaBlood = accountBloodType(tea.id);
                     const rows = contacts.length
                         ? contacts.map((ct) => `
                             <div class="em-contact-row">
                                 <span class="em-c-name" style="color:${c.accent}">${esc(ct.name || '—')}</span>
-                                ${ct.role ? `<span class="em-c-role">${esc(ct.role)}</span>` : ''}
                                 ${ct.phone ? `<a href="tel:${String(ct.phone).replace(/\s/g, '')}" data-em-tel="1" style="color:${c.accent}">${esc(ct.phone)}</a>` : ''}
+                                ${teaEmail ? `<span class="em-c-role">${esc(teaEmail)}</span>` : ''}
+                                ${teaBlood ? `<span class="em-c-role">${esc(t('bloodType'))}: ${esc(teaBlood)}</span>` : ''}
                             </div>`).join('')
                         : `<p class="text-xs" style="color:#94a3b8;margin:0">${t('noTeacherEm')}</p>`;
                     return `<div class="em-teacher-block" role="button" tabindex="0" data-em-tea="${tea.id}" style="background:${c.bg};border-color:${c.border};animation-delay:${(i * 0.05).toFixed(2)}s">
@@ -25886,7 +25975,7 @@
                         </div>
                         <div class="stat-card">
                             <div class="k">${t('workForm')}</div>
-                            <div class="v" style="font-size:.95rem">${displayWorkDays(user)}</div>
+                            <div class="v" style="font-size:.95rem">${workDaysBadgeHtml(displayWorkDays(user)) || '—'}</div>
                         </div>
                         <div class="stat-card">
                             <div class="k">${t('compWork')} · ${calMonthLbl}</div>
@@ -27289,32 +27378,40 @@
                 const [y, m, d] = s.split('-');
                 return `${d}/${m}/${y}`;
             }
-            function accountBirthDate(userOrId) {
+            function accountOverrideField(userOrId, key, normalizeFn) {
                 const id = canonicalAccountId(userOrId) || String(
                     (userOrId && typeof userOrId === 'object') ? (userOrId.id || '') : (userOrId || '')
                 ).trim();
-                if (!id) return '';
+                if (!id || !key) return '';
+                const norm = typeof normalizeFn === 'function' ? normalizeFn : ((v) => String(v || '').trim());
                 try {
                     const acc = resolveAccountById(id, { allowBlocked: true });
-                    if (acc && acc.birthDate) return normalizeBirthDate(acc.birthDate);
+                    if (acc && acc[key]) return norm(acc[key]);
                 } catch (_) {}
                 try {
                     const ov = (loadOverrides() || {})[id];
-                    if (ov && ov.birthDate) return normalizeBirthDate(ov.birthDate);
+                    if (ov && ov[key]) return norm(ov[key]);
                 } catch (_) {}
                 return '';
             }
-            function saveAccountBirthDate(userId, birthDate) {
-                const id = canonicalAccountId(userId) || String(userId || '').trim();
-                if (!id) return '';
-                const next = normalizeBirthDate(birthDate);
-                const store = loadOverrides();
-                store[id] = {
-                    ...(store[id] || {}),
-                    birthDate: next,
-                    updatedAt: new Date().toISOString()
-                };
-                saveOverrides(store);
+            function normalizeEmail(v) {
+                return String(v || '').trim().slice(0, 120);
+            }
+            function normalizeBloodType(v) {
+                const s = String(v || '').trim().toUpperCase().replace(/\s+/g, '');
+                const ok = ['A', 'A+', 'A-', 'B', 'B+', 'B-', 'O', 'O+', 'O-', 'AB', 'AB+', 'AB-'];
+                return ok.includes(s) ? s : '';
+            }
+            function accountBirthDate(userOrId) {
+                return accountOverrideField(userOrId, 'birthDate', normalizeBirthDate);
+            }
+            function accountEmail(userOrId) {
+                return accountOverrideField(userOrId, 'email', normalizeEmail);
+            }
+            function accountBloodType(userOrId) {
+                return accountOverrideField(userOrId, 'bloodType', normalizeBloodType);
+            }
+            function pushAccountDataSave(reason) {
                 try { clearTimeout(portalSyncPushTimer); } catch (_) {}
                 if (typeof queuePortalStorePush === 'function') queuePortalStorePush('accountData');
                 if (typeof flushPortalStorePush === 'function') {
@@ -27324,13 +27421,35 @@
                             try { notifyAccountDataSaveResult(res); } catch (_) {}
                             try {
                                 if (typeof softRefreshDashboard === 'function' && currentUser) {
-                                    softRefreshDashboard(currentUser, { stores: ['accountData'], reason: 'birthDate-save' });
+                                    softRefreshDashboard(currentUser, { stores: ['accountData'], reason: reason || 'accountData-save' });
                                 }
                             } catch (_) {}
                         })
                         .catch(() => {});
                 }
+            }
+            function saveAccountProfileFields(userId, fields = {}) {
+                const id = canonicalAccountId(userId) || String(userId || '').trim();
+                if (!id) return null;
+                const store = loadOverrides();
+                const next = { ...(store[id] || {}), updatedAt: new Date().toISOString() };
+                if (Object.prototype.hasOwnProperty.call(fields, 'birthDate')) {
+                    next.birthDate = normalizeBirthDate(fields.birthDate);
+                }
+                if (Object.prototype.hasOwnProperty.call(fields, 'email')) {
+                    next.email = normalizeEmail(fields.email);
+                }
+                if (Object.prototype.hasOwnProperty.call(fields, 'bloodType')) {
+                    next.bloodType = normalizeBloodType(fields.bloodType);
+                }
+                store[id] = next;
+                saveOverrides(store);
+                pushAccountDataSave('profile-save');
                 return next;
+            }
+            function saveAccountBirthDate(userId, birthDate) {
+                const saved = saveAccountProfileFields(userId, { birthDate });
+                return saved ? normalizeBirthDate(saved.birthDate) : '';
             }
             function birthDatePillHtml(birthDate, { editable = false, id = 'em-dob-pill', escFn } = {}) {
                 const esc = escFn || ((s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'));
@@ -27373,20 +27492,32 @@
             function openEmContactModal({ kind = 'self', editIndex = -1, contact = null } = {}) {
                 const modal = document.getElementById('em-contact-modal');
                 if (!modal) return;
-                // Own phone only — acquaintance / known contacts removed from UI
+                // Own profile only — acquaintance / known contacts removed from UI
                 kind = 'self';
                 emModalState = { kind, editIndex };
                 const title = document.getElementById('em-contact-title');
                 const kindLabel = document.getElementById('em-contact-kind-label');
-                if (title) title.textContent = editIndex >= 0 ? t('emEditPopupTitle') : t('emAddPopupTitle');
-                if (kindLabel) kindLabel.textContent = t('emSelfTitle');
+                if (title) title.textContent = editIndex >= 0 ? t('emProfilePopupEdit') : t('emProfilePopupTitle');
+                if (kindLabel) kindLabel.textContent = t('emProfilePopupSub');
+                const uid = currentUser?.id || '';
                 const n = document.getElementById('em-modal-name');
-                const r = document.getElementById('em-modal-role');
                 const p = document.getElementById('em-modal-phone');
+                const em = document.getElementById('em-modal-email');
+                const dob = document.getElementById('em-modal-dob');
+                const blood = document.getElementById('em-modal-blood');
                 const msg = document.getElementById('em-modal-msg');
                 if (n) n.value = contact?.name || (currentUser ? displayName(currentUser) : '');
-                if (r) r.value = contact?.role || (lang === 'th' ? 'ตัวเอง' : lang === 'en' ? 'Myself' : '본인');
                 if (p) p.value = contact?.phone || '';
+                if (em) em.value = accountEmail(uid);
+                if (dob) {
+                    dob.value = accountBirthDate(uid);
+                    try { dob.max = todayKey(); } catch (_) {}
+                }
+                if (blood) {
+                    const unset = blood.querySelector('option[value=""]');
+                    if (unset) unset.textContent = t('bloodTypeUnset') || '—';
+                    blood.value = accountBloodType(uid) || '';
+                }
                 if (msg) msg.textContent = '';
                 applyStaticI18n();
                 openTeachPop(modal);
@@ -27402,12 +27533,15 @@
                 const list = registeredEmergencyFor(user.id);
                 const selfList = list.map((c, i) => ({ ...c, _i: i })).filter(c => c.kind === 'self');
                 const birthDate = accountBirthDate(user.id);
+                const email = accountEmail(user.id);
+                const bloodType = accountBloodType(user.id);
                 const card = (c) => `
                     <div class="em-contact-item" data-em-idx="${c._i}">
                         <div>
                             <div class="n">${esc(c.name || '—')}</div>
-                            ${c.role ? `<div class="r">${esc(c.role)}</div>` : ''}
                             ${c.phone ? `<a href="tel:${String(c.phone).replace(/\s/g,'')}">${esc(c.phone)}</a>` : ''}
+                            ${email ? `<div class="r">${esc(email)}</div>` : ''}
+                            ${bloodType ? `<div class="r">${esc(t('bloodType'))}: ${esc(bloodType)}</div>` : ''}
                         </div>
                         <div class="em-item-actions">
                             <button type="button" class="em-mini" data-em-edit="${c._i}">${t('editContacts')}</button>
@@ -28319,6 +28453,13 @@
                         <input class="admin-input" id="adm-start" value="${esc(acc.startDate)}">
                         <label class="admin-label">${t('birthDate')}</label>
                         <input class="admin-input" id="adm-birth" type="date" value="${esc(normalizeBirthDate(acc.birthDate) || '')}" max="${esc(todayKey())}">
+                        <label class="admin-label">${t('contactEmail')}</label>
+                        <input class="admin-input" id="adm-email" type="email" value="${esc(normalizeEmail(acc.email) || '')}">
+                        <label class="admin-label">${t('bloodType')}</label>
+                        <select class="admin-input" id="adm-blood">
+                            <option value="">${esc(t('bloodTypeUnset'))}</option>
+                            ${['A','A+','A-','B','B+','B-','O','O+','O-','AB','AB+','AB-'].map((bt) => `<option value="${bt}"${normalizeBloodType(acc.bloodType) === bt ? ' selected' : ''}>${bt}</option>`).join('')}
+                        </select>
                         <label class="admin-label">${t('compensatory')}</label>
                         <input class="admin-input" id="adm-comp" type="number" min="0" value="${Number(acc.compensatoryDays || 0)}">
                         <label class="admin-label">${t('workForm')} (KO)</label>
@@ -28412,6 +28553,8 @@
                         nameTh: document.getElementById('adm-name-th').value.trim() || acc.nameTh,
                         startDate: document.getElementById('adm-start').value.trim() || acc.startDate,
                         birthDate: normalizeBirthDate(document.getElementById('adm-birth')?.value || '') || '',
+                        email: normalizeEmail(document.getElementById('adm-email')?.value || '') || '',
+                        bloodType: normalizeBloodType(document.getElementById('adm-blood')?.value || '') || '',
                         compensatoryDays: Number(document.getElementById('adm-comp').value || 0),
                         workDaysNoteKo: document.getElementById('adm-worknote-ko').value.trim() || acc.workDaysNoteKo || acc.workDaysNote,
                         workDaysNoteTh: document.getElementById('adm-worknote-th').value.trim() || acc.workDaysNoteTh || '',
@@ -29660,20 +29803,34 @@
                 if (!currentUser || (currentUser.role !== 'teacher' && currentUser.role !== 'accounting')) return;
                 const msg = document.getElementById('em-modal-msg');
                 const name = (document.getElementById('em-modal-name')?.value || '').trim();
-                const role = (document.getElementById('em-modal-role')?.value || '').trim();
                 const phone = (document.getElementById('em-modal-phone')?.value || '').trim();
+                const emailVal = (document.getElementById('em-modal-email')?.value || '').trim();
+                const dob = document.getElementById('em-modal-dob')?.value || '';
+                const blood = document.getElementById('em-modal-blood')?.value || '';
                 if (!name || !phone) {
                     if (msg) msg.textContent = t('contactPhone');
                     return;
                 }
                 const list = registeredEmergencyFor(currentUser.id);
-                const item = { name, role, phone, kind: 'self' };
+                const item = { name, role: '', phone, kind: 'self' };
                 if (emModalState.editIndex >= 0 && emModalState.editIndex < list.length) {
                     list[emModalState.editIndex] = item;
                 } else {
-                    list.push(item);
+                    const selfIdx = list.findIndex((c) => c && c.kind === 'self');
+                    if (selfIdx >= 0) list[selfIdx] = item;
+                    else list.push(item);
                 }
                 saveUserEmergency(currentUser.id, list);
+                saveAccountProfileFields(currentUser.id, {
+                    email: emailVal,
+                    birthDate: dob,
+                    bloodType: blood
+                });
+                try {
+                    currentUser.email = normalizeEmail(emailVal);
+                    currentUser.birthDate = normalizeBirthDate(dob);
+                    currentUser.bloodType = normalizeBloodType(blood);
+                } catch (_) {}
                 closeEmContactModal();
                 openDashboard(resolveAccountById(currentUser.id), true);
                 setTab('emergency');
