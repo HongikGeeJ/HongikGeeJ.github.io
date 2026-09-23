@@ -9599,10 +9599,15 @@
             .room-tt-nav .soft-btn,
             .room-tt-range,
             .room-tt-range::before,
-            .room-tt-range::after {
+            .room-tt-range::after,
+            .room-tt-chip.is-active,
+            .room-tt-chip.is-active::before,
+            .room-tt-chip.is-active::after {
                 transition: none !important;
                 animation: none !important;
             }
+            .room-tt-chip.is-active::before,
+            .room-tt-chip.is-active::after { opacity: 0; }
             .room-tt-range::after { transform: scale(-1); }
             .room-tt-nav .soft-btn:hover:not(:disabled),
             .room-tt-nav .soft-btn:focus-visible:not(:disabled),
@@ -9616,6 +9621,7 @@
         }
         .room-tt-chip {
             display: inline-flex; align-items: center; gap: .38rem;
+            position: relative;
             font-size: 1.05rem; font-weight: 750; padding: .28rem .7rem;
             border-radius: 999px; border: 1.5px solid; animation: roomTtFadeIn .45s ease both;
             font-family: inherit; line-height: 1.2; cursor: pointer;
@@ -9627,11 +9633,61 @@
             box-shadow: 0 4px 12px rgba(15, 23, 42, .12);
             outline: none;
         }
+        /* Selected teacher filter: soft color glow + gentle shimmer / sparkle */
         .room-tt-chip.is-active {
+            overflow: hidden;
+            z-index: 1;
             transform: translateY(-1px) scale(1.06);
-            box-shadow: 0 0 0 3px rgba(15, 23, 42, .28), 0 8px 18px rgba(15, 23, 42, .16);
             filter: saturate(1.35) contrast(1.05);
             font-weight: 850;
+            box-shadow:
+                0 0 0 2px color-mix(in srgb, currentColor 30%, transparent),
+                0 0 10px color-mix(in srgb, currentColor 42%, transparent),
+                0 0 22px color-mix(in srgb, currentColor 22%, transparent),
+                0 6px 14px rgba(15, 23, 42, .12);
+            animation: roomTtChipGlow 2.6s ease-in-out infinite;
+        }
+        .room-tt-chip.is-active::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(
+                115deg,
+                transparent 0%,
+                transparent 40%,
+                color-mix(in srgb, #fff 70%, currentColor) 50%,
+                transparent 60%,
+                transparent 100%
+            );
+            background-size: 220% 100%;
+            background-position: 130% 0;
+            animation: roomTtChipShimmer 3.1s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+            mix-blend-mode: soft-light;
+            opacity: .9;
+        }
+        .room-tt-chip.is-active::after {
+            content: '';
+            position: absolute;
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            top: 28%;
+            left: 22%;
+            background: #fff;
+            box-shadow:
+                10px -2px 0 0 color-mix(in srgb, #fff 85%, currentColor),
+                18px 5px 0 -0.5px #fff,
+                -4px 6px 0 -0.5px color-mix(in srgb, #fff 75%, currentColor);
+            opacity: 0;
+            animation: roomTtChipSparkle 2.9s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .room-tt-chip.is-active > i {
+            position: relative;
+            z-index: 3;
         }
         #room-tt-board[data-focus-teacher] .room-tt-chip:not(.is-active) {
             opacity: .4;
