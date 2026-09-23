@@ -29713,7 +29713,7 @@
                         <div class="pt-calc-note" role="note" aria-label="${isSelf ? t('ptSelfHint') : t('ptCalcHint')}">
                             <span class="pt-calc-chip">${t('ptCalcChipRate')}</span>
                             <span class="pt-calc-chip">${isSelf ? t('ptSelfFormula') : t('ptCalcChipFormula')}</span>
-                            <span class="pt-calc-chip pt-calc-chip-range">${isSelf ? t('ptDirLinked') : ptCalcChipLookbackLabel()}</span>
+                            ${isSelf ? '' : `<span class="pt-calc-chip pt-calc-chip-range">${ptCalcChipLookbackLabel()}</span>`}
                         </div>
                         <div class="pt-calc-toolbar">
                             <label class="pt-month-wrap">${t('ptPickMonth')}
