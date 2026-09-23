@@ -528,14 +528,14 @@
         .dash-shell .content-card::after {
             content: '';
             position: absolute;
-            width: 32px; height: 32px;
+            width: 42px; height: 42px;
             pointer-events: none !important;
             /* Under card content so blooms never cover text/icons */
             z-index: 0;
             background-repeat: no-repeat;
             background-size: contain;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom12');
-            opacity: .82;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom13');
+            opacity: .88;
             /*
               SVG authored for TL (outer L at 0,0). Always pin that vertex with
               transform-origin: 0 0, then place top-left on each corner and flip —
@@ -554,10 +554,10 @@
         }
         /* Bottom-right: peach/cream spray — fully inside white edge */
         .dash-shell .content-card::after {
-            width: 36px; height: 28px;
+            width: 46px; height: 36px;
             top: auto; left: auto;
             right: 2px; bottom: 2px;
-            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom4');
+            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom5');
             transform: none;
             transform-origin: 100% 100%;
             animation: cardBloomSwayBrIn 5.2s ease-in-out infinite;
@@ -740,11 +740,11 @@
         }
         .dash-shell .content-card.compact-card::before,
         .dash-shell .content-card.compact-card::after {
-            width: 28px; height: 28px; opacity: .8;
+            width: 38px; height: 38px; opacity: .86;
         }
         .dash-shell .content-card.compact-card::before { top: 2px; left: 2px; }
         .dash-shell .content-card.compact-card::after {
-            width: 32px; height: 24px;
+            width: 42px; height: 32px;
             top: auto; left: auto; right: 2px; bottom: 2px;
             transform: none;
         }
@@ -789,10 +789,10 @@
                 padding-bottom: 2.15rem;
             }
             .dash-shell .content-card::before,
-            .dash-shell .content-card::after { width: 28px; height: 28px; opacity: .8; }
+            .dash-shell .content-card::after { width: 36px; height: 36px; opacity: .86; }
             .dash-shell .content-card::before { top: 2px; left: 2px; }
             .dash-shell .content-card::after {
-                width: 32px; height: 24px;
+                width: 40px; height: 30px;
                 top: auto; left: auto; right: 2px; bottom: 2px;
                 transform: none;
             }
@@ -9922,10 +9922,10 @@
             .dash-body { padding: .9rem .85rem 1.25rem; }
             .content-card { padding: 2.45rem 1.15rem 2.15rem 1.55rem; margin-bottom: .7rem; }
             .dash-shell .content-card::before,
-            .dash-shell .content-card::after { width: 28px; height: 28px; opacity: .8; pointer-events: none !important; }
+            .dash-shell .content-card::after { width: 36px; height: 36px; opacity: .86; pointer-events: none !important; }
             .dash-shell .content-card::before { top: 2px; left: 2px; }
             .dash-shell .content-card::after {
-                width: 32px; height: 24px;
+                width: 40px; height: 30px;
                 top: auto; left: auto; right: 2px; bottom: 2px;
                 transform: none;
             }
