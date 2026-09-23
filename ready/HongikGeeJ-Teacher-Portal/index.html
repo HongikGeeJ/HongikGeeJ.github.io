@@ -5408,6 +5408,17 @@
             animation: popIn .35s ease;
         }
         #sched-alert-modal.open .sched-bell { animation: bellShake 0.65s ease-in-out infinite; }
+        #sched-alert-modal .sched-alert-queue {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .35rem;
+            margin: 0 0 .55rem;
+            font-size: .78rem;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: .02em;
+        }
         #sched-alert-modal .sched-alert-card {
             margin: 0 0 .7rem;
             padding: .85rem .9rem;
@@ -6167,6 +6178,51 @@
         .pt-add-primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
         #pt-entry-modal .modal-box { width: min(460px, 100%); }
         #pt-entry-modal .pt-calc-preview { margin: .5rem 0 0; }
+        .pt-self-profile {
+            margin: 0 0 1rem;
+            padding: .85rem 1rem;
+            border-radius: 1rem;
+            border: 1.5px solid rgba(234,88,12,.28);
+            background: linear-gradient(145deg, #fff7ed 0%, #ffedd5 55%, #fff 100%);
+            box-shadow: 0 8px 20px rgba(234,88,12,.08);
+        }
+        .pt-self-profile h4 {
+            margin: 0 0 .55rem;
+            font-size: .95rem;
+            font-weight: 850;
+            color: #c2410c;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+        .pt-self-profile .pt-self-hint {
+            margin: 0 0 .65rem;
+            font-size: .75rem;
+            color: #9a3412;
+            opacity: .9;
+        }
+        .pt-self-profile .pt-self-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .55rem .65rem;
+            margin-bottom: .55rem;
+        }
+        .pt-self-profile .pt-self-row.full { grid-template-columns: 1fr; }
+        .pt-self-profile .pt-self-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .55rem;
+            margin-top: .35rem;
+        }
+        .pt-self-profile #pt-self-profile-msg {
+            font-size: .75rem;
+            color: #15803d;
+            min-height: 1.1em;
+        }
+        @media (max-width: 520px) {
+            .pt-self-profile .pt-self-row { grid-template-columns: 1fr; }
+        }
         @media (max-width: 640px) {
             .pt-cal-cell { min-height: 64px; }
             .pt-cal-pill { font-size: .58rem; }
@@ -13019,7 +13075,7 @@
                 });
                 try { localStorage.setItem('hongik-ot-sheet-parse-ver', OT_SHEET_PARSE_VER); } catch (_) {}
             }
-            ['taehyun', 'eunha', 'sua', 'director', 'acct1', 'acct2', 'acct3', 'admin'].forEach((id) => {
+            ['taehyun', 'eunha', 'sua', 'director', 'parttime', 'acct2', 'acct3', 'admin'].forEach((id) => {
                 if (Object.prototype.hasOwnProperty.call(bundle, id)) return;
                 try {
                     const legacy = localStorage.getItem(OT_KEY(id));
@@ -13103,6 +13159,8 @@
         let orderPopupSnoozed = false; // dismissed with × / backdrop until tab change
         let attendPopupSnoozed = false; // dismissed with × / backdrop until tab change
         let schedAlertPopupSnoozed = false; // dismissed with × / backdrop until tab change
+        /** Ids skipped via × this session (still pending; reappear after tab change). */
+        let schedAlertSkipIds = new Set();
         let pendingSelfPw = null;
         let cropState = { x: 0, y: 0, scale: 1, dragging: false, startX: 0, startY: 0, baseX: 0, baseY: 0, naturalW: 0, naturalH: 0 };
         let photoEditTargetId = null; // director editing another teacher's photo
@@ -13253,7 +13311,7 @@
                 adminMapAccounting: '회계 계정',
                 adminMapTeachersHint: '태현 · 은나 · 수아 · 파트타임 등 교사',
                 adminMapDirectorHint: '원장 / Head',
-                adminMapAccountingHint: '회계 1–3',
+                adminMapAccountingHint: '회계 2–3',
                 adminHubTitle: '오늘 다룬 시스템 · 바로 열기',
                 adminHubHint: '카테고리를 누르면 해당 화면으로 이동합니다 · 바로 확인하고 수정할 수 있습니다',
                 adminHubOpen: '열기 / 수정',
@@ -14072,7 +14130,20 @@
                 ptNoRecords: '이달 기록 없음',
                 ptPickMonth: '월 선택',
                 ptLookback: '해당 기간만 입력할 수 있습니다',
-                ptViewOnly: '조회 전용'
+                ptViewOnly: '조회 전용',
+                ptSelfTab: '이달 수입 요약',
+                ptSelfHint: '이번 달 근무일·시간을 등록 · 시급 ฿300 · 중앙 시간표에 반영',
+                ptSelfProfile: '내 프로필',
+                ptSelfName: '프로필 이름',
+                ptSelfWorkFrom: '근무 시작 요일',
+                ptSelfWorkTo: '근무 종료 요일',
+                ptSelfSaveProfile: '프로필 저장',
+                ptSelfProfileSaved: '프로필을 저장했습니다',
+                ptSelfNeedName: '이름을 입력해 주세요',
+                ptDaysCount: '일수',
+                ptSelfFormula: '공식: 시간 × ฿300',
+                ptSelfAddDay: '근무일 등록',
+                ptDirLinked: '원장 「파트타임 비용」과 실시간 연동'
             },
             th: {
                 helloTeacher: 'สวัสดีคุณครู',
@@ -14218,7 +14289,7 @@
                 adminMapAccounting: 'บัญชีฝ่ายบัญชี',
                 adminMapTeachersHint: 'แทฮยอน · อึนนา · ซูอา · part time ฯลฯ',
                 adminMapDirectorHint: 'ผู้อำนวยการ / หัวหน้า',
-                adminMapAccountingHint: 'บัญชี 1–3',
+                adminMapAccountingHint: 'บัญชี 2–3',
                 adminHubTitle: 'ระบบที่พูดถึงวันนี้ · เปิดดูได้ทันที',
                 adminHubHint: 'กดหมวดแล้วลิงก์เข้าไปแก้ไขได้เลย · แยกสีชัดเจน',
                 adminHubOpen: 'เปิด / แก้ไข',
@@ -15037,7 +15108,20 @@
                 ptNoRecords: 'ยังไม่มีรายการเดือนนี้',
                 ptPickMonth: 'เลือกเดือน',
                 ptLookback: 'เลือกได้เฉพาะช่วงที่รองรับ',
-                ptViewOnly: 'ดูอย่างเดียว'
+                ptViewOnly: 'ดูอย่างเดียว',
+                ptSelfTab: 'สรุปรายได้ เดือนนี้',
+                ptSelfHint: 'ลงทะเบียนวัน/เวลาสอนเดือนนี้ · ฿300/ชม. · อัปเดตตารางกลางแบบเรียลไทม์',
+                ptSelfProfile: 'โปรไฟล์ของฉัน',
+                ptSelfName: 'ชื่อโปรไฟล์',
+                ptSelfWorkFrom: 'ทำงานตั้งแต่วัน',
+                ptSelfWorkTo: 'ถึงวัน',
+                ptSelfSaveProfile: 'บันทึกโปรไฟล์',
+                ptSelfProfileSaved: 'บันทึกโปรไฟล์แล้ว',
+                ptSelfNeedName: 'กรุณาใส่ชื่อ',
+                ptDaysCount: 'จำนวนวัน',
+                ptSelfFormula: 'สูตร: ชม. × ฿300',
+                ptSelfAddDay: 'ลงทะเบียนวันทำงาน',
+                ptDirLinked: 'หัวหน้าเห็นได้ที่แท็บ 「คำนวณพาร์ตไทม์」 แบบเรียลไทม์'
             },
             en: {
                 helloTeacher: 'Hello, Teacher',
@@ -15183,7 +15267,7 @@
                 adminMapAccounting: 'Accounting accounts',
                 adminMapTeachersHint: 'Taehyun · Eunna · Sua · Part time, etc.',
                 adminMapDirectorHint: 'Director / Head',
-                adminMapAccountingHint: 'Accounting 1–3',
+                adminMapAccountingHint: 'Accounting 2–3',
                 adminHubTitle: "Today's systems · open & edit",
                 adminHubHint: 'Tap a category to jump straight in · view and edit immediately',
                 adminHubOpen: 'Open / Edit',
@@ -16002,7 +16086,20 @@
                 ptNoRecords: 'No records this month',
                 ptPickMonth: 'Pick month',
                 ptLookback: 'Only the supported period can be entered',
-                ptViewOnly: 'View only'
+                ptViewOnly: 'View only',
+                ptSelfTab: 'This month income',
+                ptSelfHint: 'Register teaching days & times · ฿300/hr · syncs to central schedule',
+                ptSelfProfile: 'My profile',
+                ptSelfName: 'Profile name',
+                ptSelfWorkFrom: 'Work from',
+                ptSelfWorkTo: 'to',
+                ptSelfSaveProfile: 'Save profile',
+                ptSelfProfileSaved: 'Profile saved',
+                ptSelfNeedName: 'Please enter a name',
+                ptDaysCount: 'Days',
+                ptSelfFormula: 'Formula: hours × ฿300',
+                ptSelfAddDay: 'Register work day',
+                ptDirLinked: 'Synced live to director PT expense tab'
             }
         };
 
@@ -16321,16 +16418,6 @@
                 workDaysNoteTh: 'พุธ–อาทิตย์',
                 workDaysNoteEn: 'Wed–Sun'
             },
-            '8888': {
-                ...account('parttime', 'PT', '파트타임 선생님', 'Teacher Part time', 'คุณครูpart time', 'teacher', 'theme-teacher-d', '2026-09-01', 0),
-                classes: WEEKLY_CLASSES.parttime,
-                workDaysNote: 'Mon Tue',
-                workDaysNoteKo: '월·화',
-                workDaysNoteTh: 'จ·อ',
-                workDaysNoteEn: 'Mon Tue',
-                // Editable slot — director/admin can rename (e.g. คุณครูพัทธ์ / Phat)
-                langFlags: ['th']
-            },
             '9999': {
                 ...account('director', 'HEAD', '원장님', 'Director', 'ผู้อำนวยการ', 'director', 'theme-director', '2020-06-01', 4),
                 overviewTeachers: [
@@ -16340,7 +16427,16 @@
                     { name: '파트타임', status: '월·화', note: '18:00–22:00 방 1 · editable' }
                 ]
             },
-            '0000': { ...account('acct1', 'ACC1', '회계 1', 'Accounting 1', 'บัญชี 1', 'accounting', 'theme-acct-1', '2024-01-08', 1), finance: [{ label: '입금', value: '฿12,400' }, { label: '미수', value: '฿3,200' }] },
+            // บัญชี 1 (passcode 0000) → part-time teacher (was accounting). Login unchanged.
+            '0000': {
+                ...account('parttime', 'PT', '파트타임 선생님', 'Teacher Part time', 'คุณครูpart time', 'teacher', 'theme-teacher-d', '2026-09-01', 0),
+                classes: WEEKLY_CLASSES.parttime,
+                workDaysNote: 'Mon Tue',
+                workDaysNoteKo: '월·화',
+                workDaysNoteTh: 'จ·อ',
+                workDaysNoteEn: 'Mon Tue',
+                langFlags: ['th']
+            },
             '0001': { ...account('acct2', 'ACC2', '회계 2', 'Accounting 2', 'บัญชี 2', 'accounting', 'theme-acct-2', '2024-07-01', 0), finance: [{ label: '급여', value: '7명' }] },
             '0002': { ...account('acct3', 'ACC3', '회계 3', 'Accounting 3', 'บัญชี 3', 'accounting', 'theme-acct-3', '2025-04-01', 3), finance: [{ label: '비품', value: '฿5,800' }] },
             '5010': account('admin', 'ADMIN', '시스템 관리자', 'System Admin', 'แอดมินระบบ', 'admin', 'theme-admin', '2020-01-01', 0)
@@ -17094,6 +17190,21 @@
                 && isDirectorSchedAlertAction(c.action)
                 && isSchedAlertForPortalToday(c)
             );
+        }
+        /** FIFO queue for one-at-a-time popup (oldest first); excludes ×-skipped ids. */
+        function queuedDirectorSchedAlerts() {
+            return pendingDirectorSchedChanges()
+                .filter((c) => !schedAlertSkipIds.has(String(c.id || '')))
+                .slice()
+                .sort((a, b) => {
+                    const ta = String(a.createdAt || a.id || '');
+                    const tb = String(b.createdAt || b.id || '');
+                    if (ta !== tb) return ta.localeCompare(tb);
+                    return String(a.id || '').localeCompare(String(b.id || ''));
+                });
+        }
+        function clearSchedAlertSessionSkips() {
+            schedAlertSkipIds = new Set();
         }
         /** Drop pending rows whose action is unknown / not a director alert, or whose class date is not today. */
         function pruneNonFirstSchedAlerts() {
@@ -19316,6 +19427,46 @@
         function isOtEligibleTeacher(id) {
             return id === 'taehyun' || id === 'eunha' || id === 'sua';
         }
+        function isPartTimeTeacher(uOrId) {
+            const id = (uOrId && typeof uOrId === 'object') ? uOrId.id : uOrId;
+            return String(id || '') === 'parttime';
+        }
+        function canManagePtCalc(user) {
+            return !!(user && (user.role === 'director' || user.role === 'admin' || isPartTimeTeacher(user)));
+        }
+        const PT_WEEKDAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        function ptWeekdayLabels() {
+            if (lang === 'th') {
+                return { mon: 'จันทร์', tue: 'อังคาร', wed: 'พุธ', thu: 'พฤหัส', fri: 'ศุกร์', sat: 'เสาร์', sun: 'อาทิตย์' };
+            }
+            if (lang === 'en') {
+                return { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
+            }
+            return { mon: '월', tue: '화', wed: '수', thu: '목', fri: '금', sat: '토', sun: '일' };
+        }
+        function workDayKeysBetween(fromKey, toKey) {
+            const a = PT_WEEKDAY_ORDER.indexOf(String(fromKey || ''));
+            const b = PT_WEEKDAY_ORDER.indexOf(String(toKey || ''));
+            if (a < 0 || b < 0) return PT_WEEKDAY_ORDER.slice();
+            if (a <= b) return PT_WEEKDAY_ORDER.slice(a, b + 1);
+            return PT_WEEKDAY_ORDER.slice(a).concat(PT_WEEKDAY_ORDER.slice(0, b + 1));
+        }
+        function formatWorkDaysRangeNote(fromKey, toKey) {
+            const L = ptWeekdayLabels();
+            const a = L[fromKey] || fromKey || '';
+            const b = L[toKey] || toKey || '';
+            if (!a && !b) return '';
+            if (!b || a === b) return a;
+            return `${a}–${b}`;
+        }
+        function inferWorkDayRangeFromUser(u) {
+            const keys = (u && Array.isArray(u.workDayKeys) && u.workDayKeys.length)
+                ? u.workDayKeys.map(String)
+                : (typeof workDayKeysForUser === 'function' ? workDayKeysForUser(u) : PT_WEEKDAY_ORDER.slice());
+            const ordered = PT_WEEKDAY_ORDER.filter((k) => keys.includes(k));
+            if (!ordered.length) return { from: 'mon', to: 'fri' };
+            return { from: ordered[0], to: ordered[ordered.length - 1] };
+        }
         function otSourceBadge(o) {
             if (!o) return '';
             if (isSheetOt(o)) return `<span class="ot-tag" style="background:#ccfbf1;color:#0f766e">${t('otSheetBadge')}</span>`;
@@ -20093,7 +20244,7 @@
         const PORTAL_PUSH_URGENT = new Set([
             'headOrders', 'orderAcks', 'helpChats', 'classCancels',
             'leaveRequests', 'daySchedules', 'roomTt', 'schedChanges', 'photos',
-            'accountData'
+            'accountData', 'partTime'
         ]);
 
         const SUPABASE_CONFIG_JSON = 'data/supabase/supabase-config.json';
@@ -23411,9 +23562,11 @@
             // × / Escape / closeAllModals — snooze until tab/page change
             if (modal.id === 'attend-modal') attendPopupSnoozed = true;
             if (modal.id === 'sched-alert-modal') {
+                // Full close (Escape / closeAll / queue exhausted) — snooze remaining until tab change
                 schedAlertPopupSnoozed = true;
                 modal.classList.remove('is-settled');
                 delete modal.dataset.schedAlertSig;
+                delete modal.dataset.activeSchedAlertId;
             }
             armModalPointerShield(isLiteClient() ? 700 : 480);
             modal.classList.add('is-closing');
@@ -23710,6 +23863,48 @@
                 updatedAt: new Date().toISOString()
             }));
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('partTime');
+        }
+        /** Mirror a PT registration onto central daySchedules (parttime) so boards see it live. */
+        function syncPtRecordToDaySchedule(rec, { remove = false } = {}) {
+            if (!rec || !rec.id || !rec.date) return;
+            const uid = 'parttime';
+            const dateKey = String(rec.date).slice(0, 10);
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
+            let list = (typeof loadScheduleForDate === 'function' ? loadScheduleForDate(uid, dateKey) : []).slice();
+            list = list.filter((it) => !(it && String(it.ptRecordId || '') === String(rec.id)));
+            if (!remove && rec.start && rec.end && String(rec.end) > String(rec.start)) {
+                const name = String(rec.teacherName || 'คุณครูpart time').trim() || 'คุณครูpart time';
+                list.push({
+                    start: rec.start,
+                    end: rec.end,
+                    kind: 'class',
+                    classType: 'regular',
+                    subjectKey: 'other',
+                    title: name,
+                    titleTh: name,
+                    titleEn: name,
+                    titleKo: name,
+                    ptRecordId: rec.id,
+                    source: 'pt-self',
+                    updatedAt: new Date().toISOString()
+                });
+                list.sort((a, b) => String(a.start || '').localeCompare(String(b.start || '')));
+            }
+            if (typeof saveScheduleForDate === 'function') {
+                saveScheduleForDate(uid, dateKey, list, { syncRemote: true });
+            }
+        }
+        function flushPtPortalAfterMutate() {
+            try {
+                if (typeof queuePortalStorePush === 'function') {
+                    queuePortalStorePush('partTime', 'daySchedules', 'schedChanges');
+                }
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                if (typeof flushPortalStorePush === 'function') {
+                    return Promise.resolve().then(() => flushPortalStorePush()).catch(() => {});
+                }
+            } catch (_) {}
+            return Promise.resolve();
         }
         function ptRecordPay(hours, weeks) {
             const h = Math.max(0, Number(hours) || 0);
@@ -24478,7 +24673,7 @@
         function editableAccountsForAdmin() {
             const rank = (role) => (role === 'teacher' ? 0 : role === 'director' ? 1 : role === 'accounting' ? 2 : 9);
             const list = Object.values(ACCOUNTS).filter(a => a && a.role !== 'admin' && !isAccountDeleted(a.id));
-            // Keep parttime (8888) visible with teachers
+            // Keep parttime (บัญชี 1 / 0000) visible with teachers
             return list.slice().sort((a, b) => {
                 const ra = rank(a.role) - rank(b.role);
                 if (ra !== 0) return ra;
@@ -25684,6 +25879,11 @@
                 if (!modal || !modal.classList.contains('open')) return;
                 e.preventDefault();
                 e.stopPropagation();
+                // Sched alerts: advance queue (skip current → next); only snooze when queue empty
+                if (modal.id === 'sched-alert-modal') {
+                    dismissSchedAlertPopupOnly();
+                    return;
+                }
                 closeModalFast(modal);
             }, true);
 
@@ -25693,6 +25893,7 @@
                 orderPopupSnoozed = false;
                 attendPopupSnoozed = false;
                 schedAlertPopupSnoozed = false;
+                clearSchedAlertSessionSkips();
                 orderPopupIdx = 0;
                 dashboardScreen.classList.add('hidden-screen');
                 loginScreen.classList.remove('hidden-screen');
@@ -26029,6 +26230,7 @@
                     orderPopupSnoozed = false;
                     attendPopupSnoozed = false;
                     schedAlertPopupSnoozed = false;
+                    clearSchedAlertSessionSkips();
                 }
                 try { loginScreen.classList.add('hidden-screen'); } catch (_) {}
                 try { dashboardScreen.classList.remove('hidden-screen'); } catch (_) {}
@@ -26226,6 +26428,9 @@
                     }
                     if (typeof renderDirectorEmergencyBoard === 'function' && document.getElementById('em-dir-board') && (all || has('accountData') || has('photos'))) {
                         renderDirectorEmergencyBoard(user);
+                    }
+                    if (typeof renderPtSelfProfile === 'function' && document.getElementById('pt-self-profile') && (all || has('accountData') || has('partTime'))) {
+                        renderPtSelfProfile(user);
                     }
                     if (typeof renderPartTimeApp === 'function' && document.querySelector('.pt-app') && (all || has('partTime'))) {
                         renderPartTimeApp(user);
@@ -29158,25 +29363,37 @@
             function openPtEntryModal(user, { editId = '', date = '' } = {}) {
                 const modal = document.getElementById('pt-entry-modal');
                 if (!modal || !user) return;
-                const canEdit = user.role === 'director' || user.role === 'admin';
+                const canEdit = canManagePtCalc(user);
                 if (!canEdit) return;
+                const isSelf = isPartTimeTeacher(user) && user.role === 'teacher';
                 ptNav.editId = editId || '';
                 ptNav.draftDate = date || '';
                 const existing = editId
                     ? (loadPartTime().records || []).find((r) => r.id === editId)
                     : null;
+                if (isSelf && existing && existing.teacherId && existing.teacherId !== 'parttime'
+                    && existing.createdBy && existing.createdBy !== 'parttime') {
+                    return;
+                }
                 const ym = ptClampMonth(ptNav.month || (date || todayKey()).slice(0, 7));
                 const dateVal = existing?.date || date || `${ym}-01`;
                 const startVal = existing?.start || '18:00';
                 const endVal = existing?.end || '20:00';
                 const hoursVal = existing?.hours != null ? existing.hours : '';
-                const weeksVal = existing?.weeks != null ? existing.weeks : 4;
-                const nameVal = existing?.teacherName || '';
+                const weeksVal = isSelf
+                    ? 1
+                    : (existing?.weeks != null ? existing.weeks : 4);
+                const nameVal = existing?.teacherName
+                    || (isSelf ? (displayName(user) || '') : '');
 
                 const title = document.getElementById('pt-entry-title');
                 const sub = document.getElementById('pt-entry-sub');
-                if (title) title.textContent = existing ? t('ptEditRecord') : t('ptAddRecord');
-                if (sub) sub.textContent = existing ? (existing.date || '') : (date || t('ptFormula'));
+                if (title) title.textContent = existing
+                    ? t('ptEditRecord')
+                    : (isSelf ? t('ptSelfAddDay') : t('ptAddRecord'));
+                if (sub) sub.textContent = existing
+                    ? (existing.date || '')
+                    : (date || (isSelf ? t('ptSelfFormula') : t('ptFormula')));
 
                 const labelFor = (id, key) => {
                     const lab = modal.querySelector(`label[for="${id}"]`);
@@ -29207,8 +29424,16 @@
                     dateEl.min = `${PT_MIN_YM}-01`;
                     dateEl.max = `${PT_MAX_YM}-31`;
                 }
+                if (nameEl) {
+                    nameEl.readOnly = !!isSelf;
+                    nameEl.style.opacity = isSelf ? '.85' : '';
+                }
                 if (hoursEl) hoursEl.value = hoursVal;
-                if (weeksEl) weeksEl.value = weeksVal;
+                if (weeksEl) {
+                    weeksEl.value = weeksVal;
+                    const weeksWrap = weeksEl.closest('div');
+                    if (weeksWrap) weeksWrap.style.display = isSelf ? 'none' : '';
+                }
                 if (msg) msg.textContent = '';
                 if (saveBtn) saveBtn.textContent = t('ptSaveRecord');
                 if (cancelBtn) cancelBtn.textContent = t('cancelEdit');
@@ -29224,11 +29449,13 @@
                     const end = endEl?.value || '';
                     let hours = Number(hoursEl?.value);
                     if (!(hours > 0) && start && end) hours = ptHours(start, end);
-                    const weeks = Math.max(1, Number(weeksEl?.value) || 1);
+                    const weeks = isSelf ? 1 : Math.max(1, Number(weeksEl?.value) || 1);
                     const h = Number(hours) > 0 ? Number(hours) : 0;
                     const totalH = Math.round(h * weeks * 100) / 100;
                     const pay = Math.round(totalH * PT_RATE);
-                    preview.textContent = `${t('ptCalcExample')} ${h} × ${weeks} × ฿${PT_RATE} = ฿${pay.toLocaleString()}`;
+                    preview.textContent = isSelf
+                        ? `${t('ptCalcExample')} ${h} × ฿${PT_RATE} = ฿${pay.toLocaleString()}`
+                        : `${t('ptCalcExample')} ${h} × ${weeks} × ฿${PT_RATE} = ฿${pay.toLocaleString()}`;
                 };
                 ['pt-calc-start', 'pt-calc-end', 'pt-calc-hours', 'pt-calc-weeks'].forEach((id) => {
                     const el = document.getElementById(id);
@@ -29245,12 +29472,16 @@
                         const cur = window.__ptModalUser;
                         if (!cur) return;
                         const msgEl = document.getElementById('pt-calc-msg');
-                        const teacherName = (document.getElementById('pt-calc-name')?.value || '').trim();
+                        const selfMode = isPartTimeTeacher(cur) && cur.role === 'teacher';
+                        let teacherName = (document.getElementById('pt-calc-name')?.value || '').trim();
+                        if (selfMode) teacherName = displayName(cur) || teacherName || 'คุณครูpart time';
                         const dateV = document.getElementById('pt-calc-date')?.value || '';
                         const start = document.getElementById('pt-calc-start')?.value || '';
                         const end = document.getElementById('pt-calc-end')?.value || '';
                         let hours = Number(document.getElementById('pt-calc-hours')?.value);
-                        const weeks = Math.max(1, Math.round(Number(document.getElementById('pt-calc-weeks')?.value) || 1));
+                        const weeks = selfMode
+                            ? 1
+                            : Math.max(1, Math.round(Number(document.getElementById('pt-calc-weeks')?.value) || 1));
                         if (!teacherName) { if (msgEl) msgEl.textContent = t('ptTeacherName'); return; }
                         if (!dateV) { if (msgEl) msgEl.textContent = t('otDate'); return; }
                         const ymSave = String(dateV).slice(0, 7);
@@ -29267,25 +29498,51 @@
                         if (!Array.isArray(data.records)) data.records = [];
                         const editKey = ptNav.editId;
                         const nowIso = new Date().toISOString();
+                        const teacherId = selfMode ? 'parttime' : (editKey
+                            ? ((data.records.find((x) => x.id === editKey) || {}).teacherId || '')
+                            : '');
                         if (editKey) {
                             const idx = data.records.findIndex((x) => x.id === editKey);
                             if (idx >= 0) {
+                                if (selfMode && data.records[idx].teacherId
+                                    && data.records[idx].teacherId !== 'parttime'
+                                    && data.records[idx].createdBy !== 'parttime') {
+                                    if (msgEl) msgEl.textContent = t('ptViewOnly');
+                                    return;
+                                }
                                 data.records[idx] = {
                                     ...data.records[idx],
-                                    teacherName, date: dateV, start: start || '', end: end || '',
+                                    teacherName, teacherId: teacherId || data.records[idx].teacherId || '',
+                                    date: dateV, start: start || '', end: end || '',
                                     hours, weeks, totalHours, totalBaht, rate: PT_RATE,
+                                    source: selfMode ? 'pt-self' : (data.records[idx].source || 'director'),
                                     updatedAt: nowIso, updatedBy: cur.id
                                 };
                             }
                         } else {
                             data.records.push({
                                 id: 'PR' + Date.now(),
-                                teacherName, date: dateV, start: start || '', end: end || '',
+                                teacherName, teacherId: teacherId || (selfMode ? 'parttime' : ''),
+                                date: dateV, start: start || '', end: end || '',
                                 hours, weeks, totalHours, totalBaht, rate: PT_RATE,
+                                source: selfMode ? 'pt-self' : 'director',
                                 createdBy: cur.id, createdAt: nowIso, updatedAt: nowIso
                             });
                         }
                         savePartTime(data);
+                        const savedRec = editKey
+                            ? (data.records || []).find((x) => x.id === editKey)
+                            : (data.records || [])[(data.records || []).length - 1];
+                        try {
+                            const prevRec = editKey
+                                ? (window.__ptModalPrevRec || null)
+                                : null;
+                            if (editKey && prevRec && prevRec.date && String(prevRec.date) !== String(dateV)) {
+                                syncPtRecordToDaySchedule({ ...prevRec, id: editKey }, { remove: true });
+                            }
+                            if (savedRec) syncPtRecordToDaySchedule(savedRec, { remove: false });
+                        } catch (_) {}
+                        try { flushPtPortalAfterMutate(); } catch (_) {}
                         ptNav.month = ymSave;
                         closePtEntryModal();
                         renderPartTimeApp(cur);
@@ -29297,8 +29554,13 @@
                         const cur = window.__ptModalUser;
                         if (!cur || !ptNav.editId) return;
                         const data = loadPartTime();
+                        const doomed = (data.records || []).find((x) => x.id === ptNav.editId);
                         data.records = (data.records || []).filter((x) => x.id !== ptNav.editId);
                         savePartTime(data);
+                        try {
+                            if (doomed) syncPtRecordToDaySchedule(doomed, { remove: true });
+                            flushPtPortalAfterMutate();
+                        } catch (_) {}
                         closePtEntryModal();
                         renderPartTimeApp(cur);
                     });
@@ -29320,6 +29582,7 @@
                 }
 
                 window.__ptModalUser = user;
+                window.__ptModalPrevRec = existing ? { ...existing } : null;
                 if (typeof openTeachPop === 'function') openTeachPop(modal);
                 else {
                     modal.classList.add('open');
@@ -29383,12 +29646,13 @@
             function renderPartTimeApp(user) {
                 const mounts = [...document.querySelectorAll('.pt-app')];
                 if (!mounts.length || !user) return;
-                const canView = user.role === 'director' || user.role === 'admin';
+                const canView = canManagePtCalc(user);
                 if (!canView) {
                     mounts.forEach((app) => { app.innerHTML = ''; });
                     return;
                 }
-                const canEdit = user.role === 'director' || user.role === 'admin';
+                const isSelf = isPartTimeTeacher(user) && user.role === 'teacher';
+                const canEdit = user.role === 'director' || user.role === 'admin' || isSelf;
                 const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                 ptNav.month = ptClampMonth(ptNav.month || todayKey().slice(0, 7));
                 const ym = ptNav.month;
@@ -29398,15 +29662,26 @@
                     const label = lang === 'th' ? `${mo}/${y}` : lang === 'en' ? m : `${y}년 ${mo}월`;
                     return `<option value="${m}"${m === ym ? ' selected' : ''}>${label}</option>`;
                 }).join('');
-                const records = ptRecordsForMonth(ym);
+                let records = ptRecordsForMonth(ym);
+                if (isSelf) {
+                    records = records.filter((r) =>
+                        !r.teacherId
+                        || r.teacherId === 'parttime'
+                        || r.createdBy === 'parttime'
+                        || r.source === 'pt-self'
+                    );
+                }
                 let hrsSum = 0;
                 let paySum = 0;
+                const daySet = new Set();
                 records.forEach((r) => {
                     const hrs = Number(r.totalHours) || (Number(r.hours) * Number(r.weeks || 1));
                     const pay = Number(r.totalBaht) || Math.round(hrs * PT_RATE);
                     hrsSum += hrs;
                     paySum += pay;
+                    if (r.date) daySet.add(String(r.date));
                 });
+                const daysSum = daySet.size;
                 const rows = records.length ? records.map((r) => {
                     const hrs = Number(r.totalHours) || (Number(r.hours) * Number(r.weeks || 1));
                     const pay = Number(r.totalBaht) || Math.round(hrs * PT_RATE);
@@ -29428,17 +29703,17 @@
                 }).join('') : `<tr><td colspan="8">
                     <div class="pt-empty-cta">
                         <div class="pt-empty-label">${t('ptNoRecords')}</div>
-                        ${canEdit ? `<button type="button" class="pt-add-primary" data-pt-add-empty="1">${t('ptAddRecord')}</button>` : ''}
+                        ${canEdit ? `<button type="button" class="pt-add-primary" data-pt-add-empty="1">${isSelf ? t('ptSelfAddDay') : t('ptAddRecord')}</button>` : ''}
                     </div>
                 </td></tr>`;
 
                 const html = `
                     <div class="pt-calc-head">
-                        <h3 style="margin:0 0 .35rem"><i class="ph ph-calculator" style="color:var(--accent)"></i> ${t('ptCalcTitle')}</h3>
-                        <div class="pt-calc-note" role="note" aria-label="${t('ptCalcHint')}">
+                        <h3 style="margin:0 0 .35rem"><i class="ph ph-calculator" style="color:var(--accent)"></i> ${isSelf ? t('ptSelfTab') : t('ptCalcTitle')}</h3>
+                        <div class="pt-calc-note" role="note" aria-label="${isSelf ? t('ptSelfHint') : t('ptCalcHint')}">
                             <span class="pt-calc-chip">${t('ptCalcChipRate')}</span>
-                            <span class="pt-calc-chip">${t('ptCalcChipFormula')}</span>
-                            <span class="pt-calc-chip pt-calc-chip-range">${ptCalcChipLookbackLabel()}</span>
+                            <span class="pt-calc-chip">${isSelf ? t('ptSelfFormula') : t('ptCalcChipFormula')}</span>
+                            <span class="pt-calc-chip pt-calc-chip-range">${isSelf ? t('ptDirLinked') : ptCalcChipLookbackLabel()}</span>
                         </div>
                         <div class="pt-calc-toolbar">
                             <label class="pt-month-wrap">${t('ptPickMonth')}
@@ -29446,6 +29721,7 @@
                             </label>
                             <div class="pt-calc-sum" title="${t('ptCalcTotal')}">
                                 <span>${t('ptCalcTotal')}</span>
+                                <span class="pt-sum-hrs">${daysSum}${t('ptDaysCount')}</span>
                                 <span class="pt-sum-hrs">${hrsSum}${t('ptHours')}</span>
                                 <span>${t('baht')}${paySum.toLocaleString()}</span>
                             </div>
@@ -29494,11 +29770,96 @@
                     app.querySelectorAll('[data-pt-del]').forEach((btn) => {
                         btn.addEventListener('click', () => {
                             const data = loadPartTime();
+                            const doomed = (data.records || []).find((x) => x.id === btn.dataset.ptDel);
                             data.records = (data.records || []).filter((x) => x.id !== btn.dataset.ptDel);
                             savePartTime(data);
+                            try {
+                                if (doomed) syncPtRecordToDaySchedule(doomed, { remove: true });
+                                flushPtPortalAfterMutate();
+                            } catch (_) {}
                             renderPartTimeApp(user);
                         });
                     });
+                });
+            }
+
+            function renderPtSelfProfile(user) {
+                const box = document.getElementById('pt-self-profile');
+                if (!box || !user || !isPartTimeTeacher(user)) return;
+                const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+                const range = (user.workDayFrom && user.workDayTo)
+                    ? { from: user.workDayFrom, to: user.workDayTo }
+                    : inferWorkDayRangeFromUser(user);
+                const labels = ptWeekdayLabels();
+                const opts = PT_WEEKDAY_ORDER.map((k) =>
+                    `<option value="${k}">${esc(labels[k] || k)}</option>`
+                ).join('');
+                const nameVal = displayName(user) || user.nameTh || user.nameEn || user.nameKo || '';
+                box.innerHTML = `
+                    <h4><i class="ph ph-user-circle"></i> ${esc(t('ptSelfProfile'))}</h4>
+                    <p class="pt-self-hint">${esc(t('ptSelfHint'))}</p>
+                    <div class="pt-self-row full">
+                        <div>
+                            <label class="sched-label" for="pt-self-name">${esc(t('ptSelfName'))}</label>
+                            <input type="text" id="pt-self-name" class="sched-text" value="${esc(nameVal)}" autocomplete="nickname">
+                        </div>
+                    </div>
+                    <div class="pt-self-row">
+                        <div>
+                            <label class="sched-label" for="pt-self-work-from">${esc(t('ptSelfWorkFrom'))}</label>
+                            <select id="pt-self-work-from" class="sched-select">${opts}</select>
+                        </div>
+                        <div>
+                            <label class="sched-label" for="pt-self-work-to">${esc(t('ptSelfWorkTo'))}</label>
+                            <select id="pt-self-work-to" class="sched-select">${opts}</select>
+                        </div>
+                    </div>
+                    <div class="pt-self-actions">
+                        <button type="button" class="soft-btn" id="pt-self-save-profile">${esc(t('ptSelfSaveProfile'))}</button>
+                        <span id="pt-self-profile-msg"></span>
+                    </div>`;
+                const fromEl = document.getElementById('pt-self-work-from');
+                const toEl = document.getElementById('pt-self-work-to');
+                if (fromEl) fromEl.value = range.from || 'mon';
+                if (toEl) toEl.value = range.to || 'fri';
+                document.getElementById('pt-self-save-profile')?.addEventListener('click', () => {
+                    const msg = document.getElementById('pt-self-profile-msg');
+                    const name = (document.getElementById('pt-self-name')?.value || '').trim();
+                    const workFrom = document.getElementById('pt-self-work-from')?.value || 'mon';
+                    const workTo = document.getElementById('pt-self-work-to')?.value || 'fri';
+                    if (!name) {
+                        if (msg) { msg.style.color = '#be123c'; msg.textContent = t('ptSelfNeedName'); }
+                        return;
+                    }
+                    const noteTh = formatWorkDaysRangeNote(workFrom, workTo);
+                    // Build locale notes with same range keys
+                    const prevLang = lang;
+                    const notes = {};
+                    try {
+                        lang = 'th'; notes.th = formatWorkDaysRangeNote(workFrom, workTo);
+                        lang = 'en'; notes.en = formatWorkDaysRangeNote(workFrom, workTo);
+                        lang = 'ko'; notes.ko = formatWorkDaysRangeNote(workFrom, workTo);
+                    } finally { lang = prevLang; }
+                    const keys = workDayKeysBetween(workFrom, workTo);
+                    saveAccountProfileFields(user.id, {
+                        nameTh: name,
+                        nameEn: name,
+                        nameKo: name,
+                        workDayFrom: workFrom,
+                        workDayTo: workTo,
+                        workDayKeys: keys,
+                        workDaysNoteTh: notes.th || noteTh,
+                        workDaysNoteEn: notes.en || noteTh,
+                        workDaysNoteKo: notes.ko || noteTh,
+                        workDaysNote: notes.en || notes.th || noteTh
+                    });
+                    try {
+                        currentUser = resolveAccountById(user.id) || currentUser;
+                        const dashName = document.getElementById('dash-name');
+                        if (dashName && currentUser) dashName.textContent = displayName(currentUser);
+                    } catch (_) {}
+                    if (msg) { msg.style.color = '#15803d'; msg.textContent = t('ptSelfProfileSaved'); }
+                    try { renderPartTimeApp(resolveAccountById(user.id) || user); } catch (_) {}
                 });
             }
 
@@ -30833,6 +31194,16 @@
                     { id: 'otpay', label: t('tabOt'), icon: 'ph-currency-circle-dollar' },
                     { id: 'others', label: t('tabOthers'), icon: 'ph-dots-three-circle' }
                 ];
+                if (user.role === 'teacher' && isPartTimeTeacher(user)) {
+                    const todayIdx = tabs.findIndex((tb) => tb.id === 'today');
+                    const ptTab = {
+                        id: 'ptcalc',
+                        label: t('ptSelfTab') || t('tabPtCalc'),
+                        icon: 'ph-currency-circle-dollar'
+                    };
+                    if (todayIdx >= 0) tabs.splice(todayIdx + 1, 0, ptTab);
+                    else tabs.unshift(ptTab);
+                }
                 if (user.role === 'director') {
                     tabs = [
                         { id: 'overview', label: t('todayBoard'), icon: 'ph-kanban' },
@@ -31589,6 +31960,10 @@
                             <div id="student-db-board"></div>
                         </div>
                     </div>` : ''}
+                    ${isPartTimeTeacher(user) ? `<div class="tab-panel" data-panel="ptcalc"><div class="content-card compact-card">
+                        <div id="pt-self-profile" class="pt-self-profile"></div>
+                        <div class="pt-app" id="pt-app-self"></div>
+                    </div></div>` : ''}
                     ${(user.role === 'teacher' || user.role === 'accounting') ? buildTeacherOtPanel(user) : ''}
                     ${(user.role === 'teacher' || user.role === 'accounting' || user.role === 'director') ? buildOthersPanel(user) : ''}
                     <div class="tab-panel" data-panel="emergency">
@@ -31866,6 +32241,7 @@
                 // notes · language → students → log
                 const notesApp = document.getElementById('notes-app');
                 if (notesApp) renderNotesApp(user);
+                if (document.getElementById('pt-self-profile')) renderPtSelfProfile(user);
                 if (document.querySelector('.pt-app')) renderPartTimeApp(user);
                 if (document.getElementById('overview-board')) renderOverviewBoard(user);
                 if (document.getElementById('ot-pay-board')) renderOtPayBoard(user);
@@ -32388,8 +32764,38 @@
                     next.location = loc;
                     next.city = loc;
                 }
+                ['nameKo', 'nameEn', 'nameTh'].forEach((k) => {
+                    if (Object.prototype.hasOwnProperty.call(fields, k)) {
+                        const v = String(fields[k] ?? '').trim();
+                        if (v) next[k] = v;
+                    }
+                });
+                ['workDaysNote', 'workDaysNoteKo', 'workDaysNoteTh', 'workDaysNoteEn'].forEach((k) => {
+                    if (Object.prototype.hasOwnProperty.call(fields, k)) {
+                        next[k] = String(fields[k] ?? '').trim();
+                    }
+                });
+                if (Object.prototype.hasOwnProperty.call(fields, 'workDayKeys')) {
+                    const keys = Array.isArray(fields.workDayKeys)
+                        ? fields.workDayKeys.map(String).filter(Boolean)
+                        : [];
+                    next.workDayKeys = keys;
+                }
+                if (Object.prototype.hasOwnProperty.call(fields, 'workDayFrom')) {
+                    next.workDayFrom = String(fields.workDayFrom || '').trim();
+                }
+                if (Object.prototype.hasOwnProperty.call(fields, 'workDayTo')) {
+                    next.workDayTo = String(fields.workDayTo || '').trim();
+                }
                 store[id] = next;
                 saveOverrides(store);
+                if (TEACHER_DISPLAY[id] && (next.nameKo || next.nameEn || next.nameTh)) {
+                    TEACHER_DISPLAY[id] = {
+                        ko: next.nameKo || TEACHER_DISPLAY[id].ko,
+                        en: next.nameEn || TEACHER_DISPLAY[id].en,
+                        th: next.nameTh || TEACHER_DISPLAY[id].th
+                    };
+                }
                 pushAccountDataSave('profile-save');
                 return next;
             }
@@ -33837,6 +34243,7 @@
                     orderPopupSnoozed = false;
                     attendPopupSnoozed = false;
                     schedAlertPopupSnoozed = false;
+                    clearSchedAlertSessionSkips();
                 }
                 if (currentUser) maybeShowAlertPopups(currentUser);
                 if (id === 'orders' && currentUser && currentUser.role === 'director') {
@@ -34246,14 +34653,22 @@
             }
 
             function dismissSchedAlertPopupOnly() {
-                // Hide until user changes tab/page — then may show again if still pending
-                schedAlertPopupSnoozed = true;
+                // × / backdrop: skip current card, show next in queue; snooze only when none left
                 const modal = document.getElementById('sched-alert-modal');
+                const curId = modal?.dataset.activeSchedAlertId;
+                if (curId) schedAlertSkipIds.add(String(curId));
                 if (modal) {
                     modal.classList.remove('is-settled');
                     delete modal.dataset.schedAlertSig;
-                    closeModalFast(modal);
+                    delete modal.dataset.activeSchedAlertId;
                 }
+                const remaining = queuedDirectorSchedAlerts();
+                if (remaining.length && currentUser && currentUser.role === 'director') {
+                    maybeShowSchedAlertPopup(currentUser);
+                    return;
+                }
+                schedAlertPopupSnoozed = true;
+                if (modal) closeModalFast(modal);
             }
 
             function maybeShowSchedAlertPopup(user) {
@@ -34262,7 +34677,7 @@
                 const confirmBtn = document.getElementById('sched-alert-confirm');
                 const listEl = document.getElementById('sched-alert-list');
                 if (!modal || !listEl || !user || user.role !== 'director') return;
-                // User closed with × / backdrop — stay quiet until they change tabs
+                // User closed with × / backdrop through the whole queue — stay quiet until they change tabs
                 if (schedAlertPopupSnoozed) {
                     modal.classList.remove('open');
                     modal.classList.remove('is-settled');
@@ -34270,64 +34685,73 @@
                 }
                 pruneNonFirstSchedAlerts();
                 backfillTodayCancelledSchedAlerts();
-                const pending = pendingDirectorSchedChanges();
+                const pending = queuedDirectorSchedAlerts();
                 if (!pending.length) {
                     modal.classList.remove('open');
                     modal.classList.remove('is-settled');
                     delete modal.dataset.schedAlertSig;
+                    delete modal.dataset.activeSchedAlertId;
                     return;
                 }
                 const wasOpen = modal.classList.contains('open');
-                const sig = pending.map(c => `${c.id || ''}:${c.action || ''}:${c.updatedAt || c.createdAt || ''}`).join('|') + `|${lang}`;
-                // Already open + same payload — do NOT remount / reopen (softRefresh bounce)
+                const activeId = String(modal.dataset.activeSchedAlertId || '');
+                let current = pending.find((c) => String(c.id || '') === activeId) || pending[0];
+                const queueIdx = Math.max(0, pending.indexOf(current));
+                current = pending[queueIdx];
+                modal.dataset.activeSchedAlertId = String(current.id || '');
+                const sig = `${current.id || ''}:${current.action || ''}:${current.updatedAt || current.createdAt || ''}|${pending.length}|${lang}`;
+                // Already open + same card — do NOT remount / reopen (softRefresh bounce)
                 if (wasOpen && modal.dataset.schedAlertSig === sig) return;
                 modal.dataset.schedAlertSig = sig;
-                listEl.innerHTML = pending.map(c => {
-                    const isOff = c.action === 'dayoff' || c.classType === 'dayoff';
-                    const isUndoOff = c.action === 'undodayoff';
-                    const isRoomEdit = c.action === 'room_edit';
-                    const isRoomClear = c.action === 'room_clear';
-                    const isClassStatus = c.action === 'class_status';
-                    const isCancelledStatus = isClassStatus && normalizeClassStatus(c.classStatus) === 'cancelled';
-                    const isEdit = c.action === 'edit';
-                    const isDelete = c.action === 'delete' || isRoomClear;
-                    const kind = isCancelledStatus ? t('schedAlertKindClassCancelled')
-                        : (isClassStatus ? t('schedAlertKindClassStatus')
-                        : (isRoomClear ? t('schedActionRoomClear')
-                        : (isRoomEdit ? t('schedAlertKindRoomEdit')
-                        : (isUndoOff ? t('schedAlertKindUndoOff')
-                        : (isOff ? t('schedAlertKindOff')
-                        : (isEdit ? t('schedAlertKindEdit')
-                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd'))))))));
-                    const summary = isCancelledStatus ? t('schedAlertSummaryClassCancelled')
-                        : (isClassStatus ? t('schedAlertSummaryStudentPostpone')
-                        : (isRoomClear ? t('schedAlertSummaryRoomClear')
-                        : (isRoomEdit ? t('schedAlertSummaryRoomEdit')
-                        : (isUndoOff ? t('schedAlertSummaryUndoOff')
-                        : (isOff ? t('schedAlertSummaryOff')
-                        : (isEdit ? t('schedAlertSummaryEdit')
-                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd'))))))));
-                    const subject = pickLangText(c, 'title') || c.title || (isOff || isUndoOff ? t('schedDayOffTitle') : '—');
-                    const time = (!isOff && !isUndoOff && (c.start || c.end))
-                        ? `${c.start || '—'}–${c.end || '—'}`
-                        : '—';
-                    const typeLbl = isClassStatus
-                        ? classStatusLabel(c.classStatus || (isCancelledStatus ? 'cancelled' : 'student_postponed'))
-                        : (isRoomClear || isRoomEdit
-                        ? (c.room ? roomLabel(c.room) : t('schedActionRoomClear'))
-                        : classTypeLabel((isOff || isUndoOff) ? 'dayoff' : (c.classType || 'regular')));
-                    const pill = isCancelledStatus ? t('schedActionClassCancelled')
-                        : (isClassStatus ? t('schedActionClassStatus')
-                        : (isRoomClear ? t('schedActionRoomClear')
-                        : (isRoomEdit ? t('schedActionRoomEdit')
-                        : (isUndoOff ? t('schedActionUndoDayOff')
-                        : (isOff ? t('schedActionDayOff')
-                        : (isEdit ? t('schedActionEdit')
-                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd'))))))));
-                    const cardClass = (isOff || isUndoOff || isCancelledStatus || isRoomClear || isDelete ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
-                    const teaLbl = schedAlertTeacherLabel(c);
-                    const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
-                    return `<div class="sched-alert-card ${cardClass}">
+                const c = current;
+                const isOff = c.action === 'dayoff' || c.classType === 'dayoff';
+                const isUndoOff = c.action === 'undodayoff';
+                const isRoomEdit = c.action === 'room_edit';
+                const isRoomClear = c.action === 'room_clear';
+                const isClassStatus = c.action === 'class_status';
+                const isCancelledStatus = isClassStatus && normalizeClassStatus(c.classStatus) === 'cancelled';
+                const isEdit = c.action === 'edit';
+                const isDelete = c.action === 'delete' || isRoomClear;
+                const kind = isCancelledStatus ? t('schedAlertKindClassCancelled')
+                    : (isClassStatus ? t('schedAlertKindClassStatus')
+                    : (isRoomClear ? t('schedActionRoomClear')
+                    : (isRoomEdit ? t('schedAlertKindRoomEdit')
+                    : (isUndoOff ? t('schedAlertKindUndoOff')
+                    : (isOff ? t('schedAlertKindOff')
+                    : (isEdit ? t('schedAlertKindEdit')
+                    : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd'))))))));
+                const summary = isCancelledStatus ? t('schedAlertSummaryClassCancelled')
+                    : (isClassStatus ? t('schedAlertSummaryStudentPostpone')
+                    : (isRoomClear ? t('schedAlertSummaryRoomClear')
+                    : (isRoomEdit ? t('schedAlertSummaryRoomEdit')
+                    : (isUndoOff ? t('schedAlertSummaryUndoOff')
+                    : (isOff ? t('schedAlertSummaryOff')
+                    : (isEdit ? t('schedAlertSummaryEdit')
+                    : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd'))))))));
+                const subject = pickLangText(c, 'title') || c.title || (isOff || isUndoOff ? t('schedDayOffTitle') : '—');
+                const time = (!isOff && !isUndoOff && (c.start || c.end))
+                    ? `${c.start || '—'}–${c.end || '—'}`
+                    : '—';
+                const typeLbl = isClassStatus
+                    ? classStatusLabel(c.classStatus || (isCancelledStatus ? 'cancelled' : 'student_postponed'))
+                    : (isRoomClear || isRoomEdit
+                    ? (c.room ? roomLabel(c.room) : t('schedActionRoomClear'))
+                    : classTypeLabel((isOff || isUndoOff) ? 'dayoff' : (c.classType || 'regular')));
+                const pill = isCancelledStatus ? t('schedActionClassCancelled')
+                    : (isClassStatus ? t('schedActionClassStatus')
+                    : (isRoomClear ? t('schedActionRoomClear')
+                    : (isRoomEdit ? t('schedActionRoomEdit')
+                    : (isUndoOff ? t('schedActionUndoDayOff')
+                    : (isOff ? t('schedActionDayOff')
+                    : (isEdit ? t('schedActionEdit')
+                    : (isDelete ? t('schedActionDelete') : t('schedActionAdd'))))))));
+                const cardClass = (isOff || isUndoOff || isCancelledStatus || isRoomClear || isDelete ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
+                const teaLbl = schedAlertTeacherLabel(c);
+                const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+                const queueLabel = pending.length > 1
+                    ? `<div class="sched-alert-queue" aria-live="polite">${queueIdx + 1} / ${pending.length}</div>`
+                    : '';
+                listEl.innerHTML = `${queueLabel}<div class="sched-alert-card ${cardClass}">
                         <div class="sched-alert-kind">
                             <span class="sched-alert-pill">${esc(pill)}</span>
                             <span>${esc(kind)}</span>
@@ -34343,15 +34767,14 @@
                             <div><dt>${esc(t('schedAlertLblStatus'))}</dt><dd>${esc(t('pending'))}</dd></div>
                         </dl>
                     </div>`;
-                }).join('');
                 applyStaticI18n();
+                if (check) check.checked = false;
+                if (confirmBtn) confirmBtn.disabled = true;
                 if (wasOpen) {
-                    // Quiet content update — keep checkbox / sakura; no reopenModal remount
+                    // Quiet content update — keep sakura; reset ack for the new card
                     modal.classList.add('is-settled');
                     return;
                 }
-                if (check) check.checked = false;
-                if (confirmBtn) confirmBtn.disabled = true;
                 fillSakura(document.getElementById('sched-alert-sakura'));
                 reopenModal(modal);
                 // After first open animation finishes, block popIn on later softRefresh class toggles
@@ -35155,22 +35578,26 @@
                 const check = document.getElementById('sched-alert-check');
                 if (!currentUser || currentUser.role !== 'director' || !check?.checked) return;
                 pruneNonFirstSchedAlerts();
-                const list = loadSchedChanges();
-                const now = new Date().toISOString();
-                const today = todayKey();
-                list.forEach(c => {
-                    if (c.status === 'pending_director'
-                        && isDirectorSchedAlertAction(c.action)
-                        && String(c.date || '') === today) {
-                        c.status = 'acked';
-                        c.directorAckAt = now;
-                    }
-                });
-                saveSchedChanges(list);
+                const activeId = schedAlertModal?.dataset.activeSchedAlertId
+                    || queuedDirectorSchedAlerts()[0]?.id;
+                if (!activeId || !approveSchedChangeReport(activeId)) return;
+                schedAlertSkipIds.delete(String(activeId));
                 schedAlertPopupSnoozed = false;
                 if (schedAlertModal) {
-                    schedAlertModal.classList.remove('open', 'is-settled');
+                    schedAlertModal.classList.remove('is-settled');
                     delete schedAlertModal.dataset.schedAlertSig;
+                    delete schedAlertModal.dataset.activeSchedAlertId;
+                }
+                const remaining = queuedDirectorSchedAlerts();
+                if (remaining.length) {
+                    if (check) check.checked = false;
+                    const btn = document.getElementById('sched-alert-confirm');
+                    if (btn) btn.disabled = true;
+                    maybeShowSchedAlertPopup(currentUser);
+                    return;
+                }
+                if (schedAlertModal) {
+                    schedAlertModal.classList.remove('open', 'is-settled');
                 }
                 openDashboard(resolveAccountById(currentUser.id), true);
             });
