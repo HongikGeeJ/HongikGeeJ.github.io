@@ -650,7 +650,7 @@
                 drop-shadow(0 3px 8px rgba(236, 120, 160, .22))
                 drop-shadow(0 1px 3px rgba(15, 23, 42, .1)) !important;
             transform-origin: 85% 100% !important;
-            animation: eunhaShinWobbleCorner 4.4s ease-in-out infinite !important;
+            animation: eunhaShinWobbleCorner 9s ease-in-out infinite !important;
             animation-delay: .35s !important;
             will-change: transform;
         }
@@ -661,7 +661,7 @@
             bottom: -2px !important;
             background-image: url('assets/decor/shinchan-heart.png?v=heart3') !important;
             animation-name: eunhaShinWobbleCorner !important;
-            animation-duration: 4.8s !important;
+            animation-duration: 10s !important;
         }
         .dash-shell.is-eunha-shin .tab-panel > .content-card.compact-card::after {
             width: 54px !important;
@@ -729,12 +729,13 @@
             filter:
                 drop-shadow(0 1px 1px rgba(255, 255, 255, .9))
                 drop-shadow(0 2px 6px rgba(236, 120, 160, .28)) !important;
-            transform: translateY(-50%) !important;
+            /* transform lives only in eunhaShinWobbleTitle — a static transform:!important
+               would override the animation and leave title Shin frozen. */
             transform-origin: 50% 60% !important;
             animation:
-                eunhaShinWobbleTitle 4s ease-in-out infinite,
-                eunhaCheekStarsTwinkle 4.2s ease-in-out infinite,
-                eunhaCheekStarsOrbit 17s linear infinite !important;
+                eunhaShinWobbleTitle 9s ease-in-out infinite,
+                eunhaCheekStarsTwinkle 7.5s ease-in-out infinite,
+                eunhaCheekStarsOrbit 28s linear infinite !important;
             will-change: transform, background-size, background-position;
         }
         .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
@@ -757,9 +758,9 @@
                 14px 14px, 11px 11px, 13px 13px, 10px 10px, 15px 15px,
                 6px 6px, 5px 5px, 7px 7px;
             animation:
-                eunhaShinWobbleTitle 4.2s ease-in-out infinite,
-                eunhaCheekStarsTwinkle 4.2s ease-in-out infinite,
-                eunhaCheekStarsOrbit 17s linear infinite !important;
+                eunhaShinWobbleTitle 9.5s ease-in-out infinite,
+                eunhaCheekStarsTwinkle 7.5s ease-in-out infinite,
+                eunhaCheekStarsOrbit 28s linear infinite !important;
         }
         /* หมุนไปหมุนมา — gentle rotate wobble (not full spins) */
         @keyframes eunhaShinWobbleTitle {
@@ -3116,8 +3117,8 @@
                 6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
                 48% 4%, 96% 72%, 22% 92%;
             animation:
-                eunhaProfileStarsTwinkle 4.2s ease-in-out infinite,
-                eunhaProfileStarsOrbit 17s linear infinite;
+                eunhaProfileStarsTwinkle 7.5s ease-in-out infinite,
+                eunhaProfileStarsOrbit 28s linear infinite;
             will-change: background-size, background-position;
         }
         .dash-shell.is-eunha-shin .profile-btn img,
@@ -9974,9 +9975,37 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: none; }
-            .dash-shell.is-eunha-shin .content-card::before,
-            .dash-shell.is-eunha-shin .content-card::after {
+            /* Eunha Shin décor keeps slow wobble on mobile/iPad (overrides FX kill above). */
+            .dash-shell.is-eunha-shin .tab-panel > .content-card::before {
+                animation: none !important;
                 transform: none !important;
+            }
+            .dash-shell.is-eunha-shin .tab-panel > .content-card::after {
+                animation: eunhaShinWobbleCorner 9s ease-in-out infinite !important;
+                animation-delay: .35s !important;
+                transform: none; /* let keyframes drive transform */
+                will-change: transform;
+            }
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
+                animation-name: eunhaShinWobbleCorner !important;
+                animation-duration: 10s !important;
+            }
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after {
+                animation:
+                    eunhaShinWobbleTitle 9s ease-in-out infinite,
+                    eunhaCheekStarsTwinkle 7.5s ease-in-out infinite,
+                    eunhaCheekStarsOrbit 28s linear infinite !important;
+                will-change: transform, background-size, background-position;
+            }
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
+                animation:
+                    eunhaShinWobbleTitle 9.5s ease-in-out infinite,
+                    eunhaCheekStarsTwinkle 7.5s ease-in-out infinite,
+                    eunhaCheekStarsOrbit 28s linear infinite !important;
             }
             /*
               Login panel corners must keep sway on mobile/iPad — do not kill .dc-c.
