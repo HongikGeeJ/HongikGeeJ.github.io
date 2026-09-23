@@ -12385,6 +12385,7 @@
                 schedAlertLblTime: '시간',
                 schedAlertLblSubject: '과목',
                 schedAlertLblType: '수업 유형',
+                schedAlertLblRoom: '교실',
                 schedAlertLblStatus: '상태',
                 schedActionAdd: '추가',
                 schedActionEdit: '수정',
@@ -13316,6 +13317,7 @@
                 schedAlertLblTime: 'เวลา',
                 schedAlertLblSubject: 'วิชา / หัวข้อ',
                 schedAlertLblType: 'ประเภทคลาส',
+                schedAlertLblRoom: 'ห้อง',
                 schedAlertLblStatus: 'สถานะ',
                 schedActionAdd: 'เพิ่ม',
                 schedActionEdit: 'แก้ไข',
@@ -14247,6 +14249,7 @@
                 schedAlertLblTime: 'Time',
                 schedAlertLblSubject: 'Subject',
                 schedAlertLblType: 'Class type',
+                schedAlertLblRoom: 'Room',
                 schedAlertLblStatus: 'Status',
                 schedActionAdd: 'Added',
                 schedActionEdit: 'Edited',
@@ -32408,8 +32411,11 @@
                 pruneNonFirstSchedAlerts();
                 const list = loadSchedChanges();
                 const now = new Date().toISOString();
+                const today = todayKey();
                 list.forEach(c => {
-                    if (c.status === 'pending_director' && isDirectorSchedAlertAction(c.action)) {
+                    if (c.status === 'pending_director'
+                        && isDirectorSchedAlertAction(c.action)
+                        && String(c.date || '') === today) {
                         c.status = 'acked';
                         c.directorAckAt = now;
                     }

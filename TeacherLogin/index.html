@@ -4312,6 +4312,23 @@
             background: linear-gradient(135deg, #fee2e2, #fecaca);
             color: #b91c1c;
         }
+        #leave-alert-modal .leave-alert-bell {
+            width: 58px; height: 58px; border-radius: 50%;
+            display: grid; place-items: center; margin: 0 auto .75rem;
+            font-size: 1.7rem;
+            background: linear-gradient(135deg, #ffedd5, #fed7aa);
+            color: #c2410c;
+        }
+        #leave-alert-modal.open .leave-alert-bell { animation: bellShake 0.65s ease-in-out infinite; }
+        .leave-history-hint {
+            font-size: .78rem; color: #64748b; margin: .15rem 0 .55rem; font-weight: 650;
+        }
+        .leave-inbox-card.is-acked .li-badge {
+            background: #e0f2fe; color: #0369a1;
+        }
+        .leave-ack-gate {
+            display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; margin-top: .45rem;
+        }
         #save-schedule-btn.soft-btn {
             background: linear-gradient(95deg, #2563eb 0%, #1d4ed8 55%, #1e3a8a 100%) !important;
             color: #ffffff !important;
@@ -9648,6 +9665,27 @@
         </div>
     </div>
 
+    <div id="leave-alert-modal" class="modal">
+        <div class="modal-box">
+            <div class="order-sakura" id="leave-alert-sakura" aria-hidden="true"></div>
+            <button type="button" class="modal-x" id="leave-alert-x" title="Close" aria-label="Close">
+                <i class="ph ph-x"></i>
+            </button>
+            <img src="" data-school-logo="1" alt="" class="alert-logo">
+            <div class="leave-alert-bell" aria-hidden="true"><i class="ph-fill ph-airplane-tilt"></i></div>
+            <p class="font-extrabold text-slate-900 text-lg m-0 text-center" data-i18n="leaveAlertTitle">แจ้งคำขอลางาน</p>
+            <p class="text-sm text-slate-500 mt-1 mb-3 text-center" data-i18n="leaveAlertHint">ต้องกดรับทราบก่อน แล้วค่อยอนุมัติในกล่องลา · ผู้ขอจะได้รับแจ้งหลังอนุมัติเท่านั้น</p>
+            <div id="leave-alert-list"></div>
+            <label class="check-row">
+                <input type="checkbox" id="leave-alert-check">
+                <span data-i18n="markRead">ฉันรับทราบแล้ว</span>
+            </label>
+            <div class="admin-actions">
+                <button type="button" id="leave-alert-confirm" class="soft-btn" disabled data-i18n="confirmRead">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
     <div id="leave-result-modal" class="modal">
         <div class="modal-box">
             <button type="button" class="modal-x" id="leave-result-x" title="Close" aria-label="Close">
@@ -12144,12 +12182,19 @@
                 leaveRejectedTitle: '휴무 신청이 반려되었습니다',
                 leaveRejectedHint: '원장이 신청을 반려했습니다',
                 leaveInbox: '휴가 신청함',
-                leaveClickOpen: '눌러서 내용 확인 후 승인/반려',
-                leaveDecideHint: '내용을 확인한 뒤에만 승인·반려할 수 있습니다',
+                leaveClickOpen: '먼저 수신 확인(รับทราบ) → 열어서 승인/반려',
+                leaveDecideHint: '수신 확인 후 내용을 열고 승인·반려할 수 있습니다 · 결정 후에만 신청자에게 알림',
                 leaveBackInbox: '목록으로',
                 leavePendingAlert: '새 휴가 신청',
                 leaveOpenDecide: '열어서 결정',
                 leaveMine: '내 신청',
+                leaveAlertTitle: '휴가 신청 알림',
+                leaveAlertHint: '수신 확인 후 휴가함에서 승인하세요 · 승인/반려 후에만 신청자에게 알림',
+                leaveAckBtn: '수신 확인',
+                leaveAckedBadge: '확인됨 · 승인 대기',
+                leaveNeedAckFirst: '먼저 수신 확인이 필요합니다',
+                leaveHistoryHint: '최근 6개월 신청 내역',
+                leaveHistoryEmpty: '최근 6개월 내역 없음',
                 teacherSchedules: '교사 오늘 일정 요약',
                 passwords: '전체 비밀번호',
                 changePw: '비밀번호 변경',
@@ -12385,6 +12430,7 @@
                 schedAlertLblTime: '시간',
                 schedAlertLblSubject: '과목',
                 schedAlertLblType: '수업 유형',
+                schedAlertLblRoom: '교실',
                 schedAlertLblStatus: '상태',
                 schedActionAdd: '추가',
                 schedActionEdit: '수정',
@@ -13075,12 +13121,19 @@
                 leaveRejectedTitle: 'คำขอลางานไม่ได้รับการอนุมัติ',
                 leaveRejectedHint: 'หัวหน้าไม่อนุมัติคำขอนี้',
                 leaveInbox: 'คำขอลางาน',
-                leaveClickOpen: 'กดเปิดดูรายละเอียดก่อน แล้วค่อยอนุมัติ/ไม่อนุมัติ',
-                leaveDecideHint: 'ต้องเปิดอ่านรายละเอียดก่อน จึงจะเลือกอนุมัติหรือไม่อนุมัติได้',
+                leaveClickOpen: 'กดรับทราบก่อน → เปิดดู → แล้วค่อยอนุมัติ/ไม่อนุมัติ',
+                leaveDecideHint: 'ต้องรับทราบและเปิดอ่านก่อน จึงอนุมัติได้ · ผู้ขอจะได้รับแจ้งหลังตัดสินใจเท่านั้น',
                 leaveBackInbox: 'กลับรายการ',
                 leavePendingAlert: 'มีคำขอลาใหม่',
                 leaveOpenDecide: 'เปิดเพื่อตัดสินใจ',
                 leaveMine: 'คำขอของฉัน',
+                leaveAlertTitle: 'แจ้งคำขอลางาน',
+                leaveAlertHint: 'ต้องกดรับทราบก่อน แล้วค่อยอนุมัติในกล่องลา · ผู้ขอจะได้รับแจ้งหลังอนุมัติเท่านั้น',
+                leaveAckBtn: 'รับทราบ',
+                leaveAckedBadge: 'รับทราบแล้ว · รออนุมัติ',
+                leaveNeedAckFirst: 'ต้องกดรับทราบก่อน',
+                leaveHistoryHint: 'ประวัติย้อนหลัง 6 เดือน',
+                leaveHistoryEmpty: 'ยังไม่มีประวัติใน 6 เดือน',
                 teacherSchedules: 'สรุปตารางสอนวันนี้',
                 passwords: 'รหัสผ่านทั้งหมด',
                 changePw: 'เปลี่ยนรหัส',
@@ -13316,6 +13369,7 @@
                 schedAlertLblTime: 'เวลา',
                 schedAlertLblSubject: 'วิชา / หัวข้อ',
                 schedAlertLblType: 'ประเภทคลาส',
+                schedAlertLblRoom: 'ห้อง',
                 schedAlertLblStatus: 'สถานะ',
                 schedActionAdd: 'เพิ่ม',
                 schedActionEdit: 'แก้ไข',
@@ -14006,12 +14060,19 @@
                 leaveRejectedTitle: 'Your leave was not approved',
                 leaveRejectedHint: 'The head rejected this leave request',
                 leaveInbox: 'Leave inbox',
-                leaveClickOpen: 'Open to review, then approve or reject',
-                leaveDecideHint: 'Open the request first — approve/reject appear after you read it',
+                leaveClickOpen: 'Acknowledge first → open → then approve/reject',
+                leaveDecideHint: 'Acknowledge and open first — requester is notified only after you decide',
                 leaveBackInbox: 'Back to list',
                 leavePendingAlert: 'New leave request',
                 leaveOpenDecide: 'Open to decide',
                 leaveMine: 'My requests',
+                leaveAlertTitle: 'Leave request alert',
+                leaveAlertHint: 'Acknowledge first, then approve in the leave inbox · Requester is notified only after approve/reject',
+                leaveAckBtn: 'Acknowledge',
+                leaveAckedBadge: 'Acked · awaiting decision',
+                leaveNeedAckFirst: 'Acknowledge first',
+                leaveHistoryHint: 'History · last 6 months',
+                leaveHistoryEmpty: 'No requests in the last 6 months',
                 teacherSchedules: "Teachers' schedules today",
                 passwords: 'All passwords',
                 changePw: 'Change password',
@@ -14247,6 +14308,7 @@
                 schedAlertLblTime: 'Time',
                 schedAlertLblSubject: 'Subject',
                 schedAlertLblType: 'Class type',
+                schedAlertLblRoom: 'Room',
                 schedAlertLblStatus: 'Status',
                 schedActionAdd: 'Added',
                 schedActionEdit: 'Edited',
@@ -21569,7 +21631,130 @@
         function loadLeaveRequests() { try { return JSON.parse(localStorage.getItem(LEAVE_KEY) || '[]'); } catch { return []; } }
         function saveLeaveRequests(list, { syncRemote = true } = {}) {
             localStorage.setItem(LEAVE_KEY, JSON.stringify(list));
+            try { localStorage.setItem(LEAVE_KEY + ':tick', String(Date.now())); } catch (_) {}
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('leaveRequests');
+        }
+        function canManageLeaveInbox(user) {
+            return !!(user && (user.role === 'director' || user.role === 'admin'));
+        }
+        function leaveHistoryCutoffMs() {
+            const d = new Date();
+            d.setHours(0, 0, 0, 0);
+            d.setMonth(d.getMonth() - 6);
+            return d.getTime();
+        }
+        function leaveRequestSortTs(L) {
+            if (!L) return 0;
+            const raw = L.createdAt || L.decidedAt || L.directorAckAt || L.from || L.to || '';
+            const t = Date.parse(String(raw));
+            return Number.isFinite(t) ? t : 0;
+        }
+        function leaveInHistoryWindow(L) {
+            // Always keep open pending items visible; decided items use 6-month lookback
+            if (!L) return false;
+            if (L.status === 'pending') return true;
+            const ts = leaveRequestSortTs(L);
+            if (!ts) return true;
+            return ts >= leaveHistoryCutoffMs();
+        }
+        function pendingDirectorLeaveAlerts() {
+            return loadLeaveRequests().filter((L) =>
+                L && L.status === 'pending' && !L.directorAckAt
+            );
+        }
+        function ackLeaveRequests(ids, actor) {
+            const want = new Set((ids || []).map(String).filter(Boolean));
+            if (!want.size) return 0;
+            const list = loadLeaveRequests();
+            const now = new Date().toISOString();
+            let n = 0;
+            list.forEach((L) => {
+                if (!L || L.status !== 'pending' || L.directorAckAt) return;
+                if (want.size && !want.has(String(L.id))) return;
+                L.directorAckAt = now;
+                L.directorAckBy = (actor && (actor.id || actor.role)) || 'director';
+                n += 1;
+            });
+            if (n) saveLeaveRequests(list);
+            return n;
+        }
+        function ackAllPendingLeaveAlerts(actor) {
+            const ids = pendingDirectorLeaveAlerts().map((L) => L.id);
+            return ackLeaveRequests(ids, actor);
+        }
+        /** Director/admin leave inbox HTML (pending + 6-month history). */
+        function buildLeaveInboxParts() {
+            const leaves = loadLeaveRequests()
+                .filter((L) => L && leaveInHistoryWindow(L))
+                .slice()
+                .sort((a, b) => {
+                    // Pending first, then newest
+                    const ap = a.status === 'pending' ? 0 : 1;
+                    const bp = b.status === 'pending' ? 0 : 1;
+                    if (ap !== bp) return ap - bp;
+                    return leaveRequestSortTs(b) - leaveRequestSortTs(a);
+                });
+            const pendingLeaveN = leaves.filter((L) => L.status === 'pending').length;
+            const unackedN = leaves.filter((L) => L.status === 'pending' && !L.directorAckAt).length;
+            const leaveInbox = leaves.length ? leaves.map((L) => {
+                const isPending = L.status === 'pending';
+                const isAcked = !!(L.directorAckAt);
+                const isOpen = leaveInboxOpenId === L.id;
+                const reason = String(pickLangText(L, 'reason') || L.reason || '').replace(/</g, '&lt;').replace(/\n/g, '<br>');
+                const typeLbl = L.leaveType ? (pickLangText(L, 'leaveTypeLabel') || leaveTypeLabel(L.leaveType)) : '';
+                if (!isPending) {
+                    const doneCls = L.status === 'approved' ? 'ok' : 'no';
+                    const doneLbl = L.status === 'approved' ? t('approved')
+                        : (L.status === 'cancelled_admin' ? t('leaveCancelledAdmin') : t('reject'));
+                    return `<div class="leave-inbox-card is-done">
+                        <div>
+                            <div class="li-name">${L.fromName || ''}</div>
+                            <div class="li-meta">${L.from || ''} → ${L.to || ''}${typeLbl ? ` · ${typeLbl}` : ''}</div>
+                        </div>
+                        <span class="li-badge ${doneCls}">${doneLbl}</span>
+                    </div>`;
+                }
+                if (!isAcked) {
+                    return `
+                    <div class="leave-inbox-card is-pending">
+                        <div>
+                            <div class="li-name">${L.fromName || ''}</div>
+                            <div class="li-meta">${L.from || ''} → ${L.to || ''}${typeLbl ? ` · ${typeLbl}` : ''}</div>
+                            <div class="li-hint"><i class="ph ph-hand-pointing"></i> ${t('leaveNeedAckFirst')}</div>
+                            <div class="leave-ack-gate">
+                                <button type="button" class="soft-btn" data-leave-ack="${L.id}">${t('leaveAckBtn')}</button>
+                            </div>
+                        </div>
+                        <span class="li-badge">${t('pending')}</span>
+                    </div>`;
+                }
+                return `
+                <button type="button" class="leave-inbox-card is-pending is-acked${isOpen ? ' is-open' : ''}" data-leave-open="${L.id}" aria-expanded="${isOpen ? 'true' : 'false'}">
+                    <div>
+                        <div class="li-name">${L.fromName || ''}</div>
+                        <div class="li-meta">${L.from || ''} → ${L.to || ''}${typeLbl ? ` · ${typeLbl}` : ''}</div>
+                        <div class="li-hint"><i class="ph ph-hand-pointing"></i> ${t('leaveOpenDecide')}</div>
+                    </div>
+                    <span class="li-badge">${t('leaveAckedBadge')}</span>
+                </button>
+                <div class="leave-inbox-detail${isOpen ? ' open' : ''}" data-leave-detail="${L.id}">
+                    <p class="lid-hint"><i class="ph ph-warning-circle"></i> ${t('leaveDecideHint')}</p>
+                    <div class="lid-body">${typeLbl ? `<span class="badge" style="margin-right:.35rem">${typeLbl}</span>` : ''}${reason || '—'}</div>
+                    ${pickLangText(L, 'comment') || L.comment ? `<div class="text-xs text-slate-500" style="margin-bottom:.45rem">💬 ${pickLangText(L, 'comment') || L.comment}</div>` : ''}
+                    <input type="text" class="sched-text leave-comment" data-leave-id="${L.id}" placeholder="${t('comment')}" style="margin-bottom:.5rem">
+                    <div class="admin-actions">
+                        <button type="button" class="soft-btn" data-leave-approve="${L.id}">${t('approve')}</button>
+                        <button type="button" class="soft-btn ghost" data-leave-reject="${L.id}">${t('reject')}</button>
+                    </div>
+                </div>`;
+            }).join('') : `<p class="empty-note">${t('leaveHistoryEmpty')}</p>`;
+            const leaveInboxHead = `<h3 class="leave-inbox-head${pendingLeaveN ? ' has-pending' : ''}">
+                ${t('leaveInbox')}
+                ${pendingLeaveN ? `<span class="lih-badge">${t('leavePendingAlert')} · ${pendingLeaveN}</span>` : ''}
+            </h3>
+            <p class="leave-history-hint"><i class="ph ph-clock-countdown"></i> ${t('leaveHistoryHint')}</p>
+            ${pendingLeaveN ? `<p class="text-xs mb-2" style="color:#c2410c;font-weight:700">${t('leaveClickOpen')}${unackedN ? ` · ${t('leaveNeedAckFirst')} (${unackedN})` : ''}</p>` : ''}`;
+            return { leaveInboxHead, leaveInbox, pendingLeaveN, unackedN };
         }
 
         // One-time: wipe planned/demo leave history — nobody has taken vacation yet
@@ -21764,13 +21949,17 @@
             const leaveMine = document.getElementById('leave-mine-list');
             if (!leaveMine || !user) return;
             const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-            const mine = loadLeaveRequests().filter(L => L.fromId === user.id).slice().reverse();
+            const mine = loadLeaveRequests()
+                .filter((L) => L && L.fromId === user.id && leaveInHistoryWindow(L))
+                .slice()
+                .sort((a, b) => leaveRequestSortTs(b) - leaveRequestSortTs(a));
+            const hint = `<p class="leave-history-hint"><i class="ph ph-clock-countdown"></i> ${esc(t('leaveHistoryHint'))}</p>`;
             if (!mine.length) {
-                leaveMine.innerHTML = `<p class="empty-note">${t('none')}</p>`;
+                leaveMine.innerHTML = `${hint}<p class="empty-note">${t('leaveHistoryEmpty')}</p>`;
                 updateLeaveReportBtn(user);
                 return;
             }
-            leaveMine.innerHTML = mine.map(L => {
+            leaveMine.innerHTML = hint + mine.map(L => {
                 const st = L.status === 'approved' ? 'approved'
                     : L.status === 'rejected' ? 'rejected'
                     : L.status === 'cancelled_admin' ? 'rejected'
@@ -28235,13 +28424,14 @@
                     { id: 'overview', label: t('todayBoard'), icon: 'ph-kanban' },
                     { id: 'rooms', label: t('tabRooms'), icon: 'ph-door-open' },
                     { id: 'orders', label: t('tabOrders'), icon: 'ph-megaphone' },
+                    { id: 'leave', label: t('leaveInbox'), icon: 'ph-airplane-tilt' },
                     { id: 'otpay', label: t('tabOt'), icon: 'ph-currency-circle-dollar' },
                     { id: 'emergency', label: t('tabEmergency'), icon: 'ph-first-aid' },
                     { id: 'students', label: t('tabStudents'), icon: 'ph-users-three' },
                     { id: 'ptcalc', label: t('tabPtCalc'), icon: 'ph-calculator' },
                     { id: 'admin', label: t('tabAdmin'), icon: 'ph-sliders-horizontal' }
                 ];
-                const pendingLeaveAlertN = user.role === 'director'
+                const pendingLeaveAlertN = canManageLeaveInbox(user)
                     ? loadLeaveRequests().filter((L) => L.status === 'pending').length
                     : 0;
                 const nav = document.getElementById('dash-tabs');
@@ -28259,6 +28449,7 @@
             function renderPanels(user) {
                 const panels = document.getElementById('tab-panels');
                 if (user.role === 'admin') {
+                    const adminLeaveParts = buildLeaveInboxParts();
                     const accounts = editableAccountsForAdmin();
                     if (!adminSelectedId || !accounts.some(a => a.id === adminSelectedId)) {
                         adminSelectedId = accounts[0]?.id || null;
@@ -28416,6 +28607,11 @@
                         </div>
                         <div id="admin-order-feed" style="margin-top:1rem"></div>
                     </div></div>
+                    <div class="tab-panel" data-panel="leave"><div class="content-card compact-card">${heading('ph-airplane-tilt','leaveInbox')}
+                        ${buildHolidayCalendarHtml()}
+                        ${adminLeaveParts.leaveInboxHead}
+                        ${adminLeaveParts.leaveInbox}
+                    </div></div>
                     <div class="tab-panel" data-panel="otpay"><div class="content-card compact-card">
                         <div id="ot-pay-board"></div>
                     </div></div>
@@ -28570,7 +28766,7 @@
                 let extra = '';
                 if (user.role === 'director') {
                     const teachers = teacherAccounts();
-                    const leaves = loadLeaveRequests().slice().reverse();
+                    const { leaveInboxHead, leaveInbox, pendingLeaveN } = buildLeaveInboxParts();
 
                     const teacherOpts = teachers.map(tea => `<option value="${tea.id}">${displayName(tea)}</option>`).join('');
                     try { purgeStaleHeadOrders({ syncRemote: true }); } catch (_) {}
@@ -28651,49 +28847,6 @@
                             </div>
                         </div>`;
                     }).join('') || `<p class="empty-note">${t('orderMonthEmpty')}</p>`;
-
-                    const pendingLeaveN = leaves.filter((L) => L.status === 'pending').length;
-                    const leaveInbox = leaves.length ? leaves.map((L) => {
-                        const isPending = L.status === 'pending';
-                        const isOpen = leaveInboxOpenId === L.id;
-                        const reason = String(pickLangText(L, 'reason') || L.reason || '').replace(/</g, '&lt;').replace(/\n/g, '<br>');
-                        const typeLbl = L.leaveType ? (pickLangText(L, 'leaveTypeLabel') || leaveTypeLabel(L.leaveType)) : '';
-                        if (!isPending) {
-                            const doneCls = L.status === 'approved' ? 'ok' : 'no';
-                            const doneLbl = L.status === 'approved' ? t('approved') : t('reject');
-                            return `<div class="leave-inbox-card is-done">
-                                <div>
-                                    <div class="li-name">${L.fromName || ''}</div>
-                                    <div class="li-meta">${L.from || ''} → ${L.to || ''}${typeLbl ? ` · ${typeLbl}` : ''}</div>
-                                </div>
-                                <span class="li-badge ${doneCls}">${doneLbl}</span>
-                            </div>`;
-                        }
-                        return `
-                        <button type="button" class="leave-inbox-card is-pending${isOpen ? ' is-open' : ''}" data-leave-open="${L.id}" aria-expanded="${isOpen ? 'true' : 'false'}">
-                            <div>
-                                <div class="li-name">${L.fromName || ''}</div>
-                                <div class="li-meta">${L.from || ''} → ${L.to || ''}${typeLbl ? ` · ${typeLbl}` : ''}</div>
-                                <div class="li-hint"><i class="ph ph-hand-pointing"></i> ${t('leaveOpenDecide')}</div>
-                            </div>
-                            <span class="li-badge">${t('pending')}</span>
-                        </button>
-                        <div class="leave-inbox-detail${isOpen ? ' open' : ''}" data-leave-detail="${L.id}">
-                            <p class="lid-hint"><i class="ph ph-warning-circle"></i> ${t('leaveDecideHint')}</p>
-                            <div class="lid-body">${typeLbl ? `<span class="badge" style="margin-right:.35rem">${typeLbl}</span>` : ''}${reason || '—'}</div>
-                            ${pickLangText(L, 'comment') || L.comment ? `<div class="text-xs text-slate-500" style="margin-bottom:.45rem">💬 ${pickLangText(L, 'comment') || L.comment}</div>` : ''}
-                            <input type="text" class="sched-text leave-comment" data-leave-id="${L.id}" placeholder="${t('comment')}" style="margin-bottom:.5rem">
-                            <div class="admin-actions">
-                                <button type="button" class="soft-btn" data-leave-approve="${L.id}">${t('approve')}</button>
-                                <button type="button" class="soft-btn ghost" data-leave-reject="${L.id}">${t('reject')}</button>
-                            </div>
-                        </div>`;
-                    }).join('') : `<p class="empty-note">${t('none')}</p>`;
-                    const leaveInboxHead = `<h3 class="leave-inbox-head${pendingLeaveN ? ' has-pending' : ''}">
-                        ${t('leaveInbox')}
-                        ${pendingLeaveN ? `<span class="lih-badge">${t('leavePendingAlert')} · ${pendingLeaveN}</span>` : ''}
-                    </h3>
-                    ${pendingLeaveN ? `<p class="text-xs mb-2" style="color:#c2410c;font-weight:700">${t('leaveClickOpen')}</p>` : ''}`;
 
                     const canPurgeRead = canDeleteReadReports(user);
                     const canApproveReports = canApproveReportInbox(user);
@@ -32408,8 +32561,11 @@
                 pruneNonFirstSchedAlerts();
                 const list = loadSchedChanges();
                 const now = new Date().toISOString();
+                const today = todayKey();
                 list.forEach(c => {
-                    if (c.status === 'pending_director' && isDirectorSchedAlertAction(c.action)) {
+                    if (c.status === 'pending_director'
+                        && isDirectorSchedAlertAction(c.action)
+                        && String(c.date || '') === today) {
                         c.status = 'acked';
                         c.directorAckAt = now;
                     }

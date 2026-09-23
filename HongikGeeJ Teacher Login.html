@@ -8362,15 +8362,22 @@
         .room-tt-cell.is-corner { left: 0; top: 0; z-index: 4; }
         .room-tt-cell.is-time {
             left: 0; z-index: 3; display: flex; align-items: center; justify-content: center;
-            font-size: .68rem; font-weight: 800; color: #475569;
-            background: #eef2f7;
+            font-size: .9rem; font-weight: 850; color: #0f172a; letter-spacing: .02em;
+            background: #e8edf4;
+            border-right: 1px solid #cbd5e1;
         }
         .room-tt-cell.is-day {
-            top: 0; z-index: 3; text-align: center; padding: .32rem .15rem .28rem;
-            background: #eef2f7;
+            top: 0; z-index: 3; text-align: center; padding: .4rem .18rem .34rem;
+            background: #e8edf4;
+            border-bottom: 2px solid #94a3b8;
+            animation: roomTtDayHeadPulse 3.6s ease-in-out infinite;
         }
-        .room-tt-day-name { font-size: .74rem; font-weight: 850; color: #0f172a; }
-        .room-tt-day-date { font-size: .62rem; color: #64748b; font-weight: 650; }
+        .room-tt-day-name { font-size: .98rem; font-weight: 900; color: #0f172a; line-height: 1.15; }
+        .room-tt-day-date { font-size: .8rem; color: #334155; font-weight: 750; margin-top: .06rem; letter-spacing: .03em; }
+        @keyframes roomTtDayHeadPulse {
+            0%, 100% { border-bottom-color: #94a3b8; }
+            50% { border-bottom-color: #38bdf8; }
+        }
         .room-tt-rooms {
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .15rem; margin-top: .18rem;
         }
@@ -8399,12 +8406,66 @@
         .room-tt-cell.is-today-col.is-day {
             background: #e0f2fe;
             box-shadow: inset 0 -2px 0 #38bdf8;
+            animation: none;
         }
         .room-tt-cell.is-today-col.is-day-start {
             box-shadow: inset 3px 0 0 #0ea5e9;
         }
         .room-tt-cell.is-today-col.is-day.is-day-start {
             box-shadow: inset 3px 0 0 #0ea5e9, inset 0 -2px 0 #38bdf8;
+        }
+        /* Past days (Asia/Bangkok): muted wash, not editable — keep cancelled dark-red / released visible */
+        .room-tt-cell.is-past-day.is-room-a,
+        .room-tt-cell.is-past-day.is-room-b,
+        .room-tt-cell.is-past-day.is-room-c {
+            background: #e4e6ea !important;
+        }
+        .room-tt-cell.is-past-day.is-day {
+            background: #d5d8de !important;
+            animation: none;
+            border-bottom-color: #94a3b8;
+            box-shadow: inset 0 -2px 0 #94a3b8;
+        }
+        .room-tt-cell.is-past-day.is-day .room-tt-day-name { color: #64748b; }
+        .room-tt-cell.is-past-day.is-day .room-tt-day-date { color: #94a3b8; }
+        .room-tt-cell.is-past-day.is-day-start {
+            box-shadow: inset 3px 0 0 #94a3b8;
+        }
+        .room-tt-cell.is-past-day.is-day.is-day-start {
+            box-shadow: inset 3px 0 0 #94a3b8, inset 0 -2px 0 #94a3b8;
+        }
+        .room-tt-cell.is-past-day .room-tt-plus {
+            pointer-events: none !important;
+            cursor: default !important;
+            opacity: .32;
+            filter: grayscale(.4);
+            box-shadow: none;
+        }
+        .room-tt-cell.is-past-day .room-tt-plus:hover,
+        .room-tt-cell.is-past-day .room-tt-plus:focus-visible {
+            transform: none;
+            border-color: rgba(148, 163, 184, .45);
+            color: rgba(148, 163, 184, .45);
+            background: linear-gradient(160deg, #f1f5f9 0%, #e2e8f0 100%);
+            box-shadow: none;
+        }
+        .room-tt-cell.is-past-day .room-tt-booked {
+            pointer-events: none !important;
+            cursor: default !important;
+        }
+        .room-tt-cell.is-past-day .room-tt-booked:not(.is-cancelled):not(.is-break):not(.is-released) {
+            filter: grayscale(.28);
+            opacity: .82;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, .06);
+        }
+        .room-tt-cell.is-past-day .room-tt-booked.is-released {
+            filter: grayscale(.2);
+            opacity: .88;
+        }
+        .room-tt-cell.is-past-day .room-tt-booked.is-cancelled,
+        .room-tt-cell.is-past-day .room-tt-booked.is-break {
+            filter: none;
+            opacity: .95;
         }
         /* Empty slots: soft gray-white pin/watermark; booked colors stay vivid */
         .room-tt-plus {
@@ -12353,10 +12414,14 @@
                 classStatusHint: '수업 상태 선택 (담당 선생님 · 원장 · 관리자)',
                 classStatusOwnerOnly: '담당 선생님·원장·관리자만 상태를 바꿀 수 있어요',
                 schedAlertKindClassStatus: '수업 상태 변경',
+                schedAlertKindClassCancelled: '수업 취소',
                 schedAlertSummaryStudentPostpone: '학생이 수업을 연기해 교실이 비었습니다',
+                schedAlertSummaryClassCancelled: '선생님이 수업을 취소했습니다',
                 schedActionClassStatus: '수업 상태',
+                schedActionClassCancelled: '취소',
                 roomTtReleasedHint: '학생 연기 · 다른 선생님 예약 가능',
                 roomTtCancelledHint: '취소 · 다른 선생님 예약 가능',
+                roomTtPastLocked: '지난 날짜는 수정할 수 없습니다',
                 schedDayOffBtn: '오늘 수업 없음',
                 schedDayOffHint: '오늘은 수업이 없을 때 · 시간·과목 입력 없이 바로 표시',
                 schedDayOffTitle: '오늘 수업 없음',
@@ -12385,6 +12450,7 @@
                 schedAlertLblTime: '시간',
                 schedAlertLblSubject: '과목',
                 schedAlertLblType: '수업 유형',
+                schedAlertLblRoom: '교실',
                 schedAlertLblStatus: '상태',
                 schedActionAdd: '추가',
                 schedActionEdit: '수정',
@@ -13284,10 +13350,14 @@
                 classStatusHint: 'เลือกสถานะคลาส (ครูเจ้าของคลาส · ผู้อำนวยการ · แอดมิน)',
                 classStatusOwnerOnly: 'เฉพาะครูเจ้าของคลาส · ผู้อำนวยการ · แอดมิน ที่เปลี่ยนสถานะได้',
                 schedAlertKindClassStatus: 'เปลี่ยนสถานะคลาส',
+                schedAlertKindClassCancelled: 'ยกเลิกคลาส',
                 schedAlertSummaryStudentPostpone: 'นักเรียนเลื่อนคลาส — ห้องว่างให้จองทับได้',
+                schedAlertSummaryClassCancelled: 'ครูยกเลิกคลาสแล้ว',
                 schedActionClassStatus: 'สถานะคลาส',
+                schedActionClassCancelled: 'ยกเลิก',
                 roomTtReleasedHint: 'นักเรียนเลื่อน · ครูอื่นจองทับได้',
                 roomTtCancelledHint: 'ยกเลิก · ครูอื่นจองทับได้',
+                roomTtPastLocked: 'วันที่ยผ่านมาแก้ไม่ได้',
                 schedDayOffBtn: 'วันนี้ไม่มีคลาส',
                 schedDayOffHint: 'วันที่ไม่มีสอน · ไม่ต้องใส่เวลาหรือวิชา',
                 schedDayOffTitle: 'วันนี้ไม่มีคลาส',
@@ -13316,6 +13386,7 @@
                 schedAlertLblTime: 'เวลา',
                 schedAlertLblSubject: 'วิชา / หัวข้อ',
                 schedAlertLblType: 'ประเภทคลาส',
+                schedAlertLblRoom: 'ห้อง',
                 schedAlertLblStatus: 'สถานะ',
                 schedActionAdd: 'เพิ่ม',
                 schedActionEdit: 'แก้ไข',
@@ -14215,10 +14286,14 @@
                 classStatusHint: 'Set class status (owning teacher · director · admin)',
                 classStatusOwnerOnly: 'Only the owning teacher, director, or admin can change status',
                 schedAlertKindClassStatus: 'Class status changed',
+                schedAlertKindClassCancelled: 'Class cancelled',
                 schedAlertSummaryStudentPostpone: 'Student postponed — room freed for rebooking',
+                schedAlertSummaryClassCancelled: 'Teacher cancelled a class',
                 schedActionClassStatus: 'Class status',
+                schedActionClassCancelled: 'Cancelled',
                 roomTtReleasedHint: 'Student postponed · others may book over',
                 roomTtCancelledHint: 'Cancelled · others may book over',
+                roomTtPastLocked: 'Past days cannot be edited',
                 schedDayOffBtn: 'No class today',
                 schedDayOffHint: 'Day off teaching · no time or subject needed',
                 schedDayOffTitle: 'No class today',
@@ -14247,6 +14322,7 @@
                 schedAlertLblTime: 'Time',
                 schedAlertLblSubject: 'Subject',
                 schedAlertLblType: 'Class type',
+                schedAlertLblRoom: 'Room',
                 schedAlertLblStatus: 'Status',
                 schedActionAdd: 'Added',
                 schedActionEdit: 'Edited',
@@ -15650,24 +15726,94 @@
             }
             return false;
         }
+        /** Sched-alert popup is day-scoped: only Asia/Bangkok 「today」 class dates. */
+        function isSchedAlertForPortalToday(c) {
+            return String(c?.date || '') === todayKey();
+        }
         function pendingDirectorSchedChanges() {
-            // Director popup: add / edit / delete / no-class / room TT edit
+            // Director popup: add / edit / delete / no-class / room TT / class-status — today only
             return loadSchedChanges().filter(c =>
-                c.status === 'pending_director' && isDirectorSchedAlertAction(c.action)
+                c.status === 'pending_director'
+                && isDirectorSchedAlertAction(c.action)
+                && isSchedAlertForPortalToday(c)
             );
         }
-        /** Drop pending rows whose action is unknown / not a director alert. */
+        /** Drop pending rows whose action is unknown / not a director alert, or whose class date is not today. */
         function pruneNonFirstSchedAlerts() {
             const list = loadSchedChanges();
+            const today = todayKey();
+            const now = new Date().toISOString();
             let changed = false;
             const next = list.map((c) => {
-                if (c.status === 'pending_director' && !isDirectorSchedAlertAction(c.action)) {
+                if (c.status !== 'pending_director') return c;
+                if (!isDirectorSchedAlertAction(c.action)) {
                     changed = true;
-                    return { ...c, status: 'director_skipped', skippedAt: new Date().toISOString() };
+                    return { ...c, status: 'director_skipped', skippedAt: now };
+                }
+                if (String(c.date || '') !== today) {
+                    changed = true;
+                    return { ...c, status: 'expired_day', expiredAt: now, expiredDay: String(c.date || '') };
                 }
                 return c;
             });
             if (changed) saveSchedChanges(next);
+        }
+        /**
+         * If today’s room-TT slots are already ยกเลิก but never enqueued a director alert
+         * (e.g. cancelled before this feature), backfill one pending_director row each.
+         */
+        function backfillTodayCancelledSchedAlerts() {
+            const today = todayKey();
+            let blocks = [];
+            try {
+                blocks = typeof listRoomBlocksForDate === 'function' ? listRoomBlocksForDate(today) : [];
+            } catch (_) { blocks = []; }
+            if (!blocks.length) return;
+            const list = loadSchedChanges();
+            let changed = false;
+            blocks.forEach((b) => {
+                if (!b || b.isBreak || b.teacherId === 'break') return;
+                if (normalizeClassStatus(b.classStatus) !== 'cancelled') return;
+                const slotId = String(b.id || '');
+                const exists = list.some((c) => {
+                    if (c.action !== 'class_status') return false;
+                    if (normalizeClassStatus(c.classStatus) !== 'cancelled') return false;
+                    if (slotId && String(c.roomSlotId || '') === slotId) return true;
+                    return String(c.date || '') === today
+                        && String(c.start || '') === String(b.start || '')
+                        && String(c.end || '') === String(b.end || '')
+                        && String(c.teacherId || '') === String(b.teacherId || '');
+                });
+                if (exists) return;
+                const tea = resolveAccountById(b.teacherId, { allowBlocked: true });
+                const roomNote = roomLabel(b.room || 'A');
+                list.push({
+                    id: 'SC' + Date.now() + Math.floor(Math.random() * 1000),
+                    teacherId: b.teacherId || '',
+                    teacherName: tea ? displayName(tea) : (b.teacherId || ''),
+                    date: today,
+                    action: 'class_status',
+                    classType: b.classType || 'regular',
+                    classStatus: 'cancelled',
+                    start: b.start || '',
+                    end: b.end || '',
+                    room: b.room || '',
+                    roomSlotId: slotId,
+                    title: pickLangText(b, 'title') || b.title || '',
+                    titleKo: b.titleKo || b.title || '',
+                    titleTh: b.titleTh || b.title || '',
+                    titleEn: b.titleEn || b.title || '',
+                    status: 'pending_director',
+                    createdAt: new Date().toISOString(),
+                    source: 'room_tt_backfill',
+                    note: roomNote,
+                    noteKo: I18N.ko.schedAlertSummaryClassCancelled,
+                    noteTh: I18N.th.schedAlertSummaryClassCancelled,
+                    noteEn: I18N.en.schedAlertSummaryClassCancelled
+                });
+                changed = true;
+            });
+            if (changed) saveSchedChanges(list);
         }
         function normalizeClassType(type) {
             const v = String(type || '').toLowerCase();
@@ -15813,8 +15959,20 @@
             const after = normalizeClassStatus(afterStatus);
             const before = normalizeClassStatus(beforeStatus);
             if (after === before) return;
-            if (after !== 'student_postponed') return;
+            // Director popup: นักเรียนเลื่อนคลาส + ยกเลิก (same ack flow as add/edit)
+            if (after !== 'student_postponed' && after !== 'cancelled') return;
             const roomNote = roomLabel(slot.room || 'A');
+            const summaryKeys = after === 'cancelled'
+                ? {
+                    noteKo: I18N.ko.schedAlertSummaryClassCancelled,
+                    noteTh: I18N.th.schedAlertSummaryClassCancelled,
+                    noteEn: I18N.en.schedAlertSummaryClassCancelled
+                }
+                : {
+                    noteKo: I18N.ko.schedAlertSummaryStudentPostpone,
+                    noteTh: I18N.th.schedAlertSummaryStudentPostpone,
+                    noteEn: I18N.en.schedAlertSummaryStudentPostpone
+                };
             notifySchedChange({
                 user,
                 action: 'class_status',
@@ -15826,12 +15984,11 @@
                 },
                 extra: {
                     source: 'room_tt',
+                    roomSlotId: slot.id || '',
                     classStatus: after,
                     prevClassStatus: before,
                     note: roomNote,
-                    noteKo: I18N.ko.schedAlertSummaryStudentPostpone,
-                    noteTh: I18N.th.schedAlertSummaryStudentPostpone,
-                    noteEn: I18N.en.schedAlertSummaryStudentPostpone
+                    ...summaryKeys
                 }
             });
         }
@@ -16658,8 +16815,10 @@
         }
         function saveRoomBlock(block, user) {
             if (!block || !block.id) return { ok: false, msg: t('none') };
+            if (isPastRoomTtDate(block.date)) return { ok: false, msg: t('roomTtPastLocked') };
             const store = loadRoomTimetable();
             const prev = store.blocks[block.id];
+            if (prev && isPastRoomTtDate(prev.date)) return { ok: false, msg: t('roomTtPastLocked') };
             const isDirector = user && (user.role === 'director' || user.role === 'admin');
             if (prev && prev.teacherId !== 'break' && prev.teacherId !== 'parttime'
                 && user && prev.teacherId !== user.id && !isDirector && user.role === 'teacher') {
@@ -16856,6 +17015,9 @@
             const store = loadRoomTimetable();
             const prev = store.blocks[blockId];
             if (!prev || !newDate) return { ok: false, msg: t('none') };
+            if (isPastRoomTtDate(prev.date) || isPastRoomTtDate(newDate)) {
+                return { ok: false, msg: t('roomTtPastLocked') };
+            }
             const isDirector = user && (user.role === 'director' || user.role === 'admin');
             if (user && user.role === 'teacher' && prev.teacherId !== user.id && prev.teacherId !== 'parttime' && !isDirector) {
                 return { ok: false, msg: t('roomTtViewOnly') };
@@ -22072,9 +22234,18 @@
             });
         }
 
+        /** School calendar day in Asia/Bangkok (YYYY-MM-DD). */
         function todayKey() {
-            const d = new Date();
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            try {
+                return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+            } catch (_) {
+                const d = new Date();
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            }
+        }
+        function isPastRoomTtDate(dateKey) {
+            const d = String(dateKey || '');
+            return /^\d{4}-\d{2}-\d{2}$/.test(d) && d < todayKey();
         }
 
         /** Public holidays TH (red) / KR (blue) — BE 2565–2570 (2022–2027) */
@@ -24517,6 +24688,11 @@
                 roomTtDraft = draft;
                 const modal = document.getElementById('room-tt-modal');
                 if (!modal || !user || !draft) return;
+                const guardDate = String(draft.date || (draft.blockId ? getRoomBlockById(draft.blockId)?.date : '') || '');
+                if (isPastRoomTtDate(guardDate)) {
+                    showAppToast(t('roomTtPastLocked'), 'warn');
+                    return;
+                }
                 ensureRoomTtWeekSeeded(roomTtWeekOffset);
                 const existing = draft.blockId
                     ? getRoomBlockById(draft.blockId)
@@ -24980,10 +25156,12 @@
                 days.forEach((d, di) => {
                     const key = dateKeyFromDate(d);
                     const isToday = key === today;
+                    const isPast = !isToday && isPastRoomTtDate(key);
                     const dayBand = di % 2 === 0 ? ' is-day-band-a' : ' is-day-band-b';
                     const dayStart = di > 0 ? ' is-day-start' : '';
                     const colStart = 2 + di * 3;
-                    headCells += `<div class="room-tt-cell is-day${dayBand}${dayStart}${isToday ? ' is-today-col' : ''}" style="grid-column:${colStart} / span 3;grid-row:1">
+                    const dayState = isToday ? ' is-today-col' : isPast ? ' is-past-day' : '';
+                    headCells += `<div class="room-tt-cell is-day${dayBand}${dayStart}${dayState}" style="grid-column:${colStart} / span 3;grid-row:1">
                         <div class="room-tt-day-name">${dayNames[di]}</div>
                         <div class="room-tt-day-date">${key.slice(5)}</div>
                         <div class="room-tt-rooms"><span class="r-a">${esc(t('roomTtRoomA'))}</span><span class="r-b">${esc(t('roomTtRoomB'))}</span><span class="r-c">${esc(t('roomTtRoomC'))}</span></div>
@@ -25019,12 +25197,14 @@
                     days.forEach((d, di) => {
                         const date = dateKeyFromDate(d);
                         const isToday = date === today;
+                        const isPast = !isToday && isPastRoomTtDate(date);
                         const dayBand = di % 2 === 0 ? ' is-day-band-a' : ' is-day-band-b';
                         ROOM_TT_ROOMS.forEach((room, ri) => {
                             const col = 2 + di * 3 + ri;
                             const roomCls = ri === 0 ? ' is-room-a' : ri === 1 ? ' is-room-b' : ' is-room-c';
                             const dayStart = ri === 0 && di > 0 ? ' is-day-start' : '';
-                            const colCls = `${dayBand}${dayStart}${roomCls}${isToday ? ' is-today-col' : ''}${isDayEnd ? ' is-day-end' : ''}`;
+                            const dayState = isToday ? ' is-today-col' : isPast ? ' is-past-day' : '';
+                            const colCls = `${dayBand}${dayStart}${roomCls}${dayState}${isDayEnd ? ' is-day-end' : ''}`;
                             // 22:00 axis row = day close (สี่ทุ่ม): still bookable via last half 21:30–22:00
                             const bookHalf = isDayEnd ? roomTtFromMin(ROOM_TT_END_MIN - 30) : half;
                             const key = `${date}|${room}|${bookHalf}`;
@@ -25050,12 +25230,20 @@
                                     const rMod = rCancelled ? 'is-cancelled' : 'is-released';
                                     const rHint = rCancelled ? t('roomTtCancelledHint') : t('roomTtReleasedHint');
                                     const rBadge = classStatusBadgeHtml(releasedSlot.classStatus);
-                                    const plusBtn = canBook
+                                    const canBookCell = canBook && !isPast;
+                                    const plusBtn = canBookCell
                                         ? `<button type="button" class="room-tt-plus" data-rt-book="${esc(date)}|${room}|${bookHalf}" title="${esc(rHint)}" aria-label="+"><i class="ph ph-plus"></i></button>`
-                                        : '';
-                                    body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
-                                        <div class="room-tt-released-stack">
-                                            <button type="button" class="room-tt-booked ${rMod}"
+                                        : (canBook
+                                            ? `<div class="room-tt-plus" aria-hidden="true" title="${esc(t('roomTtPastLocked'))}"><i class="ph ph-plus"></i></div>`
+                                            : '');
+                                    const releasedBtn = isPast
+                                        ? `<div class="room-tt-booked ${rMod}" data-teacher="${esc(releasedSlot.teacherId || '')}" title="${esc(rHint)}" aria-disabled="true">
+                                                <span class="rt-name">${esc(rTea)}</span>
+                                                <span class="rt-subj">${esc(rSubj)}</span>
+                                                <span class="rt-subj" style="opacity:.8">${esc(releasedSlot.start)}–${esc(releasedSlot.end)}</span>
+                                                ${rBadge}
+                                            </div>`
+                                        : `<button type="button" class="room-tt-booked ${rMod}"
                                                 data-rt-edit="${esc(releasedSlot.id)}"
                                                 data-teacher="${esc(releasedSlot.teacherId || '')}"
                                                 title="${esc(rHint)}">
@@ -25063,10 +25251,19 @@
                                                 <span class="rt-subj">${esc(rSubj)}</span>
                                                 <span class="rt-subj" style="opacity:.8">${esc(releasedSlot.start)}–${esc(releasedSlot.end)}</span>
                                                 ${rBadge}
-                                            </button>
+                                            </button>`;
+                                    body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
+                                        <div class="room-tt-released-stack">
+                                            ${releasedBtn}
                                             ${plusBtn}
                                         </div>
                                     </div>`;
+                                    return;
+                                }
+                                if (isPast || !canBook) {
+                                    body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
+                                    <div class="room-tt-plus" aria-hidden="true"${isPast ? ` title="${esc(t('roomTtPastLocked'))}"` : ''}><i class="ph ph-plus"></i></div>
+                                </div>`;
                                     return;
                                 }
                                 body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
@@ -25089,16 +25286,19 @@
                             const avSrc = showAv ? (typeof getDisplayPhoto === 'function' ? getDisplayPhoto(slot.teacherId) : '') : '';
                             const avHtml = avSrc ? `<img class="rt-avatar" src="${avSrc}" alt="" width="15" height="15">` : '';
                             const stBadge = slot.isBreak ? '' : classStatusBadgeHtml(slot.classStatus, { hideNormal: true });
-                            body += `<div class="room-tt-cell${colCls}${merged ? ' is-span-host' : ''}" style="grid-column:${col};grid-row:${row} / span ${span}">
-                                <button type="button" class="room-tt-booked${mine ? ' is-mine' : ''}${slot.isBreak ? ' is-break' : ''}${merged ? ' is-merged' : ''}"
-                                    data-rt-edit="${esc(slot.id)}"
-                                    data-teacher="${esc(slot.teacherId || '')}"
-                                    style="background:${c.bg};border-color:${c.border};color:${c.accent}">
-                                    <span class="rt-name">${avHtml}${esc(teaLabel)}</span>
+                            const bookedInner = `<span class="rt-name">${avHtml}${esc(teaLabel)}</span>
                                     <span class="rt-subj">${esc(subj)}</span>
                                     <span class="rt-subj" style="opacity:.8">${esc(slot.start)}–${esc(slot.end)}${stuN ? ` · ${stuN}` : ''}</span>
-                                    ${stBadge}
-                                </button>
+                                    ${stBadge}`;
+                            const bookedCls = `room-tt-booked${mine ? ' is-mine' : ''}${slot.isBreak ? ' is-break' : ''}${merged ? ' is-merged' : ''}${isPast ? ' is-locked' : ''}`;
+                            const bookedEl = isPast
+                                ? `<div class="${bookedCls}" data-teacher="${esc(slot.teacherId || '')}" style="background:${c.bg};border-color:${c.border};color:${c.accent}" title="${esc(t('roomTtPastLocked'))}" aria-disabled="true">${bookedInner}</div>`
+                                : `<button type="button" class="${bookedCls}"
+                                    data-rt-edit="${esc(slot.id)}"
+                                    data-teacher="${esc(slot.teacherId || '')}"
+                                    style="background:${c.bg};border-color:${c.border};color:${c.accent}">${bookedInner}</button>`;
+                            body += `<div class="room-tt-cell${colCls}${merged ? ' is-span-host' : ''}" style="grid-column:${col};grid-row:${row} / span ${span}">
+                                ${bookedEl}
                             </div>`;
                         });
                     });
@@ -25207,6 +25407,10 @@
                     }
                     btn.addEventListener('click', () => {
                         // Two-tap range: first = start, second (same room/day, later) = end → open modal
+                        if (isPastRoomTtDate(date)) {
+                            showAppToast(t('roomTtPastLocked'), 'warn');
+                            return;
+                        }
                         if (!roomTtRangePick || roomTtRangePick.date !== date || roomTtRangePick.room !== room) {
                             roomTtRangePick = { date, room, start: half };
                             renderRoomTimetableBoard(user);
@@ -25240,6 +25444,10 @@
                         const id = String(btn.dataset.rtEdit || '');
                         const block = getRoomBlockById(id);
                         if (!block) return;
+                        if (isPastRoomTtDate(block.date)) {
+                            showAppToast(t('roomTtPastLocked'), 'warn');
+                            return;
+                        }
                         roomTtRangePick = null;
                         openRoomTtModal(user, { date: block.date, room: block.room, start: block.start, end: block.end, blockId: block.id });
                     });
@@ -31581,6 +31789,7 @@
                     return;
                 }
                 pruneNonFirstSchedAlerts();
+                backfillTodayCancelledSchedAlerts();
                 const pending = pendingDirectorSchedChanges();
                 if (!pending.length) {
                     modal.classList.remove('open');
@@ -31598,36 +31807,40 @@
                     const isUndoOff = c.action === 'undodayoff';
                     const isRoomEdit = c.action === 'room_edit';
                     const isClassStatus = c.action === 'class_status';
+                    const isCancelledStatus = isClassStatus && normalizeClassStatus(c.classStatus) === 'cancelled';
                     const isEdit = c.action === 'edit';
                     const isDelete = c.action === 'delete';
-                    const kind = isClassStatus ? t('schedAlertKindClassStatus')
+                    const kind = isCancelledStatus ? t('schedAlertKindClassCancelled')
+                        : (isClassStatus ? t('schedAlertKindClassStatus')
                         : (isRoomEdit ? t('schedAlertKindRoomEdit')
                         : (isUndoOff ? t('schedAlertKindUndoOff')
                         : (isOff ? t('schedAlertKindOff')
                         : (isEdit ? t('schedAlertKindEdit')
-                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd'))))));
-                    const summary = isClassStatus ? t('schedAlertSummaryStudentPostpone')
+                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd')))))));
+                    const summary = isCancelledStatus ? t('schedAlertSummaryClassCancelled')
+                        : (isClassStatus ? t('schedAlertSummaryStudentPostpone')
                         : (isRoomEdit ? t('schedAlertSummaryRoomEdit')
                         : (isUndoOff ? t('schedAlertSummaryUndoOff')
                         : (isOff ? t('schedAlertSummaryOff')
                         : (isEdit ? t('schedAlertSummaryEdit')
-                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd'))))));
+                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd')))))));
                     const subject = pickLangText(c, 'title') || c.title || (isOff || isUndoOff ? t('schedDayOffTitle') : '—');
                     const time = (!isOff && !isUndoOff && (c.start || c.end))
                         ? `${c.start || '—'}–${c.end || '—'}`
                         : '—';
                     const typeLbl = isClassStatus
-                        ? classStatusLabel(c.classStatus || 'student_postponed')
+                        ? classStatusLabel(c.classStatus || (isCancelledStatus ? 'cancelled' : 'student_postponed'))
                         : (isRoomEdit
                         ? (c.room ? roomLabel(c.room) : t('schedActionRoomEdit'))
                         : classTypeLabel((isOff || isUndoOff) ? 'dayoff' : (c.classType || 'regular')));
-                    const pill = isClassStatus ? t('schedActionClassStatus')
+                    const pill = isCancelledStatus ? t('schedActionClassCancelled')
+                        : (isClassStatus ? t('schedActionClassStatus')
                         : (isRoomEdit ? t('schedActionRoomEdit')
                         : (isUndoOff ? t('schedActionUndoDayOff')
                         : (isOff ? t('schedActionDayOff')
                         : (isEdit ? t('schedActionEdit')
-                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd'))))));
-                    const cardClass = (isOff || isUndoOff ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
+                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd')))))));
+                    const cardClass = (isOff || isUndoOff || isCancelledStatus ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
                     const teaLbl = schedAlertTeacherLabel(c);
                     const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                     return `<div class="sched-alert-card ${cardClass}">
@@ -31641,6 +31854,7 @@
                             <div><dt>${esc(t('schedAlertLblDate'))}</dt><dd>${esc(c.date || '—')}</dd></div>
                             ${(isOff || isUndoOff) ? '' : `<div><dt>${esc(t('schedAlertLblTime'))}</dt><dd>${esc(time)}</dd></div>`}
                             <div><dt>${esc(t('schedAlertLblSubject'))}</dt><dd>${esc(subject)}</dd></div>
+                            ${c.room ? `<div><dt>${esc(t('schedAlertLblRoom'))}</dt><dd>${esc(roomLabel(c.room))}</dd></div>` : ''}
                             <div><dt>${esc(isClassStatus ? t('classStatusLabel') : t('schedAlertLblType'))}</dt><dd>${esc(typeLbl)}</dd></div>
                             <div><dt>${esc(t('schedAlertLblStatus'))}</dt><dd>${esc(t('pending'))}</dd></div>
                         </dl>
@@ -31854,7 +32068,7 @@
                 }
 
                 // Save (progress / booking edits): silent — no password popup.
-                // Status นักเรียนเลื่อนคลาส → director sched-alert notify.
+                // Status นักเรียนเลื่อนคลาส / ยกเลิก → director sched-alert notify.
                 if (existing) {
                     const next = {
                         ...existing,
