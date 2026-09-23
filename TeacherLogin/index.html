@@ -4855,9 +4855,10 @@
         .pt-calc-table th { background: #f8fafc; color: #475569; font-weight: 800; white-space: nowrap; }
         .pt-calc-table tr:last-child td { border-bottom: none; }
         .pt-calc-preview {
-            margin: .55rem 0 .35rem; padding: .65rem .85rem; border-radius: .85rem;
-            background: linear-gradient(120deg, #fef3c7, #fff7ed); border: 1.5px solid #fcd34d;
-            color: #92400e; font-weight: 800; font-size: .9rem;
+            margin: .45rem 0 0; padding: .1rem .15rem 0;
+            background: transparent; border: none; border-radius: 0;
+            color: #94a3b8; font-weight: 600; font-size: .72rem; line-height: 1.35;
+            text-align: center;
         }
         .pt-calc-form { margin-bottom: .35rem; }
         .pt-calc-toolbar {
@@ -4875,10 +4876,11 @@
         .pt-calc-sum {
             display: inline-flex; flex-wrap: wrap; align-items: center; gap: .35rem .65rem;
             padding: .4rem .7rem; border-radius: .8rem;
-            background: linear-gradient(120deg, #0f2744, #1e3a5f); color: #fff;
+            background: linear-gradient(120deg, #047857, #10b981); color: #fff;
             font-weight: 800; font-size: .82rem; white-space: nowrap;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, .32);
         }
-        .pt-calc-sum .pt-sum-hrs { opacity: .85; font-weight: 700; }
+        .pt-calc-sum .pt-sum-hrs { opacity: .9; font-weight: 700; }
         .pt-cal {
             margin: .2rem 0 .85rem; border-radius: 1.1rem; border: 1.5px solid #e2e8f0;
             background: #fff; overflow: hidden;
@@ -4919,6 +4921,24 @@
         .pt-cal-cell.today.has-entries {
             background: linear-gradient(160deg, #ffedd5 0%, #fce7f3 100%);
         }
+        .pt-cal-cell.pt-day-past {
+            background: #cfd8e6;
+            color: #64748b;
+            opacity: .78;
+            box-shadow: inset 0 0 0 1px rgba(100,116,139,.28);
+        }
+        .pt-cal-cell.pt-day-past.has-entries {
+            background: linear-gradient(160deg, #e2d0da 0%, #d9bccb 100%);
+            box-shadow: inset 0 0 0 1px rgba(148,163,184,.4);
+        }
+        .pt-cal-cell.pt-day-past .pt-cal-num {
+            color: #64748b;
+            text-decoration: line-through;
+            text-decoration-thickness: 1px;
+            text-decoration-color: rgba(100,116,139,.5);
+        }
+        .pt-cal-cell.pt-day-past.sun .pt-cal-num { color: #b91c1c; }
+        .pt-cal-cell.pt-day-past .pt-cal-pill { filter: saturate(.7); opacity: .9; }
         .pt-cal-num { font-weight: 850; font-size: .95rem; line-height: 1.2; }
         .pt-cal-add {
             align-self: flex-end; width: 1.55rem; height: 1.55rem; border-radius: .5rem;
@@ -4956,7 +4976,7 @@
         }
         .pt-add-primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
         #pt-entry-modal .modal-box { width: min(460px, 100%); }
-        #pt-entry-modal .pt-calc-preview { margin-top: .75rem; }
+        #pt-entry-modal .pt-calc-preview { margin: .5rem 0 0; }
         @media (max-width: 640px) {
             .pt-cal-cell { min-height: 64px; }
             .pt-cal-pill { font-size: .58rem; }
@@ -5022,8 +5042,23 @@
             flex: 0 0 auto;
         }
         .pt-calc-chip:nth-child(2) { border-color: rgba(186, 230, 253, .95); color: #3f5f7a; }
-        .pt-calc-chip:nth-child(3) { border-color: rgba(167, 243, 208, .95); color: #3d6b5a; }
-        .pt-calc-chip:nth-child(4) { border-color: rgba(253, 230, 138, .95); color: #7a5a2e; }
+        .pt-calc-chip:nth-child(3),
+        .pt-calc-chip-range {
+            border-color: rgba(167, 243, 208, .95);
+            color: #3d6b5a;
+        }
+        .pt-calc-chip-range {
+            font-size: .84rem;
+            font-weight: 780;
+            padding: .4rem .78rem;
+            gap: .38rem;
+            line-height: 1.35;
+            white-space: normal;
+            max-width: min(100%, 28rem);
+        }
+        .pt-calc-chip-range::before {
+            width: .42rem; height: .42rem;
+        }
         @keyframes ptCalcBloom {
             0%, 100% { transform: scale(1) rotate(0deg); opacity: .55; }
             50% { transform: scale(1.18) rotate(12deg); opacity: .9; }
@@ -11840,8 +11875,7 @@
                 ptCalcHint: '시급 ฿300 · 시간×주×300으로 계산·월별 저장',
                 ptCalcChipRate: '시급 ฿300',
                 ptCalcChipFormula: '시간×주×300',
-                ptCalcChipLookback: '9/2026–12/2027',
-                ptCalcChipAuto: '창 밖 기록 자동 정리',
+                ptCalcChipLookback: '이 페이지는 해당 기간을 다룹니다',
                 ptHistory: '수업 기록',
                 ptEditRecord: '기록 수정',
                 ptAddDay: '이날 추가',
@@ -11852,11 +11886,12 @@
                 ptFormula: '공식: 시간 × 주 × ฿300',
                 ptRateFixed: '시급 고정 ฿300',
                 ptCalcTotal: '이달 합계',
+                ptCalcExample: '예시:',
                 ptSaveRecord: '계산 결과 저장',
                 ptAddRecord: '선생님 항목 추가',
                 ptNoRecords: '이달 기록 없음',
                 ptPickMonth: '월 선택',
-                ptLookback: '2026.9–2027.12 · 창 밖 기록 자동 정리',
+                ptLookback: '해당 기간만 입력할 수 있습니다',
                 ptViewOnly: '조회 전용'
             },
             th: {
@@ -12734,8 +12769,7 @@
                 ptCalcHint: 'อัตรา ฿300/ชม. · คำนวณ ชม.×สัปดาห์×300 แล้วบันทึกรายเดือน',
                 ptCalcChipRate: 'อัตรา ฿300/ชม.',
                 ptCalcChipFormula: 'ชม.×สัปดาห์×300',
-                ptCalcChipLookback: '9/2026–12/2027',
-                ptCalcChipAuto: 'ลบนอกช่วงอัตโนมัติ',
+                ptCalcChipLookback: 'หน้านี้ครอบคลุมช่วงเวลานี้',
                 ptHistory: 'ประวัติการสอน',
                 ptEditRecord: 'แก้ไขรายการ',
                 ptAddDay: 'เพิ่มวันนี้',
@@ -12746,11 +12780,12 @@
                 ptFormula: 'สูตร: ชม. × สัปดาห์ × ฿300',
                 ptRateFixed: 'เรทคงที่ ฿300/ชม.',
                 ptCalcTotal: 'รวมเดือนนี้',
+                ptCalcExample: 'ตัวอย่าง:',
                 ptSaveRecord: 'บันทึกผลคำนวณ',
                 ptAddRecord: 'เพิ่มรายการคุณครู',
                 ptNoRecords: 'ยังไม่มีรายการเดือนนี้',
                 ptPickMonth: 'เลือกเดือน',
-                ptLookback: 'ก.ย. 2026 – ธ.ค. 2027 · ลบนอกช่วงอัตโนมัติ',
+                ptLookback: 'เลือกได้เฉพาะช่วงที่รองรับ',
                 ptViewOnly: 'ดูอย่างเดียว'
             },
             en: {
@@ -13628,8 +13663,7 @@
                 ptCalcHint: '฿300/hr · hours × weeks × 300, saved by month',
                 ptCalcChipRate: '฿300/hr',
                 ptCalcChipFormula: 'hr × wk × 300',
-                ptCalcChipLookback: '9/2026–12/2027',
-                ptCalcChipAuto: 'auto-prune outside window',
+                ptCalcChipLookback: 'This page covers this period',
                 ptHistory: 'Teaching history',
                 ptEditRecord: 'Edit entry',
                 ptAddDay: 'Add this day',
@@ -13640,11 +13674,12 @@
                 ptFormula: 'Formula: hours × weeks × ฿300',
                 ptRateFixed: 'Fixed rate ฿300/hr',
                 ptCalcTotal: 'Month total',
+                ptCalcExample: 'Example:',
                 ptSaveRecord: 'Save calculation',
                 ptAddRecord: 'Add teacher entry',
                 ptNoRecords: 'No records this month',
                 ptPickMonth: 'Pick month',
-                ptLookback: 'Sep 2026 – Dec 2027 · auto-prune outside window',
+                ptLookback: 'Only the supported period can be entered',
                 ptViewOnly: 'View only'
             }
         };
@@ -25319,7 +25354,7 @@
                     const h = Number(hours) > 0 ? Number(hours) : 0;
                     const totalH = Math.round(h * weeks * 100) / 100;
                     const pay = Math.round(totalH * PT_RATE);
-                    preview.textContent = `${h} × ${weeks} × ฿${PT_RATE} = ฿${pay.toLocaleString()} (${totalH}${t('ptHours')})`;
+                    preview.textContent = `${t('ptCalcExample')} ${h} × ${weeks} × ฿${PT_RATE} = ฿${pay.toLocaleString()}`;
                 };
                 ['pt-calc-start', 'pt-calc-end', 'pt-calc-hours', 'pt-calc-weeks'].forEach((id) => {
                     const el = document.getElementById(id);
@@ -25451,7 +25486,8 @@
                         'pt-cal-cell',
                         i % 7 === 0 ? 'sun' : '',
                         dayRecs.length ? 'has-entries' : '',
-                        dateStr === today ? 'today' : ''
+                        dateStr === today ? 'today' : '',
+                        dateStr < today ? 'pt-day-past' : ''
                     ].filter(Boolean).join(' ');
                     const addBtn = canEdit
                         ? `<button type="button" class="pt-cal-add" data-pt-add-day="${dateStr}" title="${esc(t('ptAddDay'))}">+</button>`
