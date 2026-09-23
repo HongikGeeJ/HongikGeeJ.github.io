@@ -1624,7 +1624,7 @@
             100% { transform: translate3d(28px, -118px, 0) rotate(14deg); opacity: 0; }
         }
 
-        /* Header-local Hangul FX — large name sits by the digital clock; never steals clicks */
+        /* Header-local Hangul FX — float glyphs only; large name is a flex sibling LEFT of the clock */
         .dash-header-fx {
             position: absolute;
             inset: 0;
@@ -1639,39 +1639,45 @@
         }
         .dash-header > .header-actions {
             position: relative;
-            /* Below FX so watermark can overlay the clock; logout/lang stay clear via mark position */
-            z-index: 5;
+            /* Above FX so name + clock stay crisp; FX never steals clicks */
+            z-index: 7;
         }
         .dash-header-fx .hangul-float-layer {
             z-index: 1;
         }
-        .dash-header-fx .hangul-mark {
-            position: absolute;
-            /* Clock sits left of profile/lang/logout (~11–16rem from right); keep clear of those controls */
-            right: clamp(11.25rem, 26vw, 16.5rem);
-            top: 50%;
-            transform: translateY(-50%);
+        /* Personal/brand Hangul mark — always immediately before #digital-clock / #dash-clock */
+        .header-actions > .hangul-mark,
+        #dash-hangul-mark {
+            position: relative;
+            display: none;
+            flex-shrink: 0;
+            align-self: center;
+            margin: 0 .45rem 0 0;
+            padding: 0;
             z-index: 2;
-            font-size: clamp(1.55rem, 4.2vw, 2.35rem);
+            font-size: clamp(1.35rem, 3.6vw, 2.05rem);
             font-weight: 900;
             letter-spacing: .06em;
             writing-mode: horizontal-tb;
             line-height: 1;
             white-space: nowrap;
             user-select: none;
-            opacity: .22;
+            opacity: .34;
             color: #4a6fa5;
             animation: hangulFloatCharm 9.5s ease-in-out infinite;
             pointer-events: none;
             will-change: transform, opacity;
         }
+        .header-actions > .hangul-mark.is-on,
+        #dash-hangul-mark.is-on {
+            display: inline-flex;
+            align-items: center;
+        }
         @media (max-width: 720px) {
-            .dash-header-fx .hangul-mark {
-                right: clamp(9.75rem, 48vw, 14rem);
-                font-size: clamp(1.25rem, 5.2vw, 1.85rem);
-            }
-            .theme-director .dash-header-fx .hangul-mark {
-                right: clamp(9rem, 44vw, 13.5rem);
+            .header-actions > .hangul-mark,
+            #dash-hangul-mark {
+                font-size: clamp(1.1rem, 4.6vw, 1.55rem);
+                margin-right: .3rem;
             }
         }
 
@@ -1923,15 +1929,15 @@
             color: #be123c !important;
         }
         .taehyun-fx .hangul-mark {
-            /* Large watermark lives in header FX now; keep shell mark subtle/off-body */
+            /* Large watermark lives beside the header clock; keep shell mark off-body */
             display: none;
         }
         @keyframes hangulFloatCharm {
-            0%   { opacity: .14; transform: translateY(-50%) rotate(-1.2deg) scale(1); }
-            25%  { opacity: .24; transform: translateY(calc(-50% - 10px)) rotate(1deg) scale(1.03); }
-            50%  { opacity: .18; transform: translateY(calc(-50% + 4px)) rotate(-0.6deg) scale(1); }
-            75%  { opacity: .26; transform: translateY(calc(-50% - 6px)) rotate(0.8deg) scale(1.02); }
-            100% { opacity: .14; transform: translateY(-50%) rotate(-1.2deg) scale(1); }
+            0%   { opacity: .26; transform: translateY(0) rotate(-1.2deg) scale(1); }
+            25%  { opacity: .4; transform: translateY(-6px) rotate(1deg) scale(1.03); }
+            50%  { opacity: .3; transform: translateY(3px) rotate(-0.6deg) scale(1); }
+            75%  { opacity: .42; transform: translateY(-4px) rotate(0.8deg) scale(1.02); }
+            100% { opacity: .26; transform: translateY(0) rotate(-1.2deg) scale(1); }
         }
         .taehyun-fx .seal {
             display: none !important;
@@ -2333,13 +2339,13 @@
         .theme-director .dash-header-fx .hangul-float.c4 { color: rgba(30,58,95,.3); }
         .theme-director .taehyun-fx .hangul-float.c5,
         .theme-director .dash-header-fx .hangul-float.c5 { color: rgba(15,23,42,.34); }
-        .theme-director .dash-header-fx .hangul-mark {
+        .theme-director .header-actions > .hangul-mark,
+        .theme-director #dash-hangul-mark {
             color: #1e3a5f;
-            opacity: .22;
-            font-size: clamp(1.4rem, 3.8vw, 2.1rem);
+            opacity: .36;
+            font-size: clamp(1.25rem, 3.4vw, 1.85rem);
             letter-spacing: .1em;
-            /* Longer brand mark — still anchored to clock zone, not logout */
-            right: clamp(10.5rem, 24vw, 15.5rem);
+            /* Brand mark sits left of the digital clock for director too */
             animation: hangulFloatCharm 11s cubic-bezier(.45,.05,.55,.95) infinite;
         }
         /* Director only: hangul wallpaper may drift over #dash-tabs.
@@ -2356,7 +2362,8 @@
             pointer-events: none;
         }
         .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float,
-        .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-mark {
+        .dash-shell.theme-director > .dash-header .header-actions > .hangul-mark,
+        .dash-shell.theme-director > .dash-header #dash-hangul-mark {
             pointer-events: none;
         }
         .dash-shell.theme-director > .dash-tabs {
@@ -7572,7 +7579,8 @@
                 will-change: transform, opacity;
                 opacity: .7;
             }
-            .dash-header-fx .hangul-mark {
+            .header-actions > .hangul-mark,
+            #dash-hangul-mark {
                 animation: hangulFloatCharm 11s ease-in-out infinite !important;
                 will-change: transform, opacity;
             }
@@ -7954,7 +7962,8 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <div id="digital-clock" class="digital-clock">--:-- --</div>
+                    <span id="dash-hangul-mark" class="hangul-mark" aria-hidden="true"></span>
+                    <div id="digital-clock" class="digital-clock" data-dash-clock="1">--:-- --</div>
                     <div class="profile-wrap">
                         <button type="button" id="profile-preview-btn" class="profile-btn">
                             <img id="profile-img" class="hidden" alt="">
@@ -9715,6 +9724,38 @@
             showAppToast(msg, 'err');
             setPhotoSyncMsg(msg, 'err');
         }
+        function notifyAccountDataSaveResult(result) {
+            const r = result || {};
+            if (r.ok) {
+                const msg = (typeof t === 'function' ? t('accountDataSavedCloud') : '')
+                    || 'Synced · other PCs and director see emergency contacts live';
+                showAppToast(msg, 'ok');
+                return;
+            }
+            const noBackend = r.skipped && (
+                r.reason === 'no-sync-url'
+                || r.reason === 'no-sync-backend'
+                || (typeof getPhotosSyncUrl === 'function' && !getPhotosSyncUrl()
+                    && !(supabaseCfgCache && isSupabaseConfigReady(supabaseCfgCache)))
+            );
+            if (noBackend) {
+                const msg = (typeof t === 'function' ? t('accountDataSavedLocalOnly') : '')
+                    || 'Saved on this PC only · connect Supabase for central emergency contacts';
+                showAppToast(msg, 'warn');
+                return;
+            }
+            const rawErr = String(r.error || '');
+            const needsSql = /portal_stores_store_name_check|store_name_check/i.test(rawErr)
+                || (/accountData/i.test(rawErr) && /check constraint/i.test(rawErr));
+            const hint = needsSql
+                ? ((typeof t === 'function' ? t('accountDataSavedNeedSql') : '')
+                    || ' · run data/supabase/FIX-accountData.sql in Supabase SQL Editor')
+                : '';
+            const errBit = rawErr && !needsSql ? ` (${rawErr})` : '';
+            const msg = ((typeof t === 'function' ? t('accountDataSavedCloudFail') : '')
+                || 'Saved locally · cloud sync failed') + hint + errBit;
+            showAppToast(msg, 'err');
+        }
         function buildPhotosExportPayload() {
             const store = loadPhotosStore();
             const meta = loadPhotosMeta();
@@ -10572,6 +10613,10 @@
                 photoSavedLocalOnly: '이 PC에만 저장됨 · Supabase/중앙 동기화가 없습니다 (data/supabase/README.md)',
                 photoSavedCloudFail: '이 PC에는 저장됨 · 클라우드 동기화 실패',
                 photoSavedNeedSql: ' · Supabase SQL Editor에서 FIX-RUN-IN-SQL-EDITOR.sql 실행 필요',
+                accountDataSavedCloud: '중앙에 동기화됨 · 원장·다른 PC가 비상연락을 바로 봅니다',
+                accountDataSavedLocalOnly: '이 PC에만 저장됨 · Supabase 연결 후 비상연락이 공유됩니다',
+                accountDataSavedCloudFail: '이 PC에는 저장됨 · 클라우드 동기화 실패',
+                accountDataSavedNeedSql: ' · Supabase SQL Editor에서 FIX-accountData.sql 실행 필요',
                 leaveRequest: '휴가/연차 신청',
                 leaveFrom: '시작일',
                 leaveTo: '종료일',
@@ -11422,6 +11467,10 @@
                 photoSavedLocalOnly: 'บันทึกบนเครื่องนี้เท่านั้น · ยังไม่ได้เชื่อม Supabase (ดู data/supabase/README.md)',
                 photoSavedCloudFail: 'บันทึกในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
                 photoSavedNeedSql: ' · รัน FIX-RUN-IN-SQL-EDITOR.sql ใน Supabase SQL Editor',
+                accountDataSavedCloud: 'ซิงก์ส่วนกลางแล้ว · หัวหน้าและเครื่องอื่นเห็นเบอร์ฉุกเฉินทันที',
+                accountDataSavedLocalOnly: 'บันทึกบนเครื่องนี้เท่านั้น · เชื่อม Supabase เพื่อแชร์เบอร์ฉุกเฉิน',
+                accountDataSavedCloudFail: 'บันทึกในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
+                accountDataSavedNeedSql: ' · รัน FIX-accountData.sql ใน Supabase SQL Editor',
                 leaveRequest: 'ขอลางาน/หยุด',
                 leaveFrom: 'ตั้งแต่วันที่',
                 leaveTo: 'ถึงวันที่',
@@ -12272,6 +12321,10 @@
                 photoSavedLocalOnly: 'Saved on this PC only · Supabase not connected (see data/supabase/README.md)',
                 photoSavedCloudFail: 'Saved locally · cloud sync failed',
                 photoSavedNeedSql: ' · run data/supabase/FIX-RUN-IN-SQL-EDITOR.sql in Supabase SQL Editor',
+                accountDataSavedCloud: 'Synced centrally · director and other PCs see emergency contacts live',
+                accountDataSavedLocalOnly: 'Saved on this PC only · connect Supabase to share emergency contacts',
+                accountDataSavedCloudFail: 'Saved locally · cloud sync failed',
+                accountDataSavedNeedSql: ' · run data/supabase/FIX-accountData.sql in Supabase SQL Editor',
                 leaveRequest: 'Leave request',
                 leaveFrom: 'From',
                 leaveTo: 'To',
@@ -16625,13 +16678,23 @@
                     return;
                 }
                 if (lAt && rAt && lAt > rAt) return;
-                // No timestamps or equal — field-merge; arrays (emergency) prefer remote when different
+                // No timestamps or equal — field-merge; emergency contacts union (never drop either side)
                 const next = { ...loc };
                 let rowChanged = false;
-                Object.keys(rem).forEach((k) => {
+                const allKeys = new Set([...Object.keys(loc), ...Object.keys(rem)]);
+                allKeys.forEach((k) => {
                     if (k === 'updatedAt') return;
                     const rv = rem[k];
                     const lv = loc[k];
+                    if (k === 'emergency') {
+                        const unioned = unionEmergencyContactLists(lv, rv);
+                        if (JSON.stringify(unioned) !== JSON.stringify(Array.isArray(lv) ? lv : [])) {
+                            next[k] = unioned;
+                            rowChanged = true;
+                        }
+                        return;
+                    }
+                    if (rv === undefined) return;
                     if (JSON.stringify(rv) !== JSON.stringify(lv)) {
                         next[k] = Array.isArray(rv) || (rv && typeof rv === 'object')
                             ? JSON.parse(JSON.stringify(rv))
@@ -16646,6 +16709,67 @@
                 }
             });
             return { map: out, changed };
+        }
+        function unionEmergencyContactLists(a, b) {
+            const seen = new Set();
+            const out = [];
+            const ingest = (list) => {
+                (Array.isArray(list) ? list : []).forEach((c) => {
+                    if (!c || !(c.name || c.phone)) return;
+                    if (typeof isHardcodedSampleEmergencyContact === 'function' && isHardcodedSampleEmergencyContact(c)) return;
+                    const kind = c.kind === 'self' ? 'self' : 'known';
+                    const sig = `${String(c.phone || '').replace(/\s/g, '')}|${String(c.name || '').trim()}|${kind}`;
+                    if (seen.has(sig)) return;
+                    seen.add(sig);
+                    out.push({
+                        name: c.name || '',
+                        role: c.role || '',
+                        phone: c.phone || '',
+                        kind
+                    });
+                });
+            };
+            ingest(a);
+            ingest(b);
+            return out;
+        }
+        async function fetchRemoteAccountDataMap(sb) {
+            if (sb) {
+                try {
+                    const { data, error } = await sb
+                        .from('portal_stores')
+                        .select('data, updated_at')
+                        .eq('store_name', 'accountData')
+                        .maybeSingle();
+                    if (!error && data?.data && typeof data.data === 'object' && !Array.isArray(data.data)) {
+                        return data.data;
+                    }
+                } catch (_) {}
+            }
+            const url = typeof getPhotosSyncUrl === 'function' ? getPhotosSyncUrl() : '';
+            if (!url) return {};
+            try {
+                const res = await fetch(url, { method: 'GET', mode: 'cors', credentials: 'omit' });
+                if (!res.ok) return {};
+                const payload = await res.json();
+                const entry = payload?.stores?.accountData;
+                const d = entry && typeof entry === 'object'
+                    ? (('data' in entry) ? entry.data : entry)
+                    : null;
+                if (d && typeof d === 'object' && !Array.isArray(d)) return d;
+            } catch (_) {}
+            return {};
+        }
+        /**
+         * Merge cloud accountData with local before publish — never replace the whole
+         * map with this PC's subset (that wiped other teachers' emergency contacts).
+         * Call as mergeAccountDataMaps(remote, local) so local wins on equal timestamps.
+         */
+        async function buildMergedAccountDataPayload(sb) {
+            const remote = await fetchRemoteAccountDataMap(sb);
+            const local = loadOverrides() || {};
+            const merged = mergeAccountDataMaps(remote, local);
+            return merged.map || {};
         }
         function mergeNameLists(localData, remoteData) {
             const local = localData && typeof localData === 'object' ? localData : { ko: [], en: [] };
@@ -17013,6 +17137,34 @@
                         try { applyMergedPhotosLocally(normalizePhotosMap(merged)); } catch (_) {}
                     } else if (localCount > 0) {
                         stores[name] = { data: localPayload, updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'accountData') {
+                    // Merge with remote first — never replace whole map with this PC's subset
+                    // (that wiped other teachers' emergency / personal overrides).
+                    try {
+                        const merged = await buildMergedAccountDataPayload(sb);
+                        const remoteKeys = Object.keys(merged || {}).length;
+                        const localKeys = Object.keys(loadOverrides() || {}).length;
+                        if (localKeys === 0 && remoteKeys > 0) {
+                            try {
+                                portalSyncApplying = true;
+                                saveOverrides(merged, { syncRemote: false });
+                            } finally {
+                                portalSyncApplying = false;
+                            }
+                            continue;
+                        }
+                        try {
+                            portalSyncApplying = true;
+                            saveOverrides(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
                     }
                     continue;
                 }
@@ -21329,14 +21481,24 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
-                    headerFx.innerHTML = `
-                        <div class="hangul-float-layer">${hangul}</div>
-                        <span class="hangul-mark">${markText}</span>`;
+                    // Float glyphs stay in FX; large name is a flex sibling LEFT of #digital-clock
+                    headerFx.innerHTML = `<div class="hangul-float-layer">${hangul}</div>`;
+                    const markEl = document.getElementById('dash-hangul-mark');
+                    if (markEl) {
+                        const text = String(markText || '').trim();
+                        markEl.textContent = text;
+                        markEl.classList.toggle('is-on', !!text);
+                    }
                 };
                 const paintUserHeaderHangul = () => {
                     const mark = hangulMarkForUser(user);
                     if (!mark) {
                         if (headerFx) headerFx.innerHTML = '';
+                        const markEl = document.getElementById('dash-hangul-mark');
+                        if (markEl) {
+                            markEl.textContent = '';
+                            markEl.classList.remove('is-on');
+                        }
                         return false;
                     }
                     const glyphs = user.role === 'director'
@@ -26527,6 +26689,22 @@
                     updatedAt: new Date().toISOString()
                 };
                 saveOverrides(store);
+                // Immediate central push (merge-before-publish) so director Realtime updates
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                if (typeof queuePortalStorePush === 'function') queuePortalStorePush('accountData');
+                if (typeof flushPortalStorePush === 'function') {
+                    Promise.resolve()
+                        .then(() => flushPortalStorePush())
+                        .then((res) => {
+                            try { notifyAccountDataSaveResult(res); } catch (_) {}
+                            try {
+                                if (typeof softRefreshDashboard === 'function' && currentUser) {
+                                    softRefreshDashboard(currentUser, { stores: ['accountData'], reason: 'emergency-save' });
+                                }
+                            } catch (_) {}
+                        })
+                        .catch(() => {});
+                }
             }
             function openEmContactModal({ kind = 'known', editIndex = -1, contact = null } = {}) {
                 const modal = document.getElementById('em-contact-modal');
