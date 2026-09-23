@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- hongik-build:2026-09-22-mobile-ipad-perf -->
 <html lang="ko">
 <head>
 <script>/*hongik-sb-embed*/window.__HONGIK_SUPABASE_CONFIG__={"url":"https://qoxdpqlzbbsluxzqchuq.supabase.co","anonKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveGRwcWx6YmJzbHV4enFjaHVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDEzNzYsImV4cCI6MjEwNTU3NzM3Nn0.sVpAV7RF_Q0O7B9YVx2x2DhpDmsvmZestIIkaMV8Sa4"};</script>
@@ -4662,6 +4661,76 @@
             color: #92400e; font-weight: 800; font-size: .9rem;
         }
         .pt-calc-form { margin-bottom: .35rem; }
+
+        /* Soft Korean note chips under PT calc title */
+        .pt-calc-note {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .4rem .45rem;
+            margin: 0 0 .75rem;
+            padding: .55rem .7rem .55rem .85rem;
+            border-radius: 1rem;
+            background:
+                radial-gradient(circle at 8% 30%, rgba(255, 182, 193, .35), transparent 42%),
+                radial-gradient(circle at 92% 70%, rgba(186, 230, 253, .4), transparent 45%),
+                linear-gradient(135deg, #fff7fb 0%, #f0f9ff 52%, #f5fffb 100%);
+            border: 1.5px solid #f9c2d0;
+            box-shadow: 0 6px 18px rgba(244, 114, 182, .08), inset 0 1px 0 rgba(255,255,255,.85);
+            overflow: hidden;
+        }
+        .pt-calc-note::before,
+        .pt-calc-note::after {
+            content: '❀';
+            position: absolute;
+            font-size: .72rem;
+            line-height: 1;
+            color: #f9a8d4;
+            opacity: .7;
+            pointer-events: none;
+            animation: ptCalcBloom 3.6s ease-in-out infinite;
+        }
+        .pt-calc-note::before { top: .35rem; left: .4rem; }
+        .pt-calc-note::after {
+            bottom: .3rem; right: .45rem;
+            color: #7dd3fc;
+            animation-delay: -1.8s;
+        }
+        .pt-calc-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            padding: .28rem .55rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .78);
+            border: 1px solid rgba(251, 207, 232, .9);
+            color: #6b4a5e;
+            font-size: .72rem;
+            font-weight: 750;
+            letter-spacing: -.01em;
+            line-height: 1.25;
+            white-space: nowrap;
+            box-shadow: 0 1px 0 rgba(255,255,255,.9);
+        }
+        .pt-calc-chip::before {
+            content: '';
+            width: .35rem; height: .35rem;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #fda4af, #93c5fd);
+            flex: 0 0 auto;
+        }
+        .pt-calc-chip:nth-child(2) { border-color: rgba(186, 230, 253, .95); color: #3f5f7a; }
+        .pt-calc-chip:nth-child(3) { border-color: rgba(167, 243, 208, .95); color: #3d6b5a; }
+        .pt-calc-chip:nth-child(4) { border-color: rgba(253, 230, 138, .95); color: #7a5a2e; }
+        @keyframes ptCalcBloom {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: .55; }
+            50% { transform: scale(1.18) rotate(12deg); opacity: .9; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .pt-calc-note::before,
+            .pt-calc-note::after { animation: none; }
+        }
 
         .modal {
             /* Above .header-actions / .lang-mini (12000) so backdrop owns all taps */
@@ -11222,6 +11291,10 @@
                 tabPtCalc: '파트타임 비용',
                 ptCalcTitle: '파트타임 교사 비용 계산',
                 ptCalcHint: '시급 ฿300 · 시간×주×300으로 계산·월별 저장',
+                ptCalcChipRate: '시급 ฿300',
+                ptCalcChipFormula: '시간×주×300',
+                ptCalcChipLookback: '최근 1년',
+                ptCalcChipAuto: '오래된 기록 자동 정리',
                 ptHoursSession: '회당 시간',
                 ptWeeks: '주 수',
                 ptSessionTime: '시간대',
@@ -12092,6 +12165,10 @@
                 tabPtCalc: 'คำนวณพาร์ตไทม์',
                 ptCalcTitle: 'คำนวณค่าใช้จ่ายคุณครูสอนพาร์ตไทม์',
                 ptCalcHint: 'อัตรา ฿300/ชม. · คำนวณ ชม.×สัปดาห์×300 แล้วบันทึกรายเดือน',
+                ptCalcChipRate: 'อัตรา ฿300/ชม.',
+                ptCalcChipFormula: 'ชม.×สัปดาห์×300',
+                ptCalcChipLookback: '~1 ปี',
+                ptCalcChipAuto: 'ลบเก่าอัตโนมัติ',
                 ptHoursSession: 'ชม./คาบ',
                 ptWeeks: 'จำนวนสัปดาห์',
                 ptSessionTime: 'เวลาสอน',
@@ -12962,6 +13039,10 @@
                 tabPtCalc: 'PT expense',
                 ptCalcTitle: 'Part-time teacher expense calculator',
                 ptCalcHint: '฿300/hr · hours × weeks × 300, saved by month',
+                ptCalcChipRate: '฿300/hr',
+                ptCalcChipFormula: 'hr × wk × 300',
+                ptCalcChipLookback: '~1 year',
+                ptCalcChipAuto: 'auto-prune old',
                 ptHoursSession: 'Hours / session',
                 ptWeeks: 'Weeks',
                 ptSessionTime: 'Session time',
@@ -24042,7 +24123,12 @@
                 app.innerHTML = `
                     <div class="pt-calc-head">
                         <h3 style="margin:0 0 .35rem"><i class="ph ph-calculator" style="color:var(--accent)"></i> ${t('ptCalcTitle')}</h3>
-                        <p class="text-xs text-slate-500 mb-2">${t('ptCalcHint')} · ${t('ptLookback')}</p>
+                        <div class="pt-calc-note" role="note" aria-label="${t('ptCalcHint')}">
+                            <span class="pt-calc-chip">${t('ptCalcChipRate')}</span>
+                            <span class="pt-calc-chip">${t('ptCalcChipFormula')}</span>
+                            <span class="pt-calc-chip">${t('ptCalcChipLookback')}</span>
+                            <span class="pt-calc-chip">${t('ptCalcChipAuto')}</span>
+                        </div>
                         <label class="text-xs" style="font-weight:700;color:#64748b;display:block;margin-bottom:.55rem">${t('ptPickMonth')}
                             <select id="pt-calc-month" class="sched-select" style="margin-left:.35rem">${monthSel}</select>
                         </label>
