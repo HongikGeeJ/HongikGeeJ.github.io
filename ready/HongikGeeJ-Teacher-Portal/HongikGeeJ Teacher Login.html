@@ -337,7 +337,7 @@
         .dc-corners * {
             pointer-events: none !important;
         }
-        /* Post-login shell: same flower language for every account / role */
+        /* Post-login shell only: modest flower bump (~1.5–2× original). Login .dc-c stays ~88px. */
         .dash-shell > .dc-corners {
             position: absolute;
             inset: 0;
@@ -347,36 +347,37 @@
             overflow: visible;
         }
         .dash-shell > .dc-corners .dc-c {
-            width: 280px;
-            height: 280px;
+            width: 120px;
+            height: 120px;
             opacity: .92;
         }
-        /* Top corners: still clear of logo / actions, but ~5–6× prior */
+        /* Top corners: compact kiss so logo / actions stay clear */
         .dash-shell > .dc-corners .dc-c.tl,
         .dash-shell > .dc-corners .dc-c.tr {
-            width: 200px;
-            height: 200px;
+            width: 84px;
+            height: 84px;
             opacity: .9;
         }
-        .dash-shell > .dc-corners .dc-c.tl { top: -36px; left: -20px; }
+        .dash-shell > .dc-corners .dc-c.tl { top: -10px; left: -4px; }
         .dash-shell > .dc-corners .dc-c.tr {
-            top: -36px; left: calc(100% + 20px); right: auto;
+            top: -10px; left: calc(100% + 4px); right: auto;
         }
         @media (max-width: 720px) {
             .dash-shell > .dc-corners .dc-c {
-                width: 180px; height: 180px; opacity: .9;
+                width: 90px; height: 90px; opacity: .9;
             }
             .dash-shell > .dc-corners .dc-c.tl,
             .dash-shell > .dc-corners .dc-c.tr {
-                width: 140px; height: 140px;
+                width: 68px; height: 68px;
             }
-            .dash-shell > .dc-corners .dc-c.tl { top: -24px; left: -12px; }
-            .dash-shell > .dc-corners .dc-c.tr { top: -24px; left: calc(100% + 12px); }
+            .dash-shell > .dc-corners .dc-c.tl { top: -6px; left: -2px; }
+            .dash-shell > .dc-corners .dc-c.tr { top: -6px; left: calc(100% + 2px); }
         }
         /* Geometric rails replaced by shared flower chrome */
         .taehyun-fx .dancheong-rail { display: none !important; }
+        /* Login panel default size — must stay modest; do not inherit dashboard bump */
         .dc-c {
-            position: absolute; width: 320px; height: 320px;
+            position: absolute; width: 88px; height: 88px;
             background-repeat: no-repeat; background-size: contain;
             background-image: url('assets/dancheong/corner-flower.svg?v=cluster10');
             opacity: 1;
@@ -425,24 +426,24 @@
           No filter/brightness — internal bloom/leaf/petal motion lives in the SVG (SMIL).
         */
         @keyframes dcSwayTl {
-            0%, 100% { transform: rotate(-5.5deg) translate(0, 0) scale(1); }
-            35% { transform: rotate(4.2deg) translate(2.5px, -4px) scale(1.09); }
-            70% { transform: rotate(6deg) translate(-1.8px, 2px) scale(1.05); }
+            0%, 100% { transform: rotate(-2.1deg) translate(0, 0) scale(1); }
+            35% { transform: rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
+            70% { transform: rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
         }
         @keyframes dcSwayTr {
-            0%, 100% { transform: scaleX(-1) rotate(-5.5deg) translate(0, 0) scale(1); }
-            35% { transform: scaleX(-1) rotate(4.2deg) translate(2.5px, -4px) scale(1.09); }
-            70% { transform: scaleX(-1) rotate(6deg) translate(-1.8px, 2px) scale(1.05); }
+            0%, 100% { transform: scaleX(-1) rotate(-2.1deg) translate(0, 0) scale(1); }
+            35% { transform: scaleX(-1) rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
+            70% { transform: scaleX(-1) rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
         }
         @keyframes dcSwayBl {
-            0%, 100% { transform: scaleY(-1) rotate(-5.5deg) translate(0, 0) scale(1); }
-            35% { transform: scaleY(-1) rotate(4.2deg) translate(2.5px, -4px) scale(1.09); }
-            70% { transform: scaleY(-1) rotate(6deg) translate(-1.8px, 2px) scale(1.05); }
+            0%, 100% { transform: scaleY(-1) rotate(-2.1deg) translate(0, 0) scale(1); }
+            35% { transform: scaleY(-1) rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
+            70% { transform: scaleY(-1) rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
         }
         @keyframes dcSwayBr {
-            0%, 100% { transform: scale(-1) rotate(-5.5deg) translate(0, 0) scale(1); }
-            35% { transform: scale(-1) rotate(4.2deg) translate(2.5px, -4px) scale(1.09); }
-            70% { transform: scale(-1) rotate(6deg) translate(-1.8px, 2px) scale(1.05); }
+            0%, 100% { transform: scale(-1) rotate(-2.1deg) translate(0, 0) scale(1); }
+            35% { transform: scale(-1) rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
+            70% { transform: scale(-1) rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
         }
         /* Mobile / lite: quieter sway, still a soft breathe */
         @keyframes dcSwayTlLite {
@@ -4473,7 +4474,51 @@
             background: #7f1d1d !important; border-color: #991b1b !important; color: #fecaca !important;
             text-decoration: line-through; filter: none;
         }
-        .sched-item .cls-run-badge { margin-left: .25rem; }
+        /* Match type-badge size on schedule cards; brighter abnormal status chips */
+        .sched-item .cls-run-badge {
+            margin-left: .25rem;
+            font-size: .72rem;
+            font-weight: 850;
+            padding: .2rem .55rem;
+            border-radius: .5rem;
+        }
+        .sched-item .cls-run-badge.cancelled {
+            background: #fecaca;
+            color: #9f1239;
+            border-color: #f43f5e;
+            font-weight: 900;
+            box-shadow: 0 0 0 1px rgba(244, 63, 94, .22), 0 2px 10px rgba(244, 63, 94, .28);
+        }
+        .sched-item .cls-run-badge.postponed {
+            background: #fed7aa;
+            color: #9a3412;
+            border-color: #f97316;
+            font-weight: 900;
+            box-shadow: 0 0 0 1px rgba(249, 115, 22, .18), 0 2px 8px rgba(249, 115, 22, .22);
+        }
+        .sched-item .cls-run-badge.waiting {
+            background: #f9a8d4;
+            color: #9d174d;
+            border-color: #ec4899;
+            font-weight: 900;
+            box-shadow: 0 0 0 1px rgba(236, 72, 153, .2), 0 2px 8px rgba(236, 72, 153, .22);
+        }
+        .sched-item .cls-run-badge.student_postponed {
+            background: #cbd5e1;
+            color: #334155;
+            border-color: #64748b;
+            font-weight: 900;
+            box-shadow: 0 0 0 1px rgba(100, 116, 139, .18), 0 2px 8px rgba(100, 116, 139, .18);
+        }
+        .sched-item.is-abnormal .sched-type-badge,
+        .sched-item.is-cancelled .sched-type-badge,
+        .sched-item.cancelled .sched-type-badge {
+            text-decoration: line-through;
+            text-decoration-color: #0f172a;
+            text-decoration-thickness: 2px;
+            text-decoration-skip-ink: none;
+            opacity: .88;
+        }
         .sched-item.dayoff-item {
             background: #f8fafc;
             border-color: #cbd5e1;
@@ -6477,11 +6522,26 @@
             font-size: .82rem; font-weight: 750; font-family: inherit;
             box-shadow: 0 4px 12px rgba(234,88,12,.25);
         }
+        .sched-cancel.is-restore {
+            background: linear-gradient(95deg, #5eead4, #0d9488);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, .28);
+        }
         .sched-save:hover, .sched-edit-open:hover, .sched-cancel:hover { filter: brightness(1.05); transform: translateY(-1px); }
         .sched-item {
             display: flex; flex-direction: column; align-items: stretch; gap: .55rem;
             padding: .9rem .85rem; border-bottom: none; font-size: .9rem;
             background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; margin: .55rem 0;
+        }
+        /* Cancelled / postponed / waiting / student-postpone: pink-red frame + soft glow */
+        .sched-item.is-abnormal,
+        .sched-item.is-cancelled,
+        .sched-item.cancelled {
+            background: linear-gradient(145deg, #fff1f2 0%, #ffe4e6 42%, #fecdd3 100%);
+            border: 1px solid #fb7185;
+            box-shadow:
+                0 0 0 1px rgba(244, 63, 94, .1),
+                0 8px 22px rgba(244, 63, 94, .16),
+                inset 0 1px 0 rgba(255, 255, 255, .65);
         }
         .sched-item-summary {
             display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .65rem;
@@ -6498,12 +6558,10 @@
         .sched-item.is-editing .sched-actions-view { display: none; }
         .sched-item:not(.is-editing) .sched-actions-edit { display: none; }
         .sched-item.cancelled {
-            opacity: .92;
-            background: linear-gradient(90deg, #fff7ed 0%, #fff 55%);
-            border-radius: .85rem;
-            padding: .7rem .65rem;
-            border: 1px solid #fed7aa;
-            margin: .35rem 0;
+            opacity: .96;
+            border-radius: 1rem;
+            padding: .9rem .85rem;
+            margin: .55rem 0;
         }
         .sched-item.cancelled .sched-edit-grid { pointer-events: none; opacity: .75; }
         .cancel-meta {
@@ -11760,7 +11818,7 @@
         /** v2: invalidate stale sheet OT cached before prefer-formatted-date parse. */
         const OT_BUNDLE_STORE = 'hongik-ot-bundle-v2';
         const OT_BUNDLE_LEGACY = 'hongik-ot-bundle-v1';
-        const OT_SHEET_PARSE_VER = 'prefer-cell-w-v2';
+        const OT_SHEET_PARSE_VER = 'ot-tracker-v1';
 
         function loadOtBundle() {
             try {
@@ -12440,6 +12498,11 @@
                 taehyunSig: '오늘도 좋은 하루 되세요, 선생님',
                 weekLine: '주간 출근 그래프',
                 cancelClass: '수업 취소',
+                cancelClassHint: '이 수업을 취소합니다 · 상태가 「취소」로 바뀝니다',
+                restoreClassNormal: '정상으로 복구',
+                restoreClassHint: '취소/변경을 되돌리려면 누르세요 · 정규(정상) 상태로 복구됩니다',
+                restoreClassConfirmAsk: '이 수업을 정상 상태로 되돌릴까요?\n방 시간표 점유도 함께 복구됩니다(가능할 때).',
+                restoreClassDone: '정상 수업으로 복구했습니다',
                 cancelReason: '취소 사유',
                 cancelReasonPh: '예: 학생이 일정 변경 / 보강 예정',
                 makeupDate: '보강 날짜',
@@ -12564,7 +12627,7 @@
                 otPayBack: 'OT 목록으로',
                 otPayDetail: '이번 달 OT 상세',
                 otPayLinked: '시트 주황 hrs.OT + 교사 신고 · 초록=출석 체크(OT 아님) · 열 날짜 기준((08)/(09) 아님)',
-                otSheetRules: '열 헤더 날짜로 집계 · (08)/(09) 아님 · 초록 톤=출석 체크, OT 시간 아님',
+                otSheetRules: 'Overtime Tracker 시트(월 탭) · 교사 신고와 병합 · Refresh로 재다운로드',
                 otLookback: '최근 8개월 조회',
                 otPickMonth: '월 선택',
                 otReportBadge: '교사 신고',
@@ -12575,6 +12638,7 @@
                 otRefreshSheetOk: '시트 OT를 새로고침했습니다',
                 otRefreshSheetFail: '시트 OT 동기화 실패',
                 otRefreshSheetBusy: '시트에서 OT 불러오는 중…',
+                otSheetNotPublic: 'OT 시트가 공개되지 않았습니다. Google Sheet → 공유 →「링크가 있는 모든 사용자」보기 권한으로 설정하세요',
                 otSepSummary: '이번 달 OT 요약',
                 otEmptyReport: '아직 신고된 OT가 없습니다',
                 otNoSelfOthers: '본인 OT만 확인할 수 있습니다',
@@ -13383,6 +13447,11 @@
                 taehyunSig: 'ขอให้วันนี้เป็นวันที่ดีของคุณครู',
                 weekLine: 'กราฟเส้นสัปดาห์นี้',
                 cancelClass: 'ยกเลิกคลาส',
+                cancelClassHint: 'ยกเลิกคลาสนี้ · สถานะจะเป็น「ยกเลิก」',
+                restoreClassNormal: 'คืนเป็นปกติ',
+                restoreClassHint: 'กดเพื่อยกเลิกการยกเลิก / คืนเป็นคลาสปกติ',
+                restoreClassConfirmAsk: 'คืนคลาสนี้เป็นสถานะปกติเลยไหม?\nถ้าจองห้องไว้ จะพยายามคืนการครองห้องในตารางด้วย',
+                restoreClassDone: 'คืนเป็นคลาสปกติแล้ว',
                 cancelReason: 'เหตุผลที่ยกเลิก',
                 cancelReasonPh: 'เช่น นักเรียนเลื่อน / ไปเรียนชดเชยวันไหน',
                 makeupDate: 'วันเรียนชดเชย',
@@ -13507,7 +13576,7 @@
                 otPayBack: 'กลับรายการ OT',
                 otPayDetail: 'รายละเอียด OT เดือนนี้',
                 otPayLinked: 'นับจากช่องส้ม hrs.OT บนชีต + ที่ครูแจ้งเอง · โทนเขียว = เช็คเข้าเรียน ไม่ใช่ชม. OT · นับตามวันที่หัวคอลัมน์ ไม่ใช่เลขในวงเล็บ (08)/(09)',
-                otSheetRules: 'นับตามวันที่หัวคอลัมน์ ไม่ใช่เลขในวงเล็บ (08)/(09) · โทนเขียว = เช็คเข้าเรียน ไม่ใช่ชม. OT',
+                otSheetRules: 'ชีต Overtime Tracker (แท็บรายเดือน) · รวมกับ OT ที่ครูรายงาน · กด Refresh เพื่อดาวน์โหลดใหม่',
                 otLookback: 'ย้อนหลัง 8 เดือน',
                 otPickMonth: 'เลือกเดือน',
                 otReportBadge: 'ครูแจ้งเอง',
@@ -13518,6 +13587,7 @@
                 otRefreshSheetOk: 'รีเฟรช OT จากชีตแล้ว',
                 otRefreshSheetFail: 'ซิงก์ OT จากชีตไม่สำเร็จ',
                 otRefreshSheetBusy: 'กำลังดึง OT จากชีต…',
+                otSheetNotPublic: 'ชีต OT ยังไม่สาธารณะ — แชร์ Google Sheet เป็น「Anyone with the link」→ Viewer',
                 otSepSummary: 'สรุป OT เดือนนี้',
                 otEmptyReport: 'ยังไม่มีรายงาน OT',
                 otNoSelfOthers: 'ดูได้เฉพาะ OT ของตัวเอง',
@@ -14326,6 +14396,11 @@
                 taehyunSig: 'Have a wonderful day, teacher',
                 weekLine: 'Weekly line chart',
                 cancelClass: 'Cancel class',
+                cancelClassHint: 'Cancel this class · status will become Cancelled',
+                restoreClassNormal: 'Restore to normal',
+                restoreClassHint: 'Click to undo cancel/change · restore to normal class',
+                restoreClassConfirmAsk: 'Restore this class to normal status?\nRoom timetable occupancy will be restored when possible.',
+                restoreClassDone: 'Restored to normal class',
                 cancelReason: 'Cancellation reason',
                 cancelReasonPh: 'e.g. student postponed / makeup planned',
                 makeupDate: 'Makeup date',
@@ -14450,7 +14525,7 @@
                 otPayBack: 'Back to OT list',
                 otPayDetail: 'OT details this month',
                 otPayLinked: 'Orange sheet hrs.OT + teacher reports · green = attendance check (not OT) · use column-header date, not (08)/(09)',
-                otSheetRules: 'Attribute by column-header date, not (08)/(09) · green tone = attendance check, not OT hours',
+                otSheetRules: 'Overtime Tracker sheet (month tabs) · merged with teacher reports · Refresh re-downloads',
                 otLookback: 'Last 8 months',
                 otPickMonth: 'Pick month',
                 otReportBadge: 'Teacher report',
@@ -14461,6 +14536,7 @@
                 otRefreshSheetOk: 'OT refreshed from sheet',
                 otRefreshSheetFail: 'Sheet OT sync failed',
                 otRefreshSheetBusy: 'Fetching OT from sheet…',
+                otSheetNotPublic: 'OT sheet is not public — Share the Google Sheet as Anyone with the link → Viewer',
                 otSepSummary: 'This month OT summary',
                 otEmptyReport: 'No OT reports yet',
                 otNoSelfOthers: 'You can only view your own OT',
@@ -15121,6 +15197,11 @@
         let salesSyncState = { status: '', at: '', error: '' };
         let renderSalesStatsBoardRef = null;
         const STUDENT_SHEET_XLSX = 'https://docs.google.com/spreadsheets/d/' + STUDENT_SHEET_ID + '/export?format=xlsx';
+        /** Dedicated OT / overtime-pay workbook (not the student attendance sheet). */
+        const OT_SHEET_ID = '1bQbNcjcO8Oh9Q9Jxezp8lUjUHSZiNhfTXP6eKuvUizA';
+        /** September 2026 tab gid — full XLSX export includes all month tabs. */
+        const OT_SHEET_GID_SEP2026 = '1523635938';
+        const OT_SHEET_XLSX = 'https://docs.google.com/spreadsheets/d/' + OT_SHEET_ID + '/export?format=xlsx';
         const STUDENT_SHEET_SYNC_MS = 45000;
         let studentSheetSyncTimer = null;
         let studentSheetSyncState = { status: 'idle', at: '', error: '', fingerprint: '' };
@@ -17890,15 +17971,15 @@
         function teacherIdFromOtZoneLabel(raw) {
             const s = String(raw || '').trim();
             if (!s) return null;
-            if (/태현|taehyun/i.test(s)) return 'taehyun';
-            if (/은하|은나|eunha|eunna/i.test(s)) return 'eunha';
-            if (/수아|sua/i.test(s)) return 'sua';
+            if (/태현|김태현|แทฮยอน|taehyun/i.test(s)) return 'taehyun';
+            if (/은하|은나|박은나|อึนนา|eunha|eunna/i.test(s)) return 'eunha';
+            if (/수아|이수아|ซูอา|sua/i.test(s)) return 'sua';
             return null;
         }
         function isOtTeacherZoneCell(cell) {
             const s = String(cell || '').trim();
             if (!s || s.length > 40) return false;
-            if (!/쌤|선생님|ครู/.test(s) && !/태현|은하|은나|수아|taehyun|eunha|sua/i.test(s)) return false;
+            if (!/쌤|선생님|ครู/.test(s) && !/태현|김태현|은하|은나|박은나|수아|이수아|แทฮยอน|อึนนา|ซูอา|taehyun|eunha|sua/i.test(s)) return false;
             return !!teacherIdFromOtZoneLabel(s);
         }
         function parseOtHoursToken(raw) {
@@ -17967,11 +18048,270 @@
             }
             return null;
         }
-        /** Parse teaching-schedule workbook OT marks → per-teacher entries.
-         *  Only orange-style cells matching hrs.OT / OT tokens count (not green attendance checks).
-         *  Month of record = column-header date (D/M from cell.w e.g. "5/9"), NOT the (MM) prefix in (08)3hrs.OT.
-         *  Prefix is metadata only — e.g. (08)3hrs.OT under 5/9 on the Sept tab counts for September. */
-        function parseHongikOtWorkbook(wb) {
+        function otTrackerMonthFromText(raw, fallbackYear) {
+            const s = String(raw || '').trim();
+            if (!s) return null;
+            const koA = s.match(/(\d+)\s*월\s*(\d{4})/);
+            if (koA) return { year: Number(koA[2]), month: Number(koA[1]) };
+            const koB = s.match(/(\d{4})\s*년\s*(\d{1,2})\s*월/);
+            if (koB) return { year: Number(koB[1]), month: Number(koB[2]) };
+            const en = s.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{4})\b/i);
+            if (en) {
+                const months = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+                const month = months[en[1].toLowerCase()];
+                if (month) return { year: Number(en[2]), month };
+            }
+            const th = {
+                'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'มิถุนายน': 6,
+                'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12
+            };
+            for (const name of Object.keys(th)) {
+                if (!s.includes(name)) continue;
+                const y = s.match(/(20\d{2})/);
+                return { year: y ? Number(y[1]) : (fallbackYear || new Date().getFullYear()), month: th[name] };
+            }
+            return null;
+        }
+        function sheetMonthFromName(name, rows) {
+            const direct = otTrackerMonthFromText(name);
+            if (direct) return direct;
+            const list = Array.isArray(rows) ? rows : [];
+            for (let i = 0; i < Math.min(8, list.length); i++) {
+                const row = list[i] || [];
+                for (let c = 0; c < Math.min(8, row.length); c++) {
+                    const hit = otTrackerMonthFromText(row[c]);
+                    if (hit) return hit;
+                }
+            }
+            return null;
+        }
+        function parseOtTimeCell(val) {
+            if (val instanceof Date && !Number.isNaN(val.getTime())) {
+                return hmFromMin(val.getHours() * 60 + val.getMinutes());
+            }
+            if (typeof val === 'number' && Number.isFinite(val)) {
+                if (val >= 0 && val < 1.5) {
+                    const mins = Math.round(val * 24 * 60) % (24 * 60);
+                    return hmFromMin(mins);
+                }
+                if (val >= 1 && val < 24) {
+                    const h = Math.floor(val);
+                    const m = Math.round((val - h) * 60);
+                    return hmFromMin(h * 60 + m);
+                }
+            }
+            const s = String(val ?? '').trim();
+            if (!s) return '';
+            let m = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+            if (m) return `${String(Number(m[1])).padStart(2, '0')}:${m[2]}`;
+            m = s.match(/^(\d{1,2})\.(\d{2})$/);
+            if (m) return `${String(Number(m[1])).padStart(2, '0')}:${m[2]}`;
+            return '';
+        }
+        function parseOtTrackerDate(val, sheetYear, sheetMonth) {
+            const prefer = `${sheetYear}-${String(sheetMonth).padStart(2, '0')}`;
+            const s = String(val ?? '').trim();
+            let m = s.match(/^(20\d{2})-(\d{1,2})-(\d{1,2})$/);
+            if (m) {
+                const y = Number(m[1]), a = Number(m[2]), b = Number(m[3]);
+                const cands = [];
+                // Prefer YYYY-DD-MM when middle > 12 (Thai OT export quirk).
+                if (a > 12 && b >= 1 && b <= 12) {
+                    cands.push(`${y}-${String(b).padStart(2,'0')}-${String(a).padStart(2,'0')}`);
+                } else {
+                    if (b >= 1 && b <= 12 && a >= 1 && a <= 31) cands.push(`${y}-${String(b).padStart(2,'0')}-${String(a).padStart(2,'0')}`);
+                    if (a >= 1 && a <= 12 && b >= 1 && b <= 31) cands.push(`${y}-${String(a).padStart(2,'0')}-${String(b).padStart(2,'0')}`);
+                }
+                let best = null, bestScore = 999;
+                cands.forEach((iso) => {
+                    if (Number.isNaN(Date.parse(iso + 'T12:00:00'))) return;
+                    const mon = Number(iso.slice(5, 7));
+                    let score = Math.abs(mon - sheetMonth);
+                    if (iso.startsWith(prefer)) score = -1;
+                    if (score < bestScore) { bestScore = score; best = iso; }
+                });
+                if (best) return best;
+            }
+            // Thai OT tracker uses D/M/Y — prefer that over M/D.
+            m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+            if (m) {
+                let a = Number(m[1]), b = Number(m[2]), yr = Number(m[3]);
+                if (yr < 100) yr += 2000;
+                const tryIso = (day, mon) => {
+                    const iso = `${yr}-${String(mon).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    return Number.isNaN(Date.parse(iso + 'T12:00:00')) ? null : iso;
+                };
+                const dm = (b >= 1 && b <= 12 && a >= 1 && a <= 31) ? tryIso(a, b) : null;
+                const md = (a >= 1 && a <= 12 && b >= 1 && b <= 31) ? tryIso(b, a) : null;
+                if (dm && dm.startsWith(prefer)) return dm;
+                if (md && md.startsWith(prefer)) return md;
+                if (dm) return dm;
+                if (md) return md;
+            }
+            if (typeof parseSheetDateCell === 'function') {
+                const base = parseSheetDateCell(val, sheetYear, sheetMonth);
+                if (base) return base;
+            }
+            if (val instanceof Date && !Number.isNaN(val.getTime())) {
+                const y = val.getFullYear();
+                const mon = val.getMonth() + 1;
+                const day = val.getDate();
+                if (mon !== sheetMonth && day === sheetMonth && mon >= 1 && mon <= 31) {
+                    const iso = `${sheetYear}-${String(sheetMonth).padStart(2, '0')}-${String(mon).padStart(2, '0')}`;
+                    if (!Number.isNaN(Date.parse(iso + 'T12:00:00'))) return iso;
+                }
+                return `${y}-${String(mon).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            }
+            return null;
+        }
+        function findOtTrackerHeader(rows) {
+            for (let ri = 0; ri < Math.min(rows.length, 20); ri++) {
+                const row = rows[ri] || [];
+                let nameCi = -1, dateCi = -1, subjCi = -1, startCi = -1, endCi = -1, hrsCi = -1, minCi = -1;
+                for (let ci = 0; ci < Math.min(row.length, 16); ci++) {
+                    const cell = String(row[ci] ?? '').trim();
+                    if (!cell) continue;
+                    if (nameCi < 0 && /ชื่อผู้ปฏิบัติ|근무자|worker|teacher|อาจารย์|ผู้ปฏิบัติ/i.test(cell)) nameCi = ci;
+                    if (dateCi < 0 && /วันที่|일자|date/i.test(cell)) dateCi = ci;
+                    if (subjCi < 0 && /วิชา|ภาระ|과목|담당|subject|course/i.test(cell)) subjCi = ci;
+                    if (startCi < 0 && /เวลาเริ่ม|시작|start/i.test(cell)) startCi = ci;
+                    if (endCi < 0 && /เวลาสิ้น|종료|end/i.test(cell)) endCi = ci;
+                    if (hrsCi < 0 && /ชั่วโมง|시간\s*\(|hours?|ชม\./i.test(cell)) hrsCi = ci;
+                    if (minCi < 0 && /(นาที|^분$|mins?)/i.test(cell)) minCi = ci;
+                }
+                if (nameCi >= 0 && dateCi >= 0) {
+                    return { headerRi: ri, nameCi, dateCi, subjCi: subjCi < 0 ? dateCi + 1 : subjCi, startCi, endCi, hrsCi, minCi };
+                }
+            }
+            return null;
+        }
+        function isOtTrackerWorkbook(wb) {
+            const names = wb && wb.SheetNames ? wb.SheetNames : [];
+            if (names.some((n) => /กันยายน|ตุลาคม|Overtime|Translations|พิมพ์รายงาน/i.test(String(n || '')))) return true;
+            for (let i = 0; i < Math.min(6, names.length); i++) {
+                const rows = sheetRowsForOtParse(wb, names[i]);
+                if (findOtTrackerHeader(rows)) return true;
+                const blob = rows.slice(0, 6).map((r) => (r || []).join(' ')).join(' ');
+                if (/Overtime Tracker|เกินเวลา|초과근무/i.test(blob)) return true;
+            }
+            return false;
+        }
+        /** Parse dedicated Overtime Tracker workbook (month tabs with name/date/start/end rows). */
+        function parseOtTrackerWorkbook(wb) {
+            if (!wb || typeof XLSX === 'undefined') throw new Error('SheetJS missing');
+            const byTeacher = { taehyun: [], eunha: [], sua: [] };
+            const seen = new Set();
+            const foundRows = [];
+            const skippedRows = [];
+            const skippedSheets = [];
+            const monthTabs = [];
+            (wb.SheetNames || []).forEach((name) => {
+                const rows = sheetRowsForOtParse(wb, name);
+                const ym = sheetMonthFromName(name, rows);
+                if (!ym) {
+                    skippedSheets.push({ sheet: String(name || ''), reason: 'no month in sheet name' });
+                    return;
+                }
+                monthTabs.push({
+                    sheet: String(name || ''),
+                    year: ym.year,
+                    month: ym.month,
+                    gidHint: String(name || '') === 'กันยายน' ? OT_SHEET_GID_SEP2026 : ''
+                });
+                const header = findOtTrackerHeader(rows);
+                if (!header) {
+                    skippedSheets.push({ sheet: String(name || ''), reason: 'no OT detail header' });
+                    return;
+                }
+                const monthPrefix = `${ym.year}-${String(ym.month).padStart(2, '0')}`;
+                for (let ri = header.headerRi + 1; ri < rows.length; ri++) {
+                    const row = rows[ri] || [];
+                    const nameRaw = row[header.nameCi];
+                    const teacherId = teacherIdFromOtZoneLabel(nameRaw);
+                    if (!teacherId) {
+                        const label = String(nameRaw ?? '').trim();
+                        if (label) skippedRows.push({ sheet: name, cell: label, reason: 'unknown teacher' });
+                        continue;
+                    }
+                    const date = parseOtTrackerDate(row[header.dateCi], ym.year, ym.month);
+                    if (!date) {
+                        skippedRows.push({ sheet: name, cell: String(row[header.dateCi] ?? ''), reason: 'date parse fail', zone: teacherId });
+                        continue;
+                    }
+                    let start = header.startCi >= 0 ? parseOtTimeCell(row[header.startCi]) : '';
+                    let end = header.endCi >= 0 ? parseOtTimeCell(row[header.endCi]) : '';
+                    let hours = null;
+                    if (header.hrsCi >= 0) {
+                        const hv = Number(String(row[header.hrsCi] ?? '').replace(/[^\d.]/g, ''));
+                        const mv = header.minCi >= 0 ? Number(String(row[header.minCi] ?? '').replace(/[^\d.]/g, '')) : 0;
+                        if (Number.isFinite(hv) && hv >= 0) hours = hv + ((Number.isFinite(mv) ? mv : 0) / 60);
+                    }
+                    if ((!start || !end) && hours > 0) {
+                        const range = otRangeFromHours(hours);
+                        start = start || range.start;
+                        end = end || range.end;
+                    }
+                    if (!start || !end) {
+                        skippedRows.push({ sheet: name, cell: String(nameRaw ?? ''), reason: 'missing time', zone: teacherId, date });
+                        continue;
+                    }
+                    const paidH = otPaidHours(start, end);
+                    if (!(paidH > 0) && !(hours > 0)) {
+                        skippedRows.push({ sheet: name, cell: String(nameRaw ?? ''), reason: 'zero hours', zone: teacherId, date, start, end });
+                        continue;
+                    }
+                    const useHours = paidH > 0 ? paidH : hours;
+                    const course = header.subjCi >= 0 ? String(row[header.subjCi] ?? '').replace(/\s+/g, ' ').trim() : '';
+                    const dedupe = `${teacherId}|${date}|${start}|${end}|sheet`;
+                    if (seen.has(dedupe)) continue;
+                    seen.add(dedupe);
+                    const subject = course ? `OT · ${course}`.slice(0, 120) : `OT · ${ym.month}/${ym.year} · ${useHours}h`;
+                    const entry = stampLangText({
+                        id: `OTS${Math.abs(hashStr(dedupe)).toString(16).slice(0, 10)}`,
+                        date,
+                        start,
+                        end,
+                        source: 'sheet',
+                        fromSheet: true,
+                        auto: false,
+                        sheetMonth: monthPrefix,
+                        sheetHours: useHours,
+                        sheetCell: String(nameRaw ?? '').trim(),
+                        sheetName: String(name || '').trim()
+                    }, 'subject', subject);
+                    byTeacher[teacherId].push(entry);
+                    foundRows.push({
+                        teacher: teacherId,
+                        date,
+                        hours: useHours,
+                        start,
+                        end,
+                        cell: String(nameRaw ?? '').trim(),
+                        sheet: String(name || '').trim()
+                    });
+                }
+            });
+            ['taehyun', 'eunha', 'sua'].forEach((id) => {
+                byTeacher[id].sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.start).localeCompare(String(b.start)));
+            });
+            return {
+                byTeacher,
+                counts: {
+                    taehyun: byTeacher.taehyun.length,
+                    eunha: byTeacher.eunha.length,
+                    sua: byTeacher.sua.length,
+                    total: byTeacher.taehyun.length + byTeacher.eunha.length + byTeacher.sua.length
+                },
+                foundRows,
+                skippedRows,
+                monthTabs,
+                liveSyncedAt: new Date().toISOString(),
+                sourceId: OT_SHEET_ID,
+                skippedSheets
+            };
+        }
+        /** Legacy: teaching-schedule workbook OT marks (hrs.OT tokens). */
+        function parseHongikOtWorkbookLegacy(wb) {
             if (!wb || typeof XLSX === 'undefined') throw new Error('SheetJS missing');
             const byTeacher = { taehyun: [], eunha: [], sua: [] };
             const seen = new Set();
@@ -17979,12 +18319,12 @@
             const skippedRows = [];
             const skippedSheets = [];
             (wb.SheetNames || []).forEach((name) => {
-                const ym = sheetMonthFromName(name);
+                const rows = sheetRowsForOtParse(wb, name);
+                const ym = sheetMonthFromName(name, rows);
                 if (!ym) {
                     skippedSheets.push({ sheet: String(name || ''), reason: 'no month in sheet name' });
                     return;
                 }
-                const rows = sheetRowsForOtParse(wb, name);
                 if (!rows.length) return;
                 const monthPrefix = `${ym.year}-${String(ym.month).padStart(2, '0')}`;
                 let zoneId = null;
@@ -18000,7 +18340,6 @@
                         const raw = row[ci];
                         const tok = parseOtHoursToken(raw);
                         if (!tok || !tok.hasOt) continue;
-                        // Do NOT skip when tok.tagMonth !== sheet month — e.g. (08)3hrs.OT under 5/9 on the Sept tab.
                         let hours = tok.hours;
                         if (hours == null || !(hours > 0)) hours = findOtHoursBelow(rows, ri, ci);
                         if (!(hours > 0)) {
@@ -18071,17 +18410,44 @@
                 foundRows,
                 skippedRows,
                 liveSyncedAt: new Date().toISOString(),
-                sourceId: STUDENT_SHEET_ID,
+                sourceId: OT_SHEET_ID,
                 skippedSheets
             };
         }
+        function parseHongikOtWorkbook(wb) {
+            if (isOtTrackerWorkbook(wb)) return parseOtTrackerWorkbook(wb);
+            return parseHongikOtWorkbookLegacy(wb);
+        }
+        function otSheetPublicErrorMessage() {
+            try {
+                if (typeof t === 'function') {
+                    const msg = t('otSheetNotPublic');
+                    if (msg && msg !== 'otSheetNotPublic') return msg;
+                }
+            } catch (_) {}
+            return 'OT sheet is not public — Share as Anyone with the link → Viewer';
+        }
         async function fetchOtFromGoogleSheet() {
             if (typeof XLSX === 'undefined') throw new Error('SheetJS not loaded');
-            const url = STUDENT_SHEET_XLSX + '&_ts=' + Date.now();
-            const res = await fetch(url, { mode: 'cors', credentials: 'omit', cache: 'no-store' });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const url = OT_SHEET_XLSX + '&_ts=' + Date.now();
+            let res;
+            try {
+                res = await fetch(url, { mode: 'cors', credentials: 'omit', cache: 'no-store' });
+            } catch (err) {
+                throw new Error(otSheetPublicErrorMessage() + ' (' + String(err && err.message ? err.message : err) + ')');
+            }
+            if (!res.ok) {
+                if (res.status === 401 || res.status === 403) throw new Error(otSheetPublicErrorMessage() + ' (HTTP ' + res.status + ')');
+                throw new Error('OT sheet HTTP ' + res.status);
+            }
             const buf = await res.arrayBuffer();
-            if (!buf || buf.byteLength < 1000) throw new Error('empty workbook');
+            if (!buf || buf.byteLength < 1000) throw new Error(otSheetPublicErrorMessage() + ' (empty workbook)');
+            const head = new Uint8Array(buf.slice(0, 16));
+            let asText = '';
+            for (let i = 0; i < head.length; i++) asText += String.fromCharCode(head[i]);
+            if (/^\s*</.test(asText) || asText.indexOf('PK') !== 0) {
+                throw new Error(otSheetPublicErrorMessage() + ' (not an XLSX)');
+            }
             const wb = XLSX.read(new Uint8Array(buf), { type: 'array', cellDates: true });
             return parseHongikOtWorkbook(wb);
         }
@@ -20435,10 +20801,6 @@
                 if (best && bestScore <= 2) return best;
             }
             return null;
-        }
-        function sheetMonthFromName(name) {
-            const m = String(name || '').match(/(\d+)\s*월\s*(\d{4})/);
-            return m ? { year: Number(m[2]), month: Number(m[1]) } : null;
         }
         function isCourseHeaderCell(cell) {
             const s = String(cell || '').trim();
@@ -28916,6 +29278,11 @@
                     const cancelled = !!item.cancelled;
                     const isDayOff = item.kind === 'dayoff' || item.classType === 'dayoff';
                     const ctype = isDayOff ? 'dayoff' : normalizeClassType(item.classType);
+                    const runStatus = normalizeClassStatus(item.classStatus);
+                    const isAbnormal = !isDayOff && !cancelled && isNonNormalClassStatus(runStatus);
+                    const abnormalCls = cancelled
+                        ? ' cancelled is-cancelled'
+                        : (isAbnormal ? ` is-abnormal${runStatus === 'cancelled' ? ' is-cancelled' : ''}` : '');
                     const typeBadge = `<span class="sched-type-badge ${ctype}">${classTypeLabel(ctype)}</span>`;
                     const statusBadge = (!isDayOff && !cancelled) ? classStatusBadgeHtml(item.classStatus) : '';
                     const titleText = String(pickLangText(item, 'title') || '').replace(/</g,'&lt;');
@@ -28923,7 +29290,7 @@
                     const roomCode = item.room || roomBlockEarly?.room || '';
                     const roomTitleHtml = roomCode ? ` · ${roomBadgeHtml(roomCode)}` : '';
                     const meta = cancelled ? `<div class="cancel-meta">
-                        <span class="badge" style="background:#ffedd5;color:#9a3412;margin-right:.35rem">${t('cancelledBadge')}</span>
+                        <span class="badge" style="background:#fecaca;color:#9f1239;margin-right:.35rem">${t('cancelledBadge')}</span>
                         ${item.cancelReason || item.cancelReasonKo || item.cancelReasonTh || item.cancelReasonEn ? `<div><strong>${t('cancelReason')}:</strong> ${String(pickLangText(item, 'cancelReason')).replace(/</g,'&lt;')}</div>` : ''}
                         ${item.makeupDate ? `<div><strong>${t('makeupDate')}:</strong> ${item.makeupDate}</div>` : ''}
                         ${item.cancelNote ? `<div><strong>${t('cancelNote')}:</strong> ${String(item.cancelNote).replace(/</g,'&lt;')}</div>` : ''}
@@ -28943,7 +29310,7 @@
                         const delBtn = canSelfCancelDirectorReport(user)
                             ? `<button type="button" class="sched-del" data-del="${idx}">${t('delete')}</button>`
                             : `<p class="text-xs text-amber-700" style="margin:0;font-weight:700">${t('sentNoCancelHint')}</p>`;
-                        return `<div class="sched-item cancelled" data-idx="${idx}">
+                        return `<div class="sched-item${abnormalCls}" data-idx="${idx}">
                             ${typeBadge}
                             <div class="sched-item-summary">
                                 <span class="si-time">${item.start}–${item.end}</span>
@@ -28963,7 +29330,12 @@
                                 <select class="sched-select sched-edit-class-status" data-idx="${idx}">${classStatusOptionsHtml(item.classStatus)}</select>
                             </div>`
                         : '';
-                    return `<div class="sched-item" data-idx="${idx}">
+                    const cancelBtnLabel = isAbnormal ? t('restoreClassNormal') : t('cancelClass');
+                    const cancelBtnTitle = String(isAbnormal ? t('restoreClassHint') : t('cancelClassHint'))
+                        .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+                    const cancelBtnCls = isAbnormal ? 'sched-cancel is-restore' : 'sched-cancel';
+                    const cancelBtnIcon = isAbnormal ? 'ph-arrow-counter-clockwise' : 'ph-calendar-x';
+                    return `<div class="sched-item${abnormalCls}" data-idx="${idx}">
                         <div class="cls-run-row">${typeBadge}${statusBadge}</div>
                         <div class="sched-item-summary">
                             <span class="si-time">${item.start}–${item.end}</span>
@@ -28998,7 +29370,7 @@
                         </div>
                         <div class="sched-item-actions sched-actions-view">
                             <button type="button" class="sched-edit-open" data-edit-open="${idx}"><i class="ph ph-pencil-simple"></i> ${t('editSchedule')}</button>
-                            <button type="button" class="sched-cancel" data-cancel="${idx}"><i class="ph ph-calendar-x"></i> ${t('cancelClass')}</button>
+                            <button type="button" class="${cancelBtnCls}" data-cancel="${idx}" title="${cancelBtnTitle}" aria-label="${cancelBtnTitle}"><i class="ph ${cancelBtnIcon}"></i> ${cancelBtnLabel}</button>
                             <button type="button" class="sched-del" data-del="${idx}">${t('delete')}</button>
                         </div>
                         <div class="sched-item-actions sched-actions-edit">
@@ -29576,6 +29948,42 @@
                             const list = loadDaySchedule(user.id);
                             const item = list[idx];
                             if (!item || item.cancelled) return;
+                            const prevStatus = normalizeClassStatus(item.classStatus);
+                            if (isNonNormalClassStatus(prevStatus)) {
+                                const roomBlock = item.roomSlotId ? getRoomBlockById(item.roomSlotId) : null;
+                                const canStatus = canEditClassStatus(user, roomBlock || { teacherId: user.id, isBreak: false });
+                                if (!canStatus) {
+                                    alert(t('classStatusOwnerOnly'));
+                                    return;
+                                }
+                                if (!confirm(t('restoreClassConfirmAsk'))) return;
+                                const nextItem = { ...item, classStatus: 'normal' };
+                                list[idx] = nextItem;
+                                saveDaySchedule(user.id, list);
+                                if (item.roomSlotId && roomBlock) {
+                                    const saved = saveRoomBlock({ ...roomBlock, classStatus: 'normal', userEdited: true }, user);
+                                    if (!saved.ok) {
+                                        list[idx] = item;
+                                        saveDaySchedule(user.id, list);
+                                        document.getElementById('schedule-msg').textContent = saved.msg || t('roomTtTaken');
+                                        return;
+                                    }
+                                    if (saved.slot) {
+                                        notifyClassStatusToDirector({
+                                            user,
+                                            slot: saved.slot,
+                                            beforeStatus: prevStatus,
+                                            afterStatus: 'normal'
+                                        });
+                                    }
+                                }
+                                notifySchedChange({ user, action: 'edit', item: nextItem });
+                                document.getElementById('schedule-msg').textContent = t('restoreClassDone');
+                                statusDismissedKey = '';
+                                renderPanels(user);
+                                setTab('today');
+                                return;
+                            }
                             cancelDraftIdx = idx;
                             const summary = document.getElementById('class-cancel-summary');
                             if (summary) summary.textContent = `${item.start}–${item.end} · ${pickLangText(item, 'title')}`;
@@ -29997,17 +30405,24 @@
                         if (msg) msg.textContent = t('otRefreshSheetBusy');
                         try {
                             const res = await syncOTFromSheet({ force: true, silent: false });
-                            if (msg) {
-                                msg.textContent = res.ok
-                                    ? `${t('otRefreshSheetOk')} · ${res.counts?.total || 0}${(res.foundRows || []).length ? ` (${(res.foundRows || []).filter((r) => String(r.date || '').startsWith('2026-09')).length} Sep)` : ''}`
-                                    : `${t('otRefreshSheetFail')}${res.error ? ': ' + res.error : ''}`;
-                            }
-                            if (res.ok && currentUser) {
-                                try { renderTeacherOtBoard(currentUser); } catch (_) {}
-                                try { if (document.getElementById('ot-pay-board')) renderOtPayBoard(currentUser); } catch (_) {}
+                            const septN = (res.foundRows || []).filter((r) => String(r.date || '').startsWith('2026-09')).length;
+                            if (res.ok) {
+                                const okMsg = `${t('otRefreshSheetOk')} · ${res.counts?.total || 0}${septN ? ` (${septN} Sep)` : ''}`;
+                                if (msg) msg.textContent = okMsg;
+                                try { showAppToast(okMsg, 'ok'); } catch (_) {}
+                                if (currentUser) {
+                                    try { renderTeacherOtBoard(currentUser); } catch (_) {}
+                                    try { if (document.getElementById('ot-pay-board')) renderOtPayBoard(currentUser); } catch (_) {}
+                                }
+                            } else {
+                                const errMsg = `${t('otRefreshSheetFail')}${res.error ? ': ' + res.error : ''}`;
+                                if (msg) msg.textContent = errMsg;
+                                try { showAppToast(errMsg, 'err'); } catch (_) {}
                             }
                         } catch (e) {
-                            if (msg) msg.textContent = `${t('otRefreshSheetFail')}: ${String(e?.message || e)}`;
+                            const errMsg = `${t('otRefreshSheetFail')}: ${String(e && e.message ? e.message : e)}`;
+                            if (msg) msg.textContent = errMsg;
+                            try { showAppToast(errMsg, 'err'); } catch (_) {}
                         } finally {
                             otRefresh.disabled = false;
                         }

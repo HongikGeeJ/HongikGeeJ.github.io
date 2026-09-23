@@ -337,7 +337,7 @@
         .dc-corners * {
             pointer-events: none !important;
         }
-        /* Post-login shell: same flower language for every account / role */
+        /* Post-login shell only: modest flower bump (~1.5–2× original). Login .dc-c stays ~88px. */
         .dash-shell > .dc-corners {
             position: absolute;
             inset: 0;
@@ -347,38 +347,39 @@
             overflow: visible;
         }
         .dash-shell > .dc-corners .dc-c {
-            width: 72px;
-            height: 72px;
+            width: 120px;
+            height: 120px;
             opacity: .92;
         }
         /* Top corners: compact kiss so logo / actions stay clear */
         .dash-shell > .dc-corners .dc-c.tl,
         .dash-shell > .dc-corners .dc-c.tr {
-            width: 52px;
-            height: 52px;
+            width: 84px;
+            height: 84px;
             opacity: .9;
         }
-        .dash-shell > .dc-corners .dc-c.tl { top: -6px; left: 0; }
+        .dash-shell > .dc-corners .dc-c.tl { top: -10px; left: -4px; }
         .dash-shell > .dc-corners .dc-c.tr {
-            top: -6px; left: 100%; right: auto;
+            top: -10px; left: calc(100% + 4px); right: auto;
         }
         @media (max-width: 720px) {
             .dash-shell > .dc-corners .dc-c {
-                width: 56px; height: 56px; opacity: .9;
+                width: 90px; height: 90px; opacity: .9;
             }
             .dash-shell > .dc-corners .dc-c.tl,
             .dash-shell > .dc-corners .dc-c.tr {
-                width: 42px; height: 42px;
+                width: 68px; height: 68px;
             }
-            .dash-shell > .dc-corners .dc-c.tl { top: -4px; left: 0; }
-            .dash-shell > .dc-corners .dc-c.tr { top: -4px; left: 100%; }
+            .dash-shell > .dc-corners .dc-c.tl { top: -6px; left: -2px; }
+            .dash-shell > .dc-corners .dc-c.tr { top: -6px; left: calc(100% + 2px); }
         }
         /* Geometric rails replaced by shared flower chrome */
         .taehyun-fx .dancheong-rail { display: none !important; }
+        /* Login panel default size — must stay modest; do not inherit dashboard bump */
         .dc-c {
             position: absolute; width: 88px; height: 88px;
             background-repeat: no-repeat; background-size: contain;
-            background-image: url('assets/dancheong/corner-flower.svg?v=cluster7');
+            background-image: url('assets/dancheong/corner-flower.svg?v=cluster10');
             opacity: 1;
             /* Static shadow only — never animate filter (caused color flicker) */
             filter: drop-shadow(0 1px 1.5px rgba(120,90,110,.12));
@@ -472,33 +473,28 @@
             .dc-c.bl { transform: scaleY(-1); }
             .dc-c.br { transform: scale(-1); }
         }
-        /* Corner blooms + mini-flower rail on card edges (all roles).
-           Rails are background-image only (never hit-test). Pseudos must stay
-           pointer-events:none so they cannot cover #dash-tabs / header / cards. */
+        /* Card edge décor (all roles): Sua-style corner blooms only.
+           Horizontal edge-sparkles rails removed. Pseudos stay
+           pointer-events:none so they cannot cover tabs / header / cards. */
         .content-card {
             position: relative;
             overflow: visible;
             background-color: #fff;
-            background-image:
-                url('assets/dancheong/edge-sparkles.svg?v=flower1'),
-                url('assets/dancheong/edge-sparkles.svg?v=flower1');
-            background-repeat: no-repeat;
-            /* Tuck flush to card edges — less content intrusion */
-            background-position: center top 0, center bottom 0;
-            background-size: min(100%, 480px) 48px;
+            background-image: none;
+            pointer-events: auto;
         }
         .content-card::before,
         .content-card::after {
             content: '';
             position: absolute;
-            width: 32px; height: 32px;
+            width: 320px; height: 320px;
             pointer-events: none !important;
             /* Under card content so blooms never cover text/icons */
             z-index: 0;
             background-repeat: no-repeat;
             background-size: contain;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom6');
-            opacity: .88;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom10');
+            opacity: .94;
             /*
               SVG authored for TL (outer L at 0,0). Always pin that vertex with
               transform-origin: 0 0, then place top-left on each corner and flip —
@@ -511,33 +507,97 @@
         .content-card > * { position: relative; z-index: 1; }
         /* Flush kiss on rounded card stroke */
         .content-card::before {
-            top: -1px; left: -1px;
+            top: -72px; left: -72px;
             transform: none;
             animation: cardBloomSway 5.2s ease-in-out infinite;
         }
         .content-card::after {
-            top: calc(100% + 1px); left: calc(100% + 1px);
+            top: calc(100% + 72px); left: calc(100% + 72px);
             bottom: auto; right: auto;
             transform: scale(-1);
             animation: cardBloomSwayFlip 5.2s ease-in-out infinite;
             animation-delay: .7s;
         }
         @keyframes cardBloomSway {
-            0%, 100% { transform: rotate(-2deg) scale(1); }
-            40% { transform: rotate(1.6deg) scale(1.04); }
-            75% { transform: rotate(2.3deg) scale(1.02); }
+            0%, 100% { transform: rotate(-4.5deg) translate(0, 0) scale(1); }
+            35% { transform: rotate(3.8deg) translate(2px, -4px) scale(1.08); }
+            70% { transform: rotate(5.2deg) translate(-2px, 2px) scale(1.045); }
         }
         @keyframes cardBloomSwayFlip {
-            0%, 100% { transform: scale(-1) rotate(-2deg); }
-            40% { transform: scale(-1.04) rotate(1.6deg); }
-            75% { transform: scale(-1.02) rotate(2.3deg); }
+            0%, 100% { transform: scale(-1) rotate(-4.5deg) translate(0, 0); }
+            35% { transform: scale(-1.08) rotate(3.8deg) translate(2px, -4px); }
+            70% { transform: scale(-1.045) rotate(5.2deg) translate(-2px, 2px); }
+        }
+        /*
+          Eunha only (#dash-shell.is-eunha-shin): content-card corner blooms → Shin décor.
+          TL = cheek circle, BR = pajama sit. Other accounts keep corner-bloom.svg.
+        */
+        .dash-shell.is-eunha-shin .content-card::before,
+        .dash-shell.is-eunha-shin .content-card::after {
+            opacity: 1;
+            pointer-events: none !important;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+            will-change: transform;
+            filter:
+                drop-shadow(0 1px 1px rgba(255, 255, 255, .9))
+                drop-shadow(0 3px 8px rgba(236, 120, 160, .28))
+                drop-shadow(0 1px 3px rgba(15, 23, 42, .12));
+        }
+        .dash-shell.is-eunha-shin .content-card::before {
+            width: 46px;
+            height: 46px;
+            top: -8px;
+            left: -8px;
+            background-image: url('assets/decor/shinchan-cheek.png?v=cheek1');
+            transform: none;
+            transform-origin: 35% 75%;
+            animation: eunhaShinCheekBob 3.5s ease-in-out infinite;
+        }
+        .dash-shell.is-eunha-shin .content-card::after {
+            width: 54px;
+            height: 68px;
+            top: calc(100% - 4px);
+            left: calc(100% - 8px);
+            bottom: auto;
+            right: auto;
+            background-image: url('assets/decor/shinchan-pajamas.png?v=pj1');
+            /* Do not mirror — character faces naturally into the card */
+            transform: none;
+            transform-origin: 70% 100%;
+            animation: eunhaShinPajamaSway 3.8s ease-in-out infinite;
+            animation-delay: .35s;
+        }
+        .dash-shell.is-eunha-shin .content-card.compact-card::before {
+            width: 38px;
+            height: 38px;
+            top: -6px;
+            left: -6px;
+        }
+        .dash-shell.is-eunha-shin .content-card.compact-card::after {
+            width: 44px;
+            height: 56px;
+            top: calc(100% - 2px);
+            left: calc(100% - 6px);
+        }
+        @keyframes eunhaShinCheekBob {
+            0%, 100% { transform: translateY(0) rotate(-2.2deg) scale(1); }
+            40% { transform: translateY(-2.5px) rotate(2deg) scale(1.045); }
+            70% { transform: translateY(-1px) rotate(1deg) scale(1.02); }
+        }
+        @keyframes eunhaShinPajamaSway {
+            0%, 100% { transform: translate(0, 0) rotate(-2.5deg) scale(1); }
+            35% { transform: translate(-1.5px, -2px) rotate(2.2deg) scale(1.03); }
+            65% { transform: translate(1px, -1px) rotate(1.2deg) scale(1.015); }
         }
         .content-card.compact-card::before,
         .content-card.compact-card::after {
-            width: 26px; height: 26px; opacity: .82;
+            width: 260px; height: 260px; opacity: .9;
         }
-        .content-card.compact-card {
-            background-size: min(100%, 380px) 42px;
+        .content-card.compact-card::before { top: -58px; left: -58px; }
+        .content-card.compact-card::after {
+            top: calc(100% + 58px); left: calc(100% + 58px);
         }
         .content-card[style*="transparent"] {
             background-image: none;
@@ -548,9 +608,7 @@
         }
         @media (prefers-reduced-motion: reduce) {
             .content-card {
-                background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1');
+                background-image: none;
             }
             .content-card::before,
             .content-card::after {
@@ -558,17 +616,32 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: scale(-1); }
+            .dash-shell.is-eunha-shin .content-card::before,
+            .dash-shell.is-eunha-shin .content-card::after {
+                animation: none !important;
+                transform: none !important;
+            }
         }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.45rem; }
-            .dc-c { width: 68px; height: 68px; opacity: .95; }
-            .dc-c.tl { top: -12px; left: -12px; }
-            .dc-c.tr { top: -12px; left: calc(100% + 12px); right: auto; }
-            .dc-c.bl { top: calc(100% + 12px); left: -12px; bottom: auto; }
-            .dc-c.br { top: calc(100% + 12px); left: calc(100% + 12px); bottom: auto; right: auto; }
+            .dc-c { width: 220px; height: 220px; opacity: .95; }
+            .dc-c.tl { top: -40px; left: -40px; }
+            .dc-c.tr { top: -40px; left: calc(100% + 40px); right: auto; }
+            .dc-c.bl { top: calc(100% + 40px); left: -40px; bottom: auto; }
+            .dc-c.br { top: calc(100% + 40px); left: calc(100% + 40px); bottom: auto; right: auto; }
             .content-card::before,
-            .content-card::after { width: 24px; height: 24px; opacity: .7; }
-            .content-card { background-size: min(100%, 320px) 40px; }
+            .content-card::after { width: 200px; height: 200px; opacity: .88; }
+            .content-card::before { top: -48px; left: -48px; }
+            .content-card::after { top: calc(100% + 48px); left: calc(100% + 48px); }
+            .dash-shell.is-eunha-shin .content-card::before {
+                width: 36px; height: 36px; opacity: 1;
+                top: -6px; left: -6px;
+            }
+            .dash-shell.is-eunha-shin .content-card::after {
+                width: 42px; height: 54px; opacity: 1;
+                top: calc(100% - 2px); left: calc(100% - 6px);
+                transform: none;
+            }
         }
         .dash-shell {
             width: 100%;
@@ -605,8 +678,8 @@
         @media (min-width: 1100px) {
             .dash-body { padding: 1.35rem 1.85rem 1.75rem; }
             .dash-header { padding-left: 1.5rem; padding-right: 1.5rem; }
-            .content-card { padding: 3.35rem 1.5rem; }
-            .content-card.compact-card { padding: 3rem 1.4rem; }
+            .content-card { padding: 2.45rem 1.5rem; }
+            .content-card.compact-card { padding: 2.15rem 1.4rem; }
             .tab-panel[data-panel="rooms"] .room-tt-wrap { max-height: none; }
         }
         @media (min-width: 1400px) {
@@ -1214,9 +1287,9 @@
         .stat-card .k { font-size: .72rem; font-weight: 700; color: #64748b; }
         .stat-card .v { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-top: .2rem; }
         .stat-card .h { font-size: .75rem; color: #94a3b8; margin-top: .15rem; }
-        /* Vertical pad clears ~48px top/bottom flower rails tucked to edges */
-        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 3.25rem 1.1rem; margin-bottom: .85rem; }
-        .content-card h3 { margin: 0; font-size: 1rem; font-weight: 750; color: #0f172a; display: flex; align-items: center; gap: .4rem; }
+        /* Vertical pad clears tall wavy rails; corner blooms tuck outside */
+        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 2.35rem 1.1rem; margin-bottom: .85rem; }
+        .content-card h3 { margin: 0; font-size: 1.12rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: .4rem; }
         .item-row { display: flex; justify-content: space-between; gap: .75rem; padding: .7rem 0; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
         .item-row:last-child { border-bottom: none; }
         /* Director orders feed: alternate navy / cream so consecutive sends stay distinct */
@@ -2447,8 +2520,9 @@
         .theme-teacher-c .stat-card {
             border-color: rgba(91,140,90,.14);
             box-shadow: 0 8px 22px rgba(91,140,90,.07);
-            /* background-color only — keep edge flower strip (background-image) */
+            /* background-color only — no horizontal edge-sparkles rail */
             background-color: rgba(255,255,255,.88);
+            background-image: none;
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
         }
@@ -2462,76 +2536,62 @@
         .theme-teacher-c #dash-name { color: #2d3b2c !important; line-height: 1.55 !important; padding-bottom: .2em; overflow: visible; }
 
         /*
-          Sua only (.theme-teacher-c): larger corner blooms + dash-shell .dc-c.
-          Edge mini-flower strip matches shared tucked rail (~48px).
+          Sua (.theme-teacher-c) reference: large corner blooms + dash-shell .dc-c.
+          No horizontal edge-sparkles strip — shared globally for all similar accounts.
         */
         .dash-shell.theme-teacher-c > .dc-corners .dc-c {
-            width: 216px;
-            height: 216px;
+            width: 280px;
+            height: 280px;
         }
         .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl,
         .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
-            width: 156px;
-            height: 156px;
+            width: 200px;
+            height: 200px;
         }
-        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -18px; left: 0; }
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -36px; left: -20px; }
         .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
-            top: -18px; left: 100%; right: auto;
+            top: -36px; left: calc(100% + 20px); right: auto;
         }
         .theme-teacher-c .content-card {
-            background-image:
-                url('assets/dancheong/edge-sparkles.svg?v=flower1'),
-                url('assets/dancheong/edge-sparkles.svg?v=flower1');
-            background-repeat: no-repeat;
-            background-position: center top 0, center bottom 0;
-            background-size: min(100%, 480px) 48px;
-            padding-top: 3.25rem;
-            padding-bottom: 3.25rem;
+            background-image: none;
+            padding-top: 2.15rem;
+            padding-bottom: 2.15rem;
         }
         .theme-teacher-c .content-card::before,
         .theme-teacher-c .content-card::after {
-            width: 96px;
-            height: 96px;
+            width: 320px;
+            height: 320px;
             pointer-events: none !important;
         }
         .theme-teacher-c .content-card.compact-card {
-            background-size: min(100%, 380px) 42px;
-            padding-top: 3rem;
-            padding-bottom: 3rem;
+            padding-top: 1.85rem;
+            padding-bottom: 1.85rem;
         }
         .theme-teacher-c .content-card.compact-card::before,
         .theme-teacher-c .content-card.compact-card::after {
-            width: 78px;
-            height: 78px;
+            width: 260px;
+            height: 260px;
         }
         @media (max-width: 720px) {
             .dash-shell.theme-teacher-c > .dc-corners .dc-c {
-                width: 168px; height: 168px;
+                width: 180px; height: 180px;
             }
             .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl,
             .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
-                width: 126px; height: 126px;
+                width: 140px; height: 140px;
             }
-            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -12px; left: 0; }
-            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr { top: -12px; left: 100%; }
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -24px; left: -12px; }
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr { top: -24px; left: calc(100% + 12px); }
         }
         @media (max-width: 480px) {
             .theme-teacher-c .content-card {
-                background-size: min(100%, 320px) 40px;
-                padding-top: 3rem;
-                padding-bottom: 3rem;
+                padding-top: 1.75rem;
+                padding-bottom: 1.75rem;
             }
             .theme-teacher-c .content-card::before,
             .theme-teacher-c .content-card::after {
-                width: 72px; height: 72px;
+                width: 200px; height: 200px;
                 pointer-events: none !important;
-            }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .theme-teacher-c .content-card {
-                background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1');
             }
         }
 
@@ -4235,6 +4295,17 @@
             background: linear-gradient(135deg, #fee2e2, #fecaca);
             color: #b91c1c;
         }
+        #leave-alert-modal .leave-alert-bell {
+            width: 58px; height: 58px; border-radius: 50%;
+            display: grid; place-items: center; margin: 0 auto .75rem;
+            font-size: 1.7rem;
+            background: linear-gradient(135deg, #ffedd5, #fed7aa);
+            color: #c2410c;
+        }
+        #leave-alert-modal.open .leave-alert-bell { animation: bellShake 0.65s ease-in-out infinite; }
+        .leave-history-hint { font-size: .78rem; color: #64748b; margin: .15rem 0 .55rem; font-weight: 650; }
+        .leave-inbox-card.is-acked .li-badge { background: #e0f2fe; color: #0369a1; }
+        .leave-ack-gate { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; margin-top: .45rem; }
         #save-schedule-btn.soft-btn {
             background: linear-gradient(95deg, #2563eb 0%, #1d4ed8 55%, #1e3a8a 100%) !important;
             color: #ffffff !important;
@@ -4349,12 +4420,37 @@
             opacity: .92;
             filter: grayscale(.35);
         }
+        /* Cancelled: dark red + strikethrough; still released for re-booking */
+        .room-tt-booked.is-cancelled {
+            background: #7f1d1d !important;
+            border-color: #991b1b !important;
+            color: #fecaca !important;
+            opacity: 1;
+            filter: none;
+        }
+        .room-tt-booked.is-cancelled .rt-name,
+        .room-tt-booked.is-cancelled .rt-subj {
+            text-decoration: line-through;
+            text-decoration-thickness: 1.5px;
+            text-decoration-color: rgba(254, 202, 202, .85);
+        }
+        .room-tt-booked.is-cancelled .cls-run-badge {
+            text-decoration: none;
+            background: #fecaca;
+            color: #7f1d1d;
+            border-color: #fca5a5;
+        }
+        .room-tt-booked.is-cancelled .rt-avatar {
+            opacity: .75;
+            filter: grayscale(.2);
+        }
         .room-tt-released-stack {
             display: flex; flex-direction: column; gap: .2rem; align-items: stretch;
             width: 100%; height: 100%; min-height: 2.2rem; padding: .15rem;
             box-sizing: border-box;
         }
-        .room-tt-released-stack .room-tt-booked.is-released {
+        .room-tt-released-stack .room-tt-booked.is-released,
+        .room-tt-released-stack .room-tt-booked.is-cancelled {
             flex: 1; min-height: 1.6rem; font-size: .62rem;
         }
         .room-tt-released-stack .room-tt-plus {
@@ -4374,7 +4470,55 @@
             background: #e2e8f0 !important; border-color: #94a3b8 !important; color: #64748b !important;
             filter: grayscale(.3);
         }
-        .sched-item .cls-run-badge { margin-left: .25rem; }
+        .rt-month-chip.is-cancelled {
+            background: #7f1d1d !important; border-color: #991b1b !important; color: #fecaca !important;
+            text-decoration: line-through; filter: none;
+        }
+        /* Match type-badge size on schedule cards; brighter abnormal status chips */
+        .sched-item .cls-run-badge {
+            margin-left: .25rem;
+            font-size: .72rem;
+            font-weight: 850;
+            padding: .2rem .55rem;
+            border-radius: .5rem;
+        }
+        .sched-item .cls-run-badge.cancelled {
+            background: #fecaca;
+            color: #9f1239;
+            border-color: #f43f5e;
+            font-weight: 900;
+            box-shadow: 0 0 0 1px rgba(244, 63, 94, .22), 0 2px 10px rgba(244, 63, 94, .28);
+        }
+        .sched-item .cls-run-badge.postponed {
+            background: #fed7aa;
+            color: #9a3412;
+            border-color: #f97316;
+            font-weight: 900;
+            box-shadow: 0 0 0 1px rgba(249, 115, 22, .18), 0 2px 8px rgba(249, 115, 22, .22);
+        }
+        .sched-item .cls-run-badge.waiting {
+            background: #f9a8d4;
+            color: #9d174d;
+            border-color: #ec4899;
+            font-weight: 900;
+            box-shadow: 0 0 0 1px rgba(236, 72, 153, .2), 0 2px 8px rgba(236, 72, 153, .22);
+        }
+        .sched-item .cls-run-badge.student_postponed {
+            background: #cbd5e1;
+            color: #334155;
+            border-color: #64748b;
+            font-weight: 900;
+            box-shadow: 0 0 0 1px rgba(100, 116, 139, .18), 0 2px 8px rgba(100, 116, 139, .18);
+        }
+        .sched-item.is-abnormal .sched-type-badge,
+        .sched-item.is-cancelled .sched-type-badge,
+        .sched-item.cancelled .sched-type-badge {
+            text-decoration: line-through;
+            text-decoration-color: #0f172a;
+            text-decoration-thickness: 2px;
+            text-decoration-skip-ink: none;
+            opacity: .88;
+        }
         .sched-item.dayoff-item {
             background: #f8fafc;
             border-color: #cbd5e1;
@@ -6378,11 +6522,26 @@
             font-size: .82rem; font-weight: 750; font-family: inherit;
             box-shadow: 0 4px 12px rgba(234,88,12,.25);
         }
+        .sched-cancel.is-restore {
+            background: linear-gradient(95deg, #5eead4, #0d9488);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, .28);
+        }
         .sched-save:hover, .sched-edit-open:hover, .sched-cancel:hover { filter: brightness(1.05); transform: translateY(-1px); }
         .sched-item {
             display: flex; flex-direction: column; align-items: stretch; gap: .55rem;
             padding: .9rem .85rem; border-bottom: none; font-size: .9rem;
             background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 1rem; margin: .55rem 0;
+        }
+        /* Cancelled / postponed / waiting / student-postpone: pink-red frame + soft glow */
+        .sched-item.is-abnormal,
+        .sched-item.is-cancelled,
+        .sched-item.cancelled {
+            background: linear-gradient(145deg, #fff1f2 0%, #ffe4e6 42%, #fecdd3 100%);
+            border: 1px solid #fb7185;
+            box-shadow:
+                0 0 0 1px rgba(244, 63, 94, .1),
+                0 8px 22px rgba(244, 63, 94, .16),
+                inset 0 1px 0 rgba(255, 255, 255, .65);
         }
         .sched-item-summary {
             display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .65rem;
@@ -6399,12 +6558,10 @@
         .sched-item.is-editing .sched-actions-view { display: none; }
         .sched-item:not(.is-editing) .sched-actions-edit { display: none; }
         .sched-item.cancelled {
-            opacity: .92;
-            background: linear-gradient(90deg, #fff7ed 0%, #fff 55%);
-            border-radius: .85rem;
-            padding: .7rem .65rem;
-            border: 1px solid #fed7aa;
-            margin: .35rem 0;
+            opacity: .96;
+            border-radius: 1rem;
+            padding: .9rem .85rem;
+            margin: .55rem 0;
         }
         .sched-item.cancelled .sched-edit-grid { pointer-events: none; opacity: .75; }
         .cancel-meta {
@@ -8002,39 +8159,43 @@
         }
         .room-tt-range {
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             isolation: isolate;
-            font-weight: 750; font-size: 1.02rem; color: #1e293b;
+            font-weight: 800; font-size: 1.18rem; color: #0f172a;
             letter-spacing: -.01em; min-width: 0; text-align: center;
             border: 1px solid rgba(148, 163, 184, .42);
-            background:
-                url('assets/dancheong/corner-flower.svg?v=rtnav1') no-repeat left -6px top -8px / 20px auto,
-                url('assets/dancheong/corner-flower.svg?v=rtnav1') no-repeat right -6px bottom -8px / 17px auto,
-                linear-gradient(165deg, #fcfdff 0%, #f4f8fb 58%, #eef4f8 100%);
-            border-radius: .58rem;
-            padding: .28rem .78rem .3rem; cursor: pointer; font-family: inherit; line-height: 1.18;
+            background: linear-gradient(165deg, #fcfdff 0%, #f4f8fb 58%, #eef4f8 100%);
+            border-radius: .72rem;
+            padding: .48rem 1.15rem .52rem; cursor: pointer; font-family: inherit; line-height: 1.2;
             box-shadow:
                 0 1px 0 rgba(255,255,255,.9) inset,
                 0 1px 4px rgba(15, 23, 42, .04);
             transition: transform .2s ease, box-shadow .22s ease, border-color .22s ease;
             animation: roomTtRangePulse 3.6s ease-in-out infinite;
         }
-        .room-tt-range::before {
+        /* TL + BR corner flowers ~8× prior (20px/17px → 160px/136px), decorative only */
+        .room-tt-range::before,
+        .room-tt-range::after {
             content: '';
-            position: absolute; inset: 0; z-index: 0; pointer-events: none;
-            background: linear-gradient(
-                105deg,
-                transparent 0%,
-                transparent 38%,
-                rgba(255,255,255,.0) 42%,
-                rgba(255,255,255,.55) 50%,
-                rgba(186, 230, 253, .28) 54%,
-                transparent 62%,
-                transparent 100%
-            );
-            background-size: 220% 100%;
-            animation: roomTtRangeShimmer 5.2s ease-in-out infinite;
-            opacity: .85;
+            position: absolute;
+            z-index: 0;
+            pointer-events: none !important;
+            background: url('assets/dancheong/corner-flower.svg?v=rtnav8') no-repeat center / contain;
+            opacity: .92;
+            will-change: transform;
+        }
+        .room-tt-range::before {
+            width: 160px; height: 160px;
+            top: -52px; left: -52px;
+            transform-origin: 30% 30%;
+            animation: roomTtFlowerSwayTl 4.8s ease-in-out infinite;
+        }
+        .room-tt-range::after {
+            width: 136px; height: 136px;
+            right: -48px; bottom: -48px; left: auto; top: auto;
+            transform-origin: 70% 70%;
+            animation: roomTtFlowerSwayBr 5.4s ease-in-out infinite;
+            animation-delay: -.9s;
         }
         .room-tt-range > * { position: relative; z-index: 1; }
         .room-tt-range:hover, .room-tt-range:focus-visible {
@@ -8055,8 +8216,18 @@
             display: block;
         }
         .room-tt-range .rt-range-hint {
-            display: block; font-size: .68rem; font-weight: 650; color: #64748b;
-            margin-top: .06rem; letter-spacing: .01em; opacity: .82;
+            display: block; font-size: .78rem; font-weight: 700; color: #475569;
+            margin-top: .1rem; letter-spacing: .01em; opacity: .9;
+        }
+        @keyframes roomTtFlowerSwayTl {
+            0%, 100% { transform: rotate(-6deg) translate(0, 0) scale(1); }
+            40% { transform: rotate(7deg) translate(3px, -5px) scale(1.12); }
+            70% { transform: rotate(4deg) translate(-2px, 3px) scale(1.06); }
+        }
+        @keyframes roomTtFlowerSwayBr {
+            0%, 100% { transform: scale(-1) rotate(-6deg) translate(0, 0); }
+            40% { transform: scale(-1.12) rotate(7deg) translate(3px, -5px); }
+            70% { transform: scale(-1.06) rotate(4deg) translate(-2px, 3px); }
         }
         .room-tt-range.is-week-slide-next {
             animation: roomTtRangeFadeNext .38s cubic-bezier(.22, 1, .36, 1) both;
@@ -8093,10 +8264,12 @@
         @media (prefers-reduced-motion: reduce) {
             .room-tt-nav .soft-btn,
             .room-tt-range,
-            .room-tt-range::before {
+            .room-tt-range::before,
+            .room-tt-range::after {
                 transition: none !important;
                 animation: none !important;
             }
+            .room-tt-range::after { transform: scale(-1); }
             .room-tt-nav .soft-btn:hover:not(:disabled),
             .room-tt-nav .soft-btn:focus-visible:not(:disabled),
             .room-tt-nav .soft-btn:active:not(:disabled),
@@ -8256,15 +8429,22 @@
         .room-tt-cell.is-corner { left: 0; top: 0; z-index: 4; }
         .room-tt-cell.is-time {
             left: 0; z-index: 3; display: flex; align-items: center; justify-content: center;
-            font-size: .68rem; font-weight: 800; color: #475569;
-            background: #eef2f7;
+            font-size: .9rem; font-weight: 850; color: #0f172a; letter-spacing: .02em;
+            background: #e8edf4;
+            border-right: 1px solid #cbd5e1;
         }
         .room-tt-cell.is-day {
-            top: 0; z-index: 3; text-align: center; padding: .32rem .15rem .28rem;
-            background: #eef2f7;
+            top: 0; z-index: 3; text-align: center; padding: .4rem .18rem .34rem;
+            background: #e8edf4;
+            border-bottom: 2px solid #94a3b8;
+            animation: roomTtDayHeadPulse 3.6s ease-in-out infinite;
         }
-        .room-tt-day-name { font-size: .74rem; font-weight: 850; color: #0f172a; }
-        .room-tt-day-date { font-size: .62rem; color: #64748b; font-weight: 650; }
+        .room-tt-day-name { font-size: .98rem; font-weight: 900; color: #0f172a; line-height: 1.15; }
+        .room-tt-day-date { font-size: .8rem; color: #334155; font-weight: 750; margin-top: .06rem; letter-spacing: .03em; }
+        @keyframes roomTtDayHeadPulse {
+            0%, 100% { border-bottom-color: #94a3b8; }
+            50% { border-bottom-color: #38bdf8; }
+        }
         .room-tt-rooms {
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .15rem; margin-top: .18rem;
         }
@@ -8293,12 +8473,66 @@
         .room-tt-cell.is-today-col.is-day {
             background: #e0f2fe;
             box-shadow: inset 0 -2px 0 #38bdf8;
+            animation: none;
         }
         .room-tt-cell.is-today-col.is-day-start {
             box-shadow: inset 3px 0 0 #0ea5e9;
         }
         .room-tt-cell.is-today-col.is-day.is-day-start {
             box-shadow: inset 3px 0 0 #0ea5e9, inset 0 -2px 0 #38bdf8;
+        }
+        /* Past days (Asia/Bangkok): muted wash, not editable — keep cancelled dark-red / released visible */
+        .room-tt-cell.is-past-day.is-room-a,
+        .room-tt-cell.is-past-day.is-room-b,
+        .room-tt-cell.is-past-day.is-room-c {
+            background: #e4e6ea !important;
+        }
+        .room-tt-cell.is-past-day.is-day {
+            background: #d5d8de !important;
+            animation: none;
+            border-bottom-color: #94a3b8;
+            box-shadow: inset 0 -2px 0 #94a3b8;
+        }
+        .room-tt-cell.is-past-day.is-day .room-tt-day-name { color: #64748b; }
+        .room-tt-cell.is-past-day.is-day .room-tt-day-date { color: #94a3b8; }
+        .room-tt-cell.is-past-day.is-day-start {
+            box-shadow: inset 3px 0 0 #94a3b8;
+        }
+        .room-tt-cell.is-past-day.is-day.is-day-start {
+            box-shadow: inset 3px 0 0 #94a3b8, inset 0 -2px 0 #94a3b8;
+        }
+        .room-tt-cell.is-past-day .room-tt-plus {
+            pointer-events: none !important;
+            cursor: default !important;
+            opacity: .32;
+            filter: grayscale(.4);
+            box-shadow: none;
+        }
+        .room-tt-cell.is-past-day .room-tt-plus:hover,
+        .room-tt-cell.is-past-day .room-tt-plus:focus-visible {
+            transform: none;
+            border-color: rgba(148, 163, 184, .45);
+            color: rgba(148, 163, 184, .45);
+            background: linear-gradient(160deg, #f1f5f9 0%, #e2e8f0 100%);
+            box-shadow: none;
+        }
+        .room-tt-cell.is-past-day .room-tt-booked {
+            pointer-events: none !important;
+            cursor: default !important;
+        }
+        .room-tt-cell.is-past-day .room-tt-booked:not(.is-cancelled):not(.is-break):not(.is-released) {
+            filter: grayscale(.28);
+            opacity: .82;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, .06);
+        }
+        .room-tt-cell.is-past-day .room-tt-booked.is-released {
+            filter: grayscale(.2);
+            opacity: .88;
+        }
+        .room-tt-cell.is-past-day .room-tt-booked.is-cancelled,
+        .room-tt-cell.is-past-day .room-tt-booked.is-break {
+            filter: none;
+            opacity: .95;
         }
         /* Empty slots: soft gray-white pin/watermark; booked colors stay vivid */
         .room-tt-plus {
@@ -8459,6 +8693,24 @@
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
             box-shadow: 0 1px 0 rgba(15, 23, 42, .04) !important;
+            /* Pull title/header up — less empty space above ตารางห้องเรียน */
+            padding-top: 1.15rem !important;
+            padding-bottom: 1.35rem !important;
+        }
+        .tab-panel[data-panel="rooms"] > .content-card > h3 {
+            font-size: 1.42rem;
+            font-weight: 900;
+            color: #0b1220;
+            letter-spacing: -.02em;
+            margin: 0 0 .55rem;
+            gap: .5rem;
+        }
+        .tab-panel[data-panel="rooms"] > .content-card > h3 .ph {
+            font-size: 1.35em;
+            color: #1d4ed8;
+        }
+        .tab-panel[data-panel="rooms"] .room-tt-head {
+            margin-top: 0;
         }
         .theme-teacher-a .tab-panel[data-panel="rooms"].active .content-card,
         .theme-teacher-b .tab-panel[data-panel="rooms"] > .content-card,
@@ -8729,9 +8981,7 @@
             .content-card {
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
-                background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1') !important;
+                background-image: none !important;
             }
             .content-card::before,
             .content-card::after {
@@ -8740,6 +8990,10 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: scale(-1); }
+            .dash-shell.is-eunha-shin .content-card::before,
+            .dash-shell.is-eunha-shin .content-card::after {
+                transform: none !important;
+            }
             /*
               Login panel corners must keep sway on mobile/iPad — do not kill .dc-c.
               Use lighter keyframes (no glow pulse). Dash-shell corners stay static.
@@ -8965,9 +9219,20 @@
             .stat-grid, .stat-grid.work-stats { grid-template-columns: 1fr; }
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
-            .content-card { padding: 3rem .85rem; margin-bottom: .7rem; }
+            .content-card { padding: 2.1rem .85rem; margin-bottom: .7rem; }
             .content-card::before,
-            .content-card::after { width: 24px; height: 24px; opacity: .7; pointer-events: none !important; }
+            .content-card::after { width: 200px; height: 200px; opacity: .88; pointer-events: none !important; }
+            .content-card::before { top: -48px; left: -48px; }
+            .content-card::after { top: calc(100% + 48px); left: calc(100% + 48px); }
+            .dash-shell.is-eunha-shin .content-card::before {
+                width: 38px; height: 38px; opacity: 1;
+                top: -6px; left: -6px;
+            }
+            .dash-shell.is-eunha-shin .content-card::after {
+                width: 44px; height: 56px; opacity: 1;
+                top: calc(100% - 2px); left: calc(100% - 6px);
+                transform: none;
+            }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
             .login-sea { height: min(96px, 16vh); }
             .lang-float {
@@ -8998,6 +9263,11 @@
             .header-shin-wrap.is-play .header-shin-decor,
             .header-shin-wrap.is-sync-pulse::before {
                 animation: none !important;
+            }
+            .dash-shell.is-eunha-shin .content-card::before,
+            .dash-shell.is-eunha-shin .content-card::after {
+                animation: none !important;
+                transform: none !important;
             }
             .header-shin-bubble { transition: none !important; }
             #order-modal .order-sakura,
@@ -9520,6 +9790,27 @@
             </label>
             <div class="admin-actions">
                 <button type="button" id="cancel-alert-confirm" class="soft-btn" disabled data-i18n="confirmRead">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="leave-alert-modal" class="modal">
+        <div class="modal-box">
+            <div class="order-sakura" id="leave-alert-sakura" aria-hidden="true"></div>
+            <button type="button" class="modal-x" id="leave-alert-x" title="Close" aria-label="Close">
+                <i class="ph ph-x"></i>
+            </button>
+            <img src="" data-school-logo="1" alt="" class="alert-logo">
+            <div class="leave-alert-bell" aria-hidden="true"><i class="ph-fill ph-airplane-tilt"></i></div>
+            <p class="font-extrabold text-slate-900 text-lg m-0 text-center" data-i18n="leaveAlertTitle">แจ้งคำขอลางาน</p>
+            <p class="text-sm text-slate-500 mt-1 mb-3 text-center" data-i18n="leaveAlertHint">ต้องกดรับทราบก่อน แล้วค่อยอนุมัติในกล่องลา · ผู้ขอจะได้รับแจ้งหลังอนุมัติเท่านั้น</p>
+            <div id="leave-alert-list"></div>
+            <label class="check-row">
+                <input type="checkbox" id="leave-alert-check">
+                <span data-i18n="markRead">ฉันรับทราบแล้ว</span>
+            </label>
+            <div class="admin-actions">
+                <button type="button" id="leave-alert-confirm" class="soft-btn" disabled data-i18n="confirmRead">ยืนยัน</button>
             </div>
         </div>
     </div>
@@ -11522,12 +11813,12 @@
         const PW_KEY = 'hongik-passwords-v1';
         const DELETED_KEY = 'hongik-deleted-accounts-v1';
         const BLOCKED_KEY = 'hongik-blocked-accounts-v1';
-        const LEAVE_KEY = 'hongik-leave-requests-v1';
+        const LEAVE_KEY = 'hongik-leave-requests-v1'; /* LEAVE_WORKFLOW_V2 */
         const OT_KEY = (id) => `hongik-ot-${id}`;
         /** v2: invalidate stale sheet OT cached before prefer-formatted-date parse. */
         const OT_BUNDLE_STORE = 'hongik-ot-bundle-v2';
         const OT_BUNDLE_LEGACY = 'hongik-ot-bundle-v1';
-        const OT_SHEET_PARSE_VER = 'prefer-cell-w-v2';
+        const OT_SHEET_PARSE_VER = 'ot-tracker-v1';
 
         function loadOtBundle() {
             try {
@@ -12020,12 +12311,19 @@
                 leaveRejectedTitle: '휴무 신청이 반려되었습니다',
                 leaveRejectedHint: '원장이 신청을 반려했습니다',
                 leaveInbox: '휴가 신청함',
-                leaveClickOpen: '눌러서 내용 확인 후 승인/반려',
-                leaveDecideHint: '내용을 확인한 뒤에만 승인·반려할 수 있습니다',
+                leaveClickOpen: '먼저 수신 확인 → 열어서 승인/반려',
+                leaveDecideHint: '수신 확인 후 열어 승인·반려 · 결정 후에만 신청자에게 알림',
                 leaveBackInbox: '목록으로',
                 leavePendingAlert: '새 휴가 신청',
                 leaveOpenDecide: '열어서 결정',
                 leaveMine: '내 신청',
+                leaveAlertTitle: '휴가 신청 알림',
+                leaveAlertHint: '수신 확인 후 휴가함에서 승인 · 승인/반려 후에만 신청자에게 알림',
+                leaveAckBtn: '수신 확인',
+                leaveAckedBadge: '확인됨 · 승인 대기',
+                leaveNeedAckFirst: '먼저 수신 확인이 필요합니다',
+                leaveHistoryHint: '최근 6개월 신청 내역',
+                leaveHistoryEmpty: '최근 6개월 내역 없음',
                 teacherSchedules: '교사 오늘 일정 요약',
                 passwords: '전체 비밀번호',
                 changePw: '비밀번호 변경',
@@ -12200,6 +12498,11 @@
                 taehyunSig: '오늘도 좋은 하루 되세요, 선생님',
                 weekLine: '주간 출근 그래프',
                 cancelClass: '수업 취소',
+                cancelClassHint: '이 수업을 취소합니다 · 상태가 「취소」로 바뀝니다',
+                restoreClassNormal: '정상으로 복구',
+                restoreClassHint: '취소/변경을 되돌리려면 누르세요 · 정규(정상) 상태로 복구됩니다',
+                restoreClassConfirmAsk: '이 수업을 정상 상태로 되돌릴까요?\n방 시간표 점유도 함께 복구됩니다(가능할 때).',
+                restoreClassDone: '정상 수업으로 복구했습니다',
                 cancelReason: '취소 사유',
                 cancelReasonPh: '예: 학생이 일정 변경 / 보강 예정',
                 makeupDate: '보강 날짜',
@@ -12229,9 +12532,14 @@
                 classStatusHint: '수업 상태 선택 (담당 선생님 · 원장 · 관리자)',
                 classStatusOwnerOnly: '담당 선생님·원장·관리자만 상태를 바꿀 수 있어요',
                 schedAlertKindClassStatus: '수업 상태 변경',
+                schedAlertKindClassCancelled: '수업 취소',
                 schedAlertSummaryStudentPostpone: '학생이 수업을 연기해 교실이 비었습니다',
+                schedAlertSummaryClassCancelled: '선생님이 수업을 취소했습니다',
                 schedActionClassStatus: '수업 상태',
+                schedActionClassCancelled: '취소',
                 roomTtReleasedHint: '학생 연기 · 다른 선생님 예약 가능',
+                roomTtCancelledHint: '취소 · 다른 선생님 예약 가능',
+                roomTtPastLocked: '지난 날짜는 수정할 수 없습니다',
                 schedDayOffBtn: '오늘 수업 없음',
                 schedDayOffHint: '오늘은 수업이 없을 때 · 시간·과목 입력 없이 바로 표시',
                 schedDayOffTitle: '오늘 수업 없음',
@@ -12260,6 +12568,7 @@
                 schedAlertLblTime: '시간',
                 schedAlertLblSubject: '과목',
                 schedAlertLblType: '수업 유형',
+                schedAlertLblRoom: '교실',
                 schedAlertLblStatus: '상태',
                 schedActionAdd: '추가',
                 schedActionEdit: '수정',
@@ -12318,7 +12627,7 @@
                 otPayBack: 'OT 목록으로',
                 otPayDetail: '이번 달 OT 상세',
                 otPayLinked: '시트 주황 hrs.OT + 교사 신고 · 초록=출석 체크(OT 아님) · 열 날짜 기준((08)/(09) 아님)',
-                otSheetRules: '열 헤더 날짜로 집계 · (08)/(09) 아님 · 초록 톤=출석 체크, OT 시간 아님',
+                otSheetRules: 'Overtime Tracker 시트(월 탭) · 교사 신고와 병합 · Refresh로 재다운로드',
                 otLookback: '최근 8개월 조회',
                 otPickMonth: '월 선택',
                 otReportBadge: '교사 신고',
@@ -12329,6 +12638,7 @@
                 otRefreshSheetOk: '시트 OT를 새로고침했습니다',
                 otRefreshSheetFail: '시트 OT 동기화 실패',
                 otRefreshSheetBusy: '시트에서 OT 불러오는 중…',
+                otSheetNotPublic: 'OT 시트가 공개되지 않았습니다. Google Sheet → 공유 →「링크가 있는 모든 사용자」보기 권한으로 설정하세요',
                 otSepSummary: '이번 달 OT 요약',
                 otEmptyReport: '아직 신고된 OT가 없습니다',
                 otNoSelfOthers: '본인 OT만 확인할 수 있습니다',
@@ -12950,12 +13260,19 @@
                 leaveRejectedTitle: 'คำขอลางานไม่ได้รับการอนุมัติ',
                 leaveRejectedHint: 'หัวหน้าไม่อนุมัติคำขอนี้',
                 leaveInbox: 'คำขอลางาน',
-                leaveClickOpen: 'กดเปิดดูรายละเอียดก่อน แล้วค่อยอนุมัติ/ไม่อนุมัติ',
-                leaveDecideHint: 'ต้องเปิดอ่านรายละเอียดก่อน จึงจะเลือกอนุมัติหรือไม่อนุมัติได้',
+                leaveClickOpen: 'กดรับทราบก่อน → เปิดดู → แล้วค่อยอนุมัติ/ไม่อนุมัติ',
+                leaveDecideHint: 'ต้องรับทราบและเปิดอ่านก่อน จึงอนุมัติได้ · ผู้ขอจะได้รับแจ้งหลังตัดสินใจเท่านั้น',
                 leaveBackInbox: 'กลับรายการ',
                 leavePendingAlert: 'มีคำขอลาใหม่',
                 leaveOpenDecide: 'เปิดเพื่อตัดสินใจ',
                 leaveMine: 'คำขอของฉัน',
+                leaveAlertTitle: 'แจ้งคำขอลางาน',
+                leaveAlertHint: 'ต้องกดรับทราบก่อน แล้วค่อยอนุมัติในกล่องลา · ผู้ขอจะได้รับแจ้งหลังอนุมัติเท่านั้น',
+                leaveAckBtn: 'รับทราบ',
+                leaveAckedBadge: 'รับทราบแล้ว · รออนุมัติ',
+                leaveNeedAckFirst: 'ต้องกดรับทราบก่อน',
+                leaveHistoryHint: 'ประวัติย้อนหลัง 6 เดือน',
+                leaveHistoryEmpty: 'ยังไม่มีประวัติใน 6 เดือน',
                 teacherSchedules: 'สรุปตารางสอนวันนี้',
                 passwords: 'รหัสผ่านทั้งหมด',
                 changePw: 'เปลี่ยนรหัส',
@@ -13130,6 +13447,11 @@
                 taehyunSig: 'ขอให้วันนี้เป็นวันที่ดีของคุณครู',
                 weekLine: 'กราฟเส้นสัปดาห์นี้',
                 cancelClass: 'ยกเลิกคลาส',
+                cancelClassHint: 'ยกเลิกคลาสนี้ · สถานะจะเป็น「ยกเลิก」',
+                restoreClassNormal: 'คืนเป็นปกติ',
+                restoreClassHint: 'กดเพื่อยกเลิกการยกเลิก / คืนเป็นคลาสปกติ',
+                restoreClassConfirmAsk: 'คืนคลาสนี้เป็นสถานะปกติเลยไหม?\nถ้าจองห้องไว้ จะพยายามคืนการครองห้องในตารางด้วย',
+                restoreClassDone: 'คืนเป็นคลาสปกติแล้ว',
                 cancelReason: 'เหตุผลที่ยกเลิก',
                 cancelReasonPh: 'เช่น นักเรียนเลื่อน / ไปเรียนชดเชยวันไหน',
                 makeupDate: 'วันเรียนชดเชย',
@@ -13159,9 +13481,14 @@
                 classStatusHint: 'เลือกสถานะคลาส (ครูเจ้าของคลาส · ผู้อำนวยการ · แอดมิน)',
                 classStatusOwnerOnly: 'เฉพาะครูเจ้าของคลาส · ผู้อำนวยการ · แอดมิน ที่เปลี่ยนสถานะได้',
                 schedAlertKindClassStatus: 'เปลี่ยนสถานะคลาส',
+                schedAlertKindClassCancelled: 'ยกเลิกคลาส',
                 schedAlertSummaryStudentPostpone: 'นักเรียนเลื่อนคลาส — ห้องว่างให้จองทับได้',
+                schedAlertSummaryClassCancelled: 'ครูยกเลิกคลาสแล้ว',
                 schedActionClassStatus: 'สถานะคลาส',
+                schedActionClassCancelled: 'ยกเลิก',
                 roomTtReleasedHint: 'นักเรียนเลื่อน · ครูอื่นจองทับได้',
+                roomTtCancelledHint: 'ยกเลิก · ครูอื่นจองทับได้',
+                roomTtPastLocked: 'วันที่ยผ่านมาแก้ไม่ได้',
                 schedDayOffBtn: 'วันนี้ไม่มีคลาส',
                 schedDayOffHint: 'วันที่ไม่มีสอน · ไม่ต้องใส่เวลาหรือวิชา',
                 schedDayOffTitle: 'วันนี้ไม่มีคลาส',
@@ -13190,6 +13517,7 @@
                 schedAlertLblTime: 'เวลา',
                 schedAlertLblSubject: 'วิชา / หัวข้อ',
                 schedAlertLblType: 'ประเภทคลาส',
+                schedAlertLblRoom: 'ห้อง',
                 schedAlertLblStatus: 'สถานะ',
                 schedActionAdd: 'เพิ่ม',
                 schedActionEdit: 'แก้ไข',
@@ -13248,7 +13576,7 @@
                 otPayBack: 'กลับรายการ OT',
                 otPayDetail: 'รายละเอียด OT เดือนนี้',
                 otPayLinked: 'นับจากช่องส้ม hrs.OT บนชีต + ที่ครูแจ้งเอง · โทนเขียว = เช็คเข้าเรียน ไม่ใช่ชม. OT · นับตามวันที่หัวคอลัมน์ ไม่ใช่เลขในวงเล็บ (08)/(09)',
-                otSheetRules: 'นับตามวันที่หัวคอลัมน์ ไม่ใช่เลขในวงเล็บ (08)/(09) · โทนเขียว = เช็คเข้าเรียน ไม่ใช่ชม. OT',
+                otSheetRules: 'ชีต Overtime Tracker (แท็บรายเดือน) · รวมกับ OT ที่ครูรายงาน · กด Refresh เพื่อดาวน์โหลดใหม่',
                 otLookback: 'ย้อนหลัง 8 เดือน',
                 otPickMonth: 'เลือกเดือน',
                 otReportBadge: 'ครูแจ้งเอง',
@@ -13259,6 +13587,7 @@
                 otRefreshSheetOk: 'รีเฟรช OT จากชีตแล้ว',
                 otRefreshSheetFail: 'ซิงก์ OT จากชีตไม่สำเร็จ',
                 otRefreshSheetBusy: 'กำลังดึง OT จากชีต…',
+                otSheetNotPublic: 'ชีต OT ยังไม่สาธารณะ — แชร์ Google Sheet เป็น「Anyone with the link」→ Viewer',
                 otSepSummary: 'สรุป OT เดือนนี้',
                 otEmptyReport: 'ยังไม่มีรายงาน OT',
                 otNoSelfOthers: 'ดูได้เฉพาะ OT ของตัวเอง',
@@ -13880,12 +14209,19 @@
                 leaveRejectedTitle: 'Your leave was not approved',
                 leaveRejectedHint: 'The head rejected this leave request',
                 leaveInbox: 'Leave inbox',
-                leaveClickOpen: 'Open to review, then approve or reject',
-                leaveDecideHint: 'Open the request first — approve/reject appear after you read it',
+                leaveClickOpen: 'Acknowledge first → open → then approve/reject',
+                leaveDecideHint: 'Acknowledge and open first — requester is notified only after you decide',
                 leaveBackInbox: 'Back to list',
                 leavePendingAlert: 'New leave request',
                 leaveOpenDecide: 'Open to decide',
                 leaveMine: 'My requests',
+                leaveAlertTitle: 'Leave request alert',
+                leaveAlertHint: 'Acknowledge first, then approve in the leave inbox · Requester is notified only after approve/reject',
+                leaveAckBtn: 'Acknowledge',
+                leaveAckedBadge: 'Acked · awaiting decision',
+                leaveNeedAckFirst: 'Acknowledge first',
+                leaveHistoryHint: 'History · last 6 months',
+                leaveHistoryEmpty: 'No requests in the last 6 months',
                 teacherSchedules: "Teachers' schedules today",
                 passwords: 'All passwords',
                 changePw: 'Change password',
@@ -14060,6 +14396,11 @@
                 taehyunSig: 'Have a wonderful day, teacher',
                 weekLine: 'Weekly line chart',
                 cancelClass: 'Cancel class',
+                cancelClassHint: 'Cancel this class · status will become Cancelled',
+                restoreClassNormal: 'Restore to normal',
+                restoreClassHint: 'Click to undo cancel/change · restore to normal class',
+                restoreClassConfirmAsk: 'Restore this class to normal status?\nRoom timetable occupancy will be restored when possible.',
+                restoreClassDone: 'Restored to normal class',
                 cancelReason: 'Cancellation reason',
                 cancelReasonPh: 'e.g. student postponed / makeup planned',
                 makeupDate: 'Makeup date',
@@ -14089,9 +14430,14 @@
                 classStatusHint: 'Set class status (owning teacher · director · admin)',
                 classStatusOwnerOnly: 'Only the owning teacher, director, or admin can change status',
                 schedAlertKindClassStatus: 'Class status changed',
+                schedAlertKindClassCancelled: 'Class cancelled',
                 schedAlertSummaryStudentPostpone: 'Student postponed — room freed for rebooking',
+                schedAlertSummaryClassCancelled: 'Teacher cancelled a class',
                 schedActionClassStatus: 'Class status',
+                schedActionClassCancelled: 'Cancelled',
                 roomTtReleasedHint: 'Student postponed · others may book over',
+                roomTtCancelledHint: 'Cancelled · others may book over',
+                roomTtPastLocked: 'Past days cannot be edited',
                 schedDayOffBtn: 'No class today',
                 schedDayOffHint: 'Day off teaching · no time or subject needed',
                 schedDayOffTitle: 'No class today',
@@ -14120,6 +14466,7 @@
                 schedAlertLblTime: 'Time',
                 schedAlertLblSubject: 'Subject',
                 schedAlertLblType: 'Class type',
+                schedAlertLblRoom: 'Room',
                 schedAlertLblStatus: 'Status',
                 schedActionAdd: 'Added',
                 schedActionEdit: 'Edited',
@@ -14178,7 +14525,7 @@
                 otPayBack: 'Back to OT list',
                 otPayDetail: 'OT details this month',
                 otPayLinked: 'Orange sheet hrs.OT + teacher reports · green = attendance check (not OT) · use column-header date, not (08)/(09)',
-                otSheetRules: 'Attribute by column-header date, not (08)/(09) · green tone = attendance check, not OT hours',
+                otSheetRules: 'Overtime Tracker sheet (month tabs) · merged with teacher reports · Refresh re-downloads',
                 otLookback: 'Last 8 months',
                 otPickMonth: 'Pick month',
                 otReportBadge: 'Teacher report',
@@ -14189,6 +14536,7 @@
                 otRefreshSheetOk: 'OT refreshed from sheet',
                 otRefreshSheetFail: 'Sheet OT sync failed',
                 otRefreshSheetBusy: 'Fetching OT from sheet…',
+                otSheetNotPublic: 'OT sheet is not public — Share the Google Sheet as Anyone with the link → Viewer',
                 otSepSummary: 'This month OT summary',
                 otEmptyReport: 'No OT reports yet',
                 otNoSelfOthers: 'You can only view your own OT',
@@ -14849,6 +15197,11 @@
         let salesSyncState = { status: '', at: '', error: '' };
         let renderSalesStatsBoardRef = null;
         const STUDENT_SHEET_XLSX = 'https://docs.google.com/spreadsheets/d/' + STUDENT_SHEET_ID + '/export?format=xlsx';
+        /** Dedicated OT / overtime-pay workbook (not the student attendance sheet). */
+        const OT_SHEET_ID = '1bQbNcjcO8Oh9Q9Jxezp8lUjUHSZiNhfTXP6eKuvUizA';
+        /** September 2026 tab gid — full XLSX export includes all month tabs. */
+        const OT_SHEET_GID_SEP2026 = '1523635938';
+        const OT_SHEET_XLSX = 'https://docs.google.com/spreadsheets/d/' + OT_SHEET_ID + '/export?format=xlsx';
         const STUDENT_SHEET_SYNC_MS = 45000;
         let studentSheetSyncTimer = null;
         let studentSheetSyncState = { status: 'idle', at: '', error: '', fingerprint: '' };
@@ -15523,24 +15876,94 @@
             }
             return false;
         }
+        /** Sched-alert popup is day-scoped: only Asia/Bangkok 「today」 class dates. */
+        function isSchedAlertForPortalToday(c) {
+            return String(c?.date || '') === todayKey();
+        }
         function pendingDirectorSchedChanges() {
-            // Director popup: add / edit / delete / no-class / room TT edit
+            // Director popup: add / edit / delete / no-class / room TT / class-status — today only
             return loadSchedChanges().filter(c =>
-                c.status === 'pending_director' && isDirectorSchedAlertAction(c.action)
+                c.status === 'pending_director'
+                && isDirectorSchedAlertAction(c.action)
+                && isSchedAlertForPortalToday(c)
             );
         }
-        /** Drop pending rows whose action is unknown / not a director alert. */
+        /** Drop pending rows whose action is unknown / not a director alert, or whose class date is not today. */
         function pruneNonFirstSchedAlerts() {
             const list = loadSchedChanges();
+            const today = todayKey();
+            const now = new Date().toISOString();
             let changed = false;
             const next = list.map((c) => {
-                if (c.status === 'pending_director' && !isDirectorSchedAlertAction(c.action)) {
+                if (c.status !== 'pending_director') return c;
+                if (!isDirectorSchedAlertAction(c.action)) {
                     changed = true;
-                    return { ...c, status: 'director_skipped', skippedAt: new Date().toISOString() };
+                    return { ...c, status: 'director_skipped', skippedAt: now };
+                }
+                if (String(c.date || '') !== today) {
+                    changed = true;
+                    return { ...c, status: 'expired_day', expiredAt: now, expiredDay: String(c.date || '') };
                 }
                 return c;
             });
             if (changed) saveSchedChanges(next);
+        }
+        /**
+         * If today’s room-TT slots are already ยกเลิก but never enqueued a director alert
+         * (e.g. cancelled before this feature), backfill one pending_director row each.
+         */
+        function backfillTodayCancelledSchedAlerts() {
+            const today = todayKey();
+            let blocks = [];
+            try {
+                blocks = typeof listRoomBlocksForDate === 'function' ? listRoomBlocksForDate(today) : [];
+            } catch (_) { blocks = []; }
+            if (!blocks.length) return;
+            const list = loadSchedChanges();
+            let changed = false;
+            blocks.forEach((b) => {
+                if (!b || b.isBreak || b.teacherId === 'break') return;
+                if (normalizeClassStatus(b.classStatus) !== 'cancelled') return;
+                const slotId = String(b.id || '');
+                const exists = list.some((c) => {
+                    if (c.action !== 'class_status') return false;
+                    if (normalizeClassStatus(c.classStatus) !== 'cancelled') return false;
+                    if (slotId && String(c.roomSlotId || '') === slotId) return true;
+                    return String(c.date || '') === today
+                        && String(c.start || '') === String(b.start || '')
+                        && String(c.end || '') === String(b.end || '')
+                        && String(c.teacherId || '') === String(b.teacherId || '');
+                });
+                if (exists) return;
+                const tea = resolveAccountById(b.teacherId, { allowBlocked: true });
+                const roomNote = roomLabel(b.room || 'A');
+                list.push({
+                    id: 'SC' + Date.now() + Math.floor(Math.random() * 1000),
+                    teacherId: b.teacherId || '',
+                    teacherName: tea ? displayName(tea) : (b.teacherId || ''),
+                    date: today,
+                    action: 'class_status',
+                    classType: b.classType || 'regular',
+                    classStatus: 'cancelled',
+                    start: b.start || '',
+                    end: b.end || '',
+                    room: b.room || '',
+                    roomSlotId: slotId,
+                    title: pickLangText(b, 'title') || b.title || '',
+                    titleKo: b.titleKo || b.title || '',
+                    titleTh: b.titleTh || b.title || '',
+                    titleEn: b.titleEn || b.title || '',
+                    status: 'pending_director',
+                    createdAt: new Date().toISOString(),
+                    source: 'room_tt_backfill',
+                    note: roomNote,
+                    noteKo: I18N.ko.schedAlertSummaryClassCancelled,
+                    noteTh: I18N.th.schedAlertSummaryClassCancelled,
+                    noteEn: I18N.en.schedAlertSummaryClassCancelled
+                });
+                changed = true;
+            });
+            if (changed) saveSchedChanges(list);
         }
         function normalizeClassType(type) {
             const v = String(type || '').toLowerCase();
@@ -15589,9 +16012,85 @@
                 return `<option value="${k}"${cur === k ? ' selected' : ''}>${t(key)}</option>`;
             }).join('');
         }
-        /** นักเรียนเลื่อนคลาส releases room occupancy (others may book over) while keeping the record. */
+        /** student_postponed / cancelled release room occupancy (others may book over) while keeping the record. */
         function roomTtReleasesOccupancy(block) {
-            return normalizeClassStatus(block?.classStatus) === 'student_postponed';
+            const st = normalizeClassStatus(block?.classStatus);
+            return st === 'student_postponed' || st === 'cancelled';
+        }
+        /** Active lessons for next-class banner / overview — excludes cancelled reports + released statuses. */
+        function isActiveClassForBanner(it) {
+            if (!it) return false;
+            if (it.cancelled) return false;
+            if (it.kind === 'dayoff' || it.classType === 'dayoff') return false;
+            if (roomTtReleasesOccupancy(it)) return false;
+            return true;
+        }
+        /** Cancelled / occupancy-released statuses must not drive the 「คาบถัดไป」 banner. */
+        function classStatusSkipsNextBanner(status) {
+            return roomTtReleasesOccupancy({ classStatus: status });
+        }
+        /**
+         * Live classes for the next/now banner: prefer hongik-room-timetable-v2 for this teacher,
+         * then manual day-schedule rows that are not room-backed. Excludes cancelled / released.
+         */
+        function listTeacherClassesForStatusBanner(userId) {
+            const tid = String(userId || '');
+            if (!tid) return [];
+            const date = todayKey();
+            const byKey = new Map();
+            const roomIds = new Set();
+            listTeacherRoomBlocksForDate(tid, date).forEach((b) => {
+                if (!b || b.isBreak || b.teacherId === 'break') return;
+                if (normalizeClassType(b.classType) === 'dayoff') return;
+                if (classStatusSkipsNextBanner(b.classStatus)) return;
+                roomIds.add(String(b.id));
+                byKey.set(`room:${b.id}`, {
+                    start: b.start || '',
+                    end: b.end || '',
+                    title: b.title || '',
+                    titleKo: b.titleKo || '',
+                    titleTh: b.titleTh || '',
+                    titleEn: b.titleEn || '',
+                    classType: normalizeClassType(b.classType),
+                    classStatus: normalizeClassStatus(b.classStatus),
+                    roomSlotId: b.id,
+                    fromRoom: true
+                });
+            });
+            const daySched = loadScheduleForDate(tid, date);
+            // Director cancel-report on a room-linked row still drops that slot from the banner
+            daySched.forEach((it) => {
+                if (!it || !it.cancelled || !it.roomSlotId) return;
+                byKey.delete(`room:${it.roomSlotId}`);
+            });
+            daySched.forEach((it) => {
+                if (!it || it.cancelled) return;
+                if (it.kind === 'dayoff' || it.classType === 'dayoff') return;
+                if (classStatusSkipsNextBanner(it.classStatus)) return;
+                if (it.roomSlotId) {
+                    // Room TT is source of truth when the block still exists
+                    if (roomIds.has(String(it.roomSlotId)) || getRoomBlockById(it.roomSlotId)) return;
+                }
+                if (it.fromRoom && it.roomSlotId) return;
+                const key = it.roomSlotId
+                    ? `room:${it.roomSlotId}`
+                    : `day:${it.start}|${it.end}|${pickLangText(it, 'title') || it.title || ''}`;
+                if (byKey.has(key)) return;
+                byKey.set(key, {
+                    start: it.start || '',
+                    end: it.end || '',
+                    title: it.title || '',
+                    titleKo: it.titleKo || '',
+                    titleTh: it.titleTh || '',
+                    titleEn: it.titleEn || '',
+                    classType: normalizeClassType(it.classType),
+                    classStatus: normalizeClassStatus(it.classStatus),
+                    roomSlotId: it.roomSlotId || '',
+                    fromRoom: !!it.fromRoom
+                });
+            });
+            return [...byKey.values()].sort((a, b) => String(a.start || '').localeCompare(String(b.start || ''))
+                || String(a.end || '').localeCompare(String(b.end || '')));
         }
         function canEditClassStatus(user, block) {
             if (!user) return false;
@@ -15610,8 +16109,20 @@
             const after = normalizeClassStatus(afterStatus);
             const before = normalizeClassStatus(beforeStatus);
             if (after === before) return;
-            if (after !== 'student_postponed') return;
+            // Director popup: นักเรียนเลื่อนคลาส + ยกเลิก (same ack flow as add/edit)
+            if (after !== 'student_postponed' && after !== 'cancelled') return;
             const roomNote = roomLabel(slot.room || 'A');
+            const summaryKeys = after === 'cancelled'
+                ? {
+                    noteKo: I18N.ko.schedAlertSummaryClassCancelled,
+                    noteTh: I18N.th.schedAlertSummaryClassCancelled,
+                    noteEn: I18N.en.schedAlertSummaryClassCancelled
+                }
+                : {
+                    noteKo: I18N.ko.schedAlertSummaryStudentPostpone,
+                    noteTh: I18N.th.schedAlertSummaryStudentPostpone,
+                    noteEn: I18N.en.schedAlertSummaryStudentPostpone
+                };
             notifySchedChange({
                 user,
                 action: 'class_status',
@@ -15623,12 +16134,11 @@
                 },
                 extra: {
                     source: 'room_tt',
+                    roomSlotId: slot.id || '',
                     classStatus: after,
                     prevClassStatus: before,
                     note: roomNote,
-                    noteKo: I18N.ko.schedAlertSummaryStudentPostpone,
-                    noteTh: I18N.th.schedAlertSummaryStudentPostpone,
-                    noteEn: I18N.en.schedAlertSummaryStudentPostpone
+                    ...summaryKeys
                 }
             });
         }
@@ -16455,8 +16965,10 @@
         }
         function saveRoomBlock(block, user) {
             if (!block || !block.id) return { ok: false, msg: t('none') };
+            if (isPastRoomTtDate(block.date)) return { ok: false, msg: t('roomTtPastLocked') };
             const store = loadRoomTimetable();
             const prev = store.blocks[block.id];
+            if (prev && isPastRoomTtDate(prev.date)) return { ok: false, msg: t('roomTtPastLocked') };
             const isDirector = user && (user.role === 'director' || user.role === 'admin');
             if (prev && prev.teacherId !== 'break' && prev.teacherId !== 'parttime'
                 && user && prev.teacherId !== user.id && !isDirector && user.role === 'teacher') {
@@ -16653,6 +17165,9 @@
             const store = loadRoomTimetable();
             const prev = store.blocks[blockId];
             if (!prev || !newDate) return { ok: false, msg: t('none') };
+            if (isPastRoomTtDate(prev.date) || isPastRoomTtDate(newDate)) {
+                return { ok: false, msg: t('roomTtPastLocked') };
+            }
             const isDirector = user && (user.role === 'director' || user.role === 'admin');
             if (user && user.role === 'teacher' && prev.teacherId !== user.id && prev.teacherId !== 'parttime' && !isDirector) {
                 return { ok: false, msg: t('roomTtViewOnly') };
@@ -17456,15 +17971,15 @@
         function teacherIdFromOtZoneLabel(raw) {
             const s = String(raw || '').trim();
             if (!s) return null;
-            if (/태현|taehyun/i.test(s)) return 'taehyun';
-            if (/은하|은나|eunha|eunna/i.test(s)) return 'eunha';
-            if (/수아|sua/i.test(s)) return 'sua';
+            if (/태현|김태현|แทฮยอน|taehyun/i.test(s)) return 'taehyun';
+            if (/은하|은나|박은나|อึนนา|eunha|eunna/i.test(s)) return 'eunha';
+            if (/수아|이수아|ซูอา|sua/i.test(s)) return 'sua';
             return null;
         }
         function isOtTeacherZoneCell(cell) {
             const s = String(cell || '').trim();
             if (!s || s.length > 40) return false;
-            if (!/쌤|선생님|ครู/.test(s) && !/태현|은하|은나|수아|taehyun|eunha|sua/i.test(s)) return false;
+            if (!/쌤|선생님|ครู/.test(s) && !/태현|김태현|은하|은나|박은나|수아|이수아|แทฮยอน|อึนนา|ซูอา|taehyun|eunha|sua/i.test(s)) return false;
             return !!teacherIdFromOtZoneLabel(s);
         }
         function parseOtHoursToken(raw) {
@@ -17533,11 +18048,270 @@
             }
             return null;
         }
-        /** Parse teaching-schedule workbook OT marks → per-teacher entries.
-         *  Only orange-style cells matching hrs.OT / OT tokens count (not green attendance checks).
-         *  Month of record = column-header date (D/M from cell.w e.g. "5/9"), NOT the (MM) prefix in (08)3hrs.OT.
-         *  Prefix is metadata only — e.g. (08)3hrs.OT under 5/9 on the Sept tab counts for September. */
-        function parseHongikOtWorkbook(wb) {
+        function otTrackerMonthFromText(raw, fallbackYear) {
+            const s = String(raw || '').trim();
+            if (!s) return null;
+            const koA = s.match(/(\d+)\s*월\s*(\d{4})/);
+            if (koA) return { year: Number(koA[2]), month: Number(koA[1]) };
+            const koB = s.match(/(\d{4})\s*년\s*(\d{1,2})\s*월/);
+            if (koB) return { year: Number(koB[1]), month: Number(koB[2]) };
+            const en = s.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{4})\b/i);
+            if (en) {
+                const months = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+                const month = months[en[1].toLowerCase()];
+                if (month) return { year: Number(en[2]), month };
+            }
+            const th = {
+                'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'มิถุนายน': 6,
+                'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12
+            };
+            for (const name of Object.keys(th)) {
+                if (!s.includes(name)) continue;
+                const y = s.match(/(20\d{2})/);
+                return { year: y ? Number(y[1]) : (fallbackYear || new Date().getFullYear()), month: th[name] };
+            }
+            return null;
+        }
+        function sheetMonthFromName(name, rows) {
+            const direct = otTrackerMonthFromText(name);
+            if (direct) return direct;
+            const list = Array.isArray(rows) ? rows : [];
+            for (let i = 0; i < Math.min(8, list.length); i++) {
+                const row = list[i] || [];
+                for (let c = 0; c < Math.min(8, row.length); c++) {
+                    const hit = otTrackerMonthFromText(row[c]);
+                    if (hit) return hit;
+                }
+            }
+            return null;
+        }
+        function parseOtTimeCell(val) {
+            if (val instanceof Date && !Number.isNaN(val.getTime())) {
+                return hmFromMin(val.getHours() * 60 + val.getMinutes());
+            }
+            if (typeof val === 'number' && Number.isFinite(val)) {
+                if (val >= 0 && val < 1.5) {
+                    const mins = Math.round(val * 24 * 60) % (24 * 60);
+                    return hmFromMin(mins);
+                }
+                if (val >= 1 && val < 24) {
+                    const h = Math.floor(val);
+                    const m = Math.round((val - h) * 60);
+                    return hmFromMin(h * 60 + m);
+                }
+            }
+            const s = String(val ?? '').trim();
+            if (!s) return '';
+            let m = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+            if (m) return `${String(Number(m[1])).padStart(2, '0')}:${m[2]}`;
+            m = s.match(/^(\d{1,2})\.(\d{2})$/);
+            if (m) return `${String(Number(m[1])).padStart(2, '0')}:${m[2]}`;
+            return '';
+        }
+        function parseOtTrackerDate(val, sheetYear, sheetMonth) {
+            const prefer = `${sheetYear}-${String(sheetMonth).padStart(2, '0')}`;
+            const s = String(val ?? '').trim();
+            let m = s.match(/^(20\d{2})-(\d{1,2})-(\d{1,2})$/);
+            if (m) {
+                const y = Number(m[1]), a = Number(m[2]), b = Number(m[3]);
+                const cands = [];
+                // Prefer YYYY-DD-MM when middle > 12 (Thai OT export quirk).
+                if (a > 12 && b >= 1 && b <= 12) {
+                    cands.push(`${y}-${String(b).padStart(2,'0')}-${String(a).padStart(2,'0')}`);
+                } else {
+                    if (b >= 1 && b <= 12 && a >= 1 && a <= 31) cands.push(`${y}-${String(b).padStart(2,'0')}-${String(a).padStart(2,'0')}`);
+                    if (a >= 1 && a <= 12 && b >= 1 && b <= 31) cands.push(`${y}-${String(a).padStart(2,'0')}-${String(b).padStart(2,'0')}`);
+                }
+                let best = null, bestScore = 999;
+                cands.forEach((iso) => {
+                    if (Number.isNaN(Date.parse(iso + 'T12:00:00'))) return;
+                    const mon = Number(iso.slice(5, 7));
+                    let score = Math.abs(mon - sheetMonth);
+                    if (iso.startsWith(prefer)) score = -1;
+                    if (score < bestScore) { bestScore = score; best = iso; }
+                });
+                if (best) return best;
+            }
+            // Thai OT tracker uses D/M/Y — prefer that over M/D.
+            m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+            if (m) {
+                let a = Number(m[1]), b = Number(m[2]), yr = Number(m[3]);
+                if (yr < 100) yr += 2000;
+                const tryIso = (day, mon) => {
+                    const iso = `${yr}-${String(mon).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    return Number.isNaN(Date.parse(iso + 'T12:00:00')) ? null : iso;
+                };
+                const dm = (b >= 1 && b <= 12 && a >= 1 && a <= 31) ? tryIso(a, b) : null;
+                const md = (a >= 1 && a <= 12 && b >= 1 && b <= 31) ? tryIso(b, a) : null;
+                if (dm && dm.startsWith(prefer)) return dm;
+                if (md && md.startsWith(prefer)) return md;
+                if (dm) return dm;
+                if (md) return md;
+            }
+            if (typeof parseSheetDateCell === 'function') {
+                const base = parseSheetDateCell(val, sheetYear, sheetMonth);
+                if (base) return base;
+            }
+            if (val instanceof Date && !Number.isNaN(val.getTime())) {
+                const y = val.getFullYear();
+                const mon = val.getMonth() + 1;
+                const day = val.getDate();
+                if (mon !== sheetMonth && day === sheetMonth && mon >= 1 && mon <= 31) {
+                    const iso = `${sheetYear}-${String(sheetMonth).padStart(2, '0')}-${String(mon).padStart(2, '0')}`;
+                    if (!Number.isNaN(Date.parse(iso + 'T12:00:00'))) return iso;
+                }
+                return `${y}-${String(mon).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            }
+            return null;
+        }
+        function findOtTrackerHeader(rows) {
+            for (let ri = 0; ri < Math.min(rows.length, 20); ri++) {
+                const row = rows[ri] || [];
+                let nameCi = -1, dateCi = -1, subjCi = -1, startCi = -1, endCi = -1, hrsCi = -1, minCi = -1;
+                for (let ci = 0; ci < Math.min(row.length, 16); ci++) {
+                    const cell = String(row[ci] ?? '').trim();
+                    if (!cell) continue;
+                    if (nameCi < 0 && /ชื่อผู้ปฏิบัติ|근무자|worker|teacher|อาจารย์|ผู้ปฏิบัติ/i.test(cell)) nameCi = ci;
+                    if (dateCi < 0 && /วันที่|일자|date/i.test(cell)) dateCi = ci;
+                    if (subjCi < 0 && /วิชา|ภาระ|과목|담당|subject|course/i.test(cell)) subjCi = ci;
+                    if (startCi < 0 && /เวลาเริ่ม|시작|start/i.test(cell)) startCi = ci;
+                    if (endCi < 0 && /เวลาสิ้น|종료|end/i.test(cell)) endCi = ci;
+                    if (hrsCi < 0 && /ชั่วโมง|시간\s*\(|hours?|ชม\./i.test(cell)) hrsCi = ci;
+                    if (minCi < 0 && /(นาที|^분$|mins?)/i.test(cell)) minCi = ci;
+                }
+                if (nameCi >= 0 && dateCi >= 0) {
+                    return { headerRi: ri, nameCi, dateCi, subjCi: subjCi < 0 ? dateCi + 1 : subjCi, startCi, endCi, hrsCi, minCi };
+                }
+            }
+            return null;
+        }
+        function isOtTrackerWorkbook(wb) {
+            const names = wb && wb.SheetNames ? wb.SheetNames : [];
+            if (names.some((n) => /กันยายน|ตุลาคม|Overtime|Translations|พิมพ์รายงาน/i.test(String(n || '')))) return true;
+            for (let i = 0; i < Math.min(6, names.length); i++) {
+                const rows = sheetRowsForOtParse(wb, names[i]);
+                if (findOtTrackerHeader(rows)) return true;
+                const blob = rows.slice(0, 6).map((r) => (r || []).join(' ')).join(' ');
+                if (/Overtime Tracker|เกินเวลา|초과근무/i.test(blob)) return true;
+            }
+            return false;
+        }
+        /** Parse dedicated Overtime Tracker workbook (month tabs with name/date/start/end rows). */
+        function parseOtTrackerWorkbook(wb) {
+            if (!wb || typeof XLSX === 'undefined') throw new Error('SheetJS missing');
+            const byTeacher = { taehyun: [], eunha: [], sua: [] };
+            const seen = new Set();
+            const foundRows = [];
+            const skippedRows = [];
+            const skippedSheets = [];
+            const monthTabs = [];
+            (wb.SheetNames || []).forEach((name) => {
+                const rows = sheetRowsForOtParse(wb, name);
+                const ym = sheetMonthFromName(name, rows);
+                if (!ym) {
+                    skippedSheets.push({ sheet: String(name || ''), reason: 'no month in sheet name' });
+                    return;
+                }
+                monthTabs.push({
+                    sheet: String(name || ''),
+                    year: ym.year,
+                    month: ym.month,
+                    gidHint: String(name || '') === 'กันยายน' ? OT_SHEET_GID_SEP2026 : ''
+                });
+                const header = findOtTrackerHeader(rows);
+                if (!header) {
+                    skippedSheets.push({ sheet: String(name || ''), reason: 'no OT detail header' });
+                    return;
+                }
+                const monthPrefix = `${ym.year}-${String(ym.month).padStart(2, '0')}`;
+                for (let ri = header.headerRi + 1; ri < rows.length; ri++) {
+                    const row = rows[ri] || [];
+                    const nameRaw = row[header.nameCi];
+                    const teacherId = teacherIdFromOtZoneLabel(nameRaw);
+                    if (!teacherId) {
+                        const label = String(nameRaw ?? '').trim();
+                        if (label) skippedRows.push({ sheet: name, cell: label, reason: 'unknown teacher' });
+                        continue;
+                    }
+                    const date = parseOtTrackerDate(row[header.dateCi], ym.year, ym.month);
+                    if (!date) {
+                        skippedRows.push({ sheet: name, cell: String(row[header.dateCi] ?? ''), reason: 'date parse fail', zone: teacherId });
+                        continue;
+                    }
+                    let start = header.startCi >= 0 ? parseOtTimeCell(row[header.startCi]) : '';
+                    let end = header.endCi >= 0 ? parseOtTimeCell(row[header.endCi]) : '';
+                    let hours = null;
+                    if (header.hrsCi >= 0) {
+                        const hv = Number(String(row[header.hrsCi] ?? '').replace(/[^\d.]/g, ''));
+                        const mv = header.minCi >= 0 ? Number(String(row[header.minCi] ?? '').replace(/[^\d.]/g, '')) : 0;
+                        if (Number.isFinite(hv) && hv >= 0) hours = hv + ((Number.isFinite(mv) ? mv : 0) / 60);
+                    }
+                    if ((!start || !end) && hours > 0) {
+                        const range = otRangeFromHours(hours);
+                        start = start || range.start;
+                        end = end || range.end;
+                    }
+                    if (!start || !end) {
+                        skippedRows.push({ sheet: name, cell: String(nameRaw ?? ''), reason: 'missing time', zone: teacherId, date });
+                        continue;
+                    }
+                    const paidH = otPaidHours(start, end);
+                    if (!(paidH > 0) && !(hours > 0)) {
+                        skippedRows.push({ sheet: name, cell: String(nameRaw ?? ''), reason: 'zero hours', zone: teacherId, date, start, end });
+                        continue;
+                    }
+                    const useHours = paidH > 0 ? paidH : hours;
+                    const course = header.subjCi >= 0 ? String(row[header.subjCi] ?? '').replace(/\s+/g, ' ').trim() : '';
+                    const dedupe = `${teacherId}|${date}|${start}|${end}|sheet`;
+                    if (seen.has(dedupe)) continue;
+                    seen.add(dedupe);
+                    const subject = course ? `OT · ${course}`.slice(0, 120) : `OT · ${ym.month}/${ym.year} · ${useHours}h`;
+                    const entry = stampLangText({
+                        id: `OTS${Math.abs(hashStr(dedupe)).toString(16).slice(0, 10)}`,
+                        date,
+                        start,
+                        end,
+                        source: 'sheet',
+                        fromSheet: true,
+                        auto: false,
+                        sheetMonth: monthPrefix,
+                        sheetHours: useHours,
+                        sheetCell: String(nameRaw ?? '').trim(),
+                        sheetName: String(name || '').trim()
+                    }, 'subject', subject);
+                    byTeacher[teacherId].push(entry);
+                    foundRows.push({
+                        teacher: teacherId,
+                        date,
+                        hours: useHours,
+                        start,
+                        end,
+                        cell: String(nameRaw ?? '').trim(),
+                        sheet: String(name || '').trim()
+                    });
+                }
+            });
+            ['taehyun', 'eunha', 'sua'].forEach((id) => {
+                byTeacher[id].sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.start).localeCompare(String(b.start)));
+            });
+            return {
+                byTeacher,
+                counts: {
+                    taehyun: byTeacher.taehyun.length,
+                    eunha: byTeacher.eunha.length,
+                    sua: byTeacher.sua.length,
+                    total: byTeacher.taehyun.length + byTeacher.eunha.length + byTeacher.sua.length
+                },
+                foundRows,
+                skippedRows,
+                monthTabs,
+                liveSyncedAt: new Date().toISOString(),
+                sourceId: OT_SHEET_ID,
+                skippedSheets
+            };
+        }
+        /** Legacy: teaching-schedule workbook OT marks (hrs.OT tokens). */
+        function parseHongikOtWorkbookLegacy(wb) {
             if (!wb || typeof XLSX === 'undefined') throw new Error('SheetJS missing');
             const byTeacher = { taehyun: [], eunha: [], sua: [] };
             const seen = new Set();
@@ -17545,12 +18319,12 @@
             const skippedRows = [];
             const skippedSheets = [];
             (wb.SheetNames || []).forEach((name) => {
-                const ym = sheetMonthFromName(name);
+                const rows = sheetRowsForOtParse(wb, name);
+                const ym = sheetMonthFromName(name, rows);
                 if (!ym) {
                     skippedSheets.push({ sheet: String(name || ''), reason: 'no month in sheet name' });
                     return;
                 }
-                const rows = sheetRowsForOtParse(wb, name);
                 if (!rows.length) return;
                 const monthPrefix = `${ym.year}-${String(ym.month).padStart(2, '0')}`;
                 let zoneId = null;
@@ -17566,7 +18340,6 @@
                         const raw = row[ci];
                         const tok = parseOtHoursToken(raw);
                         if (!tok || !tok.hasOt) continue;
-                        // Do NOT skip when tok.tagMonth !== sheet month — e.g. (08)3hrs.OT under 5/9 on the Sept tab.
                         let hours = tok.hours;
                         if (hours == null || !(hours > 0)) hours = findOtHoursBelow(rows, ri, ci);
                         if (!(hours > 0)) {
@@ -17637,17 +18410,44 @@
                 foundRows,
                 skippedRows,
                 liveSyncedAt: new Date().toISOString(),
-                sourceId: STUDENT_SHEET_ID,
+                sourceId: OT_SHEET_ID,
                 skippedSheets
             };
         }
+        function parseHongikOtWorkbook(wb) {
+            if (isOtTrackerWorkbook(wb)) return parseOtTrackerWorkbook(wb);
+            return parseHongikOtWorkbookLegacy(wb);
+        }
+        function otSheetPublicErrorMessage() {
+            try {
+                if (typeof t === 'function') {
+                    const msg = t('otSheetNotPublic');
+                    if (msg && msg !== 'otSheetNotPublic') return msg;
+                }
+            } catch (_) {}
+            return 'OT sheet is not public — Share as Anyone with the link → Viewer';
+        }
         async function fetchOtFromGoogleSheet() {
             if (typeof XLSX === 'undefined') throw new Error('SheetJS not loaded');
-            const url = STUDENT_SHEET_XLSX + '&_ts=' + Date.now();
-            const res = await fetch(url, { mode: 'cors', credentials: 'omit', cache: 'no-store' });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const url = OT_SHEET_XLSX + '&_ts=' + Date.now();
+            let res;
+            try {
+                res = await fetch(url, { mode: 'cors', credentials: 'omit', cache: 'no-store' });
+            } catch (err) {
+                throw new Error(otSheetPublicErrorMessage() + ' (' + String(err && err.message ? err.message : err) + ')');
+            }
+            if (!res.ok) {
+                if (res.status === 401 || res.status === 403) throw new Error(otSheetPublicErrorMessage() + ' (HTTP ' + res.status + ')');
+                throw new Error('OT sheet HTTP ' + res.status);
+            }
             const buf = await res.arrayBuffer();
-            if (!buf || buf.byteLength < 1000) throw new Error('empty workbook');
+            if (!buf || buf.byteLength < 1000) throw new Error(otSheetPublicErrorMessage() + ' (empty workbook)');
+            const head = new Uint8Array(buf.slice(0, 16));
+            let asText = '';
+            for (let i = 0; i < head.length; i++) asText += String.fromCharCode(head[i]);
+            if (/^\s*</.test(asText) || asText.indexOf('PK') !== 0) {
+                throw new Error(otSheetPublicErrorMessage() + ' (not an XLSX)');
+            }
             const wb = XLSX.read(new Uint8Array(buf), { type: 'array', cellDates: true });
             return parseHongikOtWorkbook(wb);
         }
@@ -20002,10 +20802,6 @@
             }
             return null;
         }
-        function sheetMonthFromName(name) {
-            const m = String(name || '').match(/(\d+)\s*월\s*(\d{4})/);
-            return m ? { year: Number(m[2]), month: Number(m[1]) } : null;
-        }
         function isCourseHeaderCell(cell) {
             const s = String(cell || '').trim();
             if (!s || /^\d+\.?\d*$/.test(s)) return false;
@@ -21366,7 +22162,132 @@
         function loadLeaveRequests() { try { return JSON.parse(localStorage.getItem(LEAVE_KEY) || '[]'); } catch { return []; } }
         function saveLeaveRequests(list, { syncRemote = true } = {}) {
             localStorage.setItem(LEAVE_KEY, JSON.stringify(list));
+            try { localStorage.setItem(LEAVE_KEY + ':tick', String(Date.now())); } catch (_) {}
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('leaveRequests');
+        }
+        function canManageLeaveInbox(user) {
+            return !!(user && (user.role === 'director' || user.role === 'admin'));
+        }
+        function leaveHistoryCutoffMs() {
+            const d = new Date();
+            d.setHours(0, 0, 0, 0);
+            d.setMonth(d.getMonth() - 6);
+            return d.getTime();
+        }
+        function leaveRequestSortTs(L) {
+            if (!L) return 0;
+            const raw = L.createdAt || L.decidedAt || L.directorAckAt || L.from || L.to || '';
+            const t = Date.parse(String(raw));
+            return Number.isFinite(t) ? t : 0;
+        }
+        function leaveInHistoryWindow(L) {
+            if (!L) return false;
+            if (L.status === 'pending') return true;
+            const ts = leaveRequestSortTs(L);
+            if (!ts) return true;
+            return ts >= leaveHistoryCutoffMs();
+        }
+        function pendingDirectorLeaveAlerts() {
+            return loadLeaveRequests().filter((L) => L && L.status === 'pending' && !L.directorAckAt);
+        }
+        function ackLeaveRequests(ids, actor) {
+            const want = new Set((ids || []).map(String).filter(Boolean));
+            if (!want.size) return 0;
+            const list = loadLeaveRequests();
+            const now = new Date().toISOString();
+            let n = 0;
+            list.forEach((L) => {
+                if (!L || L.status !== 'pending' || L.directorAckAt) return;
+                if (!want.has(String(L.id))) return;
+                L.directorAckAt = now;
+                L.directorAckBy = (actor && (actor.id || actor.role)) || 'director';
+                n += 1;
+            });
+            if (n) saveLeaveRequests(list);
+            return n;
+        }
+        function ackAllPendingLeaveAlerts(actor) {
+            return ackLeaveRequests(pendingDirectorLeaveAlerts().map((L) => L.id), actor);
+        }
+        function buildLeaveInboxParts() {
+            const leaves = loadLeaveRequests()
+                .filter((L) => L && leaveInHistoryWindow(L))
+                .slice()
+                .sort((a, b) => {
+                    const ap = a.status === 'pending' ? 0 : 1;
+                    const bp = b.status === 'pending' ? 0 : 1;
+                    if (ap !== bp) return ap - bp;
+                    return leaveRequestSortTs(b) - leaveRequestSortTs(a);
+                });
+            const pendingLeaveN = leaves.filter((L) => L.status === 'pending').length;
+            const unackedN = leaves.filter((L) => L.status === 'pending' && !L.directorAckAt).length;
+            const leaveInbox = leaves.length ? leaves.map((L) => {
+                const isPending = L.status === 'pending';
+                const isAcked = !!L.directorAckAt;
+                const isOpen = leaveInboxOpenId === L.id;
+                const reason = String(pickLangText(L, 'reason') || L.reason || '').replace(/</g, '&lt;').replace(/\n/g, '<br>');
+                const typeLbl = L.leaveType ? (pickLangText(L, 'leaveTypeLabel') || leaveTypeLabel(L.leaveType)) : '';
+                if (!isPending) {
+                    const doneCls = L.status === 'approved' ? 'ok' : 'no';
+                    const doneLbl = L.status === 'approved' ? t('approved')
+                        : (L.status === 'cancelled_admin' ? t('leaveCancelledAdmin') : t('reject'));
+                    return `<div class="leave-inbox-card is-done"><div><div class="li-name">${L.fromName || ''}</div><div class="li-meta">${L.from || ''} → ${L.to || ''}${typeLbl ? ` · ${typeLbl}` : ''}</div></div><span class="li-badge ${doneCls}">${doneLbl}</span></div>`;
+                }
+                if (!isAcked) {
+                    return `<div class="leave-inbox-card is-pending"><div><div class="li-name">${L.fromName || ''}</div><div class="li-meta">${L.from || ''} → ${L.to || ''}${typeLbl ? ` · ${typeLbl}` : ''}</div><div class="li-hint"><i class="ph ph-hand-pointing"></i> ${t('leaveNeedAckFirst')}</div><div class="leave-ack-gate"><button type="button" class="soft-btn" data-leave-ack="${L.id}">${t('leaveAckBtn')}</button></div></div><span class="li-badge">${t('pending')}</span></div>`;
+                }
+                return `<button type="button" class="leave-inbox-card is-pending is-acked${isOpen ? ' is-open' : ''}" data-leave-open="${L.id}" aria-expanded="${isOpen ? 'true' : 'false'}"><div><div class="li-name">${L.fromName || ''}</div><div class="li-meta">${L.from || ''} → ${L.to || ''}${typeLbl ? ` · ${typeLbl}` : ''}</div><div class="li-hint"><i class="ph ph-hand-pointing"></i> ${t('leaveOpenDecide')}</div></div><span class="li-badge">${t('leaveAckedBadge')}</span></button><div class="leave-inbox-detail${isOpen ? ' open' : ''}" data-leave-detail="${L.id}"><p class="lid-hint"><i class="ph ph-warning-circle"></i> ${t('leaveDecideHint')}</p><div class="lid-body">${typeLbl ? `<span class="badge" style="margin-right:.35rem">${typeLbl}</span>` : ''}${reason || '—'}</div>${pickLangText(L, 'comment') || L.comment ? `<div class="text-xs text-slate-500" style="margin-bottom:.45rem">💬 ${pickLangText(L, 'comment') || L.comment}</div>` : ''}<input type="text" class="sched-text leave-comment" data-leave-id="${L.id}" placeholder="${t('comment')}" style="margin-bottom:.5rem"><div class="admin-actions"><button type="button" class="soft-btn" data-leave-approve="${L.id}">${t('approve')}</button><button type="button" class="soft-btn ghost" data-leave-reject="${L.id}">${t('reject')}</button></div></div>`;
+            }).join('') : `<p class="empty-note">${t('leaveHistoryEmpty')}</p>`;
+            const leaveInboxHead = `<h3 class="leave-inbox-head${pendingLeaveN ? ' has-pending' : ''}">${t('leaveInbox')}${pendingLeaveN ? `<span class="lih-badge">${t('leavePendingAlert')} · ${pendingLeaveN}</span>` : ''}</h3><p class="leave-history-hint"><i class="ph ph-clock-countdown"></i> ${t('leaveHistoryHint')}</p>${pendingLeaveN ? `<p class="text-xs mb-2" style="color:#c2410c;font-weight:700">${t('leaveClickOpen')}${unackedN ? ` · ${t('leaveNeedAckFirst')} (${unackedN})` : ''}</p>` : ''}`;
+            return { leaveInboxHead, leaveInbox, pendingLeaveN, unackedN };
+        }
+        function wireLeaveInboxHandlers(user, root) {
+            const panels = root || document.getElementById('tab-panels');
+            if (!panels || !canManageLeaveInbox(user)) return;
+            const refreshLeave = () => {
+                openDashboard(resolveAccountById(user.id), true);
+                setTab('leave');
+            };
+            panels.querySelectorAll('[data-leave-ack]').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.leaveAck;
+                    if (!id) return;
+                    ackLeaveRequests([id], user);
+                    refreshLeave();
+                    try { maybeShowAlertPopups(resolveAccountById(user.id) || user); } catch (_) {}
+                });
+            });
+            panels.querySelectorAll('[data-leave-open]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.leaveOpen;
+                    const item = loadLeaveRequests().find((L) => L.id === id);
+                    if (!item || item.status !== 'pending' || !item.directorAckAt) { refreshLeave(); return; }
+                    leaveInboxOpenId = leaveInboxOpenId === id ? null : id;
+                    refreshLeave();
+                });
+            });
+            panels.querySelectorAll('[data-leave-approve], [data-leave-reject]').forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.leaveApprove || btn.dataset.leaveReject;
+                    const ok = !!btn.dataset.leaveApprove;
+                    const list = loadLeaveRequests();
+                    const item = list.find((L) => L.id === id);
+                    if (!item || item.status !== 'pending') return;
+                    if (!item.directorAckAt) { refreshLeave(); return; }
+                    if (leaveInboxOpenId !== id) { leaveInboxOpenId = id; refreshLeave(); return; }
+                    const commentEl = panels.querySelector(`.leave-comment[data-leave-id="${id}"]`);
+                    item.status = ok ? 'approved' : 'rejected';
+                    item.decidedAt = new Date().toISOString();
+                    item.decidedBy = user.id || user.role || '';
+                    Object.assign(item, stampLangText(item, 'comment', commentEl ? commentEl.value.trim() : ''));
+                    delete item.teacherAckAt;
+                    saveLeaveRequests(list);
+                    leaveInboxOpenId = null;
+                    refreshLeave();
+                });
+            });
         }
 
         // One-time: wipe planned/demo leave history — nobody has taken vacation yet
@@ -21561,13 +22482,17 @@
             const leaveMine = document.getElementById('leave-mine-list');
             if (!leaveMine || !user) return;
             const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-            const mine = loadLeaveRequests().filter(L => L.fromId === user.id).slice().reverse();
+            const mine = loadLeaveRequests()
+                .filter((L) => L && L.fromId === user.id && leaveInHistoryWindow(L))
+                .slice()
+                .sort((a, b) => leaveRequestSortTs(b) - leaveRequestSortTs(a));
+            const hint = `<p class="leave-history-hint"><i class="ph ph-clock-countdown"></i> ${esc(t('leaveHistoryHint'))}</p>`;
             if (!mine.length) {
-                leaveMine.innerHTML = `<p class="empty-note">${t('none')}</p>`;
+                leaveMine.innerHTML = `${hint}<p class="empty-note">${t('leaveHistoryEmpty')}</p>`;
                 updateLeaveReportBtn(user);
                 return;
             }
-            leaveMine.innerHTML = mine.map(L => {
+            leaveMine.innerHTML = hint + mine.map(L => {
                 const st = L.status === 'approved' ? 'approved'
                     : L.status === 'rejected' ? 'rejected'
                     : L.status === 'cancelled_admin' ? 'rejected'
@@ -21869,9 +22794,18 @@
             });
         }
 
+        /** School calendar day in Asia/Bangkok (YYYY-MM-DD). */
         function todayKey() {
-            const d = new Date();
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            try {
+                return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+            } catch (_) {
+                const d = new Date();
+                return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            }
+        }
+        function isPastRoomTtDate(dateKey) {
+            const d = String(dateKey || '');
+            return /^\d{4}-\d{2}-\d{2}$/.test(d) && d < todayKey();
         }
 
         /** Public holidays TH (red) / KR (blue) — BE 2565–2570 (2022–2027) */
@@ -23208,7 +24142,10 @@
                     bar.classList.remove('show');
                     return;
                 }
-                const list = loadDaySchedule(currentUser.id).filter(it => !it.cancelled && it.kind !== 'dayoff' && it.classType !== 'dayoff');
+                // Live room TT (hongik-room-timetable-v2) + non-room day rows; skips ยกเลิก / occupancy-released
+                const list = (typeof listTeacherClassesForStatusBanner === 'function')
+                    ? listTeacherClassesForStatusBanner(currentUser.id)
+                    : [];
                 if (!list.length) { bar.classList.remove('show'); return; }
                 const now = minutesNow();
                 let current = null;
@@ -23216,6 +24153,7 @@
                 for (const item of list) {
                     const s = parseHM(item.start);
                     const e = parseHM(item.end);
+                    if (!Number.isFinite(s) || !Number.isFinite(e) || e <= s) continue;
                     if (now >= s && now < e) { current = item; break; }
                     if (now < s && (!upcoming || s < parseHM(upcoming.start))) upcoming = item;
                 }
@@ -23224,13 +24162,13 @@
                 let message = '';
                 if (current) {
                     const curTitle = pickLangText(current, 'title') || current.title || '';
-                    key = `now:${current.start}-${current.end}:${curTitle}`;
+                    key = `now:${current.start}-${current.end}:${curTitle}:${normalizeClassStatus(current.classStatus)}`;
                     message = `${t('nowClass')}: ${curTitle} (${current.start}–${current.end}) · ${leftLabel(parseHM(current.end) - now)}`;
                 } else if (upcoming) {
                     const left = parseHM(upcoming.start) - now;
                     if (left <= 90) {
                         const upTitle = pickLangText(upcoming, 'title') || upcoming.title || '';
-                        key = `next:${upcoming.start}:${upTitle}`;
+                        key = `next:${upcoming.start}:${upTitle}:${normalizeClassStatus(upcoming.classStatus)}`;
                         message = `${t('nextClass')}: ${upTitle} @ ${upcoming.start} · ${leftLabel(left)}`;
                     }
                 }
@@ -23499,6 +24437,10 @@
                             try { renderRoomTtMonthBody(user); } catch (_) {}
                         }
                     }
+                    // Next-class banner tracks live room TT / day schedule — recompute without remounting today form
+                    if (all || has('roomTt') || has('daySchedules') || has('classCancels')) {
+                        try { updateClassStatus(); } catch (_) {}
+                    }
                     if ((has('headOrders') || has('orderAcks')) && document.getElementById('order-board')) {
                         renderOrderBoard(user);
                     }
@@ -23653,7 +24595,10 @@
                         const shellStores = ['headOrders', 'orderAcks', 'leaveRequests', 'classCancels', 'schedChanges', 'directorTodos'];
                         const orderOnly = !!(stores && stores.length && stores.every((s) => s === 'headOrders' || s === 'orderAcks'));
                         const needShell = !stores || !stores.length || stores.some((s) => shellStores.includes(s));
-                        const directorShellTab = currentUser.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab);
+                        const directorShellTab = (
+                            (currentUser.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab))
+                            || (currentUser.role === 'admin' && currentTab === 'leave')
+                        );
                         // Order ack: patch pills in place (no remount flicker). Other shell stores remount when idle on that tab.
                         if (needShell && directorShellTab && typeof renderPanels === 'function') {
                             if (orderOnly) {
@@ -24306,6 +25251,11 @@
                 roomTtDraft = draft;
                 const modal = document.getElementById('room-tt-modal');
                 if (!modal || !user || !draft) return;
+                const guardDate = String(draft.date || (draft.blockId ? getRoomBlockById(draft.blockId)?.date : '') || '');
+                if (isPastRoomTtDate(guardDate)) {
+                    showAppToast(t('roomTtPastLocked'), 'warn');
+                    return;
+                }
                 ensureRoomTtWeekSeeded(roomTtWeekOffset);
                 const existing = draft.blockId
                     ? getRoomBlockById(draft.blockId)
@@ -24539,12 +25489,17 @@
                         const c = roomTtTeacherColor(b.teacherId);
                         const st = normalizeClassStatus(b.classStatus);
                         const released = roomTtReleasesOccupancy(b);
+                        const cancelled = st === 'cancelled';
                         const label = `${shortTeacherLabel(b.teacherId) || b.teacherName || ''} ${b.start || ''}`.trim();
                         const picked = roomTtMonthPick === b.id ? ' is-picked' : '';
                         const drag = canEdit && !released ? `draggable="true" data-rt-month-drag="${esc(b.id)}"` : '';
                         const stDot = st === 'normal' ? '' : `<span class="cls-run-dot ${st}" title="${esc(classStatusLabel(st))}"></span>`;
-                        return `<button type="button" class="rt-month-chip${picked}${released ? ' is-released' : ''}" data-rt-month-chip="${esc(b.id)}"
-                            style="background:${released ? '#e2e8f0' : c.bg};border-color:${released ? '#94a3b8' : c.border};color:${released ? '#64748b' : c.accent}" ${drag}
+                        const chipMod = cancelled ? ' is-cancelled' : released ? ' is-released' : '';
+                        const bg = cancelled ? '#7f1d1d' : released ? '#e2e8f0' : c.bg;
+                        const bd = cancelled ? '#991b1b' : released ? '#94a3b8' : c.border;
+                        const fg = cancelled ? '#fecaca' : released ? '#64748b' : c.accent;
+                        return `<button type="button" class="rt-month-chip${picked}${chipMod}" data-rt-month-chip="${esc(b.id)}"
+                            style="background:${bg};border-color:${bd};color:${fg}" ${drag}
                             title="${esc(label)}${st !== 'normal' ? ' · ' + classStatusLabel(st) : ''}">${esc(label)}${stDot}</button>`;
                     }).join('');
                     cells += `<div class="rt-month-day${isToday ? ' is-today' : ''}${roomTtMonthPick ? ' is-drop-target' : ''}" data-rt-month-day="${esc(date)}" tabindex="0">
@@ -24598,6 +25553,19 @@
 
                 const tryMoveToDay = (dateKey) => {
                     if (!roomTtMonthPick || !canEdit) return false;
+                    if (isPastRoomTtDate(dateKey)) {
+                        showAppToast(t('roomTtPastLocked'), 'warn');
+                        roomTtMonthPick = null;
+                        renderRoomTtMonthBody(user);
+                        return true;
+                    }
+                    const pickBlock = getRoomBlockById(roomTtMonthPick);
+                    if (pickBlock && isPastRoomTtDate(pickBlock.date)) {
+                        showAppToast(t('roomTtPastLocked'), 'warn');
+                        roomTtMonthPick = null;
+                        renderRoomTtMonthBody(user);
+                        return true;
+                    }
                     roomTtMonthBusy = true;
                     const res = moveRoomBlockToDate(roomTtMonthPick, dateKey, user);
                     roomTtMonthPick = null;
@@ -24616,13 +25584,17 @@
                 body.querySelectorAll('[data-rt-month-chip]').forEach((chip) => {
                     chip.addEventListener('click', (e) => {
                         e.stopPropagation();
+                        const id = chip.dataset.rtMonthChip;
+                        const chipBlock = getRoomBlockById(id);
+                        if (chipBlock && isPastRoomTtDate(chipBlock.date)) {
+                            showAppToast(t('roomTtPastLocked'), 'warn');
+                            return;
+                        }
                         if (!canEdit) {
-                            const id = chip.dataset.rtMonthChip;
                             closeRoomTtMonthView();
                             openRoomTtModal(user, { blockId: id });
                             return;
                         }
-                        const id = chip.dataset.rtMonthChip;
                         if (roomTtMonthPick === id) {
                             roomTtMonthPick = null;
                         } else {
@@ -24632,9 +25604,16 @@
                     });
                     chip.addEventListener('dragstart', (e) => {
                         if (!canEdit) return;
+                        const id = chip.dataset.rtMonthChip;
+                        const chipBlock = getRoomBlockById(id);
+                        if (chipBlock && isPastRoomTtDate(chipBlock.date)) {
+                            e.preventDefault();
+                            showAppToast(t('roomTtPastLocked'), 'warn');
+                            return;
+                        }
                         roomTtMonthBusy = true;
-                        roomTtMonthPick = chip.dataset.rtMonthChip;
-                        try { e.dataTransfer.setData('text/plain', chip.dataset.rtMonthChip); } catch (_) {}
+                        roomTtMonthPick = id;
+                        try { e.dataTransfer.setData('text/plain', id); } catch (_) {}
                         try { e.dataTransfer.effectAllowed = 'move'; } catch (_) {}
                     });
                     chip.addEventListener('dragend', () => {
@@ -24699,9 +25678,11 @@
                     if (document.getElementById('week-class-board') && typeof renderWeekClassBoard === 'function') {
                         try { renderWeekClassBoard(user); } catch (_) {}
                     }
+                    try { updateClassStatus(); } catch (_) {}
                 } catch (_) {
                     showAppToast(t('roomTtRefreshOk'), 'warn');
                     try { renderRoomTimetableBoard(user); } catch (_) {}
+                    try { updateClassStatus(); } catch (_) {}
                 } finally {
                     if (btn) {
                         btn.classList.remove('is-loading');
@@ -24762,10 +25743,12 @@
                 days.forEach((d, di) => {
                     const key = dateKeyFromDate(d);
                     const isToday = key === today;
+                    const isPast = !isToday && isPastRoomTtDate(key);
                     const dayBand = di % 2 === 0 ? ' is-day-band-a' : ' is-day-band-b';
                     const dayStart = di > 0 ? ' is-day-start' : '';
                     const colStart = 2 + di * 3;
-                    headCells += `<div class="room-tt-cell is-day${dayBand}${dayStart}${isToday ? ' is-today-col' : ''}" style="grid-column:${colStart} / span 3;grid-row:1">
+                    const dayState = isToday ? ' is-today-col' : isPast ? ' is-past-day' : '';
+                    headCells += `<div class="room-tt-cell is-day${dayBand}${dayStart}${dayState}" style="grid-column:${colStart} / span 3;grid-row:1">
                         <div class="room-tt-day-name">${dayNames[di]}</div>
                         <div class="room-tt-day-date">${key.slice(5)}</div>
                         <div class="room-tt-rooms"><span class="r-a">${esc(t('roomTtRoomA'))}</span><span class="r-b">${esc(t('roomTtRoomB'))}</span><span class="r-c">${esc(t('roomTtRoomC'))}</span></div>
@@ -24773,7 +25756,7 @@
                 });
 
                 // occupancy map: date|room|half -> block
-                // student_postponed keeps a gray record but frees the cell for re-booking
+                // student_postponed (gray) / cancelled (dark red) keep a record but free the cell for re-booking
                 const byCell = {};
                 const releasedByCell = {};
                 Object.values(store.blocks || {}).forEach((b) => {
@@ -24801,12 +25784,14 @@
                     days.forEach((d, di) => {
                         const date = dateKeyFromDate(d);
                         const isToday = date === today;
+                        const isPast = !isToday && isPastRoomTtDate(date);
                         const dayBand = di % 2 === 0 ? ' is-day-band-a' : ' is-day-band-b';
                         ROOM_TT_ROOMS.forEach((room, ri) => {
                             const col = 2 + di * 3 + ri;
                             const roomCls = ri === 0 ? ' is-room-a' : ri === 1 ? ' is-room-b' : ' is-room-c';
                             const dayStart = ri === 0 && di > 0 ? ' is-day-start' : '';
-                            const colCls = `${dayBand}${dayStart}${roomCls}${isToday ? ' is-today-col' : ''}${isDayEnd ? ' is-day-end' : ''}`;
+                            const dayState = isToday ? ' is-today-col' : isPast ? ' is-past-day' : '';
+                            const colCls = `${dayBand}${dayStart}${roomCls}${dayState}${isDayEnd ? ' is-day-end' : ''}`;
                             // 22:00 axis row = day close (สี่ทุ่ม): still bookable via last half 21:30–22:00
                             const bookHalf = isDayEnd ? roomTtFromMin(ROOM_TT_END_MIN - 30) : half;
                             const key = `${date}|${room}|${bookHalf}`;
@@ -24827,24 +25812,45 @@
                                 if (showReleased) {
                                     const rSubj = cleanClassTitleDisplay(pickLangText(releasedSlot, 'title') || releasedSlot.title || '');
                                     const rTea = shortTeacherLabel(releasedSlot.teacherId) || releasedSlot.teacherName || '';
+                                    const rSt = normalizeClassStatus(releasedSlot.classStatus);
+                                    const rCancelled = rSt === 'cancelled';
+                                    const rMod = rCancelled ? 'is-cancelled' : 'is-released';
+                                    const rHint = rCancelled ? t('roomTtCancelledHint') : t('roomTtReleasedHint');
                                     const rBadge = classStatusBadgeHtml(releasedSlot.classStatus);
-                                    const plusBtn = canBook
-                                        ? `<button type="button" class="room-tt-plus" data-rt-book="${esc(date)}|${room}|${bookHalf}" title="${esc(t('roomTtReleasedHint'))}" aria-label="+"><i class="ph ph-plus"></i></button>`
-                                        : '';
-                                    body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
-                                        <div class="room-tt-released-stack">
-                                            <button type="button" class="room-tt-booked is-released"
-                                                data-rt-edit="${esc(releasedSlot.id)}"
-                                                data-teacher="${esc(releasedSlot.teacherId || '')}"
-                                                title="${esc(t('roomTtReleasedHint'))}">
+                                    const canBookCell = canBook && !isPast;
+                                    const plusBtn = canBookCell
+                                        ? `<button type="button" class="room-tt-plus" data-rt-book="${esc(date)}|${room}|${bookHalf}" title="${esc(rHint)}" aria-label="+"><i class="ph ph-plus"></i></button>`
+                                        : (canBook
+                                            ? `<div class="room-tt-plus" aria-hidden="true" title="${esc(t('roomTtPastLocked'))}"><i class="ph ph-plus"></i></div>`
+                                            : '');
+                                    const releasedBtn = isPast
+                                        ? `<div class="room-tt-booked ${rMod}" data-teacher="${esc(releasedSlot.teacherId || '')}" title="${esc(rHint)}" aria-disabled="true">
                                                 <span class="rt-name">${esc(rTea)}</span>
                                                 <span class="rt-subj">${esc(rSubj)}</span>
                                                 <span class="rt-subj" style="opacity:.8">${esc(releasedSlot.start)}–${esc(releasedSlot.end)}</span>
                                                 ${rBadge}
-                                            </button>
+                                            </div>`
+                                        : `<button type="button" class="room-tt-booked ${rMod}"
+                                                data-rt-edit="${esc(releasedSlot.id)}"
+                                                data-teacher="${esc(releasedSlot.teacherId || '')}"
+                                                title="${esc(rHint)}">
+                                                <span class="rt-name">${esc(rTea)}</span>
+                                                <span class="rt-subj">${esc(rSubj)}</span>
+                                                <span class="rt-subj" style="opacity:.8">${esc(releasedSlot.start)}–${esc(releasedSlot.end)}</span>
+                                                ${rBadge}
+                                            </button>`;
+                                    body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
+                                        <div class="room-tt-released-stack">
+                                            ${releasedBtn}
                                             ${plusBtn}
                                         </div>
                                     </div>`;
+                                    return;
+                                }
+                                if (isPast || !canBook) {
+                                    body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
+                                    <div class="room-tt-plus" aria-hidden="true"${isPast ? ` title="${esc(t('roomTtPastLocked'))}"` : ''}><i class="ph ph-plus"></i></div>
+                                </div>`;
                                     return;
                                 }
                                 body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
@@ -24867,16 +25873,19 @@
                             const avSrc = showAv ? (typeof getDisplayPhoto === 'function' ? getDisplayPhoto(slot.teacherId) : '') : '';
                             const avHtml = avSrc ? `<img class="rt-avatar" src="${avSrc}" alt="" width="15" height="15">` : '';
                             const stBadge = slot.isBreak ? '' : classStatusBadgeHtml(slot.classStatus, { hideNormal: true });
-                            body += `<div class="room-tt-cell${colCls}${merged ? ' is-span-host' : ''}" style="grid-column:${col};grid-row:${row} / span ${span}">
-                                <button type="button" class="room-tt-booked${mine ? ' is-mine' : ''}${slot.isBreak ? ' is-break' : ''}${merged ? ' is-merged' : ''}"
-                                    data-rt-edit="${esc(slot.id)}"
-                                    data-teacher="${esc(slot.teacherId || '')}"
-                                    style="background:${c.bg};border-color:${c.border};color:${c.accent}">
-                                    <span class="rt-name">${avHtml}${esc(teaLabel)}</span>
+                            const bookedInner = `<span class="rt-name">${avHtml}${esc(teaLabel)}</span>
                                     <span class="rt-subj">${esc(subj)}</span>
                                     <span class="rt-subj" style="opacity:.8">${esc(slot.start)}–${esc(slot.end)}${stuN ? ` · ${stuN}` : ''}</span>
-                                    ${stBadge}
-                                </button>
+                                    ${stBadge}`;
+                            const bookedCls = `room-tt-booked${mine ? ' is-mine' : ''}${slot.isBreak ? ' is-break' : ''}${merged ? ' is-merged' : ''}${isPast ? ' is-locked' : ''}`;
+                            const bookedEl = isPast
+                                ? `<div class="${bookedCls}" data-teacher="${esc(slot.teacherId || '')}" style="background:${c.bg};border-color:${c.border};color:${c.accent}" title="${esc(t('roomTtPastLocked'))}" aria-disabled="true">${bookedInner}</div>`
+                                : `<button type="button" class="${bookedCls}"
+                                    data-rt-edit="${esc(slot.id)}"
+                                    data-teacher="${esc(slot.teacherId || '')}"
+                                    style="background:${c.bg};border-color:${c.border};color:${c.accent}">${bookedInner}</button>`;
+                            body += `<div class="room-tt-cell${colCls}${merged ? ' is-span-host' : ''}" style="grid-column:${col};grid-row:${row} / span ${span}">
+                                ${bookedEl}
                             </div>`;
                         });
                     });
@@ -24985,6 +25994,10 @@
                     }
                     btn.addEventListener('click', () => {
                         // Two-tap range: first = start, second (same room/day, later) = end → open modal
+                        if (isPastRoomTtDate(date)) {
+                            showAppToast(t('roomTtPastLocked'), 'warn');
+                            return;
+                        }
                         if (!roomTtRangePick || roomTtRangePick.date !== date || roomTtRangePick.room !== room) {
                             roomTtRangePick = { date, room, start: half };
                             renderRoomTimetableBoard(user);
@@ -25018,6 +26031,10 @@
                         const id = String(btn.dataset.rtEdit || '');
                         const block = getRoomBlockById(id);
                         if (!block) return;
+                        if (isPastRoomTtDate(block.date)) {
+                            showAppToast(t('roomTtPastLocked'), 'warn');
+                            return;
+                        }
                         roomTtRangePick = null;
                         openRoomTtModal(user, { date: block.date, room: block.room, start: block.start, end: block.end, blockId: block.id });
                     });
@@ -26056,7 +27073,7 @@
                 const list = teachers.map((tea, i) => {
                     try {
                     const { lessons, dayOff } = overviewLessonsForTeacher(tea.id, todayKey());
-                    const activeSched = lessons.filter((it) => !it.cancelled);
+                    const activeSched = lessons.filter((it) => isActiveClassForBanner(it));
                     const myLeave = leaves.find(L => L.fromId === tea.id && L.status === 'pending');
                     let status = '—';
                     let note = t('noSchedule');
@@ -28013,13 +29030,14 @@
                     { id: 'overview', label: t('todayBoard'), icon: 'ph-kanban' },
                     { id: 'rooms', label: t('tabRooms'), icon: 'ph-door-open' },
                     { id: 'orders', label: t('tabOrders'), icon: 'ph-megaphone' },
+                    { id: 'leave', label: t('leaveInbox'), icon: 'ph-airplane-tilt' },
                     { id: 'otpay', label: t('tabOt'), icon: 'ph-currency-circle-dollar' },
                     { id: 'emergency', label: t('tabEmergency'), icon: 'ph-first-aid' },
                     { id: 'students', label: t('tabStudents'), icon: 'ph-users-three' },
                     { id: 'ptcalc', label: t('tabPtCalc'), icon: 'ph-calculator' },
                     { id: 'admin', label: t('tabAdmin'), icon: 'ph-sliders-horizontal' }
                 ];
-                const pendingLeaveAlertN = user.role === 'director'
+                const pendingLeaveAlertN = canManageLeaveInbox(user)
                     ? loadLeaveRequests().filter((L) => L.status === 'pending').length
                     : 0;
                 const nav = document.getElementById('dash-tabs');
@@ -28037,6 +29055,7 @@
             function renderPanels(user) {
                 const panels = document.getElementById('tab-panels');
                 if (user.role === 'admin') {
+                    const adminLeaveParts = buildLeaveInboxParts();
                     const accounts = editableAccountsForAdmin();
                     if (!adminSelectedId || !accounts.some(a => a.id === adminSelectedId)) {
                         adminSelectedId = accounts[0]?.id || null;
@@ -28194,6 +29213,11 @@
                         </div>
                         <div id="admin-order-feed" style="margin-top:1rem"></div>
                     </div></div>
+                    <div class="tab-panel" data-panel="leave"><div class="content-card compact-card">${heading('ph-airplane-tilt','leaveInbox')}
+                        ${buildHolidayCalendarHtml()}
+                        ${adminLeaveParts.leaveInboxHead}
+                        ${adminLeaveParts.leaveInbox}
+                    </div></div>
                     <div class="tab-panel" data-panel="otpay"><div class="content-card compact-card">
                         <div id="ot-pay-board"></div>
                     </div></div>
@@ -28246,6 +29270,7 @@
                     if (adminSelectedId) fillAdminEditor(adminSelectedId);
                     paintAdminHubBackupNote();
                     wireAdminOrderCompose(user);
+                    wireLeaveInboxHandlers(user, panels);
                     return;
                 }
                 const schedule = loadDaySchedule(user.id);
@@ -28253,6 +29278,11 @@
                     const cancelled = !!item.cancelled;
                     const isDayOff = item.kind === 'dayoff' || item.classType === 'dayoff';
                     const ctype = isDayOff ? 'dayoff' : normalizeClassType(item.classType);
+                    const runStatus = normalizeClassStatus(item.classStatus);
+                    const isAbnormal = !isDayOff && !cancelled && isNonNormalClassStatus(runStatus);
+                    const abnormalCls = cancelled
+                        ? ' cancelled is-cancelled'
+                        : (isAbnormal ? ` is-abnormal${runStatus === 'cancelled' ? ' is-cancelled' : ''}` : '');
                     const typeBadge = `<span class="sched-type-badge ${ctype}">${classTypeLabel(ctype)}</span>`;
                     const statusBadge = (!isDayOff && !cancelled) ? classStatusBadgeHtml(item.classStatus) : '';
                     const titleText = String(pickLangText(item, 'title') || '').replace(/</g,'&lt;');
@@ -28260,7 +29290,7 @@
                     const roomCode = item.room || roomBlockEarly?.room || '';
                     const roomTitleHtml = roomCode ? ` · ${roomBadgeHtml(roomCode)}` : '';
                     const meta = cancelled ? `<div class="cancel-meta">
-                        <span class="badge" style="background:#ffedd5;color:#9a3412;margin-right:.35rem">${t('cancelledBadge')}</span>
+                        <span class="badge" style="background:#fecaca;color:#9f1239;margin-right:.35rem">${t('cancelledBadge')}</span>
                         ${item.cancelReason || item.cancelReasonKo || item.cancelReasonTh || item.cancelReasonEn ? `<div><strong>${t('cancelReason')}:</strong> ${String(pickLangText(item, 'cancelReason')).replace(/</g,'&lt;')}</div>` : ''}
                         ${item.makeupDate ? `<div><strong>${t('makeupDate')}:</strong> ${item.makeupDate}</div>` : ''}
                         ${item.cancelNote ? `<div><strong>${t('cancelNote')}:</strong> ${String(item.cancelNote).replace(/</g,'&lt;')}</div>` : ''}
@@ -28280,7 +29310,7 @@
                         const delBtn = canSelfCancelDirectorReport(user)
                             ? `<button type="button" class="sched-del" data-del="${idx}">${t('delete')}</button>`
                             : `<p class="text-xs text-amber-700" style="margin:0;font-weight:700">${t('sentNoCancelHint')}</p>`;
-                        return `<div class="sched-item cancelled" data-idx="${idx}">
+                        return `<div class="sched-item${abnormalCls}" data-idx="${idx}">
                             ${typeBadge}
                             <div class="sched-item-summary">
                                 <span class="si-time">${item.start}–${item.end}</span>
@@ -28300,7 +29330,12 @@
                                 <select class="sched-select sched-edit-class-status" data-idx="${idx}">${classStatusOptionsHtml(item.classStatus)}</select>
                             </div>`
                         : '';
-                    return `<div class="sched-item" data-idx="${idx}">
+                    const cancelBtnLabel = isAbnormal ? t('restoreClassNormal') : t('cancelClass');
+                    const cancelBtnTitle = String(isAbnormal ? t('restoreClassHint') : t('cancelClassHint'))
+                        .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+                    const cancelBtnCls = isAbnormal ? 'sched-cancel is-restore' : 'sched-cancel';
+                    const cancelBtnIcon = isAbnormal ? 'ph-arrow-counter-clockwise' : 'ph-calendar-x';
+                    return `<div class="sched-item${abnormalCls}" data-idx="${idx}">
                         <div class="cls-run-row">${typeBadge}${statusBadge}</div>
                         <div class="sched-item-summary">
                             <span class="si-time">${item.start}–${item.end}</span>
@@ -28335,7 +29370,7 @@
                         </div>
                         <div class="sched-item-actions sched-actions-view">
                             <button type="button" class="sched-edit-open" data-edit-open="${idx}"><i class="ph ph-pencil-simple"></i> ${t('editSchedule')}</button>
-                            <button type="button" class="sched-cancel" data-cancel="${idx}"><i class="ph ph-calendar-x"></i> ${t('cancelClass')}</button>
+                            <button type="button" class="${cancelBtnCls}" data-cancel="${idx}" title="${cancelBtnTitle}" aria-label="${cancelBtnTitle}"><i class="ph ${cancelBtnIcon}"></i> ${cancelBtnLabel}</button>
                             <button type="button" class="sched-del" data-del="${idx}">${t('delete')}</button>
                         </div>
                         <div class="sched-item-actions sched-actions-edit">
@@ -28348,7 +29383,7 @@
                 let extra = '';
                 if (user.role === 'director') {
                     const teachers = teacherAccounts();
-                    const leaves = loadLeaveRequests().slice().reverse();
+                    const { leaveInboxHead, leaveInbox, pendingLeaveN } = buildLeaveInboxParts();
 
                     const teacherOpts = teachers.map(tea => `<option value="${tea.id}">${displayName(tea)}</option>`).join('');
                     try { purgeStaleHeadOrders({ syncRemote: true }); } catch (_) {}
@@ -28429,49 +29464,6 @@
                             </div>
                         </div>`;
                     }).join('') || `<p class="empty-note">${t('orderMonthEmpty')}</p>`;
-
-                    const pendingLeaveN = leaves.filter((L) => L.status === 'pending').length;
-                    const leaveInbox = leaves.length ? leaves.map((L) => {
-                        const isPending = L.status === 'pending';
-                        const isOpen = leaveInboxOpenId === L.id;
-                        const reason = String(pickLangText(L, 'reason') || L.reason || '').replace(/</g, '&lt;').replace(/\n/g, '<br>');
-                        const typeLbl = L.leaveType ? (pickLangText(L, 'leaveTypeLabel') || leaveTypeLabel(L.leaveType)) : '';
-                        if (!isPending) {
-                            const doneCls = L.status === 'approved' ? 'ok' : 'no';
-                            const doneLbl = L.status === 'approved' ? t('approved') : t('reject');
-                            return `<div class="leave-inbox-card is-done">
-                                <div>
-                                    <div class="li-name">${L.fromName || ''}</div>
-                                    <div class="li-meta">${L.from || ''} → ${L.to || ''}${typeLbl ? ` · ${typeLbl}` : ''}</div>
-                                </div>
-                                <span class="li-badge ${doneCls}">${doneLbl}</span>
-                            </div>`;
-                        }
-                        return `
-                        <button type="button" class="leave-inbox-card is-pending${isOpen ? ' is-open' : ''}" data-leave-open="${L.id}" aria-expanded="${isOpen ? 'true' : 'false'}">
-                            <div>
-                                <div class="li-name">${L.fromName || ''}</div>
-                                <div class="li-meta">${L.from || ''} → ${L.to || ''}${typeLbl ? ` · ${typeLbl}` : ''}</div>
-                                <div class="li-hint"><i class="ph ph-hand-pointing"></i> ${t('leaveOpenDecide')}</div>
-                            </div>
-                            <span class="li-badge">${t('pending')}</span>
-                        </button>
-                        <div class="leave-inbox-detail${isOpen ? ' open' : ''}" data-leave-detail="${L.id}">
-                            <p class="lid-hint"><i class="ph ph-warning-circle"></i> ${t('leaveDecideHint')}</p>
-                            <div class="lid-body">${typeLbl ? `<span class="badge" style="margin-right:.35rem">${typeLbl}</span>` : ''}${reason || '—'}</div>
-                            ${pickLangText(L, 'comment') || L.comment ? `<div class="text-xs text-slate-500" style="margin-bottom:.45rem">💬 ${pickLangText(L, 'comment') || L.comment}</div>` : ''}
-                            <input type="text" class="sched-text leave-comment" data-leave-id="${L.id}" placeholder="${t('comment')}" style="margin-bottom:.5rem">
-                            <div class="admin-actions">
-                                <button type="button" class="soft-btn" data-leave-approve="${L.id}">${t('approve')}</button>
-                                <button type="button" class="soft-btn ghost" data-leave-reject="${L.id}">${t('reject')}</button>
-                            </div>
-                        </div>`;
-                    }).join('') : `<p class="empty-note">${t('none')}</p>`;
-                    const leaveInboxHead = `<h3 class="leave-inbox-head${pendingLeaveN ? ' has-pending' : ''}">
-                        ${t('leaveInbox')}
-                        ${pendingLeaveN ? `<span class="lih-badge">${t('leavePendingAlert')} · ${pendingLeaveN}</span>` : ''}
-                    </h3>
-                    ${pendingLeaveN ? `<p class="text-xs mb-2" style="color:#c2410c;font-weight:700">${t('leaveClickOpen')}</p>` : ''}`;
 
                     const canPurgeRead = canDeleteReadReports(user);
                     const canApproveReports = canApproveReportInbox(user);
@@ -28956,6 +29948,42 @@
                             const list = loadDaySchedule(user.id);
                             const item = list[idx];
                             if (!item || item.cancelled) return;
+                            const prevStatus = normalizeClassStatus(item.classStatus);
+                            if (isNonNormalClassStatus(prevStatus)) {
+                                const roomBlock = item.roomSlotId ? getRoomBlockById(item.roomSlotId) : null;
+                                const canStatus = canEditClassStatus(user, roomBlock || { teacherId: user.id, isBreak: false });
+                                if (!canStatus) {
+                                    alert(t('classStatusOwnerOnly'));
+                                    return;
+                                }
+                                if (!confirm(t('restoreClassConfirmAsk'))) return;
+                                const nextItem = { ...item, classStatus: 'normal' };
+                                list[idx] = nextItem;
+                                saveDaySchedule(user.id, list);
+                                if (item.roomSlotId && roomBlock) {
+                                    const saved = saveRoomBlock({ ...roomBlock, classStatus: 'normal', userEdited: true }, user);
+                                    if (!saved.ok) {
+                                        list[idx] = item;
+                                        saveDaySchedule(user.id, list);
+                                        document.getElementById('schedule-msg').textContent = saved.msg || t('roomTtTaken');
+                                        return;
+                                    }
+                                    if (saved.slot) {
+                                        notifyClassStatusToDirector({
+                                            user,
+                                            slot: saved.slot,
+                                            beforeStatus: prevStatus,
+                                            afterStatus: 'normal'
+                                        });
+                                    }
+                                }
+                                notifySchedChange({ user, action: 'edit', item: nextItem });
+                                document.getElementById('schedule-msg').textContent = t('restoreClassDone');
+                                statusDismissedKey = '';
+                                renderPanels(user);
+                                setTab('today');
+                                return;
+                            }
                             cancelDraftIdx = idx;
                             const summary = document.getElementById('class-cancel-summary');
                             if (summary) summary.textContent = `${item.start}–${item.end} · ${pickLangText(item, 'title')}`;
@@ -29359,40 +30387,8 @@
                     setTimeout(() => document.getElementById('self-pw-current')?.focus(), 80);
                 });
 
-                // director leave: open detail first, then approve/reject
-                panels.querySelectorAll('[data-leave-open]').forEach((btn) => {
-                    btn.addEventListener('click', () => {
-                        const id = btn.dataset.leaveOpen;
-                        leaveInboxOpenId = leaveInboxOpenId === id ? null : id;
-                        openDashboard(resolveAccountById(user.id), true);
-                        setTab('leave');
-                    });
-                });
-                panels.querySelectorAll('[data-leave-approve], [data-leave-reject]').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const id = btn.dataset.leaveApprove || btn.dataset.leaveReject;
-                        const ok = !!btn.dataset.leaveApprove;
-                        const list = loadLeaveRequests();
-                        const item = list.find(L => L.id === id);
-                        if (!item) return;
-                        // must have opened the card first
-                        if (leaveInboxOpenId !== id) {
-                            leaveInboxOpenId = id;
-                            openDashboard(resolveAccountById(user.id), true);
-                            setTab('leave');
-                            return;
-                        }
-                        const commentEl = panels.querySelector(`.leave-comment[data-leave-id="${id}"]`);
-                        item.status = ok ? 'approved' : 'rejected';
-                        const cmt = commentEl ? commentEl.value.trim() : '';
-                        Object.assign(item, stampLangText(item, 'comment', cmt));
-                        saveLeaveRequests(list);
-                        leaveInboxOpenId = null;
-                        openDashboard(resolveAccountById(user.id), true);
-                        setTab('leave');
-                    });
-                });
+                // director/admin leave: ack → open → approve/reject (notify only after decide)
+                wireLeaveInboxHandlers(user, panels);
 
                 // class students expand / add / delete — removed with ตารางสอน tab
 
@@ -29409,17 +30405,24 @@
                         if (msg) msg.textContent = t('otRefreshSheetBusy');
                         try {
                             const res = await syncOTFromSheet({ force: true, silent: false });
-                            if (msg) {
-                                msg.textContent = res.ok
-                                    ? `${t('otRefreshSheetOk')} · ${res.counts?.total || 0}${(res.foundRows || []).length ? ` (${(res.foundRows || []).filter((r) => String(r.date || '').startsWith('2026-09')).length} Sep)` : ''}`
-                                    : `${t('otRefreshSheetFail')}${res.error ? ': ' + res.error : ''}`;
-                            }
-                            if (res.ok && currentUser) {
-                                try { renderTeacherOtBoard(currentUser); } catch (_) {}
-                                try { if (document.getElementById('ot-pay-board')) renderOtPayBoard(currentUser); } catch (_) {}
+                            const septN = (res.foundRows || []).filter((r) => String(r.date || '').startsWith('2026-09')).length;
+                            if (res.ok) {
+                                const okMsg = `${t('otRefreshSheetOk')} · ${res.counts?.total || 0}${septN ? ` (${septN} Sep)` : ''}`;
+                                if (msg) msg.textContent = okMsg;
+                                try { showAppToast(okMsg, 'ok'); } catch (_) {}
+                                if (currentUser) {
+                                    try { renderTeacherOtBoard(currentUser); } catch (_) {}
+                                    try { if (document.getElementById('ot-pay-board')) renderOtPayBoard(currentUser); } catch (_) {}
+                                }
+                            } else {
+                                const errMsg = `${t('otRefreshSheetFail')}${res.error ? ': ' + res.error : ''}`;
+                                if (msg) msg.textContent = errMsg;
+                                try { showAppToast(errMsg, 'err'); } catch (_) {}
                             }
                         } catch (e) {
-                            if (msg) msg.textContent = `${t('otRefreshSheetFail')}: ${String(e?.message || e)}`;
+                            const errMsg = `${t('otRefreshSheetFail')}: ${String(e && e.message ? e.message : e)}`;
+                            if (msg) msg.textContent = errMsg;
+                            try { showAppToast(errMsg, 'err'); } catch (_) {}
                         } finally {
                             otRefresh.disabled = false;
                         }
@@ -31150,37 +32153,43 @@
                     document.getElementById('sched-alert-modal')?.classList.remove('open');
                     document.getElementById('cancel-ack-modal')?.classList.remove('open');
                     document.getElementById('leave-result-modal')?.classList.remove('open');
+                    document.getElementById('leave-alert-modal')?.classList.remove('open');
                     document.getElementById('attend-modal')?.classList.remove('open');
                     document.getElementById('sched-dayoff-confirm-modal')?.classList.remove('open');
                     return;
                 }
-                // Director: class-cancel alerts first, then schedule changes, then morning attendance
-                if (user.role === 'director') {
+                // Director/admin: leave alert (รับทราบ) first — approve happens in inbox; requester notified only after decide
+                if (canManageLeaveInbox(user)) {
                     orderModal.classList.remove('open');
                     document.getElementById('cancel-ack-modal')?.classList.remove('open');
                     document.getElementById('leave-result-modal')?.classList.remove('open');
-                    if (pendingDirectorCancels().length) {
+                    if (pendingDirectorLeaveAlerts().length) {
                         document.getElementById('attend-modal')?.classList.remove('open');
+                        document.getElementById('cancel-alert-modal')?.classList.remove('open');
                         document.getElementById('sched-alert-modal')?.classList.remove('open');
-                        maybeShowCancelAlertPopup(user);
+                        maybeShowLeaveAlertPopup(user);
+                        return;
+                    }
+                    document.getElementById('leave-alert-modal')?.classList.remove('open');
+                    if (user.role === 'director') {
+                        if (pendingDirectorCancels().length) {
+                            document.getElementById('attend-modal')?.classList.remove('open');
+                            document.getElementById('sched-alert-modal')?.classList.remove('open');
+                            maybeShowCancelAlertPopup(user);
+                            return;
+                        }
+                        document.getElementById('cancel-alert-modal')?.classList.remove('open');
+                        if (pendingDirectorSchedChanges().length) {
+                            document.getElementById('attend-modal')?.classList.remove('open');
+                            maybeShowSchedAlertPopup(user);
+                            return;
+                        }
+                        document.getElementById('sched-alert-modal')?.classList.remove('open');
+                        maybeShowAttendPopup(user);
                         return;
                     }
                     document.getElementById('cancel-alert-modal')?.classList.remove('open');
-                    if (pendingDirectorSchedChanges().length) {
-                        document.getElementById('attend-modal')?.classList.remove('open');
-                        maybeShowSchedAlertPopup(user);
-                        return;
-                    }
                     document.getElementById('sched-alert-modal')?.classList.remove('open');
-                    maybeShowAttendPopup(user);
-                    return;
-                }
-                if (user.role === 'admin') {
-                    orderModal.classList.remove('open');
-                    document.getElementById('cancel-alert-modal')?.classList.remove('open');
-                    document.getElementById('sched-alert-modal')?.classList.remove('open');
-                    document.getElementById('cancel-ack-modal')?.classList.remove('open');
-                    document.getElementById('leave-result-modal')?.classList.remove('open');
                     document.getElementById('attend-modal')?.classList.remove('open');
                     return;
                 }
@@ -31296,6 +32305,30 @@
                 if (modal) closeModalFast(modal);
             }
 
+            function maybeShowLeaveAlertPopup(user) {
+                const modal = document.getElementById('leave-alert-modal');
+                const check = document.getElementById('leave-alert-check');
+                const confirmBtn = document.getElementById('leave-alert-confirm');
+                const listEl = document.getElementById('leave-alert-list');
+                if (!modal || !listEl || !canManageLeaveInbox(user)) return;
+                const pending = pendingDirectorLeaveAlerts();
+                if (!pending.length) { modal.classList.remove('open'); return; }
+                listEl.innerHTML = pending.map((L) => {
+                    const typeLbl = L.leaveType ? (pickLangText(L, 'leaveTypeLabel') || leaveTypeLabel(L.leaveType)) : '';
+                    const reason = String(pickLangText(L, 'reason') || L.reason || '').replace(/</g, '&lt;').replace(/\n/g, '<br>');
+                    return `<div class="order-pop-item">
+                        <div class="text-xs text-slate-400">${L.fromName || L.fromId || ''} · ${L.from || ''} → ${L.to || ''}</div>
+                        <div class="font-medium text-slate-800 mt-1">${typeLbl || t('leaveRequest')}</div>
+                        <div class="text-sm text-slate-600 mt-1">${reason || '—'}</div>
+                    </div>`;
+                }).join('');
+                if (check) check.checked = false;
+                if (confirmBtn) confirmBtn.disabled = true;
+                applyStaticI18n();
+                fillSakura(document.getElementById('leave-alert-sakura'));
+                reopenModal(modal);
+            }
+
             function maybeShowCancelAlertPopup(user) {
                 const modal = document.getElementById('cancel-alert-modal');
                 const check = document.getElementById('cancel-alert-check');
@@ -31359,6 +32392,7 @@
                     return;
                 }
                 pruneNonFirstSchedAlerts();
+                backfillTodayCancelledSchedAlerts();
                 const pending = pendingDirectorSchedChanges();
                 if (!pending.length) {
                     modal.classList.remove('open');
@@ -31376,36 +32410,40 @@
                     const isUndoOff = c.action === 'undodayoff';
                     const isRoomEdit = c.action === 'room_edit';
                     const isClassStatus = c.action === 'class_status';
+                    const isCancelledStatus = isClassStatus && normalizeClassStatus(c.classStatus) === 'cancelled';
                     const isEdit = c.action === 'edit';
                     const isDelete = c.action === 'delete';
-                    const kind = isClassStatus ? t('schedAlertKindClassStatus')
+                    const kind = isCancelledStatus ? t('schedAlertKindClassCancelled')
+                        : (isClassStatus ? t('schedAlertKindClassStatus')
                         : (isRoomEdit ? t('schedAlertKindRoomEdit')
                         : (isUndoOff ? t('schedAlertKindUndoOff')
                         : (isOff ? t('schedAlertKindOff')
                         : (isEdit ? t('schedAlertKindEdit')
-                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd'))))));
-                    const summary = isClassStatus ? t('schedAlertSummaryStudentPostpone')
+                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd')))))));
+                    const summary = isCancelledStatus ? t('schedAlertSummaryClassCancelled')
+                        : (isClassStatus ? t('schedAlertSummaryStudentPostpone')
                         : (isRoomEdit ? t('schedAlertSummaryRoomEdit')
                         : (isUndoOff ? t('schedAlertSummaryUndoOff')
                         : (isOff ? t('schedAlertSummaryOff')
                         : (isEdit ? t('schedAlertSummaryEdit')
-                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd'))))));
+                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd')))))));
                     const subject = pickLangText(c, 'title') || c.title || (isOff || isUndoOff ? t('schedDayOffTitle') : '—');
                     const time = (!isOff && !isUndoOff && (c.start || c.end))
                         ? `${c.start || '—'}–${c.end || '—'}`
                         : '—';
                     const typeLbl = isClassStatus
-                        ? classStatusLabel(c.classStatus || 'student_postponed')
+                        ? classStatusLabel(c.classStatus || (isCancelledStatus ? 'cancelled' : 'student_postponed'))
                         : (isRoomEdit
                         ? (c.room ? roomLabel(c.room) : t('schedActionRoomEdit'))
                         : classTypeLabel((isOff || isUndoOff) ? 'dayoff' : (c.classType || 'regular')));
-                    const pill = isClassStatus ? t('schedActionClassStatus')
+                    const pill = isCancelledStatus ? t('schedActionClassCancelled')
+                        : (isClassStatus ? t('schedActionClassStatus')
                         : (isRoomEdit ? t('schedActionRoomEdit')
                         : (isUndoOff ? t('schedActionUndoDayOff')
                         : (isOff ? t('schedActionDayOff')
                         : (isEdit ? t('schedActionEdit')
-                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd'))))));
-                    const cardClass = (isOff || isUndoOff ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
+                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd')))))));
+                    const cardClass = (isOff || isUndoOff || isCancelledStatus ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
                     const teaLbl = schedAlertTeacherLabel(c);
                     const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                     return `<div class="sched-alert-card ${cardClass}">
@@ -31419,6 +32457,7 @@
                             <div><dt>${esc(t('schedAlertLblDate'))}</dt><dd>${esc(c.date || '—')}</dd></div>
                             ${(isOff || isUndoOff) ? '' : `<div><dt>${esc(t('schedAlertLblTime'))}</dt><dd>${esc(time)}</dd></div>`}
                             <div><dt>${esc(t('schedAlertLblSubject'))}</dt><dd>${esc(subject)}</dd></div>
+                            ${c.room ? `<div><dt>${esc(t('schedAlertLblRoom'))}</dt><dd>${esc(roomLabel(c.room))}</dd></div>` : ''}
                             <div><dt>${esc(isClassStatus ? t('classStatusLabel') : t('schedAlertLblType'))}</dt><dd>${esc(typeLbl)}</dd></div>
                             <div><dt>${esc(t('schedAlertLblStatus'))}</dt><dd>${esc(t('pending'))}</dd></div>
                         </dl>
@@ -31558,6 +32597,7 @@
                 const tab = document.querySelector('.tab-btn.active')?.dataset?.tab || 'rooms';
                 openDashboard(resolveAccountById(currentUser.id), true);
                 setTab(tab);
+                try { statusDismissedKey = ''; updateClassStatus(); } catch (_) {}
             };
             document.getElementById('room-tt-modal-x')?.addEventListener('click', closeRoomTtModal);
             document.getElementById('room-tt-modal-cancel')?.addEventListener('click', closeRoomTtModal);
@@ -31631,7 +32671,7 @@
                 }
 
                 // Save (progress / booking edits): silent — no password popup.
-                // Status นักเรียนเลื่อนคลาส → director sched-alert notify.
+                // Status นักเรียนเลื่อนคลาส / ยกเลิก → director sched-alert notify.
                 if (existing) {
                     const next = {
                         ...existing,
@@ -32185,8 +33225,11 @@
                 pruneNonFirstSchedAlerts();
                 const list = loadSchedChanges();
                 const now = new Date().toISOString();
+                const today = todayKey();
                 list.forEach(c => {
-                    if (c.status === 'pending_director' && isDirectorSchedAlertAction(c.action)) {
+                    if (c.status === 'pending_director'
+                        && isDirectorSchedAlertAction(c.action)
+                        && String(c.date || '') === today) {
                         c.status = 'acked';
                         c.directorAckAt = now;
                     }
@@ -32252,6 +33295,25 @@
             document.getElementById('cancel-ack-x')?.addEventListener('click', () => cancelAckModal?.classList.remove('open'));
             cancelAckModal?.addEventListener('click', (e) => {
                 if (e.target === cancelAckModal) cancelAckModal.classList.remove('open');
+            });
+
+            const leaveAlertModal = document.getElementById('leave-alert-modal');
+            document.getElementById('leave-alert-check')?.addEventListener('change', (e) => {
+                const btn = document.getElementById('leave-alert-confirm');
+                if (btn) btn.disabled = !e.target.checked;
+            });
+            document.getElementById('leave-alert-confirm')?.addEventListener('click', () => {
+                const check = document.getElementById('leave-alert-check');
+                if (!currentUser || !canManageLeaveInbox(currentUser) || !check?.checked) return;
+                ackAllPendingLeaveAlerts(currentUser);
+                leaveAlertModal?.classList.remove('open');
+                openDashboard(resolveAccountById(currentUser.id), true);
+                setTab('leave');
+                try { maybeShowAlertPopups(currentUser); } catch (_) {}
+            });
+            document.getElementById('leave-alert-x')?.addEventListener('click', () => leaveAlertModal?.classList.remove('open'));
+            leaveAlertModal?.addEventListener('click', (e) => {
+                if (e.target === leaveAlertModal) leaveAlertModal.classList.remove('open');
             });
 
             const leaveResultModal = document.getElementById('leave-result-modal');
@@ -32513,7 +33575,7 @@
             const SHARED_STORE_KEYS = new Set([
                 TEXTBOOK_STORE, WAITLIST_STORE, STUDY_PAUSE_STORE, JOB_APP_STORE,
                 SCHED_CHANGE_STORE, SCHED_CHANGE_STORE + ':tick',
-                CANCEL_STORE, CANCEL_STORE + ':tick', LEAVE_KEY, FINANCE_STORE,
+                CANCEL_STORE, CANCEL_STORE + ':tick', LEAVE_KEY, LEAVE_KEY + ':tick', FINANCE_STORE,
                 ORDERS_STORE, ORDERS_STORE + ':tick', ORDER_ACK_MIRROR, ORDER_ACK_MIRROR + ':tick', ATTEND_STORE, STUDENT_DB_STORE, DORM_STORE,
                 ROOM_TT_STORE, ROOM_TT_STORE + ':tick',
                 DAY_SCHEDULES_STORE, DAY_SCHEDULES_STORE + ':tick',
