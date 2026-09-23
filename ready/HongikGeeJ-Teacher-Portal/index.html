@@ -23977,6 +23977,13 @@
                     const ownerCan = canEditClassStatus(user, existing);
                     statusEl.disabled = !ownerCan || !!existing?.isBreak;
                     statusEl.title = ownerCan ? t('classStatusHint') : t('classStatusOwnerOnly');
+                    const syncStatusOnlyUi = () => {
+                        modal.classList.toggle('is-status-only', ownerCan && !existing?.isBreak && isNonNormalClassStatus(statusEl.value));
+                    };
+                    statusEl.onchange = syncStatusOnlyUi;
+                    syncStatusOnlyUi();
+                } else {
+                    modal.classList.remove('is-status-only');
                 }
                 const startSeed = existing?.start || draft.start || draft.half || '10:00';
                 const endSeed = existing?.end || draft.end || roomTtFromMin(roomTtToMin(startSeed) + 30);
@@ -24063,7 +24070,8 @@
                 const msg = document.getElementById('room-tt-modal-msg');
                 if (msg) msg.textContent = t('roomTtLinkNote');
                 const clearBtn = document.getElementById('room-tt-modal-clear');
-                const canEditMeta = !existing || existing.teacherId === user.id || existing.teacherId === 'parttime' || user.role === 'director';
+                const canEditMeta = !existing || existing.teacherId === user.id || existing.teacherId === 'parttime'
+                    || user.role === 'director' || user.role === 'admin';
                 if (clearBtn) {
                     clearBtn.style.display = (existing && canEditMeta && !existing.isBreak) ? '' : 'none';
                 }
@@ -24576,6 +24584,11 @@
                 });
                 const openMonth = () => openRoomTtMonthView(user, monthKey);
                 document.getElementById('room-tt-range-btn')?.addEventListener('click', openMonth);
+                document.getElementById('room-tt-range-btn')?.addEventListener('animationend', (e) => {
+                    const el = e.currentTarget;
+                    if (!el || !String(e.animationName || '').startsWith('roomTtRangeFade')) return;
+                    el.classList.remove('is-week-slide-next', 'is-week-slide-prev');
+                });
                 document.getElementById('room-tt-month-open')?.addEventListener('click', openMonth);
                 document.getElementById('room-tt-live-refresh')?.addEventListener('click', () => {
                     refreshRoomTtLive(user, document.getElementById('room-tt-live-refresh'));
