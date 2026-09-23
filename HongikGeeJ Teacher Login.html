@@ -508,6 +508,87 @@
             .dc-c.bl { transform: none; }
             .dc-c.br { transform: scaleX(-1); }
         }
+        /*
+          Login panel: twinkling stars (ดาววิบวับ) at all 4 corners.
+          Flowers stay subtle underneath; stars sit above and sparkle.
+        */
+        #login-screen .panel > .dc-corners .dc-c {
+            opacity: .52;
+            filter: drop-shadow(0 1px 1.5px rgba(120,90,110,.1));
+        }
+        #login-screen .panel > .dc-corners .dc-stars {
+            position: absolute;
+            width: 76px;
+            height: 76px;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-image: url('assets/dancheong/corner-stars.svg?v=twinkle1');
+            pointer-events: none !important;
+            transform-origin: 0 0;
+            z-index: 2;
+            filter: drop-shadow(0 0 3px rgba(255, 236, 180, .55));
+            will-change: transform, opacity;
+            animation: loginStarBreathe 3.6s ease-in-out infinite;
+        }
+        #login-screen .panel > .dc-corners .dc-stars.tl {
+            top: 0; left: 0;
+            animation-name: loginStarBreatheTl;
+        }
+        #login-screen .panel > .dc-corners .dc-stars.tr {
+            top: 0; left: 100%; right: auto;
+            transform: scaleX(-1);
+            animation-name: loginStarBreatheTr;
+            animation-delay: -1.1s;
+        }
+        #login-screen .panel > .dc-corners .dc-stars.bl {
+            top: auto; bottom: 0; left: 0;
+            width: 80px; height: 80px;
+            transform: scaleY(-1);
+            animation-name: loginStarBreatheBl;
+            animation-delay: -2.2s;
+        }
+        #login-screen .panel > .dc-corners .dc-stars.br {
+            top: auto; bottom: 0; left: 100%; right: auto;
+            width: 80px; height: 80px;
+            transform: scale(-1);
+            animation-name: loginStarBreatheBr;
+            animation-delay: -3.1s;
+        }
+        @keyframes loginStarBreatheTl {
+            0%, 100% { opacity: .78; transform: scale(.96); }
+            30% { opacity: 1; transform: scale(1.06); }
+            55% { opacity: .85; transform: scale(1); }
+            78% { opacity: .96; transform: scale(1.03); }
+        }
+        @keyframes loginStarBreatheTr {
+            0%, 100% { opacity: .76; transform: scale(-.96, .96); }
+            30% { opacity: 1; transform: scale(-1.06, 1.06); }
+            55% { opacity: .84; transform: scale(-1, 1); }
+            78% { opacity: .94; transform: scale(-1.03, 1.03); }
+        }
+        @keyframes loginStarBreatheBl {
+            0%, 100% { opacity: .76; transform: scale(.96, -.96); }
+            30% { opacity: 1; transform: scale(1.06, -1.06); }
+            55% { opacity: .84; transform: scale(1, -1); }
+            78% { opacity: .94; transform: scale(1.03, -1.03); }
+        }
+        @keyframes loginStarBreatheBr {
+            0%, 100% { opacity: .76; transform: scale(-.96, -.96); }
+            30% { opacity: 1; transform: scale(-1.06, -1.06); }
+            55% { opacity: .84; transform: scale(-1, -1); }
+            78% { opacity: .94; transform: scale(-1.03, -1.03); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #login-screen .panel > .dc-corners .dc-stars {
+                animation: none !important;
+                opacity: .9;
+                will-change: auto;
+            }
+            #login-screen .panel > .dc-corners .dc-stars.tl { transform: none; }
+            #login-screen .panel > .dc-corners .dc-stars.tr { transform: scaleX(-1); }
+            #login-screen .panel > .dc-corners .dc-stars.bl { transform: scaleY(-1); }
+            #login-screen .panel > .dc-corners .dc-stars.br { transform: scale(-1); }
+        }
         /* Dashboard content-card corner blooms folded away by default.
            Taehyun (theme-teacher-a) restores animated TL head + BR tail on
            every tab-panel content-card. Login .panel .dc-c flowers stay.
@@ -880,13 +961,17 @@
             .panel { padding: 1.7rem 1.45rem 3.45rem; }
             /* Login corners stay modest — never inherit dashboard / leaked sizes */
             #login-screen .panel > .dc-corners .dc-c.tl,
-            #login-screen .panel > .dc-corners .dc-c.tr { width: 52px; height: 52px; opacity: .95; }
+            #login-screen .panel > .dc-corners .dc-c.tr { width: 52px; height: 52px; opacity: .5; }
             #login-screen .panel > .dc-corners .dc-c.bl,
-            #login-screen .panel > .dc-corners .dc-c.br { width: 56px; height: 56px; opacity: .95; }
+            #login-screen .panel > .dc-corners .dc-c.br { width: 56px; height: 56px; opacity: .5; }
             #login-screen .panel > .dc-corners .dc-c.tl { top: 2px; left: 2px; }
             #login-screen .panel > .dc-corners .dc-c.tr { top: 2px; left: 100%; right: auto; }
             #login-screen .panel > .dc-corners .dc-c.bl { top: auto; bottom: 2px; left: 2px; }
             #login-screen .panel > .dc-corners .dc-c.br { top: auto; bottom: 2px; left: 100%; right: auto; }
+            #login-screen .panel > .dc-corners .dc-stars.tl,
+            #login-screen .panel > .dc-corners .dc-stars.tr { width: 62px; height: 62px; }
+            #login-screen .panel > .dc-corners .dc-stars.bl,
+            #login-screen .panel > .dc-corners .dc-stars.br { width: 66px; height: 66px; }
             .dash-shell .content-card {
                 padding: 1rem 1.05rem 1.1rem;
             }
@@ -10935,6 +11020,22 @@
                 animation: dcBloomBrLite 9s ease-in-out infinite;
                 animation-delay: -4.8s;
             }
+            /* Login corner stars keep twinkle on mobile/iPad */
+            #login-screen .panel > .dc-corners .dc-stars.tl {
+                animation: loginStarBreatheTl 4.2s ease-in-out infinite;
+            }
+            #login-screen .panel > .dc-corners .dc-stars.tr {
+                animation: loginStarBreatheTr 4.2s ease-in-out infinite;
+                animation-delay: -1.1s;
+            }
+            #login-screen .panel > .dc-corners .dc-stars.bl {
+                animation: loginStarBreatheBl 4.2s ease-in-out infinite;
+                animation-delay: -2.2s;
+            }
+            #login-screen .panel > .dc-corners .dc-stars.br {
+                animation: loginStarBreatheBr 4.2s ease-in-out infinite;
+                animation-delay: -3.1s;
+            }
             .dash-shell > .dc-corners .dc-c {
                 animation: none !important;
             }
@@ -11278,6 +11379,10 @@
                 <span class="dc-c tr" title="corner flower"></span>
                 <span class="dc-c bl" title="corner flower"></span>
                 <span class="dc-c br" title="corner flower"></span>
+                <span class="dc-stars tl" title="corner stars"></span>
+                <span class="dc-stars tr" title="corner stars"></span>
+                <span class="dc-stars bl" title="corner stars"></span>
+                <span class="dc-stars br" title="corner stars"></span>
             </div>
             <div class="logo-wrap"><img src="" data-school-logo="1" alt="Hongik GeeJ" alt="Hongik GeeJ"></div>
             <p class="eyebrow" data-i18n="helloTeacher">안녕하세요, 선생님</p>
@@ -11288,7 +11393,7 @@
                 <label for="passcode" class="label" data-i18n="password">비밀번호</label>
                 <div class="relative mb-3">
                     <i class="ph ph-lock-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                    <input id="passcode" class="pass-input" type="password" inputmode="numeric" maxlength="6" minlength="4" placeholder="••••" autofocus>
+                    <input id="passcode" class="pass-input" name="hongik-passcode" type="password" inputmode="numeric" maxlength="6" minlength="4" placeholder="••••" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" autofocus>
                 </div>
                 <p id="error-msg" class="hidden mb-3 text-center text-sm font-semibold text-red-600">
                     <i class="ph ph-warning-circle mr-1"></i><span id="error-text"></span>
@@ -27572,10 +27677,51 @@
             const orderCheck = document.getElementById('order-read-check');
             const orderConfirm = document.getElementById('order-confirm-btn');
 
+            /** Wrong-pass / blocked: wipe input + attempt buffer so next type is a clean start. */
+            let passcodeFreshStart = false;
+            let passcodeAttemptBuf = '';
+            function clearPasscodeAttempt({ focus = false, select = false } = {}) {
+                passcodeAttemptBuf = '';
+                passcodeFreshStart = true;
+                if (!passcode) return;
+                try { passcode.value = ''; } catch (_) {}
+                try { passcode.defaultValue = ''; } catch (_) {}
+                try {
+                    if (typeof passcode.setSelectionRange === 'function') {
+                        passcode.setSelectionRange(0, 0);
+                    }
+                } catch (_) {}
+                if (focus) {
+                    try { passcode.focus({ preventScroll: true }); } catch (_) {
+                        try { passcode.focus(); } catch (__) {}
+                    }
+                }
+                if (select) {
+                    try { passcode.select(); } catch (_) {}
+                }
+            }
+            passcode?.addEventListener('focus', () => {
+                if (!passcodeFreshStart) return;
+                try { passcode.value = ''; } catch (_) {}
+                try { passcode.select(); } catch (_) {}
+                passcodeFreshStart = false;
+            });
+            passcode?.addEventListener('input', () => {
+                if (passcodeFreshStart) {
+                    // Browser restored prior digits — keep only what the user just typed.
+                    const v = String(passcode.value || '');
+                    passcodeFreshStart = false;
+                    if (v.length > 1) {
+                        try { passcode.value = v.slice(-1); } catch (_) {}
+                    }
+                }
+                passcodeAttemptBuf = String(passcode?.value || '');
+            });
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const code = passcode.value.trim();
-                if (!code) { errorText.textContent = t('needPass'); errorMsg.classList.remove('hidden'); return; }
+                const code = (passcodeAttemptBuf || passcode.value || '').trim();
+                if (!code) { errorText.textContent = t('needPass'); errorMsg.classList.remove('hidden'); clearPasscodeAttempt({ focus: true }); return; }
                 const submitBtn = form.querySelector('[type="submit"]');
                 if (submitBtn) submitBtn.disabled = true;
                 try {
@@ -27592,13 +27738,14 @@
                 if (!hit) {
                     errorText.textContent = t('badPass');
                     errorMsg.classList.remove('hidden');
+                    clearPasscodeAttempt({ focus: true, select: true });
                     passcode.classList.add('shake');
                     setTimeout(() => passcode.classList.remove('shake'), 400);
                     return;
                 }
                 if (hit.blocked) {
                     errorMsg.classList.add('hidden');
-                    passcode.value = '';
+                    clearPasscodeAttempt({ focus: true, select: true });
                     passcode.classList.add('shake');
                     document.getElementById('login-screen')?.querySelector('.panel')?.classList.add('shake');
                     setTimeout(() => {
@@ -27609,6 +27756,9 @@
                     return;
                 }
                 errorMsg.classList.add('hidden');
+                passcodeAttemptBuf = '';
+                passcodeFreshStart = false;
+                try { passcode.value = ''; } catch (_) {}
                 currentUser = { ...hit.account, id: hit.id };
                 sessionStorage.setItem('hongik-session', JSON.stringify({ id: hit.id, code: getPasswordForId(hit.id) }));
                 openDashboard(currentUser);
@@ -37454,7 +37604,7 @@
             document.getElementById('dir-tea-edit-save')?.addEventListener('click', () => saveDirectorTeacherEdit());
 
             document.getElementById('logout-btn').addEventListener('click', () => {
-                passcode.value = '';
+                clearPasscodeAttempt();
                 emergencyEditMode = false;
                 emergencyDraft = null;
                 sessionStorage.removeItem('hongik-session');
