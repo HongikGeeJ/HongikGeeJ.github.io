@@ -11,12 +11,15 @@
  *      GEMINI_MODEL   = gemini-2.0-flash   (optional; default below)
  * 3. Deploy → New deployment → Web app
  *      Execute as: Me
- *      Who has access: Anyone
+ *      Who has access: Anyone   ← required (anonymous GET/POST from GitHub Pages)
+ *      If GET redirects to Google login or POST returns 401 / "ไม่พบเพจ",
+ *      access is NOT Anyone — Manage deployments → Edit → New version → Anyone.
  * 4. Put the /macros/s/.../exec URL in data/gemini/gemini-config.json → "proxyUrl"
+ *    OR embed DEFAULT_GEMINI_PROXY_URL in TeacherLogin/index.html
  *    OR Console: hongikSetGeminiProxyUrl('URL')
  *
- * API:
- *  GET  → { ok, service, model }
+ * API (client must POST Content-Type: text/plain with JSON body — avoids CORS preflight):
+ *  GET  → { ok, service, model, hasKey }
  *  POST text/plain JSON:
  *    { action: 'geminiChat', message, history?, lang?, systemHint?, role?, roleGuide? }
  *    → { ok: true, text, model } | { ok: false, error }
@@ -38,7 +41,11 @@ function jsonOut_(obj) {
 
 function parseBody_(e) {
   try {
-    return JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    var raw = (e && e.postData && e.postData.contents) || '';
+    if (!raw && e && e.parameter && e.parameter.payload) {
+      raw = String(e.parameter.payload);
+    }
+    return JSON.parse(raw || '{}');
   } catch (err) {
     return {};
   }
@@ -146,12 +153,14 @@ function callGemini_(body) {
   return { ok: true, text: text, model: model };
 }
 
-function doGet() {
+function doGet(e) {
+  var ping = e && e.parameter && String(e.parameter.action || '') === 'ping';
   return jsonOut_({
     ok: true,
     service: 'hongik-gemini-proxy',
     model: getProp_('GEMINI_MODEL', DEFAULT_MODEL) || DEFAULT_MODEL,
-    hasKey: !!getProp_('GEMINI_API_KEY', '')
+    hasKey: !!getProp_('GEMINI_API_KEY', ''),
+    ping: !!ping
   });
 }
 
@@ -159,7 +168,7 @@ function doPost(e) {
   var body = parseBody_(e);
   var action = String(body.action || 'geminiChat');
   if (action === 'ping' || action === 'status') {
-    return doGet();
+    return doGet(e);
   }
   if (action === 'geminiChat' || action === 'chat') {
     return jsonOut_(callGemini_(body));
