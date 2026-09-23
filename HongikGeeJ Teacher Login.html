@@ -9840,7 +9840,7 @@
                 tabClasses: '수업 시간표',
                 tabRooms: '교실 시간표',
                 roomTtTitle: '교실 시간표',
-                roomTtHint: '월~일 · 30분 · 교실 3개 · 8개월 보관 · 6개월 미리보기 · 날짜 범위 클릭 = 월간 보기',
+                roomTtHint: '월~일 · 10:00–22:00 · 30분 · 교실 3개 · 8개월 보관 · 6개월 미리보기 · 날짜 범위 클릭 = 월간 보기',
                 roomTtLive: '시간표 실시간 업데이트',
                 roomTtThisWeek: '이번 주',
                 roomTtPickMonth: '월 선택',
@@ -10654,7 +10654,7 @@
                 tabClasses: 'ตารางสอน',
                 tabRooms: 'ตารางห้องเรียน',
                 roomTtTitle: 'ตารางห้องเรียน',
-                roomTtHint: 'จ–อา · ทุก 30 นาที · 3 ห้อง · ย้อนหลัง 8 เดือน · ล่วงหน้า 6 เดือน · กดช่วงวันที่ = ดูเดือนใหญ่',
+                roomTtHint: 'จ–อา · 10:00–22:00 · ทุก 30 นาที · 3 ห้อง · ย้อนหลัง 8 เดือน · ล่วงหน้า 6 เดือน · กดช่วงวันที่ = ดูเดือนใหญ่',
                 roomTtLive: 'อัปเดตตารางแบบเรียลไทม์',
                 roomTtThisWeek: 'สัปดาห์นี้',
                 roomTtPickMonth: 'เลือกเดือน',
@@ -11468,7 +11468,7 @@
                 tabClasses: 'Class schedule',
                 tabRooms: 'Room timetable',
                 roomTtTitle: 'Room timetable',
-                roomTtHint: 'Mon–Sun · 30-min · 3 rooms · 8-mo archive · 6-mo look-ahead · tap date range = month view',
+                roomTtHint: 'Mon–Sun · 10:00–22:00 · 30-min · 3 rooms · 8-mo archive · 6-mo look-ahead · tap date range = month view',
                 roomTtLive: 'Update timetable live',
                 roomTtThisWeek: 'This week',
                 roomTtPickMonth: 'Pick month',
@@ -13503,9 +13503,13 @@
         // ===== Room timetable (Mon–Sun · 30-min · 3 rooms · weekly seed) =====
         const ROOM_TT_SEED_VER = 'sheet-2026-09-v6-no-paren';
         const ROOM_TT_ROOMS = ['A', 'B', 'C'];
+        /** Day window: 10:00 start → สี่ทุ่ม 22:00 close */
+        const ROOM_TT_START_MIN = 10 * 60;
+        const ROOM_TT_END_MIN = 22 * 60;
         function roomTtHalfHours() {
+            // Bookable slot starts [START, END) — last row 21:30 covers 21:30–22:00
             const out = [];
-            for (let m = 10 * 60; m < 22 * 60; m += 30) {
+            for (let m = ROOM_TT_START_MIN; m < ROOM_TT_END_MIN; m += 30) {
                 const h = Math.floor(m / 60);
                 const mm = m % 60;
                 out.push(`${String(h).padStart(2, '0')}:${String(mm).padStart(2, '0')}`);
@@ -13522,11 +13526,24 @@
             const m = mins % 60;
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
         }
+        function roomTtAxisHours() {
+            // Grid axis includes closing label 22:00 so the day visibly ends at สี่ทุ่ม
+            const out = ROOM_TT_HALVES.slice();
+            const endHm = roomTtFromMin(ROOM_TT_END_MIN);
+            if (!out.includes(endHm)) out.push(endHm);
+            return out;
+        }
         function snapRoomTtHalf(hm) {
+            // Starts only — max 21:30 (last bookable half before 22:00 close)
             const m = roomTtToMin(hm);
             const snapped = Math.round(m / 30) * 30;
-            const clamped = Math.max(10 * 60, Math.min(22 * 60, snapped));
-            // end can be 22:00; start max 21:30
+            const clamped = Math.max(ROOM_TT_START_MIN, Math.min(ROOM_TT_END_MIN - 30, snapped));
+            return roomTtFromMin(clamped);
+        }
+        function snapRoomTtEnd(hm) {
+            const m = roomTtToMin(hm);
+            const snapped = Math.round(m / 30) * 30;
+            const clamped = Math.max(ROOM_TT_START_MIN + 30, Math.min(ROOM_TT_END_MIN, snapped));
             return roomTtFromMin(clamped);
         }
         function roomTtDurationLabel(start, end) {
@@ -13552,15 +13569,15 @@
             const endEl = document.getElementById('room-tt-end');
             if (!startEl || !endEl) return;
             const startOpts = ROOM_TT_HALVES.slice();
-            // allow end at last half + 30 (22:00)
+            // End options through day close 22:00
+            const endCap = roomTtFromMin(ROOM_TT_END_MIN);
             const endOpts = ROOM_TT_HALVES.slice();
-            const last = ROOM_TT_HALVES[ROOM_TT_HALVES.length - 1];
-            const endCap = roomTtFromMin(roomTtToMin(last) + 30);
             if (!endOpts.includes(endCap)) endOpts.push(endCap);
             const s = snapRoomTtHalf(startVal || '10:00');
-            let e = endVal || roomTtFromMin(roomTtToMin(s) + 30);
+            let e = snapRoomTtEnd(endVal || roomTtFromMin(roomTtToMin(s) + 30));
             if (roomTtToMin(e) <= roomTtToMin(s)) e = roomTtFromMin(roomTtToMin(s) + 30);
-            if (!endOpts.includes(e) && roomTtToMin(e) <= roomTtToMin(endCap)) endOpts.push(e);
+            if (roomTtToMin(e) > ROOM_TT_END_MIN) e = endCap;
+            if (!endOpts.includes(e) && roomTtToMin(e) <= ROOM_TT_END_MIN) endOpts.push(e);
             startEl.innerHTML = startOpts.map((t) => `<option value="${t}"${t === s ? ' selected' : ''}>${t}</option>`).join('');
             endEl.innerHTML = endOpts.map((t) => `<option value="${t}"${t === e ? ' selected' : ''}>${t}</option>`).join('');
             startEl.value = s;
@@ -13868,8 +13885,9 @@
                 userEdited: true
             };
             const s = snapRoomTtHalf(next.start || prev?.start || '10:00');
-            let e = next.end || prev?.end || roomTtFromMin(roomTtToMin(s) + 30);
+            let e = snapRoomTtEnd(next.end || prev?.end || roomTtFromMin(roomTtToMin(s) + 30));
             if (roomTtToMin(e) <= roomTtToMin(s)) return { ok: false, msg: t('roomTtBadRange') };
+            if (roomTtToMin(e) > ROOM_TT_END_MIN) return { ok: false, msg: t('roomTtBadRange') };
             next.start = s;
             next.end = e;
             if (!next.isBreak) {
@@ -13907,8 +13925,9 @@
                 }
             }
             const s = snapRoomTtHalf(start || existing?.start || '10:00');
-            let e = end || existing?.end || roomTtFromMin(roomTtToMin(s) + 30);
+            let e = snapRoomTtEnd(end || existing?.end || roomTtFromMin(roomTtToMin(s) + 30));
             if (roomTtToMin(e) <= roomTtToMin(s)) return { ok: false, msg: t('roomTtBadRange') };
+            if (roomTtToMin(e) > ROOM_TT_END_MIN) return { ok: false, msg: t('roomTtBadRange') };
             // conflict check overlapping same room
             const teacherId = existing?.teacherId && (isDirector || existing.teacherId === user.id || existing.teacherId === 'parttime')
                 ? (isDirector && existing ? existing.teacherId : (existing.teacherId === 'parttime' ? 'parttime' : user.id))
@@ -21283,20 +21302,26 @@
                 });
 
                 let body = '';
-                ROOM_TT_HALVES.forEach((half, hi) => {
+                const axisHours = roomTtAxisHours();
+                axisHours.forEach((half, hi) => {
                     const row = hi + 2;
-                    body += `<div class="room-tt-cell is-time" style="grid-column:1;grid-row:${row}">${half}</div>`;
+                    const isDayEnd = roomTtToMin(half) >= ROOM_TT_END_MIN;
+                    body += `<div class="room-tt-cell is-time${isDayEnd ? ' is-day-end' : ''}" style="grid-column:1;grid-row:${row}">${half}</div>`;
                     days.forEach((d, di) => {
                         const date = dateKeyFromDate(d);
                         const isToday = date === today;
                         const dayBand = di % 2 === 0 ? ' is-day-band-a' : ' is-day-band-b';
                         ROOM_TT_ROOMS.forEach((room, ri) => {
                             const col = 2 + di * 3 + ri;
-                            const key = `${date}|${room}|${half}`;
-                            const slot = byCell[key];
                             const roomCls = ri === 0 ? ' is-room-a' : ri === 1 ? ' is-room-b' : ' is-room-c';
                             const dayStart = ri === 0 && di > 0 ? ' is-day-start' : '';
-                            const colCls = `${dayBand}${dayStart}${roomCls}${isToday ? ' is-today-col' : ''}`;
+                            const colCls = `${dayBand}${dayStart}${roomCls}${isToday ? ' is-today-col' : ''}${isDayEnd ? ' is-day-end' : ''}`;
+                            if (isDayEnd) {
+                                body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}"><div class="room-tt-plus" style="animation:none;opacity:.35;cursor:default;pointer-events:none;color:rgba(148,163,184,.35)">·</div></div>`;
+                                return;
+                            }
+                            const key = `${date}|${room}|${half}`;
+                            const slot = byCell[key];
                             if (!slot) {
                                 if (!canBook) {
                                     body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}"><div class="room-tt-plus" style="animation:none;opacity:.55;cursor:default;pointer-events:none;color:rgba(148,163,184,.4)">·</div></div>`;
