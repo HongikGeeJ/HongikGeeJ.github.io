@@ -4808,14 +4808,14 @@
         .leave-inbox-card.is-acked .li-badge { background: #e0f2fe; color: #0369a1; }
         .leave-ack-gate { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; margin-top: .45rem; }
         #save-schedule-btn.soft-btn {
-            background: linear-gradient(95deg, #2563eb 0%, #1d4ed8 55%, #1e3a8a 100%) !important;
+            background: linear-gradient(95deg, #22c55e 0%, #16a34a 55%, #15803d 100%) !important;
             color: #ffffff !important;
             font-size: .95rem !important;
             font-weight: 850 !important;
             letter-spacing: -.01em;
             padding: .65rem 1.1rem !important;
             border-radius: .85rem !important;
-            box-shadow: 0 8px 22px rgba(37,99,235,.4);
+            box-shadow: 0 8px 22px rgba(22,163,74,.4);
             position: relative;
             overflow: hidden;
             animation: saveSchedGlow 2.2s ease-in-out infinite;
@@ -4830,8 +4830,8 @@
             pointer-events: none;
         }
         #save-schedule-btn.soft-btn:hover {
-            background: linear-gradient(95deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%) !important;
-            box-shadow: 0 14px 30px rgba(29,78,216,.48);
+            background: linear-gradient(95deg, #4ade80 0%, #22c55e 50%, #16a34a 100%) !important;
+            box-shadow: 0 14px 30px rgba(21,128,61,.48);
             transform: translateY(-3px) scale(1.04);
             filter: brightness(1.06);
         }
@@ -5228,8 +5228,8 @@
             word-break: break-word;
         }
         @keyframes saveSchedGlow {
-            0%, 100% { box-shadow: 0 8px 20px rgba(37,99,235,.38); }
-            50% { box-shadow: 0 10px 28px rgba(59,130,246,.55), 0 0 0 4px rgba(59,130,246,.16); }
+            0%, 100% { box-shadow: 0 8px 20px rgba(22,163,74,.38); }
+            50% { box-shadow: 0 10px 28px rgba(34,197,94,.55), 0 0 0 4px rgba(34,197,94,.16); }
         }
         @keyframes leaveBtnGlow {
             0%, 100% { box-shadow: 0 8px 20px rgba(22,163,74,.32); }
@@ -10231,7 +10231,7 @@
         <div class="modal-box school-info-box">
             <button type="button" class="modal-x" id="school-info-x" data-i18n-aria="close" aria-label="닫기"><i class="ph ph-x"></i></button>
             <div class="school-info-head">
-                <div class="school-info-badge" aria-hidden="true"><i class="ph-fill ph-buildings"></i></div>
+                <div class="school-info-badge" aria-hidden="true"><img src="" data-school-logo="1" alt=""></div>
                 <h2 id="school-info-title" class="school-info-title" data-i18n="schoolInfoTitle">Hongik GeeJ</h2>
                 <p class="school-info-aka" data-i18n="schoolInfoAka">ฮงอิก จีเจ</p>
                 <p class="school-info-type" data-i18n="schoolInfoType">สถาบันสอนภาษาเกาหลี</p>
@@ -25371,6 +25371,8 @@
                 try {
                     const bannerSig = document.getElementById('taehyun-banner-sig');
                     if (bannerSig) bannerSig.textContent = t('taehyunSig');
+                    const bannerName = document.getElementById('taehyun-banner-text');
+                    if (bannerName) bannerName.textContent = displayName(user) || t('taehyunBanner');
                 } catch (_) {}
                 try { loadPhoto(user.id); } catch (_) {}
                 try { renderStats(user); } catch (_) {}
