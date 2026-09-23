@@ -1584,13 +1584,16 @@
         #ot-refresh-sheet-btn.soft-btn {
             font-size: .92rem !important;
             padding: .7rem 1.05rem !important;
-            background: linear-gradient(95deg, #0f766e 0%, #0d9488 55%, #14b8a6 100%) !important;
-            color: #fff !important;
-            box-shadow: 0 8px 18px rgba(13, 148, 136, .28);
+            font-weight: 850 !important;
+            background: linear-gradient(95deg, #e8f9d4 0%, #d6f2b8 55%, #c8ebb0 100%) !important;
+            color: #14532d !important;
+            border: 1.5px solid rgba(134, 209, 120, .55);
+            box-shadow: 0 8px 18px rgba(134, 209, 120, .22), inset 0 1px 0 rgba(255, 255, 255, .72);
         }
         #ot-refresh-sheet-btn.soft-btn:hover {
-            filter: brightness(1.04);
-            box-shadow: 0 12px 22px rgba(13, 148, 136, .34);
+            background: linear-gradient(95deg, #f7fcee 0%, #e8f9d4 50%, #d6f2b8 100%) !important;
+            filter: brightness(1.02);
+            box-shadow: 0 12px 22px rgba(134, 209, 120, .28), inset 0 1px 0 rgba(255, 255, 255, .8);
         }
         #ot-refresh-sheet-btn.soft-btn:disabled {
             opacity: .65;
@@ -14320,7 +14323,7 @@
                 otSheetBadge: '시트 OT',
                 otAutoBadge: '출석 자동',
                 otFromRoomTt: '시간표+출석',
-                otRefreshSheet: 'Refresh การรายงาน OT',
+                otRefreshSheet: '🔄 Refresh การรายงาน OT',
                 otRefreshSheetOk: '시트 OT를 새로고침했습니다',
                 otRefreshSheetFail: '시트 OT 동기화 실패',
                 otRefreshSheetBusy: '시트에서 OT 불러오는 중…',
@@ -15293,7 +15296,7 @@
                 otSheetBadge: 'OT จากชีต',
                 otAutoBadge: 'อัตโนมัติจากเช็คชื่อ',
                 otFromRoomTt: 'ตารางสอน+เช็คชื่อ',
-                otRefreshSheet: 'Refresh การรายงาน OT',
+                otRefreshSheet: '🔄 Refresh การรายงาน OT',
                 otRefreshSheetOk: 'รีเฟรช OT จากชีตแล้ว',
                 otRefreshSheetFail: 'ซิงก์ OT จากชีตไม่สำเร็จ',
                 otRefreshSheetBusy: 'กำลังดึง OT จากชีต…',
@@ -16266,7 +16269,7 @@
                 otSheetBadge: 'Sheet OT',
                 otAutoBadge: 'Auto from attendance',
                 otFromRoomTt: 'Timetable + attendance',
-                otRefreshSheet: 'Refresh การรายงาน OT',
+                otRefreshSheet: '🔄 Refresh การรายงาน OT',
                 otRefreshSheetOk: 'OT refreshed from sheet',
                 otRefreshSheetFail: 'Sheet OT sync failed',
                 otRefreshSheetBusy: 'Fetching OT from sheet…',
@@ -20657,9 +20660,10 @@
         function otTitleLabel(date = new Date()) {
             return String(t('otTitle')).replace(/\{month\}/g, currentMonthLabel(date));
         }
-        /** Eunha: starred Shin sits after 「การรายงาน」 inside the green Refresh label. */
+        /** Eunha: starred Shin sits after 「การรายงาน」 inside the morning-grass Refresh label. */
         function otRefreshSheetBtnHtml() {
-            const label = String(t('otRefreshSheet') || '');
+            let label = String(t('otRefreshSheet') || '');
+            if (label && !label.includes('🔄')) label = `🔄 ${label}`;
             const safe = label.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const eunhaOn = !!(typeof currentUser !== 'undefined' && currentUser && currentUser.id === 'eunha')
                 || !!document.querySelector('.dash-shell.is-eunha-shin');
