@@ -638,8 +638,8 @@
             left: auto !important;
             right: 2px !important;
             bottom: 0 !important;
-            width: 52px !important;
-            height: 66px !important;
+            width: 64px !important;
+            height: 80px !important;
             background-repeat: no-repeat !important;
             background-size: contain !important;
             background-position: bottom right !important;
@@ -650,22 +650,22 @@
                 drop-shadow(0 3px 8px rgba(236, 120, 160, .22))
                 drop-shadow(0 1px 3px rgba(15, 23, 42, .1)) !important;
             transform-origin: 85% 100% !important;
-            animation: eunhaCornerShinSway 3.8s ease-in-out infinite !important;
+            animation: eunhaShinWobbleCorner 2.4s ease-in-out infinite !important;
             animation-delay: .35s !important;
             will-change: transform;
         }
         .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
-            width: 58px !important;
-            height: 78px !important;
+            width: 70px !important;
+            height: 94px !important;
             right: -2px !important;
             bottom: -2px !important;
             background-image: url('assets/decor/shinchan-heart.png?v=heart3') !important;
-            animation-name: eunhaCornerShinSway !important;
-            animation-duration: 4.2s !important;
+            animation-name: eunhaShinWobbleCorner !important;
+            animation-duration: 2.6s !important;
         }
         .dash-shell.is-eunha-shin .tab-panel > .content-card.compact-card::after {
-            width: 44px !important;
-            height: 56px !important;
+            width: 54px !important;
+            height: 68px !important;
             right: 2px !important;
             bottom: 0 !important;
         }
@@ -685,7 +685,7 @@
             position: relative;
             z-index: 2;
             overflow: visible;
-            margin-right: 2.6rem;
+            margin-right: 3.85rem;
         }
         .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
         .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
@@ -694,47 +694,138 @@
             content: '' !important;
             display: block !important;
             position: absolute !important;
-            left: calc(100% + .28rem) !important;
+            left: calc(100% + .08rem) !important;
             top: 50% !important;
-            width: 40px !important;
-            height: 40px !important;
+            /* Box larger than cheek so yellow star halo peeks around the circle */
+            --eunha-cheek-size: 54px;
+            width: 76px !important;
+            height: 76px !important;
             margin: 0 !important;
             pointer-events: none !important;
             z-index: 3 !important;
             background-repeat: no-repeat !important;
-            background-size: contain !important;
-            background-position: center !important;
-            background-image: url('assets/decor/shinchan-cheek.png?v=cheek3') !important;
+            /*
+              Paint order: cheek PNG on top, then 5 star glyphs + 3 dots behind
+              (restored yellow star halo from pre-title-tail corner décor).
+            */
+            background-image:
+                url('assets/decor/shinchan-cheek.png?v=cheek4'),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                radial-gradient(circle, #fef08a 0 55%, transparent 60%),
+                radial-gradient(circle, #facc15 0 50%, transparent 58%),
+                radial-gradient(circle, #fef08a 0 50%, transparent 58%) !important;
+            background-size:
+                var(--eunha-cheek-size) var(--eunha-cheek-size),
+                14px 14px, 11px 11px, 13px 13px, 10px 10px, 15px 15px,
+                6px 6px, 5px 5px, 7px 7px;
+            background-position:
+                center,
+                6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                48% 4%, 96% 72%, 22% 92%;
             filter:
                 drop-shadow(0 1px 1px rgba(255, 255, 255, .9))
                 drop-shadow(0 2px 6px rgba(236, 120, 160, .28)) !important;
             transform: translateY(-50%) !important;
-            transform-origin: 40% 70% !important;
-            animation: eunhaTitleShinBob 3.5s ease-in-out infinite !important;
-            will-change: transform;
+            transform-origin: 50% 60% !important;
+            animation:
+                eunhaShinWobbleTitle 2.2s ease-in-out infinite,
+                eunhaCheekStarsTwinkle 2.35s ease-in-out infinite,
+                eunhaCheekStarsOrbit 9.5s linear infinite !important;
+            will-change: transform, background-size, background-position;
         }
         .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
         .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
-            width: 46px !important;
-            height: 46px !important;
-            background-image: url('assets/decor/shinchan-laugh.png?v=laugh2') !important;
-            animation-name: eunhaTodayLaughFloat !important;
-            animation-duration: 4.6s !important;
+            --eunha-cheek-size: 60px;
+            width: 82px !important;
+            height: 82px !important;
+            background-image:
+                url('assets/decor/shinchan-laugh.png?v=laugh3'),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                radial-gradient(circle, #fef08a 0 55%, transparent 60%),
+                radial-gradient(circle, #facc15 0 50%, transparent 58%),
+                radial-gradient(circle, #fef08a 0 50%, transparent 58%) !important;
+            background-size:
+                var(--eunha-cheek-size) var(--eunha-cheek-size),
+                14px 14px, 11px 11px, 13px 13px, 10px 10px, 15px 15px,
+                6px 6px, 5px 5px, 7px 7px;
+            animation:
+                eunhaShinWobbleTitle 2.35s ease-in-out infinite,
+                eunhaCheekStarsTwinkle 2.35s ease-in-out infinite,
+                eunhaCheekStarsOrbit 9.5s linear infinite !important;
         }
-        @keyframes eunhaTitleShinBob {
-            0%, 100% { transform: translateY(-50%) translate(0, 0) rotate(-2.2deg) scale(1); }
-            40% { transform: translateY(-50%) translate(1px, -2.5px) rotate(2deg) scale(1.06); }
-            70% { transform: translateY(-50%) translate(0, -1px) rotate(1deg) scale(1.025); }
+        /* หมุนไปหมุนมา — gentle rotate wobble (not full spins) */
+        @keyframes eunhaShinWobbleTitle {
+            0%, 100% { transform: translateY(-50%) translate(0, 0) rotate(-12deg) scale(1); }
+            25% { transform: translateY(-50%) translate(1px, -2px) rotate(10deg) scale(1.04); }
+            50% { transform: translateY(-50%) translate(0, 1px) rotate(-11deg) scale(1.02); }
+            75% { transform: translateY(-50%) translate(-1px, -1px) rotate(9deg) scale(1.05); }
         }
-        @keyframes eunhaCornerShinSway {
-            0%, 100% { transform: translate(0, 0) rotate(2deg) scale(1); }
-            35% { transform: translate(-2px, -2px) rotate(-2deg) scale(1.04); }
-            65% { transform: translate(-1px, -1px) rotate(-1deg) scale(1.015); }
+        @keyframes eunhaShinWobbleCorner {
+            0%, 100% { transform: translate(0, 0) rotate(-11deg) scale(1); }
+            25% { transform: translate(-2px, -3px) rotate(10deg) scale(1.045); }
+            50% { transform: translate(1px, -1px) rotate(-10deg) scale(1.02); }
+            75% { transform: translate(-1px, -2px) rotate(9deg) scale(1.04); }
         }
-        @keyframes eunhaTodayLaughFloat {
-            0%, 100% { transform: translateY(-50%) translate(0, 0) rotate(-3deg) scale(1); }
-            40% { transform: translateY(-50%) translate(2px, -3px) rotate(2deg) scale(1.06); }
-            70% { transform: translateY(-50%) translate(1px, -1px) rotate(1deg) scale(1.03); }
+        /* Yellow star halo twinkle / orbit (title Shin + Eunha profile / chips) */
+        @keyframes eunhaCheekStarsTwinkle {
+            0%, 100% {
+                background-size:
+                    var(--eunha-cheek-size, 54px) var(--eunha-cheek-size, 54px),
+                    14px 14px, 11px 11px, 13px 13px, 10px 10px, 15px 15px,
+                    6px 6px, 5px 5px, 7px 7px;
+            }
+            40% {
+                background-size:
+                    var(--eunha-cheek-size, 54px) var(--eunha-cheek-size, 54px),
+                    17px 17px, 8px 8px, 16px 16px, 13px 13px, 10px 10px,
+                    9px 9px, 4px 4px, 10px 10px;
+            }
+            70% {
+                background-size:
+                    var(--eunha-cheek-size, 54px) var(--eunha-cheek-size, 54px),
+                    10px 10px, 15px 15px, 9px 9px, 12px 12px, 17px 17px,
+                    4px 4px, 8px 8px, 5px 5px;
+            }
+        }
+        @keyframes eunhaCheekStarsOrbit {
+            0% {
+                background-position:
+                    center,
+                    6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                    48% 4%, 96% 72%, 22% 92%;
+            }
+            25% {
+                background-position:
+                    center,
+                    22% 6%, 94% 28%, 82% 78%, 4% 52%, 52% 94%,
+                    78% 8%, 88% 90%, 8% 72%;
+            }
+            50% {
+                background-position:
+                    center,
+                    48% 4%, 90% 58%, 58% 94%, 6% 28%, 18% 88%,
+                    94% 42%, 62% 8%, 4% 48%;
+            }
+            75% {
+                background-position:
+                    center,
+                    78% 12%, 72% 90%, 22% 92%, 12% 8%, 4% 62%,
+                    92% 22%, 38% 4%, 28% 96%;
+            }
+            100% {
+                background-position:
+                    center,
+                    6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                    48% 4%, 96% 72%, 22% 92%;
+            }
         }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.45rem; }
@@ -767,29 +858,31 @@
             .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3 {
-                margin-right: 2.15rem;
+                margin-right: 3.1rem;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after {
-                width: 34px !important;
-                height: 34px !important;
+                --eunha-cheek-size: 46px;
+                width: 66px !important;
+                height: 66px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
-                width: 38px !important;
-                height: 38px !important;
+                --eunha-cheek-size: 52px;
+                width: 72px !important;
+                height: 72px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card::after {
-                width: 42px !important;
-                height: 54px !important;
+                width: 52px !important;
+                height: 66px !important;
                 right: 2px !important;
                 bottom: 0 !important;
             }
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
-                width: 48px !important;
-                height: 64px !important;
+                width: 58px !important;
+                height: 78px !important;
                 right: -2px !important;
                 bottom: -2px !important;
             }
@@ -2986,6 +3079,104 @@
             border-color: #e879a9;
             background: linear-gradient(135deg, #fde68a, #fbcfe8, #bfdbfe);
             box-shadow: 0 0 0 3px rgba(251,207,232,.4);
+        }
+        /*
+          Eunha only: yellow star halo around the circular Shin profile photo
+          (same twinkle/orbit as title-tail cheek — not applied to other accounts).
+        */
+        .dash-shell.is-eunha-shin .profile-btn {
+            overflow: visible;
+            isolation: isolate;
+        }
+        .dash-shell.is-eunha-shin .profile-btn::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            --eunha-cheek-size: 46px;
+            width: 68px;
+            height: 68px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+            background-repeat: no-repeat;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                radial-gradient(circle, #fef08a 0 55%, transparent 60%),
+                radial-gradient(circle, #facc15 0 50%, transparent 58%),
+                radial-gradient(circle, #fef08a 0 50%, transparent 58%);
+            background-size:
+                12px 12px, 9px 9px, 11px 11px, 8px 8px, 13px 13px,
+                5px 5px, 4px 4px, 6px 6px;
+            background-position:
+                6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                48% 4%, 96% 72%, 22% 92%;
+            animation:
+                eunhaProfileStarsTwinkle 2.35s ease-in-out infinite,
+                eunhaProfileStarsOrbit 9.5s linear infinite;
+            will-change: background-size, background-position;
+        }
+        .dash-shell.is-eunha-shin .profile-btn img,
+        .dash-shell.is-eunha-shin .profile-btn .ph {
+            position: relative;
+            z-index: 1;
+            border-radius: 50%;
+        }
+        @keyframes eunhaProfileStarsTwinkle {
+            0%, 100% {
+                background-size:
+                    12px 12px, 9px 9px, 11px 11px, 8px 8px, 13px 13px,
+                    5px 5px, 4px 4px, 6px 6px;
+            }
+            40% {
+                background-size:
+                    15px 15px, 7px 7px, 14px 14px, 11px 11px, 9px 9px,
+                    8px 8px, 3px 3px, 9px 9px;
+            }
+            70% {
+                background-size:
+                    9px 9px, 13px 13px, 8px 8px, 10px 10px, 15px 15px,
+                    3px 3px, 7px 7px, 4px 4px;
+            }
+        }
+        @keyframes eunhaProfileStarsOrbit {
+            0% {
+                background-position:
+                    6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                    48% 4%, 96% 72%, 22% 92%;
+            }
+            25% {
+                background-position:
+                    22% 6%, 94% 28%, 82% 78%, 4% 52%, 52% 94%,
+                    78% 8%, 88% 90%, 8% 72%;
+            }
+            50% {
+                background-position:
+                    48% 4%, 90% 58%, 58% 94%, 6% 28%, 18% 88%,
+                    94% 42%, 62% 8%, 4% 48%;
+            }
+            75% {
+                background-position:
+                    78% 12%, 72% 90%, 22% 92%, 12% 8%, 4% 62%,
+                    92% 22%, 38% 4%, 28% 96%;
+            }
+            100% {
+                background-position:
+                    6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                    48% 4%, 96% 72%, 22% 92%;
+            }
+        }
+        /* Eunha's face chips elsewhere (notes / overview / room TT) while on her account */
+        .dash-shell.is-eunha-shin img.ov-avatar.is-eunha-face,
+        .dash-shell.is-eunha-shin .rt-avatar.is-eunha-face {
+            position: relative;
+            box-shadow:
+                0 0 0 1.5px rgba(251, 207, 232, .85),
+                0 0 6px 1px rgba(250, 204, 21, .45);
         }
         .theme-teacher-b .content-card,
         .theme-teacher-b .stat-card {
@@ -10030,27 +10221,29 @@
             .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3 {
-                margin-right: 2.1rem;
+                margin-right: 3.2rem;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after {
-                width: 34px !important;
-                height: 34px !important;
+                --eunha-cheek-size: 48px;
+                width: 68px !important;
+                height: 68px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
-                width: 38px !important;
-                height: 38px !important;
+                --eunha-cheek-size: 54px;
+                width: 74px !important;
+                height: 74px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card::after {
-                width: 44px !important;
-                height: 56px !important;
+                width: 54px !important;
+                height: 68px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
-                width: 50px !important;
-                height: 66px !important;
+                width: 60px !important;
+                height: 80px !important;
                 opacity: .92 !important;
             }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
@@ -10088,6 +10281,13 @@
             .dash-shell.is-eunha-shin .content-card::after {
                 animation: none !important;
                 transform: none !important;
+            }
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after,
+            .dash-shell.is-eunha-shin .profile-btn::before {
+                animation: none !important;
             }
             .header-shin-bubble { transition: none !important; }
             #order-modal .order-sakura,
@@ -12037,11 +12237,12 @@
         function userAvatarHtml(userId, alt, { size = 36, className = 'ov-avatar', color, idx = 0 } = {}) {
             const photo = getDisplayPhoto(userId);
             const safeAlt = String(alt ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+            const eunhaFace = String(userId || '').trim() === 'eunha' ? ' is-eunha-face' : '';
             if (photo) {
-                return `<img class="${className}" src="${photo}" alt="${safeAlt}" width="${size}" height="${size}">`;
+                return `<img class="${className}${eunhaFace}" src="${photo}" alt="${safeAlt}" width="${size}" height="${size}">`;
             }
             const c = color || teacherColor({ id: userId }, idx);
-            return `<span class="${className} ph" style="background:${c.soft};color:${c.accent};width:${size}px;height:${size}px" role="img" aria-label="${safeAlt}"><i class="ph ph-user" aria-hidden="true"></i></span>`;
+            return `<span class="${className} ph${eunhaFace}" style="background:${c.soft};color:${c.accent};width:${size}px;height:${size}px" role="img" aria-label="${safeAlt}"><i class="ph ph-user" aria-hidden="true"></i></span>`;
         }
         /** Full-res circular photo lightbox (same stored URL as avatar, not a tiny thumb). */
         function openAvatarLightbox(src, alt = '') {
@@ -27324,7 +27525,7 @@
                             const teaLabel = shortTeacherLabel(slot.teacherId) || slot.teacherName || '';
                             const showAv = !slot.isBreak && slot.teacherId !== 'break' && slot.teacherId !== 'parttime';
                             const avSrc = showAv ? (typeof getDisplayPhoto === 'function' ? getDisplayPhoto(slot.teacherId) : '') : '';
-                            const avHtml = avSrc ? `<img class="rt-avatar" src="${avSrc}" alt="" width="15" height="15">` : '';
+                            const avHtml = avSrc ? `<img class="rt-avatar${slot.teacherId === 'eunha' ? ' is-eunha-face' : ''}" src="${avSrc}" alt="" width="15" height="15">` : '';
                             const stBadge = slot.isBreak ? '' : classStatusBadgeHtml(slot.classStatus, { hideNormal: true });
                             const bookedInner = `<span class="rt-name">${avHtml}${esc(teaLabel)}</span>
                                     <span class="rt-subj">${esc(subj)}</span>
