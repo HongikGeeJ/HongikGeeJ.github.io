@@ -13,5 +13,5 @@ alter table public.portal_stores add constraint portal_stores_store_name_check
     'leaveRequests', 'directorTodos', 'schoolFinance', 'dormStudents',
     'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
     'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos',
-    'accountData'
+    'accountData', 'systemBackup'
   ));

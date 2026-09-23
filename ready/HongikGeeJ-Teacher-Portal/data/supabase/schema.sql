@@ -15,7 +15,7 @@ create table if not exists public.portal_stores (
       'leaveRequests', 'directorTodos', 'schoolFinance', 'dormStudents',
       'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
       'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos',
-      'accountData'
+      'accountData', 'systemBackup'
     )),
   data jsonb,
   updated_at timestamptz not null default now()
@@ -30,7 +30,7 @@ alter table public.portal_stores add constraint portal_stores_store_name_check
     'leaveRequests', 'directorTodos', 'schoolFinance', 'dormStudents',
     'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
     'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos',
-    'accountData'
+    'accountData', 'systemBackup'
   ));
 
 comment on table public.portal_stores is

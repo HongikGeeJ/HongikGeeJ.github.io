@@ -10995,6 +10995,10 @@
                 accountDataSavedLocalOnly: '이 PC에만 저장됨 · Supabase 연결 후 비상연락이 공유됩니다',
                 accountDataSavedCloudFail: '이 PC에는 저장됨 · 클라우드 동기화 실패',
                 accountDataSavedNeedSql: ' · Supabase SQL Editor에서 FIX-accountData.sql 실행 필요',
+                systemBackupOk: '시스템 백업 완료 · 20분마다 자동 저장',
+                systemBackupFail: '이 PC에는 백업됨 · 클라우드 동기화 실패',
+                systemBackupFailHard: '시스템 백업 실패',
+                systemBackupNeedSql: ' · Supabase SQL Editor에서 FIX-systemBackup.sql 실행 필요',
                 leaveRequest: '휴가/연차 신청',
                 leaveFrom: '시작일',
                 leaveTo: '종료일',
@@ -11876,6 +11880,10 @@
                 accountDataSavedLocalOnly: 'บันทึกบนเครื่องนี้เท่านั้น · เชื่อม Supabase เพื่อแชร์เบอร์ฉุกเฉิน',
                 accountDataSavedCloudFail: 'บันทึกในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
                 accountDataSavedNeedSql: ' · รัน FIX-accountData.sql ใน Supabase SQL Editor',
+                systemBackupOk: 'สำรองข้อมูลระบบแล้ว · ทำอัตโนมัติทุก 20 นาที',
+                systemBackupFail: 'สำรองในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
+                systemBackupFailHard: 'สำรองข้อมูลระบบล้มเหลว',
+                systemBackupNeedSql: ' · รัน FIX-systemBackup.sql ใน Supabase SQL Editor',
                 leaveRequest: 'ขอลางาน/หยุด',
                 leaveFrom: 'ตั้งแต่วันที่',
                 leaveTo: 'ถึงวันที่',
@@ -12757,6 +12765,10 @@
                 accountDataSavedLocalOnly: 'Saved on this PC only · connect Supabase to share emergency contacts',
                 accountDataSavedCloudFail: 'Saved locally · cloud sync failed',
                 accountDataSavedNeedSql: ' · run data/supabase/FIX-accountData.sql in Supabase SQL Editor',
+                systemBackupOk: 'System backup saved · auto every 20 minutes',
+                systemBackupFail: 'Saved on this PC · cloud sync failed',
+                systemBackupFailHard: 'System backup failed',
+                systemBackupNeedSql: ' · run FIX-systemBackup.sql in Supabase SQL Editor',
                 leaveRequest: 'Leave request',
                 leaveFrom: 'From',
                 leaveTo: 'To',
@@ -17385,6 +17397,8 @@
         }
         function applyPortalStoreFromRemote(name, entry) {
             if (!entry || typeof entry !== 'object') return false;
+            // Backup archive only — never apply into live portal stores
+            if (name === 'systemBackup') return false;
             const remoteData = 'data' in entry ? entry.data : entry;
             const remoteAt = String(entry.updatedAt || '');
             portalSyncApplying = true;
@@ -17832,6 +17846,292 @@
                 portalSyncTimer = null;
             }
         }
+
+        // ── Automatic system backup (every 20 min while dashboard is open) ──
+        const SYSTEM_BACKUP_STORE = 'systemBackup';
+        const SYSTEM_BACKUP_LOCAL_KEY = 'hongik-system-backups-v1';
+        const SYSTEM_BACKUP_KEEP = 10;
+        const SYSTEM_BACKUP_MS = 20 * 60 * 1000;
+        const SYSTEM_BACKUP_FIRST_DELAY_MS = 12000;
+        let systemBackupTimer = null;
+        let systemBackupFirstTimer = null;
+        let systemBackupInFlight = false;
+        let systemBackupState = {
+            status: 'idle', at: '', error: '', count: 0, source: '', firstOkToasted: false
+        };
+        const SYSTEM_BACKUP_SECRET_KEYS = /^(password|passcode|passwd|pass|pin|secret|token|apiKey|api_key|anonKey|anon_key)$/i;
+
+        function sanitizeBackupValue(val, depth = 0) {
+            if (depth > 12 || val == null) return val;
+            if (Array.isArray(val)) return val.map((x) => sanitizeBackupValue(x, depth + 1));
+            if (typeof val !== 'object') return val;
+            const out = {};
+            Object.keys(val).forEach((k) => {
+                if (SYSTEM_BACKUP_SECRET_KEYS.test(k)) return;
+                if (k === 'dataUrl' && typeof val[k] === 'string' && String(val[k]).startsWith('data:')) {
+                    if (val.url || val.publicUrl) return;
+                    out[k] = '[omitted-dataUrl]';
+                    return;
+                }
+                out[k] = sanitizeBackupValue(val[k], depth + 1);
+            });
+            return out;
+        }
+        function compactPhotosForBackup(payload) {
+            const photos = {};
+            const src = (payload && payload.photos) || {};
+            Object.keys(src).forEach((id) => {
+                const e = src[id] || {};
+                const url = e.url || e.publicUrl || '';
+                const updatedAt = e.updatedAt || '';
+                if (url) photos[id] = { url, updatedAt };
+                else photos[id] = { hasLocalDataUrl: !!(e.dataUrl), updatedAt };
+            });
+            return {
+                version: 1,
+                updatedAt: (payload && payload.updatedAt) || new Date().toISOString(),
+                source: 'backup',
+                photos
+            };
+        }
+        function buildSystemBackupSnapshot() {
+            const at = new Date().toISOString();
+            const stores = {};
+            PORTAL_STORE_IDS.forEach((name) => {
+                try {
+                    let data = collectPortalStorePayload(name);
+                    if (name === 'photos') data = compactPhotosForBackup(data);
+                    else data = sanitizeBackupValue(data);
+                    stores[name] = data;
+                } catch (_) {
+                    stores[name] = null;
+                }
+            });
+            let deleted = [];
+            let blocked = [];
+            try { deleted = typeof loadDeletedAccounts === 'function' ? loadDeletedAccounts() : []; } catch (_) {}
+            try { blocked = typeof loadBlockedAccounts === 'function' ? loadBlockedAccounts() : []; } catch (_) {}
+            return {
+                version: 1,
+                kind: 'hongik-system-backup',
+                at,
+                by: currentUser ? { id: currentUser.id, role: currentUser.role } : null,
+                meta: {
+                    storeIds: PORTAL_STORE_IDS.slice(),
+                    note: 'passwords omitted; photo dataUrls omitted (URL refs only when available)'
+                },
+                extras: { deletedAccounts: deleted, blockedAccounts: blocked },
+                stores
+            };
+        }
+        function loadSystemBackupArchive() {
+            try {
+                const raw = JSON.parse(localStorage.getItem(SYSTEM_BACKUP_LOCAL_KEY) || 'null');
+                if (!raw || typeof raw !== 'object') return { version: 1, items: [] };
+                return { version: 1, items: Array.isArray(raw.items) ? raw.items : [] };
+            } catch (_) {
+                return { version: 1, items: [] };
+            }
+        }
+        function pruneSystemBackupItems(items) {
+            const list = Array.isArray(items) ? items.slice() : [];
+            list.sort((a, b) => String(b.at || '').localeCompare(String(a.at || '')));
+            return list.slice(0, SYSTEM_BACKUP_KEEP);
+        }
+        function saveSystemBackupArchive(archive) {
+            const next = {
+                version: 1,
+                updatedAt: new Date().toISOString(),
+                items: pruneSystemBackupItems(archive && archive.items)
+            };
+            try {
+                localStorage.setItem(SYSTEM_BACKUP_LOCAL_KEY, JSON.stringify(next));
+                return next;
+            } catch (err) {
+                let items = next.items.slice();
+                while (items.length > 1) {
+                    items = items.slice(0, items.length - 1);
+                    try {
+                        const trimmed = { version: 1, updatedAt: next.updatedAt, items };
+                        localStorage.setItem(SYSTEM_BACKUP_LOCAL_KEY, JSON.stringify(trimmed));
+                        return trimmed;
+                    } catch (_) {}
+                }
+                throw err;
+            }
+        }
+        async function pushSystemBackupRemote(archive) {
+            const at = new Date().toISOString();
+            const blob = {
+                version: 1,
+                updatedAt: at,
+                keep: SYSTEM_BACKUP_KEEP,
+                items: pruneSystemBackupItems(archive.items)
+            };
+            const sb = await ensureSupabaseClient();
+            if (sb) {
+                try {
+                    const { error } = await sb.rpc('upsert_portal_store', {
+                        p_name: SYSTEM_BACKUP_STORE,
+                        p_data: blob,
+                        p_updated_at: at
+                    });
+                    if (error) {
+                        const { error: upErr } = await sb.from('portal_stores').upsert({
+                            store_name: SYSTEM_BACKUP_STORE,
+                            data: blob,
+                            updated_at: at
+                        }, { onConflict: 'store_name' });
+                        if (upErr) throw new Error(upErr.message || 'supabase backup upsert failed');
+                    }
+                    return { ok: true, source: 'supabase' };
+                } catch (err) {
+                    return { ok: false, source: 'supabase', error: String(err?.message || err) };
+                }
+            }
+            const url = typeof getPhotosSyncUrl === 'function' ? getPhotosSyncUrl() : '';
+            if (!url) return { ok: true, skipped: true, reason: 'local-only', source: 'localStorage' };
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    mode: 'cors',
+                    credentials: 'omit',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'putStore',
+                        store: SYSTEM_BACKUP_STORE,
+                        data: blob,
+                        updatedAt: at
+                    })
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return { ok: true, source: 'gas' };
+            } catch (err) {
+                return { ok: false, source: 'gas', error: String(err?.message || err) };
+            }
+        }
+        async function runSystemBackup({ reason = 'interval', toast = false } = {}) {
+            if (systemBackupInFlight) return { ok: false, busy: true };
+            if (!currentUser) return { ok: false, skipped: true, reason: 'no-user' };
+            systemBackupInFlight = true;
+            try {
+                const snap = buildSystemBackupSnapshot();
+                let bytes = 0;
+                try { bytes = JSON.stringify(snap).length; } catch (_) { bytes = 0; }
+                const item = {
+                    id: 'bk-' + Date.now().toString(36),
+                    at: snap.at,
+                    by: snap.by,
+                    reason,
+                    bytes,
+                    meta: snap.meta,
+                    extras: snap.extras,
+                    stores: snap.stores
+                };
+                const archive = loadSystemBackupArchive();
+                archive.items = pruneSystemBackupItems([item, ...(archive.items || [])]);
+                saveSystemBackupArchive(archive);
+
+                const remote = await pushSystemBackupRemote(archive);
+                const cloudFailed = !!(remote && remote.error && !remote.skipped);
+                systemBackupState = {
+                    status: cloudFailed ? 'local-ok' : 'ok',
+                    at: snap.at,
+                    error: remote.error || '',
+                    count: archive.items.length,
+                    source: remote.source || 'localStorage',
+                    firstOkToasted: systemBackupState.firstOkToasted,
+                    reason
+                };
+
+                if (cloudFailed) {
+                    const needsSql = /portal_stores_store_name_check|store_name_check/i.test(String(remote.error || ''));
+                    const msg = (typeof t === 'function' ? t('systemBackupFail') : '')
+                        || 'System backup saved on this PC · cloud sync failed';
+                    const hint = needsSql
+                        ? ((typeof t === 'function' ? t('systemBackupNeedSql') : '')
+                            || ' · run FIX-systemBackup.sql in Supabase SQL Editor')
+                        : '';
+                    showAppToast(msg + hint, 'warn');
+                    return { ok: true, local: true, remote, item };
+                }
+
+                if (toast === 'first' && !systemBackupState.firstOkToasted) {
+                    systemBackupState.firstOkToasted = true;
+                    const msg = (typeof t === 'function' ? t('systemBackupOk') : '') || 'System backup saved';
+                    showAppToast(msg, 'ok');
+                } else if (toast === true) {
+                    const msg = (typeof t === 'function' ? t('systemBackupOk') : '') || 'System backup saved';
+                    showAppToast(msg, 'ok');
+                }
+                return { ok: true, local: true, remote, item };
+            } catch (err) {
+                systemBackupState = {
+                    ...systemBackupState,
+                    status: 'error',
+                    error: String(err?.message || err || 'backup failed'),
+                    at: new Date().toISOString()
+                };
+                const msg = (typeof t === 'function' ? t('systemBackupFailHard') : '') || 'System backup failed';
+                showAppToast(msg, 'err');
+                return { ok: false, error: systemBackupState.error };
+            } finally {
+                systemBackupInFlight = false;
+            }
+        }
+        function stopSystemBackupScheduler() {
+            if (systemBackupTimer) {
+                clearInterval(systemBackupTimer);
+                systemBackupTimer = null;
+            }
+            if (systemBackupFirstTimer) {
+                clearTimeout(systemBackupFirstTimer);
+                systemBackupFirstTimer = null;
+            }
+        }
+        function startSystemBackupScheduler() {
+            stopSystemBackupScheduler();
+            systemBackupFirstTimer = setTimeout(() => {
+                systemBackupFirstTimer = null;
+                if (!currentUser || document.hidden) return;
+                runSystemBackup({ reason: 'login', toast: 'first' });
+            }, SYSTEM_BACKUP_FIRST_DELAY_MS);
+            systemBackupTimer = setInterval(() => {
+                if (!currentUser) return;
+                if (document.hidden) return;
+                runSystemBackup({ reason: 'interval', toast: false });
+            }, SYSTEM_BACKUP_MS);
+        }
+        function downloadSystemBackupJson(item) {
+            const archive = loadSystemBackupArchive();
+            const payload = item || archive.items[0] || archive;
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            const stamp = String((payload && payload.at) || Date.now()).replace(/[:.]/g, '-');
+            a.download = 'hongik-system-backup-' + stamp + '.json';
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        }
+        try {
+            window.hongikSystemBackupNow = (opts) => runSystemBackup({
+                reason: 'manual',
+                toast: true,
+                ...(opts && typeof opts === 'object' ? opts : {})
+            });
+            window.hongikSystemBackupStatus = () => ({
+                ...systemBackupState,
+                keep: SYSTEM_BACKUP_KEEP,
+                intervalMs: SYSTEM_BACKUP_MS,
+                localKey: SYSTEM_BACKUP_LOCAL_KEY,
+                store: SYSTEM_BACKUP_STORE,
+                items: loadSystemBackupArchive().items.map((i) => ({
+                    id: i.id, at: i.at, bytes: i.bytes, by: i.by, reason: i.reason
+                }))
+            });
+            window.hongikDownloadSystemBackup = () => downloadSystemBackupJson();
+        } catch (_) {}
+
         try {
             window.hongikPortalSyncStatus = () => ({
                 ...portalSyncState,
@@ -21715,6 +22015,7 @@
                     if (!keepTab || !studentSheetSyncTimer) startStudentSheetLiveSync();
                     if (!keepTab || !photosSyncTimer) startPhotosLiveSync();
                     if (!keepTab || !portalSyncTimer) startPortalLiveSync();
+                    if (!keepTab || !systemBackupTimer) startSystemBackupScheduler();
                     // Header avatar: loadPhoto runs before cloud pull — refresh once stores arrive
                     if (!keepTab) {
                         Promise.resolve()
@@ -21730,6 +22031,7 @@
                     stopStudentSheetLiveSync();
                     stopPhotosLiveSync();
                     stopPortalLiveSync();
+                    stopSystemBackupScheduler();
                 }
                 if (!keepTab) {
                     helpAiLog = [];
@@ -30178,6 +30480,7 @@
                 stopStudentSheetLiveSync();
                 stopPhotosLiveSync();
                 stopPortalLiveSync();
+                stopSystemBackupScheduler();
                 showLoginScreen();
                 passcode.focus();
             });

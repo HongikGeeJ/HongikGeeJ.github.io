@@ -1,7 +1,7 @@
 -- ═══════════════════════════════════════════════════════════
 -- COPY-PASTE into Supabase SQL Editor → Run (once)
--- Allows portal store_name = 'accountData' (emergency / personal
--- overrides: hongik-account-data-v2 ↔ portal accountData).
+-- Allows portal store_name = 'systemBackup' (rotating auto
+-- backups every 20 minutes; no passwords; photo URL refs).
 -- Safe to re-run.
 -- ═══════════════════════════════════════════════════════════
 

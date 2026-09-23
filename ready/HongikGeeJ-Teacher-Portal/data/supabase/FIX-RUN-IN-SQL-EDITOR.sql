@@ -1,12 +1,12 @@
 -- ═══════════════════════════════════════════════════════════
 -- COPY-PASTE THIS ENTIRE FILE into Supabase SQL Editor → Run
 -- Project: qoxdpqlzbbsluxzqchuq
--- Fixes: portal_stores_store_name_check blocking store_name = 'photos' / 'accountData'
+-- Fixes: portal_stores_store_name_check blocking store_name = 'photos' / 'accountData' / 'systemBackup'
 -- Also creates Storage bucket teacher-photos + anon policies
 -- Safe to re-run.
 -- ═══════════════════════════════════════════════════════════
 
--- 1) Widen CHECK to match PORTAL_STORE_IDS (includes photos + accountData / emergency)
+-- 1) Widen CHECK to match PORTAL_STORE_IDS (+ systemBackup archive)
 alter table public.portal_stores drop constraint if exists portal_stores_store_name_check;
 alter table public.portal_stores add constraint portal_stores_store_name_check
   check (store_name in (
@@ -15,7 +15,7 @@ alter table public.portal_stores add constraint portal_stores_store_name_check
     'leaveRequests', 'directorTodos', 'schoolFinance', 'dormStudents',
     'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
     'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos',
-    'accountData'
+    'accountData', 'systemBackup'
   ));
 
 -- 2) Public Storage bucket for profile JPEGs

@@ -50,7 +50,10 @@ var STORE_KEYS = {
   studentEdits: true,
   helpChats: true,
   partTime: true,
-  otReports: true
+  otReports: true,
+  photos: true,
+  accountData: true,
+  systemBackup: true
 };
 
 function getStore_() {

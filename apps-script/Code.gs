@@ -52,7 +52,8 @@ var STORE_KEYS = {
   partTime: true,
   otReports: true,
   photos: true,
-  accountData: true
+  accountData: true,
+  systemBackup: true
 };
 
 function getStore_() {
