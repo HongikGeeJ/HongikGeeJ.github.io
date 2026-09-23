@@ -530,66 +530,156 @@
         }
         /*
           Eunha only (#dash-shell.is-eunha-shin): content-card corner blooms → Shin décor.
-          TL = cheek circle, BR = pajama sit. Other accounts keep corner-bloom.svg.
+          TL = cheek circle + yellow star halo (behind PNG), BR = pajama sit (fully inside card).
+          Other accounts keep corner-bloom.svg.
         */
         .dash-shell.is-eunha-shin .content-card::before,
         .dash-shell.is-eunha-shin .content-card::after {
             opacity: 1;
             pointer-events: none !important;
             background-repeat: no-repeat;
-            background-size: contain;
-            background-position: center;
-            will-change: transform;
+            will-change: transform, background-size, background-position;
             filter:
                 drop-shadow(0 1px 1px rgba(255, 255, 255, .9))
                 drop-shadow(0 3px 8px rgba(236, 120, 160, .28))
                 drop-shadow(0 1px 3px rgba(15, 23, 42, .12));
         }
         .dash-shell.is-eunha-shin .content-card::before {
-            width: 46px;
-            height: 46px;
-            top: -8px;
-            left: -8px;
-            background-image: url('assets/decor/shinchan-cheek.png?v=cheek1');
+            /* Box larger than cheek so starfield peeks around the circle */
+            --eunha-cheek-size: 48px;
+            width: 72px;
+            height: 72px;
+            top: 2px;
+            left: 2px;
+            /*
+              Paint order: cheek PNG on top, then 8 star glyphs / dots behind
+              (visible in transparent corners of the square asset).
+            */
+            background-image:
+                url('assets/decor/shinchan-cheek.png?v=cheek1'),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                radial-gradient(circle, #fef08a 0 55%, transparent 60%),
+                radial-gradient(circle, #facc15 0 50%, transparent 58%),
+                radial-gradient(circle, #fef08a 0 50%, transparent 58%);
+            background-size:
+                var(--eunha-cheek-size) var(--eunha-cheek-size),
+                11px 11px, 9px 9px, 10px 10px, 8px 8px, 12px 12px,
+                5px 5px, 4px 4px, 6px 6px;
+            background-position:
+                center,
+                6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                48% 4%, 96% 72%, 22% 92%;
             transform: none;
             transform-origin: 35% 75%;
-            animation: eunhaShinCheekBob 3.5s ease-in-out infinite;
+            animation:
+                eunhaShinCheekBob 3.5s ease-in-out infinite,
+                eunhaCheekStarsTwinkle 2.35s ease-in-out infinite,
+                eunhaCheekStarsOrbit 9.5s linear infinite;
         }
         .dash-shell.is-eunha-shin .content-card::after {
             width: 54px;
             height: 68px;
-            top: calc(100% - 4px);
-            left: calc(100% - 8px);
-            bottom: auto;
-            right: auto;
+            /* Fully inside card — was left: calc(100% - 8px) which clipped ~right third */
+            top: auto;
+            left: auto;
+            right: 6px;
+            bottom: 4px;
             background-image: url('assets/decor/shinchan-pajamas.png?v=pj1');
+            background-size: contain;
+            background-position: center;
             /* Do not mirror — character faces naturally into the card */
             transform: none;
-            transform-origin: 70% 100%;
+            transform-origin: 50% 100%;
             animation: eunhaShinPajamaSway 3.8s ease-in-out infinite;
             animation-delay: .35s;
         }
         .dash-shell.is-eunha-shin .content-card.compact-card::before {
-            width: 38px;
-            height: 38px;
-            top: -6px;
-            left: -6px;
+            --eunha-cheek-size: 40px;
+            width: 60px;
+            height: 60px;
+            top: 2px;
+            left: 2px;
+            background-size:
+                var(--eunha-cheek-size) var(--eunha-cheek-size),
+                9px 9px, 7px 7px, 8px 8px, 7px 7px, 10px 10px,
+                4px 4px, 3px 3px, 5px 5px;
         }
         .dash-shell.is-eunha-shin .content-card.compact-card::after {
             width: 44px;
             height: 56px;
-            top: calc(100% - 2px);
-            left: calc(100% - 6px);
+            top: auto;
+            left: auto;
+            right: 4px;
+            bottom: 3px;
         }
         @keyframes eunhaShinCheekBob {
             0%, 100% { transform: translateY(0) rotate(-2.2deg) scale(1); }
             40% { transform: translateY(-2.5px) rotate(2deg) scale(1.045); }
             70% { transform: translateY(-1px) rotate(1deg) scale(1.02); }
         }
+        /* Twinkle: pulse star glyph sizes (cheek size via --eunha-cheek-size) */
+        @keyframes eunhaCheekStarsTwinkle {
+            0%, 100% {
+                background-size:
+                    var(--eunha-cheek-size) var(--eunha-cheek-size),
+                    11px 11px, 9px 9px, 10px 10px, 8px 8px, 12px 12px,
+                    5px 5px, 4px 4px, 6px 6px;
+            }
+            40% {
+                background-size:
+                    var(--eunha-cheek-size) var(--eunha-cheek-size),
+                    14px 14px, 6px 6px, 13px 13px, 11px 11px, 8px 8px,
+                    7px 7px, 3px 3px, 8px 8px;
+            }
+            70% {
+                background-size:
+                    var(--eunha-cheek-size) var(--eunha-cheek-size),
+                    8px 8px, 12px 12px, 7px 7px, 10px 10px, 14px 14px,
+                    3px 3px, 6px 6px, 4px 4px;
+            }
+        }
+        /* Slow orbit: stars drift around the cheek (cheek stays center) */
+        @keyframes eunhaCheekStarsOrbit {
+            0% {
+                background-position:
+                    center,
+                    6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                    48% 4%, 96% 72%, 22% 92%;
+            }
+            25% {
+                background-position:
+                    center,
+                    22% 6%, 94% 28%, 82% 78%, 4% 52%, 52% 94%,
+                    78% 8%, 88% 90%, 8% 72%;
+            }
+            50% {
+                background-position:
+                    center,
+                    48% 4%, 90% 58%, 58% 94%, 6% 28%, 18% 88%,
+                    94% 42%, 62% 8%, 4% 48%;
+            }
+            75% {
+                background-position:
+                    center,
+                    78% 12%, 72% 90%, 22% 92%, 12% 8%, 4% 62%,
+                    92% 22%, 38% 4%, 28% 96%;
+            }
+            100% {
+                background-position:
+                    center,
+                    6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                    48% 4%, 96% 72%, 22% 92%;
+            }
+        }
         @keyframes eunhaShinPajamaSway {
+            /* Prefer inward (-x) sway so the figure stays inside the card edge */
             0%, 100% { transform: translate(0, 0) rotate(-2.5deg) scale(1); }
-            35% { transform: translate(-1.5px, -2px) rotate(2.2deg) scale(1.03); }
-            65% { transform: translate(1px, -1px) rotate(1.2deg) scale(1.015); }
+            35% { transform: translate(-2px, -2px) rotate(2.2deg) scale(1.03); }
+            65% { transform: translate(-1px, -1px) rotate(1.2deg) scale(1.015); }
         }
         .content-card.compact-card::before,
         .content-card.compact-card::after {
@@ -634,12 +724,14 @@
             .content-card::before { top: -48px; left: -48px; }
             .content-card::after { top: calc(100% + 48px); left: calc(100% + 48px); }
             .dash-shell.is-eunha-shin .content-card::before {
-                width: 36px; height: 36px; opacity: 1;
-                top: -6px; left: -6px;
+                --eunha-cheek-size: 38px;
+                width: 58px; height: 58px; opacity: 1;
+                top: 2px; left: 2px;
             }
             .dash-shell.is-eunha-shin .content-card::after {
                 width: 42px; height: 54px; opacity: 1;
-                top: calc(100% - 2px); left: calc(100% - 6px);
+                top: auto; left: auto;
+                right: 4px; bottom: 3px;
                 transform: none;
             }
         }
@@ -3202,8 +3294,23 @@
             letter-spacing: -.02em;
         }
         .self-pw-wrap {
-            margin-top: 1.25rem;
-            padding-top: .35rem;
+            margin-top: 2.15rem;
+            padding: 1.35rem 1.1rem 1.05rem;
+            border: 1.5px solid #fed7aa;
+            border-top: 2.5px solid #ea580c;
+            border-radius: 1.05rem;
+            background: linear-gradient(165deg, #fff7ed 0%, #ffffff 62%);
+            box-shadow: 0 10px 24px rgba(234, 88, 12, .1);
+            position: relative;
+        }
+        .self-pw-wrap::before {
+            content: '';
+            position: absolute;
+            top: -1.15rem;
+            left: 8%;
+            right: 8%;
+            border-top: 2px dashed #fdba74;
+            pointer-events: none;
         }
         .self-pw-toggle {
             width: 100%;
@@ -8481,39 +8588,39 @@
         .room-tt-cell.is-today-col.is-day.is-day-start {
             box-shadow: inset 3px 0 0 #0ea5e9, inset 0 -2px 0 #38bdf8;
         }
-        /* Past days (Asia/Bangkok): muted wash, not editable — keep cancelled dark-red / released visible */
+        /* Past days (Asia/Bangkok): darker slate/black wash, not editable — keep cancelled dark-red / released visible */
         .room-tt-cell.is-past-day.is-room-a,
         .room-tt-cell.is-past-day.is-room-b,
         .room-tt-cell.is-past-day.is-room-c {
-            background: #e4e6ea !important;
+            background: #b8bdc8 !important;
         }
         .room-tt-cell.is-past-day.is-day {
-            background: #d5d8de !important;
+            background: #9aa1ad !important;
             animation: none;
-            border-bottom-color: #94a3b8;
-            box-shadow: inset 0 -2px 0 #94a3b8;
+            border-bottom-color: #5b6472;
+            box-shadow: inset 0 -2px 0 #5b6472;
         }
-        .room-tt-cell.is-past-day.is-day .room-tt-day-name { color: #64748b; }
-        .room-tt-cell.is-past-day.is-day .room-tt-day-date { color: #94a3b8; }
+        .room-tt-cell.is-past-day.is-day .room-tt-day-name { color: #334155; }
+        .room-tt-cell.is-past-day.is-day .room-tt-day-date { color: #475569; }
         .room-tt-cell.is-past-day.is-day-start {
-            box-shadow: inset 3px 0 0 #94a3b8;
+            box-shadow: inset 3px 0 0 #5b6472;
         }
         .room-tt-cell.is-past-day.is-day.is-day-start {
-            box-shadow: inset 3px 0 0 #94a3b8, inset 0 -2px 0 #94a3b8;
+            box-shadow: inset 3px 0 0 #5b6472, inset 0 -2px 0 #5b6472;
         }
         .room-tt-cell.is-past-day .room-tt-plus {
             pointer-events: none !important;
             cursor: default !important;
-            opacity: .32;
-            filter: grayscale(.4);
+            opacity: .2;
+            filter: grayscale(.55);
             box-shadow: none;
         }
         .room-tt-cell.is-past-day .room-tt-plus:hover,
         .room-tt-cell.is-past-day .room-tt-plus:focus-visible {
             transform: none;
-            border-color: rgba(148, 163, 184, .45);
-            color: rgba(148, 163, 184, .45);
-            background: linear-gradient(160deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-color: rgba(71, 85, 105, .4);
+            color: rgba(71, 85, 105, .4);
+            background: linear-gradient(160deg, #cbd0d8 0%, #b4bac4 100%);
             box-shadow: none;
         }
         .room-tt-cell.is-past-day .room-tt-booked {
@@ -8521,18 +8628,18 @@
             cursor: default !important;
         }
         .room-tt-cell.is-past-day .room-tt-booked:not(.is-cancelled):not(.is-break):not(.is-released) {
-            filter: grayscale(.28);
-            opacity: .82;
-            box-shadow: 0 1px 4px rgba(15, 23, 42, .06);
+            filter: grayscale(.4);
+            opacity: .68;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, .1);
         }
         .room-tt-cell.is-past-day .room-tt-booked.is-released {
-            filter: grayscale(.2);
-            opacity: .88;
+            filter: grayscale(.32);
+            opacity: .74;
         }
         .room-tt-cell.is-past-day .room-tt-booked.is-cancelled,
         .room-tt-cell.is-past-day .room-tt-booked.is-break {
             filter: none;
-            opacity: .95;
+            opacity: .9;
         }
         /* Empty slots: soft gray-white pin/watermark; booked colors stay vivid */
         .room-tt-plus {
@@ -9225,12 +9332,14 @@
             .content-card::before { top: -48px; left: -48px; }
             .content-card::after { top: calc(100% + 48px); left: calc(100% + 48px); }
             .dash-shell.is-eunha-shin .content-card::before {
-                width: 38px; height: 38px; opacity: 1;
-                top: -6px; left: -6px;
+                --eunha-cheek-size: 40px;
+                width: 60px; height: 60px; opacity: 1;
+                top: 2px; left: 2px;
             }
             .dash-shell.is-eunha-shin .content-card::after {
                 width: 44px; height: 56px; opacity: 1;
-                top: calc(100% - 2px); left: calc(100% - 6px);
+                top: auto; left: auto;
+                right: 4px; bottom: 3px;
                 transform: none;
             }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
@@ -28975,15 +29084,15 @@
                 </div></div>`;
             }
 
-            /** Same sections for every teacher (and accounting): textbook · password · waitlist last */
+            /** Same sections for every teacher (and accounting): textbook · job · waitlist · password last (separated) */
             function buildTeacherOthersPanel(user) {
                 return `<div class="tab-panel" data-panel="others"><div class="content-card compact-card teacher-others-shared">
                     ${canViewSalesStats(user) ? `<p class="admin-label" style="margin-top:0">${t('othersSecStudents') || t('studentDbTitle')}</p>
                     <div id="sales-stats-board"></div>` : `<p class="admin-label" style="margin-top:0">${t('tabOthers')}</p>`}
                     <div id="textbook-board"></div>
-                    ${selfPasswordFormHtml()}
                     <div id="job-app-board" style="margin-top:1.25rem"></div>
                     <div id="waitlist-board" style="margin-top:1.25rem"></div>
+                    ${selfPasswordFormHtml()}
                 </div></div>`;
             }
 
