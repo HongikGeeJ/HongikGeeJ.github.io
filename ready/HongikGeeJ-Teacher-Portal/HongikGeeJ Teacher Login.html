@@ -987,6 +987,37 @@
             line-height: 1.2;
             pointer-events: auto;
         }
+        /* Shin-chan + Shiro — between lang flag & logout, sits on header divider */
+        .header-shin-decor {
+            display: none;
+            width: 40px;
+            height: auto;
+            flex-shrink: 0;
+            align-self: flex-end;
+            margin: 0 .05rem -.42rem;
+            position: relative;
+            /* Below .dash-logo / #logout-btn (z-index: 9); never steal clicks */
+            z-index: 1;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            filter: drop-shadow(0 2px 5px rgba(15, 23, 42, .14));
+            transform-origin: 50% 100%;
+            animation: shinDecorBob 3.4s ease-in-out infinite;
+            will-change: transform;
+        }
+        .theme-teacher-a .header-shin-decor,
+        .theme-teacher-b .header-shin-decor,
+        .theme-teacher-c .header-shin-decor {
+            display: block;
+        }
+        @keyframes shinDecorBob {
+            0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+            50% { transform: translateY(-7px) rotate(1.5deg); }
+        }
+        @media (max-width: 720px) {
+            .header-shin-decor { width: 32px; margin-bottom: -.28rem; }
+        }
         .header-actions {
             margin-left: auto;
             padding-left: .25rem;
@@ -8182,6 +8213,9 @@
                 animation: none !important;
                 transition: none !important;
             }
+            .header-shin-decor {
+                animation: none !important;
+            }
             #order-modal .order-sakura,
             #attend-modal .order-sakura,
             #attend-modal .attend-sparkles { display: none !important; }
@@ -8296,6 +8330,7 @@
                             <button type="button" class="lang-btn" data-lang="en" title="English"><img src="https://flagcdn.com/w80/gb.png" alt="EN" width="24" height="24"></button>
                         </div>
                     </div>
+                    <img class="header-shin-decor" src="assets/decor/shinchan-shiro.png" alt="" width="40" height="64" decoding="async" aria-hidden="true">
                     <button id="logout-btn" type="button" class="logout-btn px-3 py-2 rounded-xl bg-white text-sm font-bold text-slate-600 border border-slate-200 shadow-sm" data-i18n="logout">로그아웃</button>
                 </div>
             </header>
