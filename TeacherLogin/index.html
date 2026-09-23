@@ -5688,6 +5688,17 @@
         .em-teacher-block {
             border-radius: 1rem; padding: .9rem 1rem; border: 2px solid;
             animation: riseIn .35s ease both;
+            width: 100%; text-align: left; font-family: inherit; cursor: pointer;
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+        button.em-teacher-block { appearance: none; -webkit-appearance: none; display: block; }
+        .em-teacher-block:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, .08);
+        }
+        .em-teacher-block:focus-visible {
+            outline: 2px solid var(--accent, #2563eb);
+            outline-offset: 2px;
         }
         .em-teacher-block .em-teacher-head {
             display: flex; align-items: center; justify-content: space-between; gap: .5rem;
@@ -5705,6 +5716,69 @@
         .em-teacher-block .em-c-name { font-weight: 750; }
         .em-teacher-block .em-c-role { color: #64748b; font-size: .78rem; }
         .em-teacher-block a { font-weight: 700; text-decoration: none; }
+        .em-teacher-block .em-open-hint {
+            margin-top: .35rem; font-size: .72rem; color: #64748b; font-weight: 650;
+        }
+        #em-dir-board.em-slide-in { animation: ovSlideIn .38s cubic-bezier(.22,1,.36,1) both; }
+        #em-dir-board.em-slide-back { animation: ovSlideBack .38s cubic-bezier(.22,1,.36,1) both; }
+        .em-profile {
+            border-radius: 1.15rem; padding: 1.15rem 1.1rem 1.25rem; border: 2px solid;
+            animation: riseIn .35s ease both;
+        }
+        .em-profile-hero {
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            gap: .65rem; margin-bottom: 1rem;
+        }
+        .em-profile-hero .em-profile-photo,
+        .em-profile-hero img.em-profile-photo,
+        .em-profile-hero span.em-profile-photo {
+            width: 112px !important; height: 112px !important;
+            border-radius: 50%; object-fit: cover; object-position: center top;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, .14);
+            border: 3px solid rgba(255,255,255,.9);
+        }
+        .em-profile-hero span.em-profile-photo {
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 2.75rem;
+        }
+        .em-profile-name {
+            margin: 0; font-size: 1.35rem; font-weight: 900; letter-spacing: -.02em;
+        }
+        .em-profile-meta {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem;
+        }
+        .em-profile-meta .badge {
+            font-size: .78rem; font-weight: 750; padding: .28rem .65rem;
+        }
+        .em-profile-meta .ov-lang-flags img {
+            width: 16px; height: 16px; border-radius: 2px;
+        }
+        .em-profile-bio {
+            display: grid; gap: .45rem; margin: 0 0 1rem;
+            padding: .75rem .85rem; border-radius: .85rem;
+            background: rgba(255,255,255,.55); border: 1px solid rgba(15,23,42,.06);
+        }
+        .em-profile-bio .em-bio-row {
+            display: flex; flex-wrap: wrap; gap: .35rem .75rem;
+            font-size: .88rem; color: #334155;
+        }
+        .em-profile-bio .em-bio-label {
+            font-weight: 750; color: #64748b; min-width: 5.5rem;
+        }
+        .em-profile-section-title {
+            margin: 0 0 .55rem; font-size: .95rem; font-weight: 850;
+            display: flex; align-items: center; gap: .35rem;
+        }
+        .em-profile-contacts { display: grid; gap: .45rem; }
+        .em-profile-contact {
+            display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .7rem;
+            padding: .7rem .8rem; border-radius: .85rem;
+            background: rgba(255,255,255,.72); border: 1px solid rgba(15,23,42,.07);
+            font-size: .9rem;
+        }
+        .em-profile-contact .em-c-name { font-weight: 800; }
+        .em-profile-contact .em-c-role { color: #64748b; font-size: .8rem; }
+        .em-profile-contact a { font-weight: 750; text-decoration: none; }
 
         /* Director · OT pay (simple white / navy boxes) */
         .ot-pay-panel {
@@ -9028,6 +9102,7 @@
         let photosConfigLoaded = false;
         let photosBackfillInFlight = false;
         let renderOverviewBoardRef = null;
+        let renderDirectorEmergencyBoardRef = null;
         let loadPhotoRef = null;
         let appToastTimer = null;
         let photosBroadcast = null;
@@ -9507,6 +9582,11 @@
                 }
             } catch (_) {}
             try {
+                if (currentUser?.role === 'director' && typeof renderDirectorEmergencyBoardRef === 'function' && document.getElementById('em-dir-board')) {
+                    renderDirectorEmergencyBoardRef(resolveAccountById(currentUser.id) || currentUser);
+                }
+            } catch (_) {}
+            try {
                 if (currentUser && document.getElementById('room-tt-board') && typeof renderRoomTimetableBoard === 'function') {
                     const roomModalOpen = document.getElementById('room-tt-modal')?.classList.contains('open');
                     const monthModalOpen = document.getElementById('room-tt-month-modal')?.classList.contains('open');
@@ -9935,6 +10015,7 @@
         let leaveCalYm = null; // 'YYYY-MM' for holiday calendar view
         let ptNav = { view: 'langs', lang: null, month: null, opened: false };
         let overviewNav = { view: 'list', teacherId: null };
+        let emDirNav = { view: 'list', teacherId: null };
         let otPayNav = { view: 'list', teacherId: null, month: '' };
         let teacherOtYm = '';
         let dormNav = { view: 'list' };
@@ -10507,8 +10588,20 @@
                 rejectReportConfirm: '이 보고를 반려할까요?',
                 rejectCancelReportConfirm: '이 수업 취소 보고를 반려할까요? 해당 수업은 취소 전 상태로 복구됩니다.',
                 teachersEmergency: '교사 비상 연락처',
-                teachersEmergencyHint: '각 교사가 등록한 비상 연락처 요약입니다',
+                teachersEmergencyHint: '각 교사가 등록한 비상 연락처 요약입니다 · 눌러서 프로필',
                 noTeacherEm: '등록된 비상 연락처 없음',
+                emTeacherOpenHint: '눌러서 프로필 보기',
+                emTeacherProfileBack: '목록으로',
+                emTeacherProfileContacts: '등록된 비상 연락처',
+                emTeacherProfileRole: '역할',
+                emTeacherProfileLangs: '수업 언어',
+                emTeacherProfileWorkDays: '근무일',
+                emTeacherProfileStart: '입사일',
+                emTeacherProfileCode: '코드',
+                emTeacherRoleTeacher: '선생님',
+                emTeacherLangKo: '한국어',
+                emTeacherLangEn: '영어',
+                emTeacherLangTh: '태국어',
                 payThisMonth: '이번 달 OT 지급',
                 payThisMonthHint: '교사 OT 지급 요약 · 원장 OT는 없습니다 · 교사 신고분만',
                 payOk: 'OK · 지급 없음',
@@ -11322,8 +11415,20 @@
                 rejectReportConfirm: 'ไม่อนุมัติรายงานนี้เลยไหม?',
                 rejectCancelReportConfirm: 'ไม่อนุมัติรายงานยกเลิกคลาสนี้เลยไหม? คลาสจะถูกคืนสถานะก่อนยกเลิก',
                 teachersEmergency: 'ติดต่อฉุกเฉินของคุณครู',
-                teachersEmergencyHint: 'สรุปเบอร์ที่คุณครูแต่ละคนลงทะเบียนไว้ · แยกสีตามคน',
+                teachersEmergencyHint: 'สรุปเบอร์ที่คุณครูแต่ละคนลงทะเบียนไว้ · แยกสีตามคน · กดเพื่อดูโปรไฟล์',
                 noTeacherEm: 'ยังไม่ได้ลงทะเบียน',
+                emTeacherOpenHint: 'กดเพื่อดูโปรไฟล์',
+                emTeacherProfileBack: 'กลับรายชื่อ',
+                emTeacherProfileContacts: 'เบอร์ฉุกเฉินที่ลงทะเบียน',
+                emTeacherProfileRole: 'บทบาท',
+                emTeacherProfileLangs: 'ภาษาที่สอน',
+                emTeacherProfileWorkDays: 'วันทำงาน',
+                emTeacherProfileStart: 'วันเริ่มงาน',
+                emTeacherProfileCode: 'รหัส',
+                emTeacherRoleTeacher: 'คุณครู',
+                emTeacherLangKo: 'เกาหลี',
+                emTeacherLangEn: 'อังกฤษ',
+                emTeacherLangTh: 'ไทย',
                 payThisMonth: 'OT ที่ต้องจ่ายเดือนนี้',
                 payThisMonthHint: 'สรุปค่า OT ของคุณครู · หัวหน้าไม่มี OT ของตัวเอง · นับจากที่ครูแจ้งเท่านั้น',
                 payOk: 'OK · ไม่ต้องจ่าย',
@@ -12137,8 +12242,20 @@
                 rejectReportConfirm: 'Reject this report?',
                 rejectCancelReportConfirm: 'Reject this class-cancellation report? The class will be restored.',
                 teachersEmergency: "Teachers' emergency contacts",
-                teachersEmergencyHint: 'Summary of contacts each teacher registered · color-coded',
+                teachersEmergencyHint: 'Summary of contacts each teacher registered · color-coded · tap for profile',
                 noTeacherEm: 'Not registered yet',
+                emTeacherOpenHint: 'Tap to view profile',
+                emTeacherProfileBack: 'Back to list',
+                emTeacherProfileContacts: 'Registered emergency contacts',
+                emTeacherProfileRole: 'Role',
+                emTeacherProfileLangs: 'Languages taught',
+                emTeacherProfileWorkDays: 'Work days',
+                emTeacherProfileStart: 'Start date',
+                emTeacherProfileCode: 'Code',
+                emTeacherRoleTeacher: 'Teacher',
+                emTeacherLangKo: 'Korean',
+                emTeacherLangEn: 'English',
+                emTeacherLangTh: 'Thai',
                 payThisMonth: 'OT to pay this month',
                 payThisMonthHint: "Teachers' OT payout summary · director has no personal OT · self-reports only",
                 payOk: 'OK · nothing due',
@@ -15411,11 +15528,13 @@
             'headOrders', 'orderAcks', 'sharedNotes', 'sharedNoteStudents',
             'leaveRequests', 'directorTodos', 'schoolFinance', 'dormStudents',
             'studyPauses', 'waitlist', 'textbooks', 'jobApps', 'attendance',
-            'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos'
+            'studentEdits', 'helpChats', 'partTime', 'otReports', 'photos',
+            'accountData'
         ];
         const PORTAL_PUSH_URGENT = new Set([
             'headOrders', 'orderAcks', 'helpChats', 'classCancels',
-            'leaveRequests', 'daySchedules', 'roomTt', 'schedChanges', 'photos'
+            'leaveRequests', 'daySchedules', 'roomTt', 'schedChanges', 'photos',
+            'accountData'
         ]);
 
         const SUPABASE_CONFIG_JSON = 'data/supabase/supabase-config.json';
@@ -15915,6 +16034,50 @@
             });
             return { map: out, changed };
         }
+        /** Per-account overrides (emergency contacts, names, work days, …) — LWW by updatedAt. */
+        function mergeAccountDataMaps(localMap, remoteMap) {
+            const out = { ...(localMap && typeof localMap === 'object' ? localMap : {}) };
+            const remote = remoteMap && typeof remoteMap === 'object' ? remoteMap : {};
+            let changed = false;
+            Object.keys(remote).forEach((uid) => {
+                const rem = remote[uid];
+                if (!rem || typeof rem !== 'object' || Array.isArray(rem)) return;
+                const loc = out[uid];
+                if (!loc || typeof loc !== 'object' || Array.isArray(loc)) {
+                    out[uid] = JSON.parse(JSON.stringify(rem));
+                    changed = true;
+                    return;
+                }
+                const rAt = String(rem.updatedAt || '');
+                const lAt = String(loc.updatedAt || '');
+                if (rAt && (!lAt || rAt > lAt)) {
+                    out[uid] = JSON.parse(JSON.stringify(rem));
+                    changed = true;
+                    return;
+                }
+                if (lAt && rAt && lAt > rAt) return;
+                // No timestamps or equal — field-merge; arrays (emergency) prefer remote when different
+                const next = { ...loc };
+                let rowChanged = false;
+                Object.keys(rem).forEach((k) => {
+                    if (k === 'updatedAt') return;
+                    const rv = rem[k];
+                    const lv = loc[k];
+                    if (JSON.stringify(rv) !== JSON.stringify(lv)) {
+                        next[k] = Array.isArray(rv) || (rv && typeof rv === 'object')
+                            ? JSON.parse(JSON.stringify(rv))
+                            : rv;
+                        rowChanged = true;
+                    }
+                });
+                if (rowChanged) {
+                    if (rAt || lAt) next.updatedAt = rAt && lAt ? (rAt >= lAt ? rAt : lAt) : (rAt || lAt);
+                    out[uid] = next;
+                    changed = true;
+                }
+            });
+            return { map: out, changed };
+        }
         function mergeNameLists(localData, remoteData) {
             const local = localData && typeof localData === 'object' ? localData : { ko: [], en: [] };
             const remote = remoteData && typeof remoteData === 'object' ? remoteData : { ko: [], en: [] };
@@ -16022,6 +16185,7 @@
             if (name === 'partTime') return loadPartTime();
             if (name === 'otReports') return ensureOtBundleHydrated();
             if (name === 'photos') return collectPhotosPortalPayload();
+            if (name === 'accountData') return loadOverrides();
             return null;
         }
         function applyPortalStoreFromRemote(name, entry) {
@@ -16216,6 +16380,14 @@
                     const merged = mergeOtReportsMaps(ensureOtBundleHydrated(), remoteData);
                     if (merged.changed) {
                         saveOtBundle(merged.map, { syncRemote: false, tick: true });
+                        return true;
+                    }
+                    return false;
+                }
+                if (name === 'accountData') {
+                    const merged = mergeAccountDataMaps(loadOverrides(), remoteData);
+                    if (merged.changed) {
+                        saveOverrides(merged.map, { syncRemote: false });
                         return true;
                     }
                     return false;
@@ -18215,7 +18387,21 @@
 
         function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
         function loadOverrides() { try { return JSON.parse(localStorage.getItem(DATA_KEY) || '{}'); } catch { return {}; } }
-        function saveOverrides(s) { localStorage.setItem(DATA_KEY, JSON.stringify(s)); }
+        function saveOverrides(s, { syncRemote = true } = {}) {
+            localStorage.setItem(DATA_KEY, JSON.stringify(s || {}));
+            try { localStorage.setItem(DATA_KEY + ':tick', String(Date.now())); } catch (_) {}
+            const applying = !!(typeof portalSyncApplying !== 'undefined' && portalSyncApplying);
+            if (syncRemote && !applying && typeof queuePortalStorePush === 'function') {
+                queuePortalStorePush('accountData');
+            }
+            if (!applying) {
+                try {
+                    window.dispatchEvent(new CustomEvent('hongik-account-data-changed', {
+                        detail: { at: Date.now() }
+                    }));
+                } catch (_) {}
+            }
+        }
 
         function loadPasswords() { try { return JSON.parse(localStorage.getItem(PW_KEY) || '{}'); } catch { return {}; } }
         function savePasswords(m) { localStorage.setItem(PW_KEY, JSON.stringify(m)); }
@@ -20179,7 +20365,7 @@
                     if (document.getElementById('student-db-board') && (all || has('studentDb') || has('otReports') || has('studentEdits'))) {
                         renderStudentDbBoard(user);
                     }
-                    if (document.getElementById('overview-board') && (all || has('attendance') || has('photos') || has('otReports'))) {
+                    if (document.getElementById('overview-board') && (all || has('attendance') || has('photos') || has('otReports') || has('accountData'))) {
                         renderOverviewBoard(user);
                     }
                     if (has('photos') && document.getElementById('room-tt-board')) {
@@ -20206,8 +20392,11 @@
                     if (typeof renderLeaveMineList === 'function' && document.getElementById('leave-mine-list') && (all || has('leaveRequests'))) {
                         renderLeaveMineList(user);
                     }
-                    if (typeof renderTeacherEmergencyApp === 'function' && document.getElementById('em-teacher-app') && all) {
+                    if (typeof renderTeacherEmergencyApp === 'function' && document.getElementById('em-teacher-app') && (all || has('accountData'))) {
                         renderTeacherEmergencyApp(user);
+                    }
+                    if (typeof renderDirectorEmergencyBoard === 'function' && document.getElementById('em-dir-board') && (all || has('accountData') || has('photos'))) {
+                        renderDirectorEmergencyBoard(user);
                     }
                 } catch (_) {}
             }
@@ -22599,6 +22788,143 @@
             }
             renderOverviewBoardRef = renderOverviewBoard;
 
+            function teacherTaughtLangCodes(teaId) {
+                // UI locale flag (TH) + taught languages per teacher
+                if (teaId === 'eunha') return ['th', 'kr']; // Korean only
+                if (teaId === 'taehyun' || teaId === 'sua') return ['th', 'kr', 'gb']; // KO + EN
+                return [];
+            }
+            function teacherTaughtLangLabels(teaId) {
+                const codes = teacherTaughtLangCodes(teaId);
+                return codes.map((code) => {
+                    if (code === 'kr') return t('emTeacherLangKo');
+                    if (code === 'gb') return t('emTeacherLangEn');
+                    if (code === 'th') return t('emTeacherLangTh');
+                    return code.toUpperCase();
+                }).filter((v, i, arr) => arr.indexOf(v) === i);
+            }
+            function renderDirectorEmergencyBoard(user) {
+                const board = document.getElementById('em-dir-board');
+                if (!board || !user || user.role !== 'director') return;
+                const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+                const teachers = teacherAccounts();
+                const go = (next, anim) => {
+                    emDirNav = { ...emDirNav, ...next };
+                    renderDirectorEmergencyBoard(user);
+                    const el = document.getElementById('em-dir-board');
+                    if (el) {
+                        el.classList.remove('em-slide-in', 'em-slide-back');
+                        void el.offsetWidth;
+                        el.classList.add(anim || 'em-slide-in');
+                    }
+                };
+
+                if (emDirNav.view === 'detail' && emDirNav.teacherId) {
+                    const tea = teachers.find((x) => x.id === emDirNav.teacherId) || resolveAccountById(emDirNav.teacherId);
+                    if (!tea) {
+                        emDirNav = { view: 'list', teacherId: null };
+                        renderDirectorEmergencyBoard(user);
+                        return;
+                    }
+                    const idx = Math.max(0, teachers.findIndex((x) => x.id === tea.id));
+                    const c = teacherColor(tea, idx);
+                    const contacts = Array.isArray(tea.emergency) ? tea.emergency.filter((x) => x && (x.name || x.phone)) : [];
+                    const flagCodes = teacherTaughtLangCodes(tea.id);
+                    const flagsHtml = flagCodes.length
+                        ? flagCodes.map((code) => {
+                            const alt = code === 'th' ? 'TH' : code === 'kr' ? 'KR' : 'EN';
+                            return `<img src="https://flagcdn.com/w40/${code}.png" alt="${alt}" width="18" height="18">`;
+                        }).join('')
+                        : '';
+                    const langLabels = teacherTaughtLangLabels(tea.id);
+                    const workDays = displayWorkDays(tea);
+                    const roleLbl = displayRole(tea) || t('emTeacherRoleTeacher');
+                    const photoHtml = userAvatarHtml(tea.id, displayName(tea), {
+                        size: 112,
+                        className: 'em-profile-photo',
+                        color: c,
+                        idx
+                    });
+                    const bioRows = [
+                        `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileRole'))}</span><span>${esc(roleLbl)}</span></div>`,
+                        langLabels.length
+                            ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileLangs'))}</span><span>${esc(langLabels.join(' · '))}</span></div>`
+                            : '',
+                        workDays
+                            ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileWorkDays'))}</span><span>${esc(workDays)}</span></div>`
+                            : '',
+                        tea.startDate
+                            ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileStart'))}</span><span>${esc(tea.startDate)}</span></div>`
+                            : '',
+                        tea.code
+                            ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileCode'))}</span><span>${esc(tea.code)}</span></div>`
+                            : ''
+                    ].filter(Boolean).join('');
+                    const contactRows = contacts.length
+                        ? contacts.map((ct) => `
+                            <div class="em-profile-contact">
+                                <span class="em-c-name" style="color:${c.accent}">${esc(ct.name || '—')}</span>
+                                ${ct.role ? `<span class="em-c-role">${esc(ct.role)}</span>` : ''}
+                                ${ct.phone ? `<a href="tel:${String(ct.phone).replace(/\s/g, '')}" style="color:${c.accent}">${esc(ct.phone)}</a>` : ''}
+                            </div>`).join('')
+                        : `<p class="text-xs" style="color:#94a3b8;margin:0">${t('noTeacherEm')}</p>`;
+                    board.innerHTML = `
+                        <button type="button" class="ov-back" id="em-dir-back-btn"><i class="ph ph-caret-left"></i> ${t('emTeacherProfileBack')}</button>
+                        <div class="em-profile" style="background:${c.bg};border-color:${c.border}">
+                            <div class="em-profile-hero">
+                                ${photoHtml}
+                                <h3 class="em-profile-name" style="color:${c.accent}">${esc(displayName(tea))}</h3>
+                                <div class="em-profile-meta">
+                                    <span class="badge" style="background:${c.soft};color:${c.accent}">${esc(roleLbl)}</span>
+                                    ${flagsHtml ? `<span class="badge ov-lang-flags" aria-hidden="true">${flagsHtml}</span>` : ''}
+                                    <span class="badge" style="background:${c.soft};color:${c.accent}">${contacts.length}</span>
+                                </div>
+                            </div>
+                            ${bioRows ? `<div class="em-profile-bio">${bioRows}</div>` : ''}
+                            <h4 class="em-profile-section-title" style="color:${c.accent}"><i class="ph ph-first-aid"></i> ${t('emTeacherProfileContacts')}</h4>
+                            <div class="em-profile-contacts">${contactRows}</div>
+                        </div>`;
+                    document.getElementById('em-dir-back-btn')?.addEventListener('click', () => go({ view: 'list', teacherId: null }, 'em-slide-back'));
+                    return;
+                }
+
+                const list = teachers.map((tea, i) => {
+                    const c = teacherColor(tea, i);
+                    const contacts = Array.isArray(tea.emergency) ? tea.emergency.filter((x) => x && (x.name || x.phone)) : [];
+                    const rows = contacts.length
+                        ? contacts.map((ct) => `
+                            <div class="em-contact-row">
+                                <span class="em-c-name" style="color:${c.accent}">${esc(ct.name || '—')}</span>
+                                ${ct.role ? `<span class="em-c-role">${esc(ct.role)}</span>` : ''}
+                                ${ct.phone ? `<a href="tel:${String(ct.phone).replace(/\s/g, '')}" data-em-tel="1" style="color:${c.accent}">${esc(ct.phone)}</a>` : ''}
+                            </div>`).join('')
+                        : `<p class="text-xs" style="color:#94a3b8;margin:0">${t('noTeacherEm')}</p>`;
+                    return `<div class="em-teacher-block" role="button" tabindex="0" data-em-tea="${tea.id}" style="background:${c.bg};border-color:${c.border};animation-delay:${(i * 0.05).toFixed(2)}s">
+                        <div class="em-teacher-head">
+                            <span class="em-teacher-name" style="color:${c.accent};display:inline-flex;align-items:center;gap:.45rem">${userAvatarHtml(tea.id, displayName(tea), { color: c })}${esc(displayName(tea))}</span>
+                            <span class="badge" style="background:${c.soft};color:${c.accent}">${contacts.length}</span>
+                        </div>
+                        ${rows}
+                        <div class="em-open-hint">${t('emTeacherOpenHint')}</div>
+                    </div>`;
+                }).join('');
+
+                board.innerHTML = list || `<p class="empty-note">${t('none')}</p>`;
+                const openTea = (id) => go({ view: 'detail', teacherId: id }, 'em-slide-in');
+                board.querySelectorAll('[data-em-tea]').forEach((row) => {
+                    row.addEventListener('click', (ev) => {
+                        if (ev.target && ev.target.closest && ev.target.closest('a[href^="tel:"]')) return;
+                        openTea(row.dataset.emTea);
+                    });
+                    row.addEventListener('keydown', (ev) => {
+                        if (ev.key !== 'Enter' && ev.key !== ' ') return;
+                        ev.preventDefault();
+                        openTea(row.dataset.emTea);
+                    });
+                });
+            }
+            renderDirectorEmergencyBoardRef = renderDirectorEmergencyBoard;
+
             function renderPartTimeApp(user) {
                 const app = document.getElementById('pt-app');
                 if (!app || !user || user.role !== 'director') return;
@@ -24339,7 +24665,6 @@
                 }).join('') : `<p class="empty-note">${t('noSchedule')}</p><p class="text-xs text-slate-400 text-center" style="margin-top:.35rem">${t('schedItemHint')}</p>`;
 
                 let extra = '';
-                let directorEmHtml = '';
                 if (user.role === 'director') {
                     const teachers = teacherAccounts();
                     const leaves = loadLeaveRequests().slice().reverse();
@@ -24582,24 +24907,6 @@
                         <div class="dir-plan-list" id="dir-todo-list">${todoRows}</div>
                     </div>`;
 
-                    const teacherEmBoard = teachers.map((tea, i) => {
-                        const c = teacherColor(tea, i);
-                        const contacts = Array.isArray(tea.emergency) ? tea.emergency.filter(x => x && (x.name || x.phone)) : [];
-                        const rows = contacts.length ? contacts.map(ct => `
-                            <div class="em-contact-row">
-                                <span class="em-c-name" style="color:${c.accent}">${ct.name || '—'}</span>
-                                ${ct.role ? `<span class="em-c-role">${ct.role}</span>` : ''}
-                                ${ct.phone ? `<a href="tel:${String(ct.phone).replace(/\s/g,'')}" style="color:${c.accent}">${ct.phone}</a>` : ''}
-                            </div>`).join('') : `<p class="text-xs" style="color:#94a3b8;margin:0">${t('noTeacherEm')}</p>`;
-                        return `<div class="em-teacher-block" style="background:${c.bg};border-color:${c.border};animation-delay:${(i*0.05).toFixed(2)}s">
-                            <div class="em-teacher-head">
-                                <span class="em-teacher-name" style="color:${c.accent};display:inline-flex;align-items:center;gap:.45rem">${userAvatarHtml(tea.id, displayName(tea), { color: c })}${displayName(tea)}</span>
-                                <span class="badge" style="background:${c.soft};color:${c.accent}">${contacts.length}</span>
-                            </div>
-                            ${rows}
-                        </div>`;
-                    }).join('');
-
                     extra += `<div class="tab-panel" data-panel="overview"><div class="content-card compact-card">
                         ${dirPlanBoard}
                         <div id="overview-board"></div>
@@ -24663,7 +24970,6 @@
                         </div>
                         ${readBoard}
                     </div></div>`;
-                    directorEmHtml = teacherEmBoard;
                 }
                                 if (user.role === 'accounting') {
                     extra += `<div class="tab-panel" data-panel="finance"><div class="content-card">${heading('ph-currency-circle-dollar','financeTitle','tabFinance')}
@@ -24768,7 +25074,7 @@
                         ${user.role === 'director' ? `
                         <div class="content-card compact-card">${heading('ph-first-aid','teachersEmergency')}
                             <p class="text-xs text-slate-500 mb-2">${t('teachersEmergencyHint')}</p>
-                            <div class="em-teacher-board">${directorEmHtml || `<p class="empty-note">${t('none')}</p>`}</div>
+                            <div class="em-teacher-board" id="em-dir-board"></div>
                         </div>
                         ` : `
                         <div class="content-card compact-card" id="em-card">${heading('ph-first-aid','emergencyTitle')}
@@ -24952,6 +25258,7 @@
 
                 // emergency · teachers/accounting: self vs known via popup
                 if (document.getElementById('em-teacher-app')) renderTeacherEmergencyApp(user);
+                if (document.getElementById('em-dir-board')) renderDirectorEmergencyBoard(user);
 
                 // notes · language → students → log
                 const notesApp = document.getElementById('notes-app');
@@ -25396,7 +25703,11 @@
             }
             function saveUserEmergency(userId, list) {
                 const store = loadOverrides();
-                store[userId] = { ...(store[userId] || {}), emergency: list };
+                store[userId] = {
+                    ...(store[userId] || {}),
+                    emergency: list,
+                    updatedAt: new Date().toISOString()
+                };
                 saveOverrides(store);
             }
             function openEmContactModal({ kind = 'known', editIndex = -1, contact = null } = {}) {
@@ -26413,7 +26724,7 @@
                         }
                         next[key] = parsed.value;
                     }
-                    store[accountId] = next;
+                    store[accountId] = { ...next, updatedAt: new Date().toISOString() };
                     saveOverrides(store);
                     if (TEACHER_DISPLAY[accountId]) {
                         TEACHER_DISPLAY[accountId] = {
@@ -27927,8 +28238,14 @@
                 document.getElementById('crop-ui').classList.add('hidden');
                 document.getElementById('photo-modal-body').innerHTML = `<img src="${out}" alt="" style="width:220px;height:220px;border-radius:50%;object-fit:cover">`;
                 // Refresh director overview avatars live when a photo is saved
-                if (document.getElementById('overview-board') && typeof renderOverviewBoard === 'function' && currentUser) {
-                    try { renderOverviewBoard(resolveAccountById(currentUser.id) || currentUser); } catch (_) {}
+                if (currentUser) {
+                    const u = resolveAccountById(currentUser.id) || currentUser;
+                    if (document.getElementById('overview-board') && typeof renderOverviewBoard === 'function') {
+                        try { renderOverviewBoard(u); } catch (_) {}
+                    }
+                    if (document.getElementById('em-dir-board') && typeof renderDirectorEmergencyBoard === 'function') {
+                        try { renderDirectorEmergencyBoard(u); } catch (_) {}
+                    }
                 }
                 notifyPhotoSaveResult(pushResult);
             });
@@ -27970,7 +28287,8 @@
                 PHOTOS_STORE, PHOTOS_STORE + ':tick',
                 HELP_CHAT_STORE, HELP_CHAT_STORE + ':tick',
                 SHARED_NOTES_STORE, SHARED_NOTES_STORE + ':tick',
-                SHARED_NOTE_STUDENTS_STORE, SHARED_NOTE_STUDENTS_STORE + ':tick'
+                SHARED_NOTE_STUDENTS_STORE, SHARED_NOTE_STUDENTS_STORE + ':tick',
+                DATA_KEY, DATA_KEY + ':tick'
             ]);
             const isSharedStoreKey = (key) =>
                 SHARED_STORE_KEYS.has(key)
@@ -28085,12 +28403,24 @@
                         if (k.startsWith(DORM_STORE)) return ['dormStudents'];
                         if (k.startsWith(ATTEND_STORE)) return ['attendance'];
                         if (k.startsWith(FINANCE_STORE)) return ['schoolFinance'];
+                        if (k.startsWith(DATA_KEY)) return ['accountData'];
                         return null;
                     })();
                     if (typeof softRefreshDashboard === 'function') {
                         softRefreshDashboard(u, { stores: storesFromKey, reason: 'storage:' + e.key });
                     }
                 }, 380);
+            });
+
+            window.addEventListener('hongik-account-data-changed', () => {
+                if (!currentUser) return;
+                if (dashboardScreen?.classList.contains('hidden-screen')) return;
+                const u = resolveAccountById(currentUser.id) || currentUser;
+                if (typeof softRefreshDashboard === 'function') {
+                    softRefreshDashboard(u, { stores: ['accountData'], reason: 'account-data' });
+                } else if (document.getElementById('em-dir-board') && typeof renderDirectorEmergencyBoard === 'function') {
+                    try { renderDirectorEmergencyBoard(u); } catch (_) {}
+                }
             });
 
             // Restore session on refresh → unread head orders pop again
