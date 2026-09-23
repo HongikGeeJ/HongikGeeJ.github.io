@@ -508,9 +508,9 @@
             .dc-c.bl { transform: none; }
             .dc-c.br { transform: scaleX(-1); }
         }
-        /* Dashboard content-card corner blooms folded away globally so framed h3
-           titles on other tabs never collide. Login .panel .dc-c flowers stay.
-           Today-schedule card re-enables head/tail blooms behind content below. */
+        /* Dashboard content-card corner blooms: other tabs stay clear of framed h3.
+           ตารางวันนี้ restores animated head/tail flower BG (pre-34dec44 look)
+           behind content. Login .panel .dc-c flowers stay. */
         .dash-shell .content-card {
             position: relative;
             overflow: visible;
@@ -519,7 +519,7 @@
             pointer-events: auto;
             padding: 1.15rem 1.25rem 1.25rem;
         }
-        /* Fold away TL/BR corner blooms (and Eunha Shin variants) on cards */
+        /* Fold away TL/BR on non-today cards */
         .dash-shell .content-card::before,
         .dash-shell .content-card::after {
             content: none !important;
@@ -544,46 +544,52 @@
             display: none !important;
         }
         /*
-          ตารางวันนี้ only: head (TL) + tail (BR) flower décor behind content.
-          Pseudos stay z-index:0 / pointer-events:none; framed h3 + form stay above.
+          ตารางวันนี้: animated corner-bloom flowers (TL head + BR tail),
+          same assets/keyframes as pre-34dec44. ALL size/opacity props use
+          !important so they beat the fold-away width:0/height:0 kill switch.
+          z-index:0 keeps framed h3 + form readable above the décor.
         */
         .dash-shell .tab-panel[data-panel="today"] > .content-card {
             isolation: isolate;
-            overflow: hidden;
+            overflow: visible;
         }
         .dash-shell .tab-panel[data-panel="today"] > .content-card::before,
         .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
             content: '' !important;
             display: block !important;
-            position: absolute;
-            width: 104px;
-            height: 104px;
+            position: absolute !important;
+            width: 126px !important;
+            height: 126px !important;
             pointer-events: none !important;
-            z-index: 0;
-            background-repeat: no-repeat;
-            background-size: contain;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom15') !important;
-            opacity: .82 !important;
+            z-index: 0 !important;
+            background-repeat: no-repeat !important;
+            background-size: contain !important;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom16') !important;
+            opacity: .9 !important;
             animation: cardBloomSway 5.2s ease-in-out infinite !important;
-            transform-origin: 0 0;
+            transform-origin: 0 0 !important;
+            filter: none !important;
+            will-change: transform;
         }
         .dash-shell .tab-panel[data-panel="today"] > .content-card::before {
-            top: 2px;
-            left: 2px;
-            transform: none;
+            top: 2px !important;
+            left: 2px !important;
+            right: auto !important;
+            bottom: auto !important;
+            transform: none !important;
         }
         .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
-            width: 114px;
-            height: 90px;
-            top: auto;
-            left: auto;
-            right: 2px;
-            bottom: 2px;
-            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom7') !important;
-            transform: none;
-            transform-origin: 100% 100%;
+            width: 138px !important;
+            height: 108px !important;
+            top: auto !important;
+            left: auto !important;
+            right: 2px !important;
+            bottom: 2px !important;
+            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom8') !important;
+            transform: none !important;
+            transform-origin: 100% 100% !important;
             animation: cardBloomSwayBrIn 5.2s ease-in-out infinite !important;
-            animation-delay: .7s;
+            animation-delay: .7s !important;
         }
         .dash-shell .tab-panel[data-panel="today"] > .content-card > * {
             position: relative;
@@ -600,19 +606,15 @@
             75% { transform: rotate(-2deg) scale(1.015); }
         }
         /*
-          Eunha only (#dash-shell.is-eunha-shin): restore pre-34dec44 Shin corner décor.
-          TL = cheek + yellow star halo, BR = pajama sit. Behind framed h3 / body
-          (z-index:0); other accounts keep today-only flower blooms or none.
+          Eunha: Shin cheek/pajama on OTHER tabs. Today keeps animated flowers
+          (user asked for the floral BG back on ตารางวันนี้).
         */
-        .dash-shell.is-eunha-shin .content-card,
-        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card {
+        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card {
             isolation: isolate;
             overflow: visible;
         }
-        .dash-shell.is-eunha-shin .tab-panel > .content-card::before,
-        .dash-shell.is-eunha-shin .tab-panel > .content-card::after,
-        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::before,
-        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
+        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::before,
+        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::after {
             content: '' !important;
             display: block !important;
             position: absolute;
@@ -629,8 +631,7 @@
                 drop-shadow(0 1px 3px rgba(15, 23, 42, .12));
             animation: none;
         }
-        .dash-shell.is-eunha-shin .tab-panel > .content-card::before,
-        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::before {
+        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::before {
             --eunha-cheek-size: 54px;
             width: 76px !important;
             height: 76px !important;
@@ -663,8 +664,7 @@
                 eunhaCheekStarsTwinkle 2.35s ease-in-out infinite,
                 eunhaCheekStarsOrbit 9.5s linear infinite !important;
         }
-        .dash-shell.is-eunha-shin .tab-panel > .content-card::after,
-        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
+        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::after {
             width: 54px !important;
             height: 68px !important;
             top: auto;
@@ -679,7 +679,7 @@
             animation: eunhaShinPajamaSway 3.8s ease-in-out infinite !important;
             animation-delay: .35s;
         }
-        .dash-shell.is-eunha-shin .tab-panel > .content-card.compact-card::before {
+        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card.compact-card::before {
             --eunha-cheek-size: 52px;
             width: 74px !important;
             height: 74px !important;
@@ -690,7 +690,7 @@
                 12px 12px, 9px 9px, 11px 11px, 9px 9px, 13px 13px,
                 5px 5px, 4px 4px, 6px 6px;
         }
-        .dash-shell.is-eunha-shin .tab-panel > .content-card.compact-card::after {
+        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card.compact-card::after {
             width: 44px !important;
             height: 56px !important;
             top: auto;
@@ -698,7 +698,7 @@
             right: 4px;
             bottom: 3px;
         }
-        .dash-shell.is-eunha-shin .tab-panel > .content-card > * {
+        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card > * {
             position: relative;
             z-index: 1;
         }
@@ -783,16 +783,15 @@
             }
             .dash-shell .tab-panel[data-panel="today"] > .content-card::before,
             .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
-                width: 78px;
-                height: 78px;
-                opacity: .75 !important;
+                width: 108px !important;
+                height: 108px !important;
+                opacity: .88 !important;
             }
             .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
-                width: 86px;
-                height: 68px;
+                width: 120px !important;
+                height: 90px !important;
             }
-            .dash-shell.is-eunha-shin .tab-panel > .content-card::before,
-            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::before {
+            .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::before {
                 --eunha-cheek-size: 50px;
                 width: 72px !important;
                 height: 72px !important;
@@ -800,8 +799,7 @@
                 top: -8px;
                 left: 3px;
             }
-            .dash-shell.is-eunha-shin .tab-panel > .content-card::after,
-            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
+            .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::after {
                 width: 42px !important;
                 height: 54px !important;
                 opacity: 1 !important;
@@ -26571,7 +26569,7 @@
                     saveBtn.title = viewOnly ? t('roomTtViewOnly') : '';
                     if (viewOnly) saveBtn.style.display = 'none';
                 }
-                if (viewOnly && msg) msg.textContent = t('roomTtViewOnly');
+                // View-only: keep status line as link note (or other msgs); never show "view only" banner.
                 if (existing?.isBreak) {
                     if (msg) msg.textContent = 'Break';
                     if (saveBtn) saveBtn.style.display = 'none';
@@ -33890,7 +33888,6 @@
                 const canEditMeta = !existing || existing.teacherId === currentUser.id || existing.teacherId === 'parttime'
                     || currentUser.role === 'director' || currentUser.role === 'admin';
                 if (existing && !canEditMeta) {
-                    if (msg) msg.textContent = t('roomTtViewOnly');
                     return;
                 }
                 const subjectUser = (existing && existing.teacherId !== 'parttime' && existing.teacherId !== 'break')
@@ -34027,7 +34024,9 @@
                         start: draft.start || draft.half
                     });
                     if (!result.ok) {
-                        if (msg) msg.textContent = result.msg || t('roomTtViewOnly');
+                        if (msg && result.msg && result.msg !== t('roomTtViewOnly')) {
+                            msg.textContent = result.msg;
+                        }
                         return;
                     }
                     if (result.slot || existing) {
