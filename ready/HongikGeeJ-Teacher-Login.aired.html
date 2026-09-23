@@ -1625,7 +1625,7 @@
             100% { transform: translate3d(28px, -118px, 0) rotate(14deg); opacity: 0; }
         }
 
-        /* Header-local Hangul FX — in front of logout chrome; never steals clicks */
+        /* Header-local Hangul FX — large name sits by the digital clock; never steals clicks */
         .dash-header-fx {
             position: absolute;
             inset: 0;
@@ -1640,7 +1640,7 @@
         }
         .dash-header > .header-actions {
             position: relative;
-            /* Below FX so watermark paints over logout; clicks pass via pointer-events:none */
+            /* Below FX so watermark can overlay the clock; logout/lang stay clear via mark position */
             z-index: 5;
         }
         .dash-header-fx .hangul-float-layer {
@@ -1648,7 +1648,8 @@
         }
         .dash-header-fx .hangul-mark {
             position: absolute;
-            right: 3.5%;
+            /* Clock sits left of profile/lang/logout (~11–16rem from right); keep clear of those controls */
+            right: clamp(11.25rem, 26vw, 16.5rem);
             top: 50%;
             transform: translateY(-50%);
             z-index: 2;
@@ -1659,11 +1660,20 @@
             line-height: 1;
             white-space: nowrap;
             user-select: none;
-            opacity: .18;
+            opacity: .22;
             color: #4a6fa5;
             animation: hangulFloatCharm 9.5s ease-in-out infinite;
             pointer-events: none;
             will-change: transform, opacity;
+        }
+        @media (max-width: 720px) {
+            .dash-header-fx .hangul-mark {
+                right: clamp(9.75rem, 48vw, 14rem);
+                font-size: clamp(1.25rem, 5.2vw, 1.85rem);
+            }
+            .theme-director .dash-header-fx .hangul-mark {
+                right: clamp(9rem, 44vw, 13.5rem);
+            }
         }
 
         .theme-teacher-a .dash-header {
@@ -2326,10 +2336,11 @@
         .theme-director .dash-header-fx .hangul-float.c5 { color: rgba(15,23,42,.34); }
         .theme-director .dash-header-fx .hangul-mark {
             color: #1e3a5f;
-            opacity: .2;
+            opacity: .22;
             font-size: clamp(1.4rem, 3.8vw, 2.1rem);
             letter-spacing: .1em;
-            right: 3%;
+            /* Longer brand mark — still anchored to clock zone, not logout */
+            right: clamp(10.5rem, 24vw, 15.5rem);
             animation: hangulFloatCharm 11s cubic-bezier(.45,.05,.55,.95) infinite;
         }
         /* Director only: hangul wallpaper may drift over #dash-tabs.
@@ -20821,10 +20832,29 @@
                 if (bannerSig) bannerSig.textContent = t('taehyunSig');
                 loadPhoto(user.id);
                 renderStats(user);
-                renderTabs(user);
-                renderPanels(user);
-                const nextTab = keepTab && currentTab ? currentTab : (user.role === 'admin' ? 'school' : user.role === 'director' ? 'overview' : 'today');
-                setTab(nextTab);
+                try { renderTabs(user); } catch (_) {}
+                try {
+                    renderPanels(user);
+                } catch (err) {
+                    try { console.warn('[hongik] renderPanels failed', err); } catch (_) {}
+                }
+                // Always activate a valid tab (บอร์ดงานวันนี้ / role-first). keepTab only if still mounted.
+                const preferred = (keepTab && currentTab) ? currentTab : defaultTabForRole(user);
+                try {
+                    setTab(resolveDashboardTab(user, preferred));
+                } catch (_) {
+                    try { setTab(defaultTabForRole(user)); } catch (__) {}
+                }
+                // Soft-refresh / throw mid-render can leave empty #tab-panels — rebuild once
+                try {
+                    const panelsEl = document.getElementById('tab-panels');
+                    if (panelsEl && !panelsEl.querySelector('.tab-panel')) {
+                        renderPanels(user);
+                        setTab(defaultTabForRole(user));
+                    } else if (panelsEl && !panelsEl.querySelector('.tab-panel.active')) {
+                        setTab(defaultTabForRole(user));
+                    }
+                } catch (_) {}
                 maybeShowAlertPopups(user);
                 tickClock();
                 const wantLiveSync = user.role === 'director' || user.role === 'admin' || user.role === 'teacher' || user.role === 'accounting';
@@ -25481,7 +25511,7 @@
                         <div class="dir-plan-list" id="dir-todo-list">${todoRows}</div>
                     </div>`;
 
-                    extra += `<div class="tab-panel" data-panel="overview"><div class="content-card compact-card">
+                    extra += `<div class="tab-panel active" data-panel="overview"><div class="content-card compact-card">
                         ${dirPlanBoard}
                         <div id="overview-board"></div>
                     </div></div>`;
@@ -25556,7 +25586,7 @@
                 }
 
                 panels.innerHTML = `
-                    <div class="tab-panel" data-panel="today">
+                    <div class="tab-panel active" data-panel="today">
                         <div class="content-card">
                             <div id="class-status" class="class-status" aria-live="polite">
                                 <i class="ph-fill ph-broadcast"></i>
@@ -27446,12 +27476,49 @@
                 document.getElementById('admin-delete-modal')?.classList.remove('open');
             }
 
+            function defaultTabForRole(user) {
+                if (!user) return 'today';
+                if (user.role === 'admin') return 'school';
+                if (user.role === 'director') return 'overview'; // บอร์ดงานวันนี้
+                if (user.role === 'accounting') return 'finance';
+                return 'today';
+            }
+            /** Pick a tab that exists for this role (button + panel). Invalid/missing → role default / first tab. */
+            function resolveDashboardTab(user, preferred) {
+                let id = preferred == null ? '' : String(preferred);
+                if (id === 'classes') id = 'rooms';
+                const btns = Array.from(document.querySelectorAll('#dash-tabs .tab-btn'));
+                const panels = Array.from(document.querySelectorAll('#tab-panels .tab-panel'));
+                const btnIds = new Set(btns.map((b) => b.dataset.tab).filter(Boolean));
+                const panelIds = new Set(panels.map((p) => p.dataset.panel).filter(Boolean));
+                const usable = (tid) => !!(tid && btnIds.has(tid) && (panelIds.has(tid) || !panelIds.size));
+                if (usable(id)) return id;
+                const fallback = defaultTabForRole(user || currentUser);
+                if (usable(fallback)) return fallback;
+                for (const b of btns) {
+                    const tid = b.dataset.tab;
+                    if (tid && panelIds.has(tid)) return tid;
+                }
+                return btns[0]?.dataset.tab || fallback || 'today';
+            }
             function setTab(id) {
                 if (id === 'classes') id = 'rooms'; // ตารางสอน tab removed — use room TT
+                id = resolveDashboardTab(currentUser, id);
                 const prevTab = currentTab;
                 currentTab = id;
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
                 document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === id));
+                // Never leave #tab-panels blank: if no panel matched, force first panel + its tab
+                if (!document.querySelector('#tab-panels .tab-panel.active')) {
+                    const firstPanel = document.querySelector('#tab-panels .tab-panel');
+                    if (firstPanel) {
+                        const fid = firstPanel.dataset.panel;
+                        currentTab = fid;
+                        firstPanel.classList.add('active');
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === fid));
+                        id = fid;
+                    }
+                }
                 // Changing page/tab allows head-order / attend / sched-alert popup to show again
                 if (prevTab !== id) {
                     orderPopupSnoozed = false;
