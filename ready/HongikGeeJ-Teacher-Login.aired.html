@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<script>/*hongik-sb-embed*/window.__HONGIK_SUPABASE_CONFIG__={"url":"https://qoxdpqlzbbsluxzqchuq.supabase.co","anonKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveGRwcWx6YmJzbHV4enFjaHVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDEzNzYsImV4cCI6MjEwNTU3NzM3Nn0.sVpAV7RF_Q0O7B9YVx2x2DhpDmsvmZestIIkaMV8Sa4"};</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>HongikGeeJ Teacher Login</title>
@@ -5826,6 +5825,7 @@
         }
         .em-profile-meta {
             display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem;
+            position: relative;
         }
         .em-profile-meta .badge {
             font-size: .78rem; font-weight: 750; padding: .28rem .65rem;
@@ -5851,6 +5851,73 @@
             object-fit: cover;
             display: block;
             box-shadow: 0 0 0 1px rgba(15, 23, 42, .08);
+        }
+        /* DOB pill — replaces old emergency-contact count badge next to lang flags */
+        .em-profile-meta .em-dob-pill,
+        .em-dob-row .em-dob-pill {
+            font-size: .78rem;
+            font-weight: 750;
+            padding: .28rem .7rem;
+            background: #f8fafc !important;
+            color: #334155 !important;
+            border: 1px solid #e2e8f0 !important;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: .01em;
+            white-space: nowrap;
+            line-height: 1.2;
+        }
+        .em-dob-pill.is-unset {
+            color: #94a3b8 !important;
+            font-weight: 650 !important;
+        }
+        .em-dob-pill.is-edit {
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .em-dob-pill.is-edit:hover,
+        .em-dob-pill.is-edit:focus-visible {
+            border-color: #94a3b8 !important;
+            background: #fff !important;
+            outline: none;
+        }
+        .em-dob-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .45rem .65rem;
+            margin: 0 0 .85rem;
+            padding: .65rem .75rem;
+            border-radius: .85rem;
+            background: rgba(248, 250, 252, .9);
+            border: 1px solid #e2e8f0;
+        }
+        .em-dob-row .em-dob-label {
+            font-size: .78rem;
+            font-weight: 800;
+            color: #64748b;
+        }
+        .em-dob-row .em-dob-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            flex-wrap: wrap;
+        }
+        .em-dob-row .em-dob-input {
+            border: 1.5px solid #e2e8f0;
+            border-radius: .65rem;
+            padding: .28rem .5rem;
+            font: inherit;
+            font-size: .78rem;
+            font-weight: 650;
+            color: #334155;
+            background: #fff;
+            max-width: 11rem;
+        }
+        .em-dob-row .em-dob-hint {
+            flex: 1 1 100%;
+            margin: 0;
+            font-size: .72rem;
+            color: #94a3b8;
         }
         .em-profile-bio {
             display: grid; gap: .45rem; margin: 0 0 1rem;
@@ -10796,10 +10863,16 @@
                 emTeacherProfileWorkDays: '근무일',
                 emTeacherProfileStart: '입사일',
                 emTeacherProfileCode: '코드',
+                emTeacherProfileBirth: '생년월일',
                 emTeacherRoleTeacher: '선생님',
                 emTeacherLangKo: '한국어',
                 emTeacherLangEn: '영어',
                 emTeacherLangTh: '태국어',
+                birthDate: '생년월일',
+                birthDatePlaceholder: '생년월일 입력',
+                birthDateHint: '본인 생년월일 · 탭해서 수정 · 실시간 동기화',
+                birthDateEdit: '생년월일 수정',
+                birthDateSaved: '생년월일을 저장했습니다',
                 payThisMonth: '이번 달 OT 지급',
                 payThisMonthHint: '교사 OT 지급 요약 · 원장 OT는 없습니다 · 교사 신고분만',
                 payOk: 'OK · 지급 없음',
@@ -11640,10 +11713,16 @@
                 emTeacherProfileWorkDays: 'วันทำงาน',
                 emTeacherProfileStart: 'วันเริ่มงาน',
                 emTeacherProfileCode: 'รหัส',
+                emTeacherProfileBirth: 'วันเดือนปีเกิด',
                 emTeacherRoleTeacher: 'คุณครู',
                 emTeacherLangKo: 'เกาหลี',
                 emTeacherLangEn: 'อังกฤษ',
                 emTeacherLangTh: 'ไทย',
+                birthDate: 'วันเดือนปีเกิด',
+                birthDatePlaceholder: 'ใส่วันเกิด',
+                birthDateHint: 'วันเกิดของคุณ · แตะเพื่อแก้ไข · ซิงก์แบบเรียลไทม์',
+                birthDateEdit: 'แก้ไขวันเกิด',
+                birthDateSaved: 'บันทึกวันเกิดแล้ว',
                 payThisMonth: 'OT ที่ต้องจ่ายเดือนนี้',
                 payThisMonthHint: 'สรุปค่า OT ของคุณครู · หัวหน้าไม่มี OT ของตัวเอง · นับจากที่ครูแจ้งเท่านั้น',
                 payOk: 'OK · ไม่ต้องจ่าย',
@@ -12484,10 +12563,16 @@
                 emTeacherProfileWorkDays: 'Work days',
                 emTeacherProfileStart: 'Start date',
                 emTeacherProfileCode: 'Code',
+                emTeacherProfileBirth: 'Date of birth',
                 emTeacherRoleTeacher: 'Teacher',
                 emTeacherLangKo: 'Korean',
                 emTeacherLangEn: 'English',
                 emTeacherLangTh: 'Thai',
+                birthDate: 'Date of birth',
+                birthDatePlaceholder: 'Add date of birth',
+                birthDateHint: 'Your date of birth · tap to edit · syncs live',
+                birthDateEdit: 'Edit date of birth',
+                birthDateSaved: 'Date of birth saved',
                 payThisMonth: 'OT to pay this month',
                 payThisMonthHint: "Teachers' OT payout summary · director has no personal OT · self-reports only",
                 payOk: 'OK · nothing due',
@@ -23438,6 +23523,7 @@
                     const c = teacherColor(tea, idx);
                     // Profile 「เบอร์ฉุกเฉินที่ลงทะเบียน」 = accountData for THIS teacher id only
                     const contacts = registeredEmergencyFor(tea.id);
+                    const birthDate = accountBirthDate(tea.id);
                     const flagCodes = teacherTaughtLangCodes(tea.id);
                     const flagsHtml = flagCodes.length
                         ? flagCodes.map((code) => {
@@ -23454,6 +23540,7 @@
                         color: c,
                         idx
                     });
+                    const canEditDob = !!(currentUser && currentUser.id === tea.id);
                     const bioRows = [
                         `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileRole'))}</span><span>${esc(roleLbl)}</span></div>`,
                         langLabels.length
@@ -23462,6 +23549,7 @@
                         workDays
                             ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileWorkDays'))}</span><span>${esc(workDays)}</span></div>`
                             : '',
+                        `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileBirth'))}</span><span>${esc(formatBirthDateDisplay(birthDate) || t('birthDatePlaceholder'))}</span></div>`,
                         tea.startDate
                             ? `<div class="em-bio-row"><span class="em-bio-label">${esc(t('emTeacherProfileStart'))}</span><span>${esc(tea.startDate)}</span></div>`
                             : '',
@@ -23486,7 +23574,8 @@
                                 <div class="em-profile-meta">
                                     <span class="badge" style="background:${c.soft};color:${c.accent}">${esc(roleLbl)}</span>
                                     ${flagsHtml ? `<span class="badge ov-lang-flags" aria-hidden="true">${flagsHtml}</span>` : ''}
-                                    <span class="badge" style="background:${c.soft};color:${c.accent}">${contacts.length}</span>
+                                    ${birthDatePillHtml(birthDate, { editable: canEditDob, id: 'em-profile-dob-pill', escFn: esc })}
+                                    ${canEditDob ? `<input type="date" id="em-profile-dob-input" class="em-dob-input" value="${esc(birthDate)}" max="${esc(todayKey())}" aria-label="${esc(t('birthDateEdit'))}" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0">` : ''}
                                 </div>
                             </div>
                             ${bioRows ? `<div class="em-profile-bio">${bioRows}</div>` : ''}
@@ -23494,6 +23583,21 @@
                             <div class="em-profile-contacts">${contactRows}</div>
                         </div>`;
                     document.getElementById('em-dir-back-btn')?.addEventListener('click', () => go({ view: 'list', teacherId: null }, 'em-slide-back'));
+                    if (canEditDob) {
+                        const pill = document.getElementById('em-profile-dob-pill');
+                        const input = document.getElementById('em-profile-dob-input');
+                        const openPicker = () => {
+                            if (!input) return;
+                            try { input.showPicker?.(); } catch (_) {}
+                            input.focus();
+                            try { input.click(); } catch (_) {}
+                        };
+                        pill?.addEventListener('click', openPicker);
+                        input?.addEventListener('change', () => {
+                            saveAccountBirthDate(tea.id, input.value || '');
+                            renderDirectorEmergencyBoard(user);
+                        });
+                    }
                     const heroPhoto = board.querySelector('.em-profile-hero img.em-profile-photo');
                     if (heroPhoto) {
                         const fullSrc = getDisplayPhoto(tea.id) || heroPhoto.getAttribute('src') || '';
@@ -26358,6 +26462,61 @@
             function normalizeEmergencyList(list) {
                 return normalizeEmergencyContacts(list);
             }
+            function normalizeBirthDate(v) {
+                const s = String(v || '').trim();
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return '';
+                const d = new Date(s + 'T12:00:00');
+                if (Number.isNaN(d.getTime())) return '';
+                // Reject obviously wrong calendar dates (e.g. 2026-02-31)
+                const [y, m, day] = s.split('-').map(Number);
+                if (d.getFullYear() !== y || d.getMonth() + 1 !== m || d.getDate() !== day) return '';
+                return s;
+            }
+            function formatBirthDateDisplay(iso) {
+                const s = normalizeBirthDate(iso);
+                if (!s) return '';
+                const [y, m, d] = s.split('-');
+                return `${d}/${m}/${y}`;
+            }
+            function accountBirthDate(userOrId) {
+                const id = canonicalAccountId(userOrId) || String(
+                    (userOrId && typeof userOrId === 'object') ? (userOrId.id || '') : (userOrId || '')
+                ).trim();
+                if (!id) return '';
+                try {
+                    const acc = resolveAccountById(id, { allowBlocked: true });
+                    if (acc && acc.birthDate) return normalizeBirthDate(acc.birthDate);
+                } catch (_) {}
+                try {
+                    const ov = (loadOverrides() || {})[id];
+                    if (ov && ov.birthDate) return normalizeBirthDate(ov.birthDate);
+                } catch (_) {}
+                return '';
+            }
+            function saveAccountBirthDate(userId, birthDate) {
+                const id = canonicalAccountId(userId) || String(userId || '').trim();
+                if (!id) return '';
+                const next = normalizeBirthDate(birthDate);
+                const store = loadOverrides();
+                store[id] = {
+                    ...(store[id] || {}),
+                    birthDate: next,
+                    updatedAt: new Date().toISOString()
+                };
+                saveOverrides(store);
+                return next;
+            }
+            function birthDatePillHtml(birthDate, { editable = false, id = 'em-dob-pill', escFn } = {}) {
+                const esc = escFn || ((s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'));
+                const shown = formatBirthDateDisplay(birthDate);
+                const label = shown || t('birthDatePlaceholder');
+                const unset = shown ? '' : ' is-unset';
+                const edit = editable ? ' is-edit' : '';
+                if (editable) {
+                    return `<button type="button" class="badge em-dob-pill${unset}${edit}" id="${esc(id)}" title="${esc(t('birthDate'))}" aria-label="${esc(t('birthDateEdit'))}">${esc(label)}</button>`;
+                }
+                return `<span class="badge em-dob-pill${unset}" id="${esc(id)}" title="${esc(t('birthDate'))}">${esc(label)}</span>`;
+            }
             function saveUserEmergency(userId, list) {
                 const id = canonicalAccountId(userId) || String(userId || '');
                 if (!id) return;
@@ -26399,6 +26558,7 @@
                 const list = registeredEmergencyFor(user.id);
                 const selfList = list.map((c, i) => ({ ...c, _i: i })).filter(c => c.kind === 'self');
                 const knownList = list.map((c, i) => ({ ...c, _i: i })).filter(c => c.kind !== 'self');
+                const birthDate = accountBirthDate(user.id);
                 const card = (c) => `
                     <div class="em-contact-item" data-em-idx="${c._i}">
                         <div>
@@ -26412,6 +26572,14 @@
                         </div>
                     </div>`;
                 app.innerHTML = `
+                    <div class="em-dob-row">
+                        <span class="em-dob-label">${esc(t('birthDate'))}</span>
+                        <div class="em-dob-controls">
+                            ${birthDatePillHtml(birthDate, { editable: true, id: 'em-self-dob-pill', escFn: esc })}
+                            <input type="date" id="em-self-dob-input" class="em-dob-input" value="${esc(birthDate)}" max="${esc(todayKey())}" aria-label="${esc(t('birthDateEdit'))}">
+                        </div>
+                        <p class="em-dob-hint">${esc(t('birthDateHint'))}</p>
+                    </div>
                     <div class="em-section self">
                         <div class="em-sec-head"><h4 class="em-sec-title"><i class="ph ph-user"></i> ${t('emSelfTitle')}</h4></div>
                         <p class="em-sec-hint">${t('emSelfHint')}</p>
@@ -26424,6 +26592,28 @@
                         ${knownList.length ? knownList.map(card).join('') : `<p class="empty-note" style="padding:.4rem 0">${t('emEmptyKnown')}</p>`}
                         <button type="button" class="em-add-btn" data-em-add="known"><i class="ph ph-plus"></i> ${t('emAddKnown')}</button>
                     </div>`;
+                const dobPill = document.getElementById('em-self-dob-pill');
+                const dobInput = document.getElementById('em-self-dob-input');
+                const persistDob = () => {
+                    if (!dobInput) return;
+                    saveAccountBirthDate(user.id, dobInput.value || '');
+                    const next = accountBirthDate(user.id);
+                    if (dobPill) {
+                        const shown = formatBirthDateDisplay(next);
+                        dobPill.textContent = shown || t('birthDatePlaceholder');
+                        dobPill.classList.toggle('is-unset', !shown);
+                    }
+                    if (currentUser && currentUser.id === user.id) {
+                        try { currentUser.birthDate = next; } catch (_) {}
+                    }
+                };
+                dobPill?.addEventListener('click', () => {
+                    if (!dobInput) return;
+                    try { dobInput.showPicker?.(); } catch (_) {}
+                    dobInput.focus();
+                    try { dobInput.click(); } catch (_) {}
+                });
+                dobInput?.addEventListener('change', persistDob);
                 app.querySelectorAll('[data-em-add]').forEach((btn) => {
                     btn.addEventListener('click', () => openEmContactModal({ kind: btn.dataset.emAdd, editIndex: -1 }));
                 });
@@ -27287,6 +27477,8 @@
                         <input class="admin-input" id="adm-name-th" value="${esc(acc.nameTh)}">
                         <label class="admin-label">${t('daysWorked')} / start</label>
                         <input class="admin-input" id="adm-start" value="${esc(acc.startDate)}">
+                        <label class="admin-label">${t('birthDate')}</label>
+                        <input class="admin-input" id="adm-birth" type="date" value="${esc(normalizeBirthDate(acc.birthDate) || '')}" max="${esc(todayKey())}">
                         <label class="admin-label">${t('compensatory')}</label>
                         <input class="admin-input" id="adm-comp" type="number" min="0" value="${Number(acc.compensatoryDays || 0)}">
                         <label class="admin-label">${t('workForm')} (KO)</label>
@@ -27379,6 +27571,7 @@
                         nameEn: document.getElementById('adm-name-en').value.trim() || acc.nameEn,
                         nameTh: document.getElementById('adm-name-th').value.trim() || acc.nameTh,
                         startDate: document.getElementById('adm-start').value.trim() || acc.startDate,
+                        birthDate: normalizeBirthDate(document.getElementById('adm-birth')?.value || '') || '',
                         compensatoryDays: Number(document.getElementById('adm-comp').value || 0),
                         workDaysNoteKo: document.getElementById('adm-worknote-ko').value.trim() || acc.workDaysNoteKo || acc.workDaysNote,
                         workDaysNoteTh: document.getElementById('adm-worknote-th').value.trim() || acc.workDaysNoteTh || '',
