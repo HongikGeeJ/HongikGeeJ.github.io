@@ -6718,18 +6718,18 @@
             }
         }
         .room-tt-hint {
-            font-size: 1.48rem; color: #64748b; margin: 0; line-height: 1.4;
+            font-size: 1.12rem; color: #64748b; margin: 0; line-height: 1.4;
         }
         .room-tt-legend {
-            display: flex; flex-wrap: wrap; gap: .55rem; margin: 0;
+            display: flex; flex-wrap: wrap; gap: .42rem; margin: 0;
         }
         .room-tt-chip {
-            display: inline-flex; align-items: center; gap: .45rem;
-            font-size: 1.36rem; font-weight: 750; padding: .36rem .9rem;
+            display: inline-flex; align-items: center; gap: .38rem;
+            font-size: 1.05rem; font-weight: 750; padding: .28rem .7rem;
             border-radius: 999px; border: 1.5px solid; animation: roomTtFadeIn .45s ease both;
             font-family: inherit; line-height: 1.2; cursor: pointer;
             appearance: none; -webkit-appearance: none;
-            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease, opacity .18s ease;
+            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease, opacity .18s ease, border-color .18s ease;
         }
         .room-tt-chip:hover, .room-tt-chip:focus-visible {
             transform: translateY(-1px) scale(1.03);
@@ -6737,17 +6737,46 @@
             outline: none;
         }
         .room-tt-chip.is-active {
-            transform: translateY(-1px) scale(1.05);
-            box-shadow: 0 0 0 2px rgba(15, 23, 42, .18), 0 6px 14px rgba(15, 23, 42, .14);
-            filter: saturate(1.2);
+            transform: translateY(-1px) scale(1.06);
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, .28), 0 8px 18px rgba(15, 23, 42, .16);
+            filter: saturate(1.35) contrast(1.05);
+            font-weight: 850;
+        }
+        #room-tt-board[data-focus-teacher] .room-tt-chip:not(.is-active) {
+            opacity: .4;
+            filter: grayscale(.95) brightness(.96);
+            box-shadow: none;
+            transform: none;
         }
         .room-tt-chip i {
-            width: 14px; height: 14px; border-radius: 50%; display: inline-block;
+            width: 11px; height: 11px; border-radius: 50%; display: inline-block;
         }
-        /* Legend focus: boost matching teacher bookings, dim the rest; empty + stays usable */
+        /* Legend focus: matching bookings vivid; others + empty + grid chrome go gray */
+        #room-tt-board[data-focus-teacher] .room-tt-scroll {
+            background: #e8ebf0;
+            border-color: #c5cdd8;
+        }
+        #room-tt-board[data-focus-teacher] .room-tt-grid {
+            background: #b8c0cc;
+        }
+        #room-tt-board[data-focus-teacher] .room-tt-cell:not(.is-corner):not(.is-time):not(.is-day) {
+            background: #eceff3 !important;
+        }
+        #room-tt-board[data-focus-teacher] .room-tt-cell.is-corner,
+        #room-tt-board[data-focus-teacher] .room-tt-cell.is-time,
+        #room-tt-board[data-focus-teacher] .room-tt-cell.is-day {
+            filter: grayscale(1);
+            opacity: .72;
+            background: #e2e6ec !important;
+        }
+        #room-tt-board[data-focus-teacher] .room-tt-rooms span {
+            filter: grayscale(1);
+            opacity: .55;
+        }
         #room-tt-board[data-focus-teacher] .room-tt-booked {
-            opacity: .34;
-            filter: saturate(.45) brightness(.97);
+            opacity: .42;
+            filter: grayscale(1) contrast(.88) brightness(.94);
+            box-shadow: none;
             transition: opacity .2s ease, filter .2s ease, box-shadow .2s ease, transform .2s ease;
         }
         #room-tt-board[data-focus-teacher="eunha"] .room-tt-booked[data-teacher="eunha"],
@@ -6755,13 +6784,24 @@
         #room-tt-board[data-focus-teacher="sua"] .room-tt-booked[data-teacher="sua"],
         #room-tt-board[data-focus-teacher="parttime"] .room-tt-booked[data-teacher="parttime"] {
             opacity: 1;
-            filter: saturate(1.45) brightness(1.06);
-            box-shadow: 0 6px 16px rgba(15, 23, 42, .18);
+            filter: saturate(1.65) contrast(1.12) brightness(1.06);
+            box-shadow: 0 0 0 2px rgba(15, 23, 42, .22), 0 8px 20px rgba(15, 23, 42, .22);
             z-index: 3;
             position: relative;
+            transform: scale(1.015);
         }
         #room-tt-board[data-focus-teacher] .room-tt-plus {
-            opacity: .88;
+            opacity: .55;
+            filter: grayscale(1);
+            background: #e5e7eb;
+            border-color: #cbd5e1;
+            color: #94a3b8;
+            box-shadow: none;
+        }
+        #room-tt-board[data-focus-teacher] .room-tt-plus:hover,
+        #room-tt-board[data-focus-teacher] .room-tt-plus:focus-visible {
+            opacity: .85;
+            filter: none;
         }
         .room-tt-scroll {
             overflow: auto; overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -6783,28 +6823,28 @@
         }
         .soft-btn:disabled { opacity: .4; pointer-events: none; }
         .room-tt-monthbar {
-            display: flex; flex-wrap: wrap; align-items: center; gap: .55rem .9rem;
-            margin: 0; padding: .7rem .95rem;
+            display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .7rem;
+            margin: 0; padding: .55rem .8rem;
             background: #f8fafc; border: 1px solid #e2e8f0;
             border-radius: 14px;
         }
-        .room-tt-monthbar label { font-size: 1.4rem; font-weight: 750; color: #64748b; }
+        .room-tt-monthbar label { font-size: 1.08rem; font-weight: 750; color: #64748b; }
         .room-tt-monthbar select, .room-tt-monthbar .soft-btn {
-            font-size: 1.56rem; padding: .55rem 1.05rem; border-radius: 12px;
+            font-size: 1.18rem; padding: .42rem .8rem; border-radius: 12px;
         }
         .room-tt-monthbar select {
             border: 1px solid #e2e8f0; background: #fff; font-weight: 700; color: #0f172a;
-            min-width: 6.75rem;
+            min-width: 5.5rem;
         }
         #room-tt-month-open {
-            min-width: 13.5rem;
-            padding-left: 1.2rem;
-            padding-right: 1.2rem;
+            min-width: 10.75rem;
+            padding-left: .95rem;
+            padding-right: .95rem;
             white-space: nowrap;
         }
         .room-tt-lookback {
-            font-size: 1.32rem; font-weight: 750; color: #0369a1;
-            background: #e0f2fe; border-radius: 999px; padding: .35rem 1rem;
+            font-size: 1.02rem; font-weight: 750; color: #0369a1;
+            background: #e0f2fe; border-radius: 999px; padding: .26rem .75rem;
         }
         .room-tt-booked.is-break {
             background: #fee2e2 !important; border-color: #f87171 !important; color: #b91c1c !important;
