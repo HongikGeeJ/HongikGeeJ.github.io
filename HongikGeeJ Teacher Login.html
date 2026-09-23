@@ -6166,6 +6166,28 @@
             display: block;
             box-shadow: 0 0 0 1px rgba(15, 23, 42, .08);
         }
+        .ov-teacher-btn .ov-lessons {
+            display: flex;
+            flex-direction: column;
+            gap: .18rem;
+            text-align: left;
+            width: 100%;
+        }
+        .ov-teacher-btn .ov-lesson-line {
+            font-size: .78rem;
+            color: #475569;
+            line-height: 1.35;
+        }
+        .ov-detail-card .ov-students {
+            display: flex;
+            align-items: flex-start;
+            gap: .35rem;
+            color: #334155;
+        }
+        .ov-detail-card .ov-students i {
+            margin-top: .12rem;
+            flex-shrink: 0;
+        }
         .ov-teacher-btn .ov-status-row {
             display: flex;
             align-items: center;
@@ -14064,9 +14086,57 @@
             if (changed) saveRoomTimetable(store);
             return store;
         }
+        function roomTtOffsetForDateKey(dateKey) {
+            const [y, m, d] = String(dateKey || '').split('-').map(Number);
+            if (!y || !m || !d) return roomTtWeekOffset;
+            const dt = new Date(y, m - 1, d);
+            const dow = dt.getDay();
+            const monOff = dow === 0 ? -6 : 1 - dow;
+            const mon = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate() + monOff);
+            const curMon = currentMondayDate();
+            return Math.round((mon - curMon) / (7 * 24 * 60 * 60 * 1000));
+        }
         function listRoomBlocksForDate(date) {
-            const store = ensureRoomTtWeekSeeded(roomTtWeekOffset);
+            // Seed the week that contains `date` (not only the currently viewed board week)
+            const off = roomTtOffsetForDateKey(date);
+            const store = ensureRoomTtWeekSeeded(Number.isFinite(off) ? off : roomTtWeekOffset);
             return Object.values(store.blocks || {}).filter(b => b && b.date === date);
+        }
+        function listTeacherRoomBlocksForDate(teacherId, date = todayKey()) {
+            const tid = String(teacherId || '');
+            if (!tid || tid === 'break') return [];
+            return listRoomBlocksForDate(date)
+                .filter((b) => b && !b.isBreak && b.teacherId !== 'break' && String(b.teacherId) === tid)
+                .sort((a, b) => String(a.start || '').localeCompare(String(b.start || ''))
+                    || String(a.room || '').localeCompare(String(b.room || '')));
+        }
+        /** Director overview cards: room-TT bookings for that day (+ day-off from day schedule). */
+        function overviewLessonsForTeacher(teacherId, date = todayKey()) {
+            const blocks = listTeacherRoomBlocksForDate(teacherId, date);
+            const daySched = loadScheduleForDate(teacherId, date);
+            const dayOff = daySched.find((it) => it && (it.kind === 'dayoff' || it.classType === 'dayoff')) || null;
+            const cancelByKey = new Map();
+            daySched.forEach((it) => {
+                if (!it || !it.cancelled) return;
+                if (it.roomSlotId) cancelByKey.set(String(it.roomSlotId), it);
+                cancelByKey.set(`${it.start}|${it.end}`, it);
+            });
+            const lessons = blocks.map((b) => {
+                const cHit = cancelByKey.get(String(b.id)) || cancelByKey.get(`${b.start}|${b.end}`);
+                return {
+                    id: b.id,
+                    start: b.start || '',
+                    end: b.end || '',
+                    room: b.room || '',
+                    title: pickLangText(b, 'title') || b.title || '',
+                    classType: normalizeClassType(b.classType || 'regular'),
+                    students: Array.isArray(b.students) ? b.students.filter((s) => s && s.name) : [],
+                    note: String(b.note || '').trim(),
+                    cancelled: !!cHit,
+                    cancelReason: cHit ? (pickLangText(cHit, 'cancelReason') || cHit.cancelReason || '') : ''
+                };
+            });
+            return { lessons, dayOff };
         }
         function findRoomBlock(date, room, halfOrStart) {
             const blocks = listRoomBlocksForDate(date).filter(b => b.room === room);
@@ -20365,7 +20435,8 @@
                     if (document.getElementById('student-db-board') && (all || has('studentDb') || has('otReports') || has('studentEdits'))) {
                         renderStudentDbBoard(user);
                     }
-                    if (document.getElementById('overview-board') && (all || has('attendance') || has('photos') || has('otReports') || has('accountData'))) {
+                    if (document.getElementById('overview-board') && (all || has('attendance') || has('photos') || has('otReports') || has('accountData')
+                        || has('roomTt') || has('daySchedules') || has('leaveRequests') || has('classCancels'))) {
                         renderOverviewBoard(user);
                     }
                     if (has('photos') && document.getElementById('room-tt-board')) {
@@ -22694,29 +22765,41 @@
                         renderOverviewBoard(user);
                         return;
                     }
-                    const sched = loadDaySchedule(tea.id);
+                    const dayKey = todayKey();
+                    const { lessons, dayOff } = overviewLessonsForTeacher(tea.id, dayKey);
                     const c = teacherColor(tea, teachers.findIndex(x => x.id === tea.id));
-                    const rows = sched.length ? sched.map((item) => {
-                        const cancelled = !!item.cancelled;
-                        const isDayOff = item.kind === 'dayoff' || item.classType === 'dayoff';
-                        const ctype = isDayOff ? 'dayoff' : normalizeClassType(item.classType);
-                        const title = pickLangText(item, 'title') || item.title || '';
-                        if (isDayOff) {
-                            return `<div class="ov-detail-card" style="border-left:4px solid #64748b">
-                                <div class="ot"><span class="sched-type-badge dayoff">${classTypeLabel('dayoff')}</span> ${String(title || t('schedDayOffTitle')).replace(/</g,'&lt;')}</div>
-                            </div>`;
-                        }
-                        return `<div class="ov-detail-card${cancelled ? ' cancelled' : ''}" style="border-left:4px solid ${cancelled ? '#ea580c' : c.accent}">
-                            <div class="ot"><span class="sched-type-badge ${ctype}">${classTypeLabel(ctype)}</span> ${item.start}–${item.end} · ${String(title).replace(/</g,'&lt;')}</div>
-                            <div class="om">${cancelled ? `${t('cancelledBadge')}${pickLangText(item, 'cancelReason') ? ' · ' + String(pickLangText(item, 'cancelReason')).replace(/</g,'&lt;') : ''}` : t('overviewTodayTeach')}</div>
-                            ${item.makeupDate ? `<div class="om">${t('makeupDate')}: ${item.makeupDate}</div>` : ''}
-                        </div>`;
-                    }).join('') : `<p class="empty-note">${t('overviewNoClass')}</p>`;
+                    const detailParts = [];
+                    if (dayOff) {
+                        const offTitle = pickLangText(dayOff, 'title') || t('schedDayOffTitle');
+                        detailParts.push(`<div class="ov-detail-card" style="border-left:4px solid #64748b">
+                            <div class="ot"><span class="sched-type-badge dayoff">${classTypeLabel('dayoff')}</span> ${esc(offTitle)}</div>
+                        </div>`);
+                    }
+                    if (lessons.length) {
+                        lessons.forEach((item) => {
+                            const cancelled = !!item.cancelled;
+                            const ctype = normalizeClassType(item.classType);
+                            const roomTxt = item.room ? ` · ${roomLabel(item.room)}` : '';
+                            const stuNames = item.students.length
+                                ? item.students.map((s) => esc(s.name)).join(', ')
+                                : esc(t('noStudents'));
+                            const cancelLine = cancelled
+                                ? `${t('cancelledBadge')}${item.cancelReason ? ' · ' + esc(item.cancelReason) : ''}`
+                                : '';
+                            detailParts.push(`<div class="ov-detail-card${cancelled ? ' cancelled' : ''}" style="border-left:4px solid ${cancelled ? '#ea580c' : c.accent}">
+                                <div class="ot"><span class="sched-type-badge ${ctype}">${classTypeLabel(ctype)}</span> ${esc(item.start)}–${esc(item.end)}${esc(roomTxt)} · ${esc(item.title || '—')}</div>
+                                <div class="om">${cancelLine || t('overviewTodayTeach')}</div>
+                                <div class="om ov-students"><i class="ph ph-users"></i> ${stuNames}${item.students.length ? ` · ${item.students.length} ${t('studentsUnit')}` : ''}</div>
+                                ${item.note ? `<div class="om">${esc(item.note)}</div>` : ''}
+                            </div>`);
+                        });
+                    }
+                    const rows = detailParts.length ? detailParts.join('') : `<p class="empty-note">${t('overviewNoClass')}</p>`;
                     board.innerHTML = `
                         <button type="button" class="ov-back" id="ov-back-btn"><i class="ph ph-caret-left"></i> ${t('overviewBack')}</button>
                         <div class="ov-detail-head flex justify-between items-center gap-2 mb-2">
                             <h3 style="margin:0"><i class="ph ph-chalkboard-teacher" style="color:${c.accent}"></i> ${displayName(tea)}</h3>
-                            <span class="badge ov-date" style="background:${c.soft};color:${c.accent}">${todayKey()}</span>
+                            <span class="badge ov-date" style="background:${c.soft};color:${c.accent}">${dayKey}</span>
                         </div>
                         <p class="ov-detail-sub text-xs text-slate-500 mb-3">${t('overviewTodayTeach')}</p>
                         ${rows}`;
@@ -22725,20 +22808,23 @@
                 }
 
                 const list = teachers.map((tea, i) => {
-                    const sched = loadDaySchedule(tea.id);
-                    const activeSched = sched.filter(it => !it.cancelled && it.kind !== 'dayoff' && it.classType !== 'dayoff');
-                    const dayOff = sched.find(it => it.kind === 'dayoff' || it.classType === 'dayoff');
+                    const { lessons, dayOff } = overviewLessonsForTeacher(tea.id, todayKey());
+                    const activeSched = lessons.filter((it) => !it.cancelled);
                     const myLeave = leaves.find(L => L.fromId === tea.id && L.status === 'pending');
                     let status = '—';
                     let note = t('noSchedule');
+                    const fmtLesson = (it) => {
+                        const roomTxt = it.room ? ` · ${roomLabel(it.room)}` : '';
+                        return `${it.start}–${it.end} ${it.title || classTypeLabel(it.classType)}${roomTxt}`;
+                    };
                     if (myLeave) { status = t('pending'); note = `${myLeave.from}→${myLeave.to} ${pickLangText(myLeave, 'reason') || myLeave.reason || ''}`; }
                     else if (dayOff) { status = t('schedTypeDayOff'); note = pickLangText(dayOff, 'title') || t('schedDayOffTitle'); }
                     else if (activeSched.length) {
                         const cur = activeSched.find(it => nowM >= parseHM(it.start) && nowM < parseHM(it.end));
                         const next = activeSched.filter(it => parseHM(it.start) > nowM).sort((a,b)=>a.start.localeCompare(b.start))[0];
-                        if (cur) { status = t('nowClass'); note = `${classTypeLabel(cur.classType)} · ${cur.start}–${cur.end} ${pickLangText(cur, 'title') || cur.title || ''}`; }
-                        else if (next) { status = next.start; note = `${classTypeLabel(next.classType)} · ${pickLangText(next, 'title') || next.title || ''}`; }
-                        else { status = 'OK'; note = activeSched.map(s => `${s.start} ${classTypeLabel(s.classType)} ${pickLangText(s, 'title') || s.title || ''}`).join(' · '); }
+                        if (cur) { status = t('nowClass'); note = fmtLesson(cur); }
+                        else if (next) { status = next.start; note = fmtLesson(next); }
+                        else { status = 'OK'; note = activeSched.map(fmtLesson).join(' · '); }
                     }
                     const c = teacherColor(tea, i);
                     const avatarHtml = userAvatarHtml(tea.id, displayName(tea), { color: c });
@@ -22766,13 +22852,16 @@
                     const headerEnd = flagsPill
                         ? `<div class="ov-header-end">${flagsPill}</div>`
                         : '';
+                    const lessonLines = (!myLeave && !dayOff && activeSched.length)
+                        ? `<div class="ov-lessons">${activeSched.map((it) => `<div class="ov-lesson-line">${esc(fmtLesson(it))}</div>`).join('')}</div>`
+                        : `<div class="text-xs text-slate-500 text-left">${esc(note)}</div>`;
                     return `<button type="button" class="ov-teacher-btn" data-ov-tea="${tea.id}" style="border-left:4px solid ${c.accent}">
                         <div class="ov-top">
                             <span class="ov-name" style="color:${c.accent};display:inline-flex;align-items:center;gap:.45rem">${avatarHtml}${displayName(tea)}</span>
                             ${headerEnd}
                         </div>
                         ${statusRow}
-                        <div class="text-xs text-slate-500 text-left">${note}</div>
+                        ${lessonLines}
                         <div class="text-xs text-slate-400 text-left">${t('overviewClickHint')}</div>
                         ${clickMorePill}
                     </button>`;
