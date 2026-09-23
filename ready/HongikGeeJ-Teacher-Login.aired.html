@@ -7528,12 +7528,93 @@
         }
         .em-profile { position: relative; }
         .em-profile .em-edit-corner { top: .65rem; right: .65rem; }
+        /* Name row frame + soft LED glow chase (per-teacher --ov-* accents) */
+        @property --ov-led-angle {
+            syntax: '<angle>';
+            inherits: false;
+            initial-value: 0deg;
+        }
+        @keyframes ov-led-spin {
+            to { --ov-led-angle: 360deg; }
+        }
+        @keyframes ov-glow-breathe {
+            0%, 100% {
+                box-shadow:
+                    0 0 0 1px color-mix(in srgb, var(--ov-border, #93c5fd) 55%, transparent),
+                    0 0 8px color-mix(in srgb, var(--ov-accent, #1d4ed8) 22%, transparent),
+                    0 0 16px color-mix(in srgb, var(--ov-soft, #93c5fd) 28%, transparent);
+            }
+            50% {
+                box-shadow:
+                    0 0 0 1px color-mix(in srgb, var(--ov-border, #93c5fd) 75%, transparent),
+                    0 0 12px color-mix(in srgb, var(--ov-accent, #1d4ed8) 34%, transparent),
+                    0 0 22px color-mix(in srgb, var(--ov-soft, #93c5fd) 42%, transparent);
+            }
+        }
         .ov-teacher-card .ov-top {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             gap: .55rem;
-            padding-right: 2.1rem;
+            position: relative;
+            z-index: 0;
+            margin-right: 2rem; /* clear edit pencil outside the frame */
+            padding: .4rem .55rem;
+            border-radius: .75rem;
+            border: 1px solid transparent;
+            background: color-mix(in srgb, var(--ov-bg, #eff6ff) 55%, #fff);
+            isolation: isolate;
+            overflow: visible;
+            animation: ov-glow-breathe 3.4s ease-in-out infinite;
+        }
+        .ov-teacher-card .ov-top::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: calc(.75rem + 2px);
+            background: conic-gradient(
+                from var(--ov-led-angle),
+                transparent 0 58%,
+                var(--ov-soft, #93c5fd) 68%,
+                var(--ov-accent, #1d4ed8) 80%,
+                var(--ov-soft, #93c5fd) 90%,
+                transparent 100%
+            );
+            z-index: -2;
+            opacity: .78;
+            animation: ov-led-spin 2.9s linear infinite;
+            pointer-events: none;
+        }
+        .ov-teacher-card .ov-top::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(
+                180deg,
+                color-mix(in srgb, var(--ov-bg, #eff6ff) 48%, #fff) 0%,
+                #fff 100%
+            );
+            z-index: -1;
+            pointer-events: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ov-teacher-card .ov-top {
+                animation: none;
+                box-shadow:
+                    0 0 0 1px color-mix(in srgb, var(--ov-border, #93c5fd) 65%, transparent),
+                    0 0 10px color-mix(in srgb, var(--ov-accent, #1d4ed8) 22%, transparent);
+            }
+            .ov-teacher-card .ov-top::before {
+                animation: none;
+                background: linear-gradient(
+                    135deg,
+                    color-mix(in srgb, var(--ov-soft, #93c5fd) 70%, transparent),
+                    color-mix(in srgb, var(--ov-accent, #1d4ed8) 55%, transparent),
+                    color-mix(in srgb, var(--ov-soft, #93c5fd) 70%, transparent)
+                );
+                opacity: .55;
+            }
         }
         .ov-teacher-card .ov-name {
             font-weight: 850;
@@ -8120,11 +8201,12 @@
         #photo-sync-msg.is-warn { color: #b45309; }
         #photo-sync-msg.is-err { color: #be123c; }
         #app-toast {
-            position: fixed; left: 50%; bottom: 1.35rem; transform: translateX(-50%) translateY(120%);
-            z-index: 21000; max-width: min(92vw, 420px); padding: .72rem 1rem;
-            border-radius: 14px; font-size: .84rem; font-weight: 700; line-height: 1.35;
+            position: fixed; left: 50%; bottom: 1.1rem; transform: translateX(-50%) translateY(120%);
+            z-index: 21000; max-width: min(98vw, 780px); padding: .38rem .9rem;
+            border-radius: 10px; font-size: .8rem; font-weight: 700; line-height: 1.2;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             color: #0f172a; background: #fff; border: 1px solid #e2e8f0;
-            box-shadow: 0 12px 32px rgba(15, 23, 42, .16);
+            box-shadow: 0 10px 28px rgba(15, 23, 42, .14);
             opacity: 0; pointer-events: none; transition: transform .28s ease, opacity .28s ease;
         }
         #app-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
@@ -8147,8 +8229,8 @@
             72% { transform: translateX(calc(-50% + 2px)) translateY(0); }
         }
         @keyframes app-toast-err-pulse {
-            0%, 100% { box-shadow: 0 12px 32px rgba(15, 23, 42, .16); }
-            35% { box-shadow: 0 10px 28px rgba(190, 18, 60, .42), 0 0 0 3px rgba(251, 113, 133, .35); }
+            0%, 100% { box-shadow: 0 10px 28px rgba(15, 23, 42, .14); }
+            35% { box-shadow: 0 8px 22px rgba(190, 18, 60, .42), 0 0 0 2px rgba(251, 113, 133, .35); }
         }
         #app-toast.is-err.show.is-attention {
             animation: app-toast-attention .58s ease-in-out, app-toast-err-pulse .58s ease-in-out;
@@ -11488,11 +11570,11 @@
                 || (/accountData/i.test(rawErr) && /check constraint/i.test(rawErr));
             const hint = needsSql
                 ? ((typeof t === 'function' ? t('accountDataSavedNeedSql') : '')
-                    || ' · run data/supabase/FIX-accountData.sql in Supabase SQL Editor')
+                    || ' · run FIX-accountData.sql')
                 : '';
             const errBit = rawErr && !needsSql ? ` (${rawErr})` : '';
             const msg = ((typeof t === 'function' ? t('accountDataSavedCloudFail') : '')
-                || 'Saved locally · cloud sync failed') + hint + errBit;
+                || 'Saved · cloud sync failed') + hint + errBit;
             showAppToast(msg, 'err');
         }
         function buildPhotosExportPayload() {
@@ -12384,8 +12466,8 @@
                 photoSavedNeedSql: ' · Supabase SQL Editor에서 FIX-RUN-IN-SQL-EDITOR.sql 실행 필요',
                 accountDataSavedCloud: '중앙에 동기화됨 · 원장·다른 PC가 비상연락을 바로 봅니다',
                 accountDataSavedLocalOnly: '이 PC에만 저장됨 · Supabase 연결 후 비상연락이 공유됩니다',
-                accountDataSavedCloudFail: '이 PC에는 저장됨 · 클라우드 동기화 실패',
-                accountDataSavedNeedSql: ' · Supabase SQL Editor에서 FIX-accountData.sql 실행 필요',
+                accountDataSavedCloudFail: '저장됨 · 클라우드 동기화 실패',
+                accountDataSavedNeedSql: ' · FIX-accountData.sql 실행',
                 systemBackupOk: '시스템 백업 완료 · 20분마다 자동 저장',
                 systemBackupFail: '이 PC에는 백업됨 · 클라우드 동기화 실패',
                 systemBackupFailHard: '시스템 백업 실패',
@@ -13333,8 +13415,8 @@
                 photoSavedNeedSql: ' · รัน FIX-RUN-IN-SQL-EDITOR.sql ใน Supabase SQL Editor',
                 accountDataSavedCloud: 'ซิงก์ส่วนกลางแล้ว · หัวหน้าและเครื่องอื่นเห็นเบอร์ฉุกเฉินทันที',
                 accountDataSavedLocalOnly: 'บันทึกบนเครื่องนี้เท่านั้น · เชื่อม Supabase เพื่อแชร์เบอร์ฉุกเฉิน',
-                accountDataSavedCloudFail: 'บันทึกในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
-                accountDataSavedNeedSql: ' · รัน FIX-accountData.sql ใน Supabase SQL Editor',
+                accountDataSavedCloudFail: 'บันทึกแล้ว · ซิงก์คลาวด์ล้มเหลว',
+                accountDataSavedNeedSql: ' · รัน FIX-accountData.sql',
                 systemBackupOk: 'สำรองข้อมูลระบบแล้ว · ทำอัตโนมัติทุก 20 นาที',
                 systemBackupFail: 'สำรองในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
                 systemBackupFailHard: 'สำรองข้อมูลระบบล้มเหลว',
@@ -14282,8 +14364,8 @@
                 photoSavedNeedSql: ' · run data/supabase/FIX-RUN-IN-SQL-EDITOR.sql in Supabase SQL Editor',
                 accountDataSavedCloud: 'Synced centrally · director and other PCs see emergency contacts live',
                 accountDataSavedLocalOnly: 'Saved on this PC only · connect Supabase to share emergency contacts',
-                accountDataSavedCloudFail: 'Saved locally · cloud sync failed',
-                accountDataSavedNeedSql: ' · run data/supabase/FIX-accountData.sql in Supabase SQL Editor',
+                accountDataSavedCloudFail: 'Saved · cloud sync failed',
+                accountDataSavedNeedSql: ' · run FIX-accountData.sql',
                 systemBackupOk: 'System backup saved · auto every 20 minutes',
                 systemBackupFail: 'Saved on this PC · cloud sync failed',
                 systemBackupFailHard: 'System backup failed',
@@ -27231,7 +27313,7 @@
                         : `<div class="ov-lessons"><div class="ov-empty-line">${esc(note)}</div></div>`;
                     const editCorner = `<button type="button" class="ov-edit-corner" data-ov-edit="${tea.id}" title="${esc(t('dirTeaEditCorner'))}" aria-label="${esc(t('dirTeaEditCorner'))}"><i class="ph ph-pencil-simple"></i></button>`;
                     // Use <article>, not <button>: nested edit button would break the DOM (empty shells).
-                    return `<article class="ov-teacher-card" data-ov-tea="${tea.id}" role="button" tabindex="0" style="border-left:4px solid ${c.accent}">
+                    return `<article class="ov-teacher-card" data-ov-tea="${tea.id}" role="button" tabindex="0" style="border-left:4px solid ${c.accent};--ov-accent:${c.accent};--ov-soft:${c.soft};--ov-border:${c.border};--ov-bg:${c.bg}">
                         ${editCorner}
                         <div class="ov-top">
                             <span class="ov-name" style="color:${c.accent};display:inline-flex;align-items:center;gap:.45rem">${avatarHtml}${esc(displayName(tea))}</span>
