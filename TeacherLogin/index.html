@@ -508,9 +508,9 @@
             .dc-c.bl { transform: none; }
             .dc-c.br { transform: scaleX(-1); }
         }
-        /* Dashboard content-card corner blooms folded away so framed h3 titles
-           never collide with flower décor. Login .panel .dc-c flowers stay.
-           Scoped under .dash-shell so login is never affected. */
+        /* Dashboard content-card corner blooms folded away globally so framed h3
+           titles on other tabs never collide. Login .panel .dc-c flowers stay.
+           Today-schedule card re-enables head/tail blooms behind content below. */
         .dash-shell .content-card {
             position: relative;
             overflow: visible;
@@ -543,6 +543,62 @@
             content: none !important;
             display: none !important;
         }
+        /*
+          ตารางวันนี้ only: head (TL) + tail (BR) flower décor behind content.
+          Pseudos stay z-index:0 / pointer-events:none; framed h3 + form stay above.
+        */
+        .dash-shell .tab-panel[data-panel="today"] > .content-card {
+            isolation: isolate;
+            overflow: hidden;
+        }
+        .dash-shell .tab-panel[data-panel="today"] > .content-card::before,
+        .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+            content: '' !important;
+            display: block !important;
+            position: absolute;
+            width: 104px;
+            height: 104px;
+            pointer-events: none !important;
+            z-index: 0;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom15') !important;
+            opacity: .82 !important;
+            animation: cardBloomSway 5.2s ease-in-out infinite !important;
+            transform-origin: 0 0;
+        }
+        .dash-shell .tab-panel[data-panel="today"] > .content-card::before {
+            top: 2px;
+            left: 2px;
+            transform: none;
+        }
+        .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+            width: 114px;
+            height: 90px;
+            top: auto;
+            left: auto;
+            right: 2px;
+            bottom: 2px;
+            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom7') !important;
+            transform: none;
+            transform-origin: 100% 100%;
+            animation: cardBloomSwayBrIn 5.2s ease-in-out infinite !important;
+            animation-delay: .7s;
+        }
+        .dash-shell .tab-panel[data-panel="today"] > .content-card > * {
+            position: relative;
+            z-index: 1;
+        }
+        @keyframes cardBloomSway {
+            0%, 100% { transform: rotate(-2deg) scale(1); }
+            40% { transform: rotate(1.4deg) scale(1.03); }
+            75% { transform: rotate(2deg) scale(1.015); }
+        }
+        @keyframes cardBloomSwayBrIn {
+            0%, 100% { transform: rotate(2deg) scale(1); }
+            40% { transform: rotate(-1.4deg) scale(1.03); }
+            75% { transform: rotate(-2deg) scale(1.015); }
+        }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.45rem; }
             /* Login corners stay modest — never inherit dashboard / leaked sizes */
@@ -559,6 +615,16 @@
             }
             .dash-shell .content-card.compact-card {
                 padding: .9rem 1rem 1rem;
+            }
+            .dash-shell .tab-panel[data-panel="today"] > .content-card::before,
+            .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+                width: 78px;
+                height: 78px;
+                opacity: .75 !important;
+            }
+            .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+                width: 86px;
+                height: 68px;
             }
         }
         .dash-shell {
@@ -1231,7 +1297,7 @@
         .stat-card .k { font-size: .72rem; font-weight: 700; color: #64748b; }
         .stat-card .v { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-top: .2rem; }
         .stat-card .h { font-size: .75rem; color: #94a3b8; margin-top: .15rem; }
-        /* Card titles: framed bold headings (flowers folded away — normal padding) */
+        /* Card titles: framed bold headings (today-card flowers sit behind via z-index) */
         .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 1.15rem 1.25rem 1.25rem; margin-bottom: .85rem; }
         .content-card h3 {
             margin: 0 0 .65rem;
@@ -9759,8 +9825,19 @@
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
             .content-card { padding: 1rem 1.05rem 1.1rem; margin-bottom: .7rem; }
-            .dash-shell .content-card::before,
-            .dash-shell .content-card::after { content: none !important; display: none !important; }
+            /* Today-schedule blooms stay (scoped + higher specificity); shrink for narrow */
+            .dash-shell .tab-panel[data-panel="today"] > .content-card::before,
+            .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+                content: '' !important;
+                display: block !important;
+                width: 78px;
+                height: 78px;
+                opacity: .75 !important;
+            }
+            .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+                width: 86px;
+                height: 68px;
+            }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
             .login-sea { height: min(96px, 16vh); }
             .lang-float {
