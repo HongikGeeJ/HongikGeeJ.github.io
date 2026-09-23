@@ -1,8 +1,6 @@
 <!DOCTYPE html>
-<!-- hongik-build:2026-09-22-mobile-ipad-perf -->
 <html lang="ko">
 <head>
-<script>/*hongik-sb-embed*/window.__HONGIK_SUPABASE_CONFIG__={"url":"https://qoxdpqlzbbsluxzqchuq.supabase.co","anonKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveGRwcWx6YmJzbHV4enFjaHVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDEzNzYsImV4cCI6MjEwNTU3NzM3Nn0.sVpAV7RF_Q0O7B9YVx2x2DhpDmsvmZestIIkaMV8Sa4"};</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>HongikGeeJ Teacher Login</title>
@@ -5410,6 +5408,17 @@
             animation: popIn .35s ease;
         }
         #sched-alert-modal.open .sched-bell { animation: bellShake 0.65s ease-in-out infinite; }
+        #sched-alert-modal .sched-alert-queue {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .35rem;
+            margin: 0 0 .55rem;
+            font-size: .78rem;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: .02em;
+        }
         #sched-alert-modal .sched-alert-card {
             margin: 0 0 .7rem;
             padding: .85rem .9rem;
@@ -13105,6 +13114,8 @@
         let orderPopupSnoozed = false; // dismissed with × / backdrop until tab change
         let attendPopupSnoozed = false; // dismissed with × / backdrop until tab change
         let schedAlertPopupSnoozed = false; // dismissed with × / backdrop until tab change
+        /** Ids skipped via × this session (still pending; reappear after tab change). */
+        let schedAlertSkipIds = new Set();
         let pendingSelfPw = null;
         let cropState = { x: 0, y: 0, scale: 1, dragging: false, startX: 0, startY: 0, baseX: 0, baseY: 0, naturalW: 0, naturalH: 0 };
         let photoEditTargetId = null; // director editing another teacher's photo
@@ -17096,6 +17107,21 @@
                 && isDirectorSchedAlertAction(c.action)
                 && isSchedAlertForPortalToday(c)
             );
+        }
+        /** FIFO queue for one-at-a-time popup (oldest first); excludes ×-skipped ids. */
+        function queuedDirectorSchedAlerts() {
+            return pendingDirectorSchedChanges()
+                .filter((c) => !schedAlertSkipIds.has(String(c.id || '')))
+                .slice()
+                .sort((a, b) => {
+                    const ta = String(a.createdAt || a.id || '');
+                    const tb = String(b.createdAt || b.id || '');
+                    if (ta !== tb) return ta.localeCompare(tb);
+                    return String(a.id || '').localeCompare(String(b.id || ''));
+                });
+        }
+        function clearSchedAlertSessionSkips() {
+            schedAlertSkipIds = new Set();
         }
         /** Drop pending rows whose action is unknown / not a director alert, or whose class date is not today. */
         function pruneNonFirstSchedAlerts() {
@@ -23413,9 +23439,11 @@
             // × / Escape / closeAllModals — snooze until tab/page change
             if (modal.id === 'attend-modal') attendPopupSnoozed = true;
             if (modal.id === 'sched-alert-modal') {
+                // Full close (Escape / closeAll / queue exhausted) — snooze remaining until tab change
                 schedAlertPopupSnoozed = true;
                 modal.classList.remove('is-settled');
                 delete modal.dataset.schedAlertSig;
+                delete modal.dataset.activeSchedAlertId;
             }
             armModalPointerShield(isLiteClient() ? 700 : 480);
             modal.classList.add('is-closing');
@@ -25686,6 +25714,11 @@
                 if (!modal || !modal.classList.contains('open')) return;
                 e.preventDefault();
                 e.stopPropagation();
+                // Sched alerts: advance queue (skip current → next); only snooze when queue empty
+                if (modal.id === 'sched-alert-modal') {
+                    dismissSchedAlertPopupOnly();
+                    return;
+                }
                 closeModalFast(modal);
             }, true);
 
@@ -25695,6 +25728,7 @@
                 orderPopupSnoozed = false;
                 attendPopupSnoozed = false;
                 schedAlertPopupSnoozed = false;
+                clearSchedAlertSessionSkips();
                 orderPopupIdx = 0;
                 dashboardScreen.classList.add('hidden-screen');
                 loginScreen.classList.remove('hidden-screen');
@@ -26031,6 +26065,7 @@
                     orderPopupSnoozed = false;
                     attendPopupSnoozed = false;
                     schedAlertPopupSnoozed = false;
+                    clearSchedAlertSessionSkips();
                 }
                 try { loginScreen.classList.add('hidden-screen'); } catch (_) {}
                 try { dashboardScreen.classList.remove('hidden-screen'); } catch (_) {}
@@ -33839,6 +33874,7 @@
                     orderPopupSnoozed = false;
                     attendPopupSnoozed = false;
                     schedAlertPopupSnoozed = false;
+                    clearSchedAlertSessionSkips();
                 }
                 if (currentUser) maybeShowAlertPopups(currentUser);
                 if (id === 'orders' && currentUser && currentUser.role === 'director') {
@@ -34248,14 +34284,22 @@
             }
 
             function dismissSchedAlertPopupOnly() {
-                // Hide until user changes tab/page — then may show again if still pending
-                schedAlertPopupSnoozed = true;
+                // × / backdrop: skip current card, show next in queue; snooze only when none left
                 const modal = document.getElementById('sched-alert-modal');
+                const curId = modal?.dataset.activeSchedAlertId;
+                if (curId) schedAlertSkipIds.add(String(curId));
                 if (modal) {
                     modal.classList.remove('is-settled');
                     delete modal.dataset.schedAlertSig;
-                    closeModalFast(modal);
+                    delete modal.dataset.activeSchedAlertId;
                 }
+                const remaining = queuedDirectorSchedAlerts();
+                if (remaining.length && currentUser && currentUser.role === 'director') {
+                    maybeShowSchedAlertPopup(currentUser);
+                    return;
+                }
+                schedAlertPopupSnoozed = true;
+                if (modal) closeModalFast(modal);
             }
 
             function maybeShowSchedAlertPopup(user) {
@@ -34264,7 +34308,7 @@
                 const confirmBtn = document.getElementById('sched-alert-confirm');
                 const listEl = document.getElementById('sched-alert-list');
                 if (!modal || !listEl || !user || user.role !== 'director') return;
-                // User closed with × / backdrop — stay quiet until they change tabs
+                // User closed with × / backdrop through the whole queue — stay quiet until they change tabs
                 if (schedAlertPopupSnoozed) {
                     modal.classList.remove('open');
                     modal.classList.remove('is-settled');
@@ -34272,64 +34316,73 @@
                 }
                 pruneNonFirstSchedAlerts();
                 backfillTodayCancelledSchedAlerts();
-                const pending = pendingDirectorSchedChanges();
+                const pending = queuedDirectorSchedAlerts();
                 if (!pending.length) {
                     modal.classList.remove('open');
                     modal.classList.remove('is-settled');
                     delete modal.dataset.schedAlertSig;
+                    delete modal.dataset.activeSchedAlertId;
                     return;
                 }
                 const wasOpen = modal.classList.contains('open');
-                const sig = pending.map(c => `${c.id || ''}:${c.action || ''}:${c.updatedAt || c.createdAt || ''}`).join('|') + `|${lang}`;
-                // Already open + same payload — do NOT remount / reopen (softRefresh bounce)
+                const activeId = String(modal.dataset.activeSchedAlertId || '');
+                let current = pending.find((c) => String(c.id || '') === activeId) || pending[0];
+                const queueIdx = Math.max(0, pending.indexOf(current));
+                current = pending[queueIdx];
+                modal.dataset.activeSchedAlertId = String(current.id || '');
+                const sig = `${current.id || ''}:${current.action || ''}:${current.updatedAt || current.createdAt || ''}|${pending.length}|${lang}`;
+                // Already open + same card — do NOT remount / reopen (softRefresh bounce)
                 if (wasOpen && modal.dataset.schedAlertSig === sig) return;
                 modal.dataset.schedAlertSig = sig;
-                listEl.innerHTML = pending.map(c => {
-                    const isOff = c.action === 'dayoff' || c.classType === 'dayoff';
-                    const isUndoOff = c.action === 'undodayoff';
-                    const isRoomEdit = c.action === 'room_edit';
-                    const isRoomClear = c.action === 'room_clear';
-                    const isClassStatus = c.action === 'class_status';
-                    const isCancelledStatus = isClassStatus && normalizeClassStatus(c.classStatus) === 'cancelled';
-                    const isEdit = c.action === 'edit';
-                    const isDelete = c.action === 'delete' || isRoomClear;
-                    const kind = isCancelledStatus ? t('schedAlertKindClassCancelled')
-                        : (isClassStatus ? t('schedAlertKindClassStatus')
-                        : (isRoomClear ? t('schedActionRoomClear')
-                        : (isRoomEdit ? t('schedAlertKindRoomEdit')
-                        : (isUndoOff ? t('schedAlertKindUndoOff')
-                        : (isOff ? t('schedAlertKindOff')
-                        : (isEdit ? t('schedAlertKindEdit')
-                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd'))))))));
-                    const summary = isCancelledStatus ? t('schedAlertSummaryClassCancelled')
-                        : (isClassStatus ? t('schedAlertSummaryStudentPostpone')
-                        : (isRoomClear ? t('schedAlertSummaryRoomClear')
-                        : (isRoomEdit ? t('schedAlertSummaryRoomEdit')
-                        : (isUndoOff ? t('schedAlertSummaryUndoOff')
-                        : (isOff ? t('schedAlertSummaryOff')
-                        : (isEdit ? t('schedAlertSummaryEdit')
-                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd'))))))));
-                    const subject = pickLangText(c, 'title') || c.title || (isOff || isUndoOff ? t('schedDayOffTitle') : '—');
-                    const time = (!isOff && !isUndoOff && (c.start || c.end))
-                        ? `${c.start || '—'}–${c.end || '—'}`
-                        : '—';
-                    const typeLbl = isClassStatus
-                        ? classStatusLabel(c.classStatus || (isCancelledStatus ? 'cancelled' : 'student_postponed'))
-                        : (isRoomClear || isRoomEdit
-                        ? (c.room ? roomLabel(c.room) : t('schedActionRoomClear'))
-                        : classTypeLabel((isOff || isUndoOff) ? 'dayoff' : (c.classType || 'regular')));
-                    const pill = isCancelledStatus ? t('schedActionClassCancelled')
-                        : (isClassStatus ? t('schedActionClassStatus')
-                        : (isRoomClear ? t('schedActionRoomClear')
-                        : (isRoomEdit ? t('schedActionRoomEdit')
-                        : (isUndoOff ? t('schedActionUndoDayOff')
-                        : (isOff ? t('schedActionDayOff')
-                        : (isEdit ? t('schedActionEdit')
-                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd'))))))));
-                    const cardClass = (isOff || isUndoOff || isCancelledStatus || isRoomClear || isDelete ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
-                    const teaLbl = schedAlertTeacherLabel(c);
-                    const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
-                    return `<div class="sched-alert-card ${cardClass}">
+                const c = current;
+                const isOff = c.action === 'dayoff' || c.classType === 'dayoff';
+                const isUndoOff = c.action === 'undodayoff';
+                const isRoomEdit = c.action === 'room_edit';
+                const isRoomClear = c.action === 'room_clear';
+                const isClassStatus = c.action === 'class_status';
+                const isCancelledStatus = isClassStatus && normalizeClassStatus(c.classStatus) === 'cancelled';
+                const isEdit = c.action === 'edit';
+                const isDelete = c.action === 'delete' || isRoomClear;
+                const kind = isCancelledStatus ? t('schedAlertKindClassCancelled')
+                    : (isClassStatus ? t('schedAlertKindClassStatus')
+                    : (isRoomClear ? t('schedActionRoomClear')
+                    : (isRoomEdit ? t('schedAlertKindRoomEdit')
+                    : (isUndoOff ? t('schedAlertKindUndoOff')
+                    : (isOff ? t('schedAlertKindOff')
+                    : (isEdit ? t('schedAlertKindEdit')
+                    : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd'))))))));
+                const summary = isCancelledStatus ? t('schedAlertSummaryClassCancelled')
+                    : (isClassStatus ? t('schedAlertSummaryStudentPostpone')
+                    : (isRoomClear ? t('schedAlertSummaryRoomClear')
+                    : (isRoomEdit ? t('schedAlertSummaryRoomEdit')
+                    : (isUndoOff ? t('schedAlertSummaryUndoOff')
+                    : (isOff ? t('schedAlertSummaryOff')
+                    : (isEdit ? t('schedAlertSummaryEdit')
+                    : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd'))))))));
+                const subject = pickLangText(c, 'title') || c.title || (isOff || isUndoOff ? t('schedDayOffTitle') : '—');
+                const time = (!isOff && !isUndoOff && (c.start || c.end))
+                    ? `${c.start || '—'}–${c.end || '—'}`
+                    : '—';
+                const typeLbl = isClassStatus
+                    ? classStatusLabel(c.classStatus || (isCancelledStatus ? 'cancelled' : 'student_postponed'))
+                    : (isRoomClear || isRoomEdit
+                    ? (c.room ? roomLabel(c.room) : t('schedActionRoomClear'))
+                    : classTypeLabel((isOff || isUndoOff) ? 'dayoff' : (c.classType || 'regular')));
+                const pill = isCancelledStatus ? t('schedActionClassCancelled')
+                    : (isClassStatus ? t('schedActionClassStatus')
+                    : (isRoomClear ? t('schedActionRoomClear')
+                    : (isRoomEdit ? t('schedActionRoomEdit')
+                    : (isUndoOff ? t('schedActionUndoDayOff')
+                    : (isOff ? t('schedActionDayOff')
+                    : (isEdit ? t('schedActionEdit')
+                    : (isDelete ? t('schedActionDelete') : t('schedActionAdd'))))))));
+                const cardClass = (isOff || isUndoOff || isCancelledStatus || isRoomClear || isDelete ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
+                const teaLbl = schedAlertTeacherLabel(c);
+                const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+                const queueLabel = pending.length > 1
+                    ? `<div class="sched-alert-queue" aria-live="polite">${queueIdx + 1} / ${pending.length}</div>`
+                    : '';
+                listEl.innerHTML = `${queueLabel}<div class="sched-alert-card ${cardClass}">
                         <div class="sched-alert-kind">
                             <span class="sched-alert-pill">${esc(pill)}</span>
                             <span>${esc(kind)}</span>
@@ -34345,15 +34398,14 @@
                             <div><dt>${esc(t('schedAlertLblStatus'))}</dt><dd>${esc(t('pending'))}</dd></div>
                         </dl>
                     </div>`;
-                }).join('');
                 applyStaticI18n();
+                if (check) check.checked = false;
+                if (confirmBtn) confirmBtn.disabled = true;
                 if (wasOpen) {
-                    // Quiet content update — keep checkbox / sakura; no reopenModal remount
+                    // Quiet content update — keep sakura; reset ack for the new card
                     modal.classList.add('is-settled');
                     return;
                 }
-                if (check) check.checked = false;
-                if (confirmBtn) confirmBtn.disabled = true;
                 fillSakura(document.getElementById('sched-alert-sakura'));
                 reopenModal(modal);
                 // After first open animation finishes, block popIn on later softRefresh class toggles
@@ -35157,22 +35209,26 @@
                 const check = document.getElementById('sched-alert-check');
                 if (!currentUser || currentUser.role !== 'director' || !check?.checked) return;
                 pruneNonFirstSchedAlerts();
-                const list = loadSchedChanges();
-                const now = new Date().toISOString();
-                const today = todayKey();
-                list.forEach(c => {
-                    if (c.status === 'pending_director'
-                        && isDirectorSchedAlertAction(c.action)
-                        && String(c.date || '') === today) {
-                        c.status = 'acked';
-                        c.directorAckAt = now;
-                    }
-                });
-                saveSchedChanges(list);
+                const activeId = schedAlertModal?.dataset.activeSchedAlertId
+                    || queuedDirectorSchedAlerts()[0]?.id;
+                if (!activeId || !approveSchedChangeReport(activeId)) return;
+                schedAlertSkipIds.delete(String(activeId));
                 schedAlertPopupSnoozed = false;
                 if (schedAlertModal) {
-                    schedAlertModal.classList.remove('open', 'is-settled');
+                    schedAlertModal.classList.remove('is-settled');
                     delete schedAlertModal.dataset.schedAlertSig;
+                    delete schedAlertModal.dataset.activeSchedAlertId;
+                }
+                const remaining = queuedDirectorSchedAlerts();
+                if (remaining.length) {
+                    if (check) check.checked = false;
+                    const btn = document.getElementById('sched-alert-confirm');
+                    if (btn) btn.disabled = true;
+                    maybeShowSchedAlertPopup(currentUser);
+                    return;
+                }
+                if (schedAlertModal) {
+                    schedAlertModal.classList.remove('open', 'is-settled');
                 }
                 openDashboard(resolveAccountById(currentUser.id), true);
             });
