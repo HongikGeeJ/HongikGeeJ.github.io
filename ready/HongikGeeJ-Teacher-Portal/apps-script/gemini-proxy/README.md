@@ -1,7 +1,7 @@
 # Gemini help-chat proxy
 
 พอร์ทัล (`#help-fab` → แท็บ **AI ช่วยเหลือ**) ถาม–ตอบผ่าน **Google Gemini**  
-คีย์ API **ไม่ใส่ใน HTML** — เก็บใน Apps Script Script Properties แล้วให้เว็บเรียก proxy
+คีย์ API **ไม่ใส่ใน HTML** — เก็บใน Apps Script Script Properties แล้วให้เว็บเรียก proxy เท่านั้น
 
 ## ตั้งค่าครั้งเดียว
 
@@ -17,7 +17,9 @@
    - Execute as: **Me**  
    - Who has access: **Anyone**  
 6. คัดลอก URL แบบ `https://script.google.com/macros/s/XXXX/exec`  
-7. ใส่ใน `data/gemini/gemini-config.json`:
+7. ใส่ URL อย่างใดอย่างหนึ่ง:
+   - `data/gemini/gemini-config.json` → `"proxyUrl"`
+   - หรือใน HTML ด้านบนสคริปต์: `const DEFAULT_GEMINI_PROXY_URL = '...'`
 
 ```json
 {
@@ -41,9 +43,7 @@ hongikGeminiStatus()
 ## ความปลอดภัย
 
 - **อย่า** commit คีย์ API ใน repo / HTML  
-- ทางเลือกชั่วคราวสำหรับทดสอบเท่านั้น:  
-  `localStorage.setItem('hongik-gemini-api-key', 'YOUR_KEY')`  
-  (เรียก Gemini จากเบราว์เซอร์ตรง ๆ — คีย์โผล่ในเครื่องนั้น อย่าใช้บนเครื่องสาธารณะ)
+- ไคลเอนต์เรียก **เฉพาะ proxy** (POST `action: 'geminiChat'`) — ไม่มี API key ในเบราว์เซอร์
 
 ## แยกจากซิงก์อื่น
 

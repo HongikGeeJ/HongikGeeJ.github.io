@@ -9003,6 +9003,14 @@
 
     <script>
     (() => {
+        /* ========== CONFIG · Gemini help-chat proxy (paste URL after deploy) ==========
+         * Deploy apps-script/gemini-proxy/Code.gs as Web App (Anyone).
+         * Paste the .../macros/s/.../exec URL below, OR set data/gemini/gemini-config.json → proxyUrl.
+         * Console: hongikSetGeminiProxyUrl('https://script.google.com/macros/s/XXXX/exec')
+         * Never put GEMINI_API_KEY in this file — only call the proxy.
+         */
+        const DEFAULT_GEMINI_PROXY_URL = '';
+
         const LANG_KEY = 'hongik-lang';
         const SCHOOL_LOGO_B64_PARTS = [
             'iVBORw0KGgoAAAANSUhEUgAAAN8AAADwCAYAAACAA7HPAADaEklEQVR42uy9d5xdR333//7OzDm3bVcvbnK3MS4YML33GoicEEhIaCGQkPLkSSDJD1mkUAIh',
@@ -24999,7 +25007,6 @@
             }
 
         const GEMINI_PROXY_URL_STORE = 'hongik-gemini-proxy-url';
-        const GEMINI_API_KEY_STORE = 'hongik-gemini-api-key';
         const GEMINI_CONFIG_JSON = 'data/gemini/gemini-config.json';
         const DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash';
         let helpUi = { tab: 'ai', inboxId: null, aiBooted: false };
@@ -25014,7 +25021,8 @@
                 const local = String(localStorage.getItem(GEMINI_PROXY_URL_STORE) || '').trim();
                 if (local) return local;
             } catch (_) {}
-            return String(geminiProxyConfigUrl || '').trim();
+            if (geminiProxyConfigUrl) return String(geminiProxyConfigUrl).trim();
+            return String(typeof DEFAULT_GEMINI_PROXY_URL !== 'undefined' ? DEFAULT_GEMINI_PROXY_URL : '').trim();
         }
         function setGeminiProxyUrl(url) {
             const u = String(url || '').trim();
@@ -25022,14 +25030,8 @@
                 if (u) localStorage.setItem(GEMINI_PROXY_URL_STORE, u);
                 else localStorage.removeItem(GEMINI_PROXY_URL_STORE);
             } catch (_) {}
+            if (u) geminiProxyConfigUrl = u;
             return getGeminiProxyUrl();
-        }
-        function getGeminiDirectApiKey() {
-            try {
-                return String(localStorage.getItem(GEMINI_API_KEY_STORE) || '').trim();
-            } catch (_) {
-                return '';
-            }
         }
         async function loadGeminiConfig({ force = false } = {}) {
             if (geminiConfigLoaded && !force) return getGeminiProxyUrl();
@@ -25084,83 +25086,29 @@
             }
             return { ok: true, text: String(data.text || '').trim(), model: data.model || geminiConfigModel, via: 'proxy' };
         }
-        async function askGeminiDirect(message, { history, role, roleGuide } = {}) {
-            const apiKey = getGeminiDirectApiKey();
-            if (!apiKey) return { ok: false, error: 'no_direct_key' };
-            const model = geminiConfigModel || DEFAULT_GEMINI_MODEL;
-            const sys =
-                'You are the Hongik GeeJ teacher portal assistant (Gemini).\n' +
-                'Answer in ' + (lang === 'en' ? 'English' : lang === 'ko' ? 'Korean' : 'Thai') + '.\n' +
-                'Be concise. Respect account permissions.\n' +
-                'Role: ' + (role || '') + '\n' + (roleGuide || '');
-            const contents = [];
-            (history || helpGeminiHistoryForApi()).forEach((m) => {
-                contents.push({
-                    role: m.kind === 'me' ? 'user' : 'model',
-                    parts: [{ text: String(m.text || '').slice(0, 4000) }]
-                });
-            });
-            contents.push({ role: 'user', parts: [{ text: String(message).slice(0, 4000) }] });
-            const endpoint =
-                'https://generativelanguage.googleapis.com/v1beta/models/' +
-                encodeURIComponent(model) +
-                ':generateContent?key=' +
-                encodeURIComponent(apiKey);
-            const res = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    systemInstruction: { parts: [{ text: sys }] },
-                    contents,
-                    generationConfig: { temperature: 0.4, maxOutputTokens: 1024 }
-                })
-            });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-                const msg = (data.error && data.error.message) || ('HTTP ' + res.status);
-                return { ok: false, error: String(msg).slice(0, 300), model };
-            }
-            const parts = data?.candidates?.[0]?.content?.parts || [];
-            const text = parts.map((p) => p?.text || '').join('').trim();
-            if (!text) return { ok: false, error: 'empty_response', model };
-            return { ok: true, text, model, via: 'direct' };
-        }
         async function askGemini(message) {
             await loadGeminiConfig();
             const role = currentUser?.role || '';
             const roleGuide = helpRoleGuide(currentUser);
             const history = helpGeminiHistoryForApi(message);
-            let lastErr = '';
-            if (getGeminiProxyUrl()) {
-                try {
-                    const viaProxy = await askGeminiViaProxy(message, { history, role, roleGuide });
-                    if (viaProxy.ok && viaProxy.text) return viaProxy;
-                    lastErr = viaProxy.error || 'proxy_error';
-                } catch (err) {
-                    lastErr = String(err?.message || err || 'proxy_failed');
-                }
-            }
-            if (getGeminiDirectApiKey()) {
-                try {
-                    const viaDirect = await askGeminiDirect(message, { history, role, roleGuide });
-                    if (viaDirect.ok && viaDirect.text) return viaDirect;
-                    lastErr = viaDirect.error || 'direct_failed';
-                } catch (err2) {
-                    lastErr = String(err2?.message || err2 || 'direct_failed');
-                }
-            }
-            if (!getGeminiProxyUrl() && !getGeminiDirectApiKey()) {
+            if (!getGeminiProxyUrl()) {
                 return { ok: false, error: 'need_setup' };
             }
-            return { ok: false, error: lastErr || 'gemini_unavailable' };
+            try {
+                const viaProxy = await askGeminiViaProxy(message, { history, role, roleGuide });
+                if (viaProxy.ok && viaProxy.text) return viaProxy;
+                return { ok: false, error: viaProxy.error || 'proxy_error', model: viaProxy.model };
+            } catch (err) {
+                return { ok: false, error: String(err?.message || err || 'proxy_failed') };
+            }
         }
         try {
             window.hongikSetGeminiProxyUrl = (url) => setGeminiProxyUrl(url);
             window.hongikGeminiStatus = () => ({
                 proxyUrl: getGeminiProxyUrl() || '',
-                hasDirectKey: !!getGeminiDirectApiKey(),
                 model: geminiConfigModel,
-                configLoaded: geminiConfigLoaded
+                configLoaded: geminiConfigLoaded,
+                via: 'proxy-only'
             });
         } catch (_) {}
 
