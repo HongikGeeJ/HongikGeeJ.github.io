@@ -33157,15 +33157,31 @@
                     titleTh: item.titleTh || item.title || '',
                     titleEn: item.titleEn || item.title || ''
                 };
+                const prevStatus = normalizeClassStatus(item.classStatus);
                 list[cancelDraftIdx] = {
                     ...item,
                     cancelled: true,
+                    classStatus: 'cancelled',
                     cancelId,
                     ...reasonStamp,
                     makeupDate,
                     cancelNote: note
                 };
                 saveDaySchedule(currentUser.id, list);
+                if (item.roomSlotId) {
+                    const roomBlock = getRoomBlockById(item.roomSlotId);
+                    if (roomBlock) {
+                        const saved = saveRoomBlock({ ...roomBlock, classStatus: 'cancelled', userEdited: true }, currentUser);
+                        if (saved.ok && saved.slot) {
+                            notifyClassStatusToDirector({
+                                user: currentUser,
+                                slot: saved.slot,
+                                beforeStatus: prevStatus,
+                                afterStatus: 'cancelled'
+                            });
+                        }
+                    }
+                }
                 const cancels = loadClassCancels();
                 const cancelRec = stampLangText({
                     id: cancelId,
