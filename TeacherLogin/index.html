@@ -21456,19 +21456,22 @@
                             const roomCls = ri === 0 ? ' is-room-a' : ri === 1 ? ' is-room-b' : ' is-room-c';
                             const dayStart = ri === 0 && di > 0 ? ' is-day-start' : '';
                             const colCls = `${dayBand}${dayStart}${roomCls}${isToday ? ' is-today-col' : ''}${isDayEnd ? ' is-day-end' : ''}`;
-                            if (isDayEnd) {
-                                body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}"><div class="room-tt-plus" style="animation:none;opacity:.35;cursor:default;pointer-events:none;color:rgba(148,163,184,.35)">·</div></div>`;
+                            // 22:00 axis row = day close (สี่ทุ่ม): still bookable via last half 21:30–22:00
+                            const bookHalf = isDayEnd ? roomTtFromMin(ROOM_TT_END_MIN - 30) : half;
+                            const key = `${date}|${room}|${bookHalf}`;
+                            const slot = byCell[key];
+                            if (isDayEnd && slot) {
+                                // Last period already booked on 21:30 row — no duplicate control
+                                body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}"></div>`;
                                 return;
                             }
-                            const key = `${date}|${room}|${half}`;
-                            const slot = byCell[key];
                             if (!slot) {
                                 if (!canBook) {
                                     body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}"><div class="room-tt-plus" style="animation:none;opacity:.55;cursor:default;pointer-events:none;color:rgba(148,163,184,.4)">·</div></div>`;
                                     return;
                                 }
                                 body += `<div class="room-tt-cell${colCls}" style="grid-column:${col};grid-row:${row}">
-                                    <button type="button" class="room-tt-plus" data-rt-book="${esc(date)}|${room}|${half}" title="${esc(t('roomTtEmptyHint'))}" aria-label="+">
+                                    <button type="button" class="room-tt-plus" data-rt-book="${esc(date)}|${room}|${bookHalf}" title="${esc(t('roomTtEmptyHint'))}" aria-label="+">
                                         <i class="ph ph-plus"></i>
                                     </button>
                                 </div>`;
@@ -21615,6 +21618,12 @@
                             return;
                         } else {
                             end = roomTtFromMin(roomTtToMin(half) + 30);
+                        }
+                        if (roomTtToMin(end) > ROOM_TT_END_MIN) end = roomTtFromMin(ROOM_TT_END_MIN);
+                        if (roomTtToMin(end) <= roomTtToMin(start)) {
+                            roomTtRangePick = { date, room, start: half };
+                            renderRoomTimetableBoard(user);
+                            return;
                         }
                         roomTtRangePick = null;
                         openRoomTtModal(user, { date, room, start, half: start, end });
