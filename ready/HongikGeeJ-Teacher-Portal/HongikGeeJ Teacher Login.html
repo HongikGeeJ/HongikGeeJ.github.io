@@ -10150,6 +10150,11 @@
                 schedActionUndoDayOff: '수업 없음 취소',
                 schedChangeInbox: '일정 변경 보고',
                 noSchedChanges: '대기 중인 일정 변경이 없습니다',
+                deleteReadReports: '읽은 메시지 삭제',
+                deleteReadReportsConfirm: '확인함(읽음) 상태인 수업 취소·일정 변경 보고를 모두 삭제할까요?\n대기 중(승인 대기) 항목은 그대로 둡니다. 되돌릴 수 없습니다.',
+                deleteReadReportsDone: '읽은 메시지를 삭제했습니다',
+                deleteReadReportsNone: '삭제할 읽은 메시지가 없습니다',
+                deleteReadReportOneConfirm: '이 읽은 보고를 삭제할까요? 되돌릴 수 없습니다.',
                 teachersEmergency: '교사 비상 연락처',
                 teachersEmergencyHint: '각 교사가 등록한 비상 연락처 요약입니다',
                 noTeacherEm: '등록된 비상 연락처 없음',
@@ -10936,6 +10941,11 @@
                 schedActionUndoDayOff: 'ยกเลิกไม่มีคลาส',
                 schedChangeInbox: 'รายงานเปลี่ยนตาราง',
                 noSchedChanges: 'ยังไม่มีรายการรอรับทราบ',
+                deleteReadReports: 'ลบข้อความที่อ่านแล้ว',
+                deleteReadReportsConfirm: 'ลบรายงานยกเลิกคลาสและเปลี่ยนตารางที่สถานะ「อ่านแล้ว」ทั้งหมดเลยไหม?\nรายการที่รออนุมัติจะไม่ถูกลบ · กู้คืนไม่ได้',
+                deleteReadReportsDone: 'ลบข้อความที่อ่านแล้วเรียบร้อย',
+                deleteReadReportsNone: 'ไม่มีข้อความที่อ่านแล้วให้ลบ',
+                deleteReadReportOneConfirm: 'ลบรายงานที่อ่านแล้วรายการนี้เลยไหม? กู้คืนไม่ได้',
                 teachersEmergency: 'ติดต่อฉุกเฉินของคุณครู',
                 teachersEmergencyHint: 'สรุปเบอร์ที่คุณครูแต่ละคนลงทะเบียนไว้ · แยกสีตามคน',
                 noTeacherEm: 'ยังไม่ได้ลงทะเบียน',
@@ -11722,6 +11732,11 @@
                 schedActionUndoDayOff: 'Undid no-class day',
                 schedChangeInbox: 'Schedule change reports',
                 noSchedChanges: 'No pending schedule changes',
+                deleteReadReports: 'Delete read messages',
+                deleteReadReportsConfirm: 'Delete all class-cancellation and schedule-change reports marked Read?\nPending items stay. This cannot be undone.',
+                deleteReadReportsDone: 'Deleted read messages',
+                deleteReadReportsNone: 'No read messages to delete',
+                deleteReadReportOneConfirm: 'Delete this read report? This cannot be undone.',
                 teachersEmergency: "Teachers' emergency contacts",
                 teachersEmergencyHint: 'Summary of contacts each teacher registered · color-coded',
                 noTeacherEm: 'Not registered yet',
@@ -12729,6 +12744,57 @@
             localStorage.setItem(SCHED_CHANGE_STORE, JSON.stringify(list));
             try { localStorage.setItem(SCHED_CHANGE_STORE + ':tick', String(Date.now())); } catch (_) {}
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('schedChanges');
+        }
+        /** Statuses shown as อ่านแล้ว / Read on the director cancel+sched inbox board. */
+        function isInboxReadStatus(status) {
+            const s = String(status || '');
+            return !!s && s !== 'pending_director' && s !== 'voided_admin';
+        }
+        function canDeleteReadReports(user) {
+            return !!(user && (user.role === 'director' || user.role === 'admin'));
+        }
+        function countReadReportMessages() {
+            const cancels = loadClassCancels().filter((c) => isInboxReadStatus(c.status)).length;
+            const scheds = loadSchedChanges().filter((s) =>
+                isDirectorSchedAlertAction(s.action) && isInboxReadStatus(s.status)
+            ).length;
+            return cancels + scheds;
+        }
+        /** Remove read cancel + schedule-change inbox rows; leave pending (รออนุมัติ) untouched. */
+        function deleteReadReportMessages() {
+            const prevCancels = loadClassCancels();
+            const prevScheds = loadSchedChanges();
+            const nextCancels = prevCancels.filter((c) => !isInboxReadStatus(c.status));
+            const nextScheds = prevScheds.filter((s) => {
+                if (!isDirectorSchedAlertAction(s.action)) return true;
+                return !isInboxReadStatus(s.status);
+            });
+            const removed =
+                (prevCancels.length - nextCancels.length) +
+                (prevScheds.length - nextScheds.length);
+            if (!removed) return 0;
+            saveClassCancels(nextCancels);
+            saveSchedChanges(nextScheds);
+            return removed;
+        }
+        function deleteOneReadReport(kind, id) {
+            const key = String(id || '');
+            if (!key) return false;
+            if (kind === 'cancel') {
+                const list = loadClassCancels();
+                const hit = list.find((c) => String(c.id) === key);
+                if (!hit || !isInboxReadStatus(hit.status)) return false;
+                saveClassCancels(list.filter((c) => String(c.id) !== key));
+                return true;
+            }
+            if (kind === 'sched') {
+                const list = loadSchedChanges();
+                const hit = list.find((s) => String(s.id) === key);
+                if (!hit || !isInboxReadStatus(hit.status) || !isDirectorSchedAlertAction(hit.action)) return false;
+                saveSchedChanges(list.filter((s) => String(s.id) !== key));
+                return true;
+            }
+            return false;
         }
         function pendingDirectorSchedChanges() {
             // Director popup: add / edit / delete / no-class / room TT edit
@@ -23649,8 +23715,14 @@
                     </h3>
                     ${pendingLeaveN ? `<p class="text-xs mb-2" style="color:#c2410c;font-weight:700">${t('leaveClickOpen')}</p>` : ''}`;
 
+                    const canPurgeRead = canDeleteReadReports(user);
                     const allCancels = loadClassCancels().slice().reverse();
-                    const cancelInbox = allCancels.length ? allCancels.map(C => `
+                    const cancelInbox = allCancels.length ? allCancels.map(C => {
+                        const isRead = isInboxReadStatus(C.status);
+                        const delOne = canPurgeRead && isRead
+                            ? `<button type="button" class="soft-btn ghost" data-del-read-cancel="${String(C.id || '').replace(/"/g, '')}" title="${t('delete')}" style="padding:.28rem .55rem !important;font-size:.72rem !important;color:#b91c1c;flex-shrink:0"><i class="ph ph-trash"></i></button>`
+                            : '';
+                        return `
                         <div class="item-row" style="flex-direction:column;align-items:stretch;gap:.35rem">
                             <div class="flex justify-between gap-2">
                                 <div>
@@ -23660,19 +23732,28 @@
                                     ${C.makeupDate ? `<div class="text-xs text-slate-500">${t('makeupDate')}: ${C.makeupDate}</div>` : ''}
                                     ${C.note ? `<div class="text-xs text-slate-500">${t('cancelNote')}: ${C.note}</div>` : ''}
                                 </div>
-                                <span class="badge" style="background:${C.status==='pending_director'?'#ffedd5':C.status==='voided_admin'?'#f1f5f9':'#dbeafe'};color:${C.status==='pending_director'?'#9a3412':C.status==='voided_admin'?'#475569':'#1e40af'}">${
-                                    C.status === 'pending_director' ? t('pending') :
-                                    C.status === 'voided_admin' ? t('leaveCancelledAdmin') :
-                                    C.status === 'acked_pending_teacher' ? t('readDone') : t('readDone')
-                                }</span>
+                                <div style="display:flex;align-items:flex-start;gap:.35rem;flex-shrink:0">
+                                    <span class="badge" style="background:${C.status==='pending_director'?'#ffedd5':C.status==='voided_admin'?'#f1f5f9':'#dbeafe'};color:${C.status==='pending_director'?'#9a3412':C.status==='voided_admin'?'#475569':'#1e40af'}">${
+                                        C.status === 'pending_director' ? t('pending') :
+                                        C.status === 'voided_admin' ? t('leaveCancelledAdmin') :
+                                        C.status === 'acked_pending_teacher' ? t('readDone') : t('readDone')
+                                    }</span>
+                                    ${delOne}
+                                </div>
                             </div>
-                        </div>`).join('') : `<p class="empty-note">${t('noCancels')}</p>`;
+                        </div>`;
+                    }).join('') : `<p class="empty-note">${t('noCancels')}</p>`;
 
                     const allSchedCh = loadSchedChanges()
                         .filter(S => isDirectorSchedAlertAction(S.action))
                         .slice()
                         .reverse();
-                    const schedChangeInbox = allSchedCh.length ? allSchedCh.map(S => `
+                    const schedChangeInbox = allSchedCh.length ? allSchedCh.map(S => {
+                        const isRead = isInboxReadStatus(S.status);
+                        const delOne = canPurgeRead && isRead
+                            ? `<button type="button" class="soft-btn ghost" data-del-read-sched="${String(S.id || '').replace(/"/g, '')}" title="${t('delete')}" style="padding:.28rem .55rem !important;font-size:.72rem !important;color:#b91c1c;flex-shrink:0"><i class="ph ph-trash"></i></button>`
+                            : '';
+                        return `
                         <div class="item-row" style="flex-direction:column;align-items:stretch;gap:.35rem">
                             <div class="flex justify-between gap-2">
                                 <div>
@@ -23680,12 +23761,25 @@
                                     <div class="text-xs text-slate-500">${S.date || ''} · ${schedActionLabel(S.action)} · ${classTypeLabel(S.classType)}</div>
                                     <div class="text-sm">${(S.action === 'dayoff' || S.action === 'undodayoff') ? (pickLangText(S, 'title') || t('schedDayOffTitle')) : `${S.start || ''}–${S.end || ''} · ${pickLangText(S, 'title') || S.title || ''}`}</div>
                                 </div>
-                                <span class="badge" style="background:${S.status==='pending_director'?'#ffedd5':S.status==='voided_admin'?'#f1f5f9':'#dcfce7'};color:${S.status==='pending_director'?'#9a3412':S.status==='voided_admin'?'#475569':'#166534'}">${
-                                    S.status === 'pending_director' ? t('pending') :
-                                    S.status === 'voided_admin' ? t('leaveCancelledAdmin') : t('readDone')
-                                }</span>
+                                <div style="display:flex;align-items:flex-start;gap:.35rem;flex-shrink:0">
+                                    <span class="badge" style="background:${S.status==='pending_director'?'#ffedd5':S.status==='voided_admin'?'#f1f5f9':'#dcfce7'};color:${S.status==='pending_director'?'#9a3412':S.status==='voided_admin'?'#475569':'#166534'}">${
+                                        S.status === 'pending_director' ? t('pending') :
+                                        S.status === 'voided_admin' ? t('leaveCancelledAdmin') : t('readDone')
+                                    }</span>
+                                    ${delOne}
+                                </div>
                             </div>
-                        </div>`).join('') : `<p class="empty-note">${t('noSchedChanges')}</p>`;
+                        </div>`;
+                    }).join('') : `<p class="empty-note">${t('noSchedChanges')}</p>`;
+
+                    const readReportN = countReadReportMessages();
+                    const deleteReadBtn = canPurgeRead
+                        ? `<div style="display:flex;justify-content:flex-end;margin:.15rem 0 .55rem">
+                            <button type="button" class="soft-btn ghost" id="delete-read-reports-btn" ${readReportN ? '' : 'disabled aria-disabled="true"'} style="padding:.38rem .85rem !important;font-size:.78rem !important;color:#b91c1c${readReportN ? '' : ';opacity:.45'}">
+                                <i class="ph ph-trash"></i> ${t('deleteReadReports')}${readReportN ? ` · ${readReportN}` : ''}
+                            </button>
+                        </div>`
+                        : '';
 
                     const todos = directorTodosToday();
                     const todoRows = todos.length ? todos.map(td => `
@@ -23766,6 +23860,7 @@
                         ${leaveInbox}
                     </div></div>`;
                     extra += `<div class="tab-panel" data-panel="cancels"><div class="content-card compact-card">${heading('ph-calendar-x','cancelInbox')}
+                        ${deleteReadBtn}
                         ${cancelInbox}
                         <h3 class="mt-3" style="font-size:.95rem">${t('schedChangeInbox')}</h3>
                         ${schedChangeInbox}
@@ -24234,6 +24329,57 @@
                     ensureOrderResendCooldownTicker();
                     applyOrderResendCooldownUi(document);
                 }
+
+                // director/admin: purge read cancel + schedule-change inbox messages
+                const bindDeleteReadReports = () => {
+                    if (!canDeleteReadReports(user)) return;
+                    const bulk = document.getElementById('delete-read-reports-btn');
+                    if (bulk) {
+                        bulk.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const n = countReadReportMessages();
+                            if (!n) {
+                                alert(t('deleteReadReportsNone'));
+                                return;
+                            }
+                            if (!confirm(t('deleteReadReportsConfirm'))) return;
+                            const removed = deleteReadReportMessages();
+                            openDashboard(resolveAccountById(user.id), true);
+                            if (user.role === 'director') setTab('cancels');
+                            else if (user.role === 'admin') setTab('admin');
+                            const toast = document.getElementById('adm-ops-msg') || document.getElementById('assign-msg');
+                            if (toast) toast.textContent = removed ? t('deleteReadReportsDone') : t('deleteReadReportsNone');
+                        });
+                    }
+                    document.querySelectorAll('[data-del-read-cancel]').forEach((btn) => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const id = btn.getAttribute('data-del-read-cancel');
+                            if (!id || !confirm(t('deleteReadReportOneConfirm'))) return;
+                            if (deleteOneReadReport('cancel', id)) {
+                                openDashboard(resolveAccountById(user.id), true);
+                                if (user.role === 'director') setTab('cancels');
+                                else if (user.role === 'admin') setTab('admin');
+                            }
+                        });
+                    });
+                    document.querySelectorAll('[data-del-read-sched]').forEach((btn) => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const id = btn.getAttribute('data-del-read-sched');
+                            if (!id || !confirm(t('deleteReadReportOneConfirm'))) return;
+                            if (deleteOneReadReport('sched', id)) {
+                                openDashboard(resolveAccountById(user.id), true);
+                                if (user.role === 'director') setTab('cancels');
+                                else if (user.role === 'admin') setTab('admin');
+                            }
+                        });
+                    });
+                };
+                bindDeleteReadReports();
 
                 // director personal plan (top of work board)
                 const addDirTodo = () => {
@@ -24976,10 +25122,17 @@
                         <button type="button" class="soft-btn ghost" data-adm-void-sched="${esc(S.id)}" style="font-size:.75rem">${t('adminOpsVoid')}</button>
                     </div>`).join('') : `<p class="empty-note">${t('adminOpsEmpty')}</p>`;
                 const teaOpts = teachers.map((tea) => `<option value="${esc(tea.id)}">${esc(displayName(tea))}</option>`).join('');
+                const readReportN = countReadReportMessages();
+                const deleteReadBtn = `<div style="display:flex;justify-content:flex-end;margin:.15rem 0 .55rem">
+                    <button type="button" class="soft-btn ghost" id="delete-read-reports-btn" ${readReportN ? '' : 'disabled aria-disabled="true"'} style="padding:.38rem .85rem !important;font-size:.78rem !important;color:#b91c1c${readReportN ? '' : ';opacity:.45'}">
+                        <i class="ph ph-trash"></i> ${t('deleteReadReports')}${readReportN ? ` · ${readReportN}` : ''}
+                    </button>
+                </div>`;
                 board.innerHTML = `
                     <div class="content-card" style="padding:0;border:none;box-shadow:none;background:transparent">
                         <h3 style="margin:0 0 .25rem;color:#0f172a;font-size:1.05rem"><i class="ph ph-shield-check" style="color:#b45309"></i> ${t('adminOpsTitle')}</h3>
                         <p class="text-xs text-slate-500 mb-2">${t('adminOpsHint')}</p>
+                        ${deleteReadBtn}
                         <p class="admin-label" style="margin-top:.35rem">${t('adminOpsLeave')}</p>
                         ${leaveRows}
                         <p class="admin-label">${t('adminOpsCancels')}</p>
@@ -25070,6 +25223,21 @@
                             renderAdminOpsBoard(user);
                         }
                     });
+                });
+                document.getElementById('delete-read-reports-btn')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!canDeleteReadReports(user)) return;
+                    const n = countReadReportMessages();
+                    if (!n) {
+                        alert(t('deleteReadReportsNone'));
+                        return;
+                    }
+                    if (!confirm(t('deleteReadReportsConfirm'))) return;
+                    const removed = deleteReadReportMessages();
+                    const msg = document.getElementById('adm-ops-msg');
+                    if (msg) msg.textContent = removed ? t('deleteReadReportsDone') : t('deleteReadReportsNone');
+                    renderAdminOpsBoard(user);
                 });
             }
 
