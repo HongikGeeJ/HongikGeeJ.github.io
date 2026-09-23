@@ -6513,8 +6513,13 @@
             color: #c2410c;
         }
         /* Active: amber LED chase around rectangular rim + glow */
-        @keyframes ot-led-rotate {
-            to { transform: rotate(360deg); }
+        @property --ot-led-angle {
+            syntax: '<angle>';
+            inherits: false;
+            initial-value: 0deg;
+        }
+        @keyframes ot-led-spin {
+            to { --ot-led-angle: 360deg; }
         }
         .ot-month-chip.is-active {
             border-color: transparent;
@@ -6546,7 +6551,7 @@
             inset: -2.5px;
             border-radius: calc(.7rem + 2px);
             background: conic-gradient(
-                from 0deg,
+                from var(--ot-led-angle),
                 transparent 0 58%,
                 #fdba74 66%,
                 #fbbf24 74%,
@@ -6555,12 +6560,12 @@
                 transparent 100%
             );
             z-index: -2;
-            animation: ot-led-rotate 1.75s linear infinite;
+            animation: ot-led-spin 1.75s linear infinite;
             pointer-events: none;
         }
         .ot-month-chip.is-active.is-current-month::before {
             background: conic-gradient(
-                from 0deg,
+                from var(--ot-led-angle),
                 transparent 0 52%,
                 #fb923c 62%,
                 #fbbf24 72%,
@@ -16570,7 +16575,8 @@
                 m -= 1;
                 if (m <= 0) { m = 12; y -= 1; }
             }
-            return out;
+            /* Chronological: oldest → newest (left → right on month board) */
+            return out.reverse();
         }
         function parseCourseTimeRange(course) {
             const m = String(course || '').match(/(\d{1,2})[\.:](\d{2})\s*[-–.]+\s*(\d{1,2})[\.:](\d{2})/);
@@ -24878,11 +24884,13 @@
                 }).join('');
 
                 const lookback = otLookbackMonthKeys(8);
+                const currentYm = todayKey().slice(0, 7);
                 const monthOverview = lookback.map((m) => {
                     let sum = 0;
                     teachers.forEach((tea) => { sum += otMonthPaySum(otEntriesForMonth(tea.id, m)); });
                     const active = m === ym ? ' is-active' : '';
-                    return `<button type="button" class="ot-month-chip ${sum > 0 ? 'has-pay' : 'zero-pay'}${active}" data-ot-ym="${m}">
+                    const monthKind = m === currentYm ? ' is-current-month' : ' is-past-month';
+                    return `<button type="button" class="ot-month-chip ${sum > 0 ? 'has-pay' : 'zero-pay'}${monthKind}${active}" data-ot-ym="${m}">
                         <span class="ot-month-ym">${esc(m)}</span>
                         <span class="pay-ok-badge${sum > 0 ? ' due' : ''}">${t('baht')}${sum.toLocaleString()}</span>
                     </button>`;

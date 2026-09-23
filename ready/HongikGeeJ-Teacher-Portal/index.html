@@ -6435,7 +6435,7 @@
         .ot-pay-panel .pay-ok-total {
             background: #9a3412; border-color: #9a3412;
         }
-        /* OT lookback month strip (ย้อนหลัง 8 เดือน) */
+        /* OT lookback month strip (ย้อนหลัง 8 เดือน) — oldest left → newest right */
         .ot-month-board {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(10.75rem, 1fr));
@@ -6443,6 +6443,7 @@
             margin: .35rem 0 .85rem;
         }
         .ot-month-chip {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -6457,6 +6458,7 @@
             font-family: inherit;
             cursor: pointer;
             text-align: left;
+            isolation: isolate;
             transition: border-color .18s, box-shadow .18s, background .18s, transform .15s;
         }
         .ot-month-chip .ot-month-ym {
@@ -6467,13 +6469,39 @@
             flex: 0 1 auto;
             line-height: 1.25;
             color: #0f172a;
+            position: relative;
+            z-index: 1;
         }
         .ot-month-chip .pay-ok-badge {
             font-size: .7rem;
             padding: .22rem .52rem;
             flex: 0 0 auto;
+            position: relative;
+            z-index: 1;
         }
-        .ot-month-chip.has-pay {
+        /* Past months: cooler slate */
+        .ot-month-chip.is-past-month {
+            border-color: #cbd5e1;
+            background: #f8fafc;
+        }
+        .ot-month-chip.is-past-month .ot-month-ym {
+            color: #64748b;
+        }
+        .ot-month-chip.is-past-month.has-pay {
+            border-color: #fdba74;
+            background: #fff;
+            box-shadow: inset 3px 0 0 #ea580c99;
+        }
+        /* Current calendar month: warmer amber */
+        .ot-month-chip.is-current-month {
+            border-color: #fb923c;
+            background: #fffbeb;
+            box-shadow: inset 3px 0 0 #ea580c;
+        }
+        .ot-month-chip.is-current-month .ot-month-ym {
+            color: #9a3412;
+        }
+        .ot-month-chip.has-pay:not(.is-past-month):not(.is-current-month) {
             border-color: #fdba74;
             box-shadow: inset 3px 0 0 #c2410c;
         }
@@ -6481,17 +6509,96 @@
             color: #64748b;
             font-weight: 700;
         }
+        .ot-month-chip.zero-pay.is-current-month .ot-month-ym {
+            color: #c2410c;
+        }
+        /* Active: amber LED chase around rectangular rim + glow */
+        @property --ot-led-angle {
+            syntax: '<angle>';
+            inherits: false;
+            initial-value: 0deg;
+        }
+        @keyframes ot-led-spin {
+            to { --ot-led-angle: 360deg; }
+        }
         .ot-month-chip.is-active {
-            border-color: #ea580c;
-            outline: 2px solid #ea580c;
-            outline-offset: 2px;
+            border-color: transparent;
+            outline: none;
             background: #fff7ed;
-            box-shadow: 0 3px 10px rgba(234, 88, 12, .16);
+            box-shadow:
+                0 0 0 1px rgba(234, 88, 12, .22),
+                0 0 12px rgba(234, 88, 12, .32),
+                0 0 24px rgba(251, 191, 36, .2);
+            z-index: 1;
+        }
+        .ot-month-chip.is-active.is-past-month {
+            background: #fff7ed;
+            box-shadow:
+                0 0 0 1px rgba(234, 88, 12, .18),
+                0 0 10px rgba(234, 88, 12, .26),
+                0 0 18px rgba(251, 191, 36, .14);
+        }
+        .ot-month-chip.is-active.is-current-month {
+            background: #ffedd5;
+            box-shadow:
+                0 0 0 1px rgba(194, 65, 12, .28),
+                0 0 16px rgba(234, 88, 12, .4),
+                0 0 30px rgba(251, 191, 36, .28);
+        }
+        .ot-month-chip.is-active::before {
+            content: '';
+            position: absolute;
+            inset: -2.5px;
+            border-radius: calc(.7rem + 2px);
+            background: conic-gradient(
+                from var(--ot-led-angle),
+                transparent 0 58%,
+                #fdba74 66%,
+                #fbbf24 74%,
+                #ea580c 84%,
+                #fff7ed 92%,
+                transparent 100%
+            );
+            z-index: -2;
+            animation: ot-led-spin 1.75s linear infinite;
+            pointer-events: none;
+        }
+        .ot-month-chip.is-active.is-current-month::before {
+            background: conic-gradient(
+                from var(--ot-led-angle),
+                transparent 0 52%,
+                #fb923c 62%,
+                #fbbf24 72%,
+                #c2410c 84%,
+                #ffedd5 92%,
+                transparent 100%
+            );
+            animation-duration: 1.45s;
+        }
+        .ot-month-chip.is-active::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: inherit;
+            z-index: -1;
+            pointer-events: none;
         }
         .ot-month-chip.has-pay.is-active {
-            box-shadow: inset 3px 0 0 #c2410c, 0 3px 10px rgba(234, 88, 12, .16);
+            box-shadow:
+                inset 3px 0 0 #c2410c,
+                0 0 0 1px rgba(234, 88, 12, .22),
+                0 0 12px rgba(234, 88, 12, .32),
+                0 0 24px rgba(251, 191, 36, .2);
         }
-        .ot-month-chip:hover {
+        .ot-month-chip.has-pay.is-active.is-current-month {
+            box-shadow:
+                inset 3px 0 0 #c2410c,
+                0 0 0 1px rgba(194, 65, 12, .28),
+                0 0 16px rgba(234, 88, 12, .4),
+                0 0 30px rgba(251, 191, 36, .28);
+        }
+        .ot-month-chip:hover:not(.is-active) {
             border-color: #fb923c;
             transform: translateY(-1px);
         }
@@ -16468,7 +16575,8 @@
                 m -= 1;
                 if (m <= 0) { m = 12; y -= 1; }
             }
-            return out;
+            /* Chronological: oldest → newest (left → right on month board) */
+            return out.reverse();
         }
         function parseCourseTimeRange(course) {
             const m = String(course || '').match(/(\d{1,2})[\.:](\d{2})\s*[-–.]+\s*(\d{1,2})[\.:](\d{2})/);
@@ -24776,11 +24884,13 @@
                 }).join('');
 
                 const lookback = otLookbackMonthKeys(8);
+                const currentYm = todayKey().slice(0, 7);
                 const monthOverview = lookback.map((m) => {
                     let sum = 0;
                     teachers.forEach((tea) => { sum += otMonthPaySum(otEntriesForMonth(tea.id, m)); });
                     const active = m === ym ? ' is-active' : '';
-                    return `<button type="button" class="ot-month-chip ${sum > 0 ? 'has-pay' : 'zero-pay'}${active}" data-ot-ym="${m}">
+                    const monthKind = m === currentYm ? ' is-current-month' : ' is-past-month';
+                    return `<button type="button" class="ot-month-chip ${sum > 0 ? 'has-pay' : 'zero-pay'}${monthKind}${active}" data-ot-ym="${m}">
                         <span class="ot-month-ym">${esc(m)}</span>
                         <span class="pay-ok-badge${sum > 0 ? ' due' : ''}">${t('baht')}${sum.toLocaleString()}</span>
                     </button>`;
