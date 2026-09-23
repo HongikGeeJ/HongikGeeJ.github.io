@@ -2218,13 +2218,73 @@
             will-change: opacity, transform, filter;
         }
         .dash-location .dash-loc-ico {
-            display: inline-block;
-            font-size: .92em;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.42em;
+            height: 1.42em;
+            flex: 0 0 auto;
             line-height: 1;
             transform-origin: center;
-            animation: dashLocIco 3.6s ease-in-out infinite;
-            filter: drop-shadow(0 0 0 rgba(61, 90, 128, 0));
+            animation: dashLocIco 3.4s ease-in-out infinite;
+            pointer-events: none !important;
         }
+        .dash-location .dash-loc-umbrellas {
+            display: block;
+            width: 1.32em;
+            height: auto;
+            max-width: 22px;
+            object-fit: contain;
+            pointer-events: none !important;
+            user-select: none;
+            filter:
+                drop-shadow(0 0 2px rgba(255, 220, 120, .55))
+                drop-shadow(0 1px 2px rgba(61, 90, 128, .22));
+        }
+        .dash-location .dash-loc-stars {
+            position: absolute;
+            inset: -.42em -.48em;
+            pointer-events: none !important;
+            overflow: visible;
+        }
+        .dash-location .dash-loc-stars i {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #fffef8;
+            box-shadow:
+                0 0 3px 1px rgba(255, 248, 210, .95),
+                0 0 7px 2px rgba(255, 196, 120, .45);
+            opacity: 0;
+            animation: dashLocStarTwinkle 2.2s ease-in-out infinite;
+        }
+        .dash-location .dash-loc-stars i::before,
+        .dash-location .dash-loc-stars i::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            background: rgba(255, 252, 240, .95);
+            border-radius: 1px;
+            box-shadow: 0 0 2px rgba(255, 220, 150, .7);
+        }
+        .dash-location .dash-loc-stars i::before {
+            width: 7px;
+            height: 1.4px;
+            transform: translate(-50%, -50%);
+        }
+        .dash-location .dash-loc-stars i::after {
+            width: 1.4px;
+            height: 7px;
+            transform: translate(-50%, -50%);
+        }
+        .dash-location .dash-loc-stars i:nth-child(1) { left: 8%;  top: 10%; animation-delay: 0s; }
+        .dash-location .dash-loc-stars i:nth-child(2) { left: 78%; top: 4%;  animation-delay: -.55s; width: 2px; height: 2px; }
+        .dash-location .dash-loc-stars i:nth-child(3) { left: 92%; top: 48%; animation-delay: -1.1s; }
+        .dash-location .dash-loc-stars i:nth-child(4) { left: 4%;  top: 62%; animation-delay: -.8s; width: 2.5px; height: 2.5px; }
+        .dash-location .dash-loc-stars i:nth-child(5) { left: 58%; top: 86%; animation-delay: -1.55s; width: 2px; height: 2px; }
         .dash-location .dash-loc-text {
             display: inline-block;
             background: linear-gradient(105deg,
@@ -2241,12 +2301,28 @@
             animation: dashLocShimmer 4.8s ease-in-out infinite;
         }
         @keyframes dashLocPulse {
-            0%, 100% { opacity: .82; transform: translateY(0) scale(1); }
-            50% { opacity: 1; transform: translateY(-0.5px) scale(1.035); }
+            0%, 100% { opacity: .88; transform: translateY(0) scale(1); }
+            50% { opacity: 1; transform: translateY(-0.6px) scale(1.04); }
         }
         @keyframes dashLocIco {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(61, 90, 128, 0)); }
-            50% { transform: scale(1.08); filter: drop-shadow(0 0 4px rgba(94, 140, 190, .35)); }
+            0%, 100% {
+                transform: translateY(0) rotate(-2deg) scale(1);
+                filter: brightness(1);
+            }
+            40% {
+                transform: translateY(-1px) rotate(2.5deg) scale(1.08);
+                filter: brightness(1.08);
+            }
+            70% {
+                transform: translateY(0) rotate(-1deg) scale(1.03);
+                filter: brightness(1.04);
+            }
+        }
+        @keyframes dashLocStarTwinkle {
+            0%, 100% { opacity: 0; transform: scale(.55); }
+            35% { opacity: 1; transform: scale(1.15); }
+            55% { opacity: .55; transform: scale(.9); }
+            75% { opacity: .95; transform: scale(1.05); }
         }
         @keyframes dashLocShimmer {
             0%, 100% { background-position: 100% 50%; }
@@ -2255,9 +2331,11 @@
         @media (prefers-reduced-motion: reduce) {
             .dash-location,
             .dash-location .dash-loc-ico,
-            .dash-location .dash-loc-text {
+            .dash-location .dash-loc-text,
+            .dash-location .dash-loc-stars i {
                 animation: none !important;
             }
+            .dash-location .dash-loc-stars i { opacity: .55; }
             .dash-location .dash-loc-text {
                 color: #3d5a80;
                 -webkit-text-fill-color: #3d5a80;
@@ -2266,9 +2344,11 @@
         }
         html.lite-fx .dash-location,
         html.lite-fx .dash-location .dash-loc-ico,
-        html.lite-fx .dash-location .dash-loc-text {
+        html.lite-fx .dash-location .dash-loc-text,
+        html.lite-fx .dash-location .dash-loc-stars i {
             animation: none !important;
         }
+        html.lite-fx .dash-location .dash-loc-stars i { opacity: .5; }
         html.lite-fx .dash-location .dash-loc-text {
             color: #3d5a80;
             -webkit-text-fill-color: #3d5a80;
@@ -31411,8 +31491,8 @@
                 if (!el) return;
                 const uid = userOrId || (typeof currentUser !== 'undefined' ? currentUser : null);
                 const label = formatLocationDisplay(accountLocation(uid));
-                const next = `<span class="dash-loc-ico" aria-hidden="true">⛰️</span><span class="dash-loc-text">${String(label).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
-                if (el.dataset.locLabel === label && el.querySelector('.dash-loc-text')) return;
+                const next = `<span class="dash-loc-ico" aria-hidden="true"><img class="dash-loc-umbrellas" src="assets/decor/chiangmai-umbrellas.png?v=umb1" alt="" width="22" height="21" decoding="async"><span class="dash-loc-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></span><span class="dash-loc-text">${String(label).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
+                if (el.dataset.locLabel === label && el.querySelector('.dash-loc-umbrellas') && el.querySelector('.dash-loc-text')) return;
                 el.dataset.locLabel = label;
                 el.innerHTML = next;
             }
