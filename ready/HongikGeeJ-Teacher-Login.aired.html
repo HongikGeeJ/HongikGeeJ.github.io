@@ -508,9 +508,10 @@
             .dc-c.bl { transform: none; }
             .dc-c.br { transform: scaleX(-1); }
         }
-        /* Dashboard content-card corner blooms: other tabs stay clear of framed h3.
-           ตารางวันนี้ restores animated head/tail flower BG (pre-34dec44 look)
-           behind content. Login .panel .dc-c flowers stay. */
+        /* Dashboard content-card corner blooms folded away by default.
+           Taehyun (theme-teacher-a) restores animated TL head + BR tail on
+           every tab-panel content-card. Login .panel .dc-c flowers stay.
+           Eunha keeps Shin décor via .is-eunha-shin (does not use this theme). */
         .dash-shell .content-card {
             position: relative;
             overflow: visible;
@@ -519,7 +520,7 @@
             pointer-events: auto;
             padding: 1.15rem 1.25rem 1.25rem;
         }
-        /* Fold away TL/BR on non-today cards */
+        /* Fold away TL/BR unless a theme re-enables them */
         .dash-shell .content-card::before,
         .dash-shell .content-card::after {
             content: none !important;
@@ -544,17 +545,17 @@
             display: none !important;
         }
         /*
-          ตารางวันนี้: animated corner-bloom flowers (TL head + BR tail),
-          same assets/keyframes as pre-34dec44. ALL size/opacity props use
-          !important so they beat the fold-away width:0/height:0 kill switch.
-          z-index:0 keeps framed h3 + form readable above the décor.
+          Taehyun-only: animated corner-bloom flowers on ALL tab panels
+          (TL head behind framed h3 + BR tail flush to card corner).
+          !important beats the fold-away width:0/height:0 kill switch.
+          z-index:0 keeps framed headings + forms above the décor.
         */
-        .dash-shell .tab-panel[data-panel="today"] > .content-card {
+        .dash-shell.theme-teacher-a .tab-panel > .content-card {
             isolation: isolate;
             overflow: visible;
         }
-        .dash-shell .tab-panel[data-panel="today"] > .content-card::before,
-        .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+        .dash-shell.theme-teacher-a .tab-panel > .content-card::before,
+        .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
             content: '' !important;
             display: block !important;
             position: absolute !important;
@@ -571,27 +572,27 @@
             filter: none !important;
             will-change: transform;
         }
-        .dash-shell .tab-panel[data-panel="today"] > .content-card::before {
-            top: 2px !important;
-            left: 2px !important;
+        .dash-shell.theme-teacher-a .tab-panel > .content-card::before {
+            top: 0 !important;
+            left: 0 !important;
             right: auto !important;
             bottom: auto !important;
             transform: none !important;
         }
-        .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+        .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
             width: 138px !important;
             height: 108px !important;
             top: auto !important;
             left: auto !important;
-            right: 2px !important;
-            bottom: 2px !important;
+            right: 0 !important;
+            bottom: 0 !important;
             background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom8') !important;
             transform: none !important;
             transform-origin: 100% 100% !important;
             animation: cardBloomSwayBrIn 5.2s ease-in-out infinite !important;
             animation-delay: .7s !important;
         }
-        .dash-shell .tab-panel[data-panel="today"] > .content-card > * {
+        .dash-shell.theme-teacher-a .tab-panel > .content-card > * {
             position: relative;
             z-index: 1;
         }
@@ -606,223 +607,134 @@
             75% { transform: rotate(-2deg) scale(1.015); }
         }
         /*
-          Eunha: Shin cheek/pajama on OTHER tabs.
-          Today (ตาราง): laughing Shin TL + heart-hands Shin BR (replaces flowers).
+          Eunha-only Shin décor (all tab panels):
+          - Title Shin sits AFTER the framed h3 (right of the box), in front — not behind.
+          - Today title uses laugh Shin; other panels use cheek Shin.
+          - Bottom-right ::after = heart (today) / pajamas (other) — transparent cutouts, animated.
+          - content-card ::before folded away so nothing peeks behind titles.
         */
-        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card {
+        .dash-shell.is-eunha-shin .tab-panel > .content-card {
             isolation: isolate;
             overflow: visible;
         }
-        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::before,
-        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::after {
-            content: '' !important;
-            display: block !important;
-            position: absolute;
-            pointer-events: none !important;
-            z-index: 0;
-            opacity: 1 !important;
-            width: auto !important;
-            height: auto !important;
-            background-repeat: no-repeat;
-            will-change: transform, background-size, background-position;
-            filter:
-                drop-shadow(0 1px 1px rgba(255, 255, 255, .9))
-                drop-shadow(0 3px 8px rgba(236, 120, 160, .28))
-                drop-shadow(0 1px 3px rgba(15, 23, 42, .12));
-            animation: none;
+        /* Kill TL corner décor (flowers / old cheek) behind framed titles */
+        .dash-shell.is-eunha-shin .tab-panel > .content-card::before {
+            content: none !important;
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            opacity: 0 !important;
+            background-image: none !important;
+            animation: none !important;
         }
-        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::before {
-            --eunha-cheek-size: 54px;
-            width: 76px !important;
-            height: 76px !important;
-            top: -10px;
-            left: 4px;
-            right: auto;
-            bottom: auto;
-            transform: none;
-            transform-origin: 35% 75%;
-            background-image:
-                url('assets/decor/shinchan-cheek.png?v=cheek2'),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
-                radial-gradient(circle, #fef08a 0 55%, transparent 60%),
-                radial-gradient(circle, #facc15 0 50%, transparent 58%),
-                radial-gradient(circle, #fef08a 0 50%, transparent 58%) !important;
-            background-size:
-                var(--eunha-cheek-size) var(--eunha-cheek-size),
-                14px 14px, 11px 11px, 13px 13px, 10px 10px, 15px 15px,
-                6px 6px, 5px 5px, 7px 7px;
-            background-position:
-                center,
-                6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
-                48% 4%, 96% 72%, 22% 92%;
-            animation:
-                eunhaShinCheekBob 3.5s ease-in-out infinite,
-                eunhaCheekStarsTwinkle 2.35s ease-in-out infinite,
-                eunhaCheekStarsOrbit 9.5s linear infinite !important;
-        }
-        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::after {
-            width: 54px !important;
-            height: 68px !important;
-            top: auto;
-            left: auto;
-            right: 6px;
-            bottom: 4px;
-            background-image: url('assets/decor/shinchan-pajamas.png?v=pj2') !important;
-            background-size: contain;
-            background-position: center;
-            transform: none;
-            transform-origin: 50% 100%;
-            animation: eunhaShinPajamaSway 3.8s ease-in-out infinite !important;
-            animation-delay: .35s;
-        }
-        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card.compact-card::before {
-            --eunha-cheek-size: 52px;
-            width: 74px !important;
-            height: 74px !important;
-            top: -10px;
-            left: 4px;
-            background-size:
-                var(--eunha-cheek-size) var(--eunha-cheek-size),
-                12px 12px, 9px 9px, 11px 11px, 9px 9px, 13px 13px,
-                5px 5px, 4px 4px, 6px 6px;
-        }
-        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card.compact-card::after {
-            width: 44px !important;
-            height: 56px !important;
-            top: auto;
-            left: auto;
-            right: 4px;
-            bottom: 3px;
-        }
-        .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card > * {
-            position: relative;
-            z-index: 1;
-        }
-        @keyframes eunhaShinCheekBob {
-            0%, 100% { transform: translateY(0) rotate(-2.2deg) scale(1); }
-            40% { transform: translateY(-2.5px) rotate(2deg) scale(1.045); }
-            70% { transform: translateY(-1px) rotate(1deg) scale(1.02); }
-        }
-        @keyframes eunhaCheekStarsTwinkle {
-            0%, 100% {
-                background-size:
-                    var(--eunha-cheek-size) var(--eunha-cheek-size),
-                    14px 14px, 11px 11px, 13px 13px, 10px 10px, 15px 15px,
-                    6px 6px, 5px 5px, 7px 7px;
-            }
-            40% {
-                background-size:
-                    var(--eunha-cheek-size) var(--eunha-cheek-size),
-                    17px 17px, 8px 8px, 16px 16px, 13px 13px, 10px 10px,
-                    9px 9px, 4px 4px, 10px 10px;
-            }
-            70% {
-                background-size:
-                    var(--eunha-cheek-size) var(--eunha-cheek-size),
-                    10px 10px, 15px 15px, 9px 9px, 12px 12px, 17px 17px,
-                    4px 4px, 8px 8px, 5px 5px;
-            }
-        }
-        @keyframes eunhaCheekStarsOrbit {
-            0% {
-                background-position:
-                    center,
-                    6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
-                    48% 4%, 96% 72%, 22% 92%;
-            }
-            25% {
-                background-position:
-                    center,
-                    22% 6%, 94% 28%, 82% 78%, 4% 52%, 52% 94%,
-                    78% 8%, 88% 90%, 8% 72%;
-            }
-            50% {
-                background-position:
-                    center,
-                    48% 4%, 90% 58%, 58% 94%, 6% 28%, 18% 88%,
-                    94% 42%, 62% 8%, 4% 48%;
-            }
-            75% {
-                background-position:
-                    center,
-                    78% 12%, 72% 90%, 22% 92%, 12% 8%, 4% 62%,
-                    92% 22%, 38% 4%, 28% 96%;
-            }
-            100% {
-                background-position:
-                    center,
-                    6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
-                    48% 4%, 96% 72%, 22% 92%;
-            }
-        }
-        @keyframes eunhaShinPajamaSway {
-            0%, 100% { transform: translate(0, 0) rotate(-2.5deg) scale(1); }
-            35% { transform: translate(-2px, -2px) rotate(2.2deg) scale(1.03); }
-            65% { transform: translate(-1px, -1px) rotate(1.2deg) scale(1.015); }
-        }
-        /*
-          Eunha ตารางวันนี้: replace flower blooms with Shin-chan décor.
-          ::before = laughing Shin (TL, behind framed 「ตาราง」)
-          ::after  = heart-hands Shin (BR frame corner)
-          z-index:0 keeps title + form above; gentle sway like cardBloomSway.
-        */
-        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::before,
-        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
+        /* Bottom-right frame décor */
+        .dash-shell.is-eunha-shin .tab-panel > .content-card::after {
             content: '' !important;
             display: block !important;
             position: absolute !important;
             pointer-events: none !important;
             z-index: 0 !important;
+            top: auto !important;
+            left: auto !important;
+            right: 2px !important;
+            bottom: 0 !important;
+            width: 52px !important;
+            height: 66px !important;
             background-repeat: no-repeat !important;
             background-size: contain !important;
-            background-position: center !important;
-            opacity: .92 !important;
+            background-position: bottom right !important;
+            background-image: url('assets/decor/shinchan-pajamas.png?v=pj2') !important;
+            opacity: 1 !important;
             filter:
                 drop-shadow(0 1px 1px rgba(255, 255, 255, .85))
                 drop-shadow(0 3px 8px rgba(236, 120, 160, .22))
                 drop-shadow(0 1px 3px rgba(15, 23, 42, .1)) !important;
+            transform-origin: 85% 100% !important;
+            animation: eunhaCornerShinSway 3.8s ease-in-out infinite !important;
+            animation-delay: .35s !important;
             will-change: transform;
         }
-        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::before {
-            width: 118px !important;
-            height: 118px !important;
-            top: -6px !important;
-            left: -4px !important;
-            right: auto !important;
-            bottom: auto !important;
-            background-image: url('assets/decor/shinchan-laugh.png?v=laugh1') !important;
-            transform-origin: 30% 70% !important;
-            animation: eunhaTodayLaughFloat 4.6s ease-in-out infinite !important;
-        }
         .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
-            width: 78px !important;
-            height: 96px !important;
-            top: auto !important;
-            left: auto !important;
+            width: 58px !important;
+            height: 78px !important;
             right: -2px !important;
-            bottom: -4px !important;
-            background-image: url('assets/decor/shinchan-heart.png?v=heart1') !important;
-            transform-origin: 80% 100% !important;
-            animation: eunhaTodayHeartSway 4.2s ease-in-out infinite !important;
-            animation-delay: .55s !important;
+            bottom: -2px !important;
+            background-image: url('assets/decor/shinchan-heart.png?v=heart3') !important;
+            animation-name: eunhaCornerShinSway !important;
+            animation-duration: 4.2s !important;
         }
-        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > * {
+        .dash-shell.is-eunha-shin .tab-panel > .content-card.compact-card::after {
+            width: 44px !important;
+            height: 56px !important;
+            right: 2px !important;
+            bottom: 0 !important;
+        }
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > * {
             position: relative;
             z-index: 1;
         }
-        @keyframes eunhaTodayLaughFloat {
-            0%, 100% { transform: translate(0, 0) rotate(-3deg) scale(1); }
-            40% { transform: translate(2px, -3px) rotate(2deg) scale(1.04); }
-            70% { transform: translate(1px, -1px) rotate(1deg) scale(1.02); }
+        /*
+          Title-tail Shin: right of framed h3 border box (visible, in front).
+          Targets first heading of each panel content-card (today / rooms / orders / …).
+        */
+        /* heading() wraps <div><h3>…; some panels use bare > h3 */
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > h3,
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child,
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3,
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3 {
+            position: relative;
+            z-index: 2;
+            overflow: visible;
+            margin-right: 2.6rem;
         }
-        @keyframes eunhaTodayHeartSway {
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after {
+            content: '' !important;
+            display: block !important;
+            position: absolute !important;
+            left: calc(100% + .28rem) !important;
+            top: 50% !important;
+            width: 40px !important;
+            height: 40px !important;
+            margin: 0 !important;
+            pointer-events: none !important;
+            z-index: 3 !important;
+            background-repeat: no-repeat !important;
+            background-size: contain !important;
+            background-position: center !important;
+            background-image: url('assets/decor/shinchan-cheek.png?v=cheek3') !important;
+            filter:
+                drop-shadow(0 1px 1px rgba(255, 255, 255, .9))
+                drop-shadow(0 2px 6px rgba(236, 120, 160, .28)) !important;
+            transform: translateY(-50%) !important;
+            transform-origin: 40% 70% !important;
+            animation: eunhaTitleShinBob 3.5s ease-in-out infinite !important;
+            will-change: transform;
+        }
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
+            width: 46px !important;
+            height: 46px !important;
+            background-image: url('assets/decor/shinchan-laugh.png?v=laugh2') !important;
+            animation-name: eunhaTodayLaughFloat !important;
+            animation-duration: 4.6s !important;
+        }
+        @keyframes eunhaTitleShinBob {
+            0%, 100% { transform: translateY(-50%) translate(0, 0) rotate(-2.2deg) scale(1); }
+            40% { transform: translateY(-50%) translate(1px, -2.5px) rotate(2deg) scale(1.06); }
+            70% { transform: translateY(-50%) translate(0, -1px) rotate(1deg) scale(1.025); }
+        }
+        @keyframes eunhaCornerShinSway {
             0%, 100% { transform: translate(0, 0) rotate(2deg) scale(1); }
-            35% { transform: translate(-2px, -2px) rotate(-2deg) scale(1.035); }
+            35% { transform: translate(-2px, -2px) rotate(-2deg) scale(1.04); }
             65% { transform: translate(-1px, -1px) rotate(-1deg) scale(1.015); }
+        }
+        @keyframes eunhaTodayLaughFloat {
+            0%, 100% { transform: translateY(-50%) translate(0, 0) rotate(-3deg) scale(1); }
+            40% { transform: translateY(-50%) translate(2px, -3px) rotate(2deg) scale(1.06); }
+            70% { transform: translateY(-50%) translate(1px, -1px) rotate(1deg) scale(1.03); }
         }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.45rem; }
@@ -841,47 +753,45 @@
             .dash-shell .content-card.compact-card {
                 padding: .9rem 1rem 1rem;
             }
-            .dash-shell .tab-panel[data-panel="today"] > .content-card::before,
-            .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::before,
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
                 width: 108px !important;
                 height: 108px !important;
                 opacity: .88 !important;
             }
-            .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
                 width: 120px !important;
                 height: 90px !important;
             }
-            .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::before {
-                --eunha-cheek-size: 50px;
-                width: 72px !important;
-                height: 72px !important;
-                opacity: 1 !important;
-                top: -8px;
-                left: 3px;
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > h3,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3 {
+                margin-right: 2.15rem;
             }
-            .dash-shell.is-eunha-shin .tab-panel:not([data-panel="today"]) > .content-card::after {
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after {
+                width: 34px !important;
+                height: 34px !important;
+            }
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
+                width: 38px !important;
+                height: 38px !important;
+            }
+            .dash-shell.is-eunha-shin .tab-panel > .content-card::after {
                 width: 42px !important;
                 height: 54px !important;
-                opacity: 1 !important;
-                top: auto;
-                left: auto;
-                right: 4px;
-                bottom: 3px;
-                transform: none;
-            }
-            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::before {
-                width: 96px !important;
-                height: 96px !important;
-                top: -4px !important;
-                left: -2px !important;
-                opacity: .9 !important;
+                right: 2px !important;
+                bottom: 0 !important;
             }
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
-                width: 62px !important;
-                height: 76px !important;
+                width: 48px !important;
+                height: 64px !important;
                 right: -2px !important;
                 bottom: -2px !important;
-                opacity: .9 !important;
             }
         }
         .dash-shell {
@@ -9877,11 +9787,6 @@
             .dash-shell.is-eunha-shin .content-card::after {
                 transform: none !important;
             }
-            .dash-shell.is-eunha-shin .content-card h3::after {
-                animation: none !important;
-                transform: translateY(-50%) !important;
-                will-change: auto !important;
-            }
             /*
               Login panel corners must keep sway on mobile/iPad — do not kill .dc-c.
               Use lighter keyframes (no glow pulse). Dash-shell corners stay static.
@@ -10108,28 +10013,45 @@
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
             .content-card { padding: 1rem 1.05rem 1.1rem; margin-bottom: .7rem; }
-            /* Today-schedule blooms stay (scoped + higher specificity); shrink for narrow */
-            .dash-shell .tab-panel[data-panel="today"] > .content-card::before,
-            .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
+            /* Taehyun panel blooms: shrink for narrow viewports */
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::before,
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
                 content: '' !important;
                 display: block !important;
-                width: 78px;
-                height: 78px;
+                width: 78px !important;
+                height: 78px !important;
                 opacity: .75 !important;
             }
-            .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
-                width: 86px;
-                height: 68px;
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
+                width: 86px !important;
+                height: 68px !important;
             }
-            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::before {
-                width: 88px !important;
-                height: 88px !important;
-                opacity: .88 !important;
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > h3,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3 {
+                margin-right: 2.1rem;
+            }
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > h3::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .order-board-head > div > h3::after,
+            .dash-shell.is-eunha-shin .tab-panel > .content-card > .ov-board-head > h3::after {
+                width: 34px !important;
+                height: 34px !important;
+            }
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > div > h3:first-child::after,
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card > h3::after {
+                width: 38px !important;
+                height: 38px !important;
+            }
+            .dash-shell.is-eunha-shin .tab-panel > .content-card::after {
+                width: 44px !important;
+                height: 56px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
-                width: 58px !important;
-                height: 72px !important;
-                opacity: .88 !important;
+                width: 50px !important;
+                height: 66px !important;
+                opacity: .92 !important;
             }
             .panel { margin: .5rem; width: calc(100% - 1rem); }
             .login-sea { height: min(96px, 16vh); }
@@ -10163,13 +10085,9 @@
                 animation: none !important;
             }
             .dash-shell.is-eunha-shin .content-card::before,
-            .dash-shell.is-eunha-shin .content-card::after,
-            .dash-shell.is-eunha-shin .content-card h3::after {
+            .dash-shell.is-eunha-shin .content-card::after {
                 animation: none !important;
                 transform: none !important;
-            }
-            .dash-shell.is-eunha-shin .content-card h3::after {
-                transform: translateY(-50%) !important;
             }
             .header-shin-bubble { transition: none !important; }
             #order-modal .order-sakura,
