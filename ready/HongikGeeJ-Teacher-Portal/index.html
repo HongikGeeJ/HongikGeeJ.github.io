@@ -4777,13 +4777,19 @@
             color: #64748b;
         }
         .sched-type-badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            box-sizing: border-box;
             font-size: .72rem;
             font-weight: 800;
+            line-height: 1.2;
+            height: 1.55rem;
             padding: .2rem .55rem;
             border-radius: .5rem;
+            border: 1px solid transparent;
             margin-bottom: .35rem;
             letter-spacing: -.01em;
+            vertical-align: middle;
         }
         .sched-type-badge.regular { background: #e0e7ff; color: #3730a3; }
         .sched-type-badge.makeup { background: #ffedd5; color: #c2410c; }
@@ -4792,9 +4798,11 @@
         /* Class run status · sheet tones: เลื่อน amber · รอติดต่อ pink · ยกเลิก red · ปกติ green */
         .cls-run-badge {
             display: inline-flex; align-items: center; gap: .2rem;
-            font-size: .68rem; font-weight: 850; padding: .16rem .42rem;
+            box-sizing: border-box;
+            font-size: .68rem; font-weight: 850; line-height: 1.2;
+            padding: .16rem .42rem;
             border-radius: .45rem; border: 1px solid transparent; letter-spacing: .01em;
-            width: fit-content; vertical-align: middle; line-height: 1.2;
+            width: fit-content; vertical-align: middle;
         }
         .cls-run-badge.normal { background: #ecfdf5; color: #166534; border-color: #bbf7d0; }
         .cls-run-badge.postponed { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
@@ -4804,6 +4812,17 @@
         .cls-run-row {
             display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .45rem;
             margin: .15rem 0 .35rem;
+        }
+        /* Side-by-side type + status chips: same baseline (no margin stagger) */
+        .cls-run-row .sched-type-badge,
+        .cls-run-row .cls-run-badge {
+            margin: 0;
+            height: 1.55rem;
+            font-size: .72rem;
+            line-height: 1.2;
+            padding: .2rem .55rem;
+            border-radius: .5rem;
+            vertical-align: middle;
         }
         #room-tt-modal .cls-run-field { margin-bottom: .15rem; }
         /* Non-normal status: status + Save only — other booking fields optional */
@@ -4917,12 +4936,31 @@
             text-decoration: line-through; filter: none;
         }
         /* Match type-badge size on schedule cards; brighter abnormal status chips */
+        .sched-item .cls-run-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .35rem .45rem;
+        }
+        .sched-item .sched-type-badge,
         .sched-item .cls-run-badge {
-            margin-left: .25rem;
+            display: inline-flex;
+            align-items: center;
+            box-sizing: border-box;
+            margin: 0;
+            height: 1.55rem;
             font-size: .72rem;
-            font-weight: 850;
+            line-height: 1.2;
             padding: .2rem .55rem;
             border-radius: .5rem;
+            vertical-align: middle;
+        }
+        .sched-item .cls-run-badge {
+            font-weight: 850;
+        }
+        /* Standalone type chip (dayoff / cancelled summary) keeps bottom gap */
+        .sched-item > .sched-type-badge {
+            margin-bottom: .35rem;
         }
         .sched-item .cls-run-badge.cancelled {
             background: #fecaca;
@@ -8206,7 +8244,20 @@
         .ov-detail-card.cancelled {
             border-color: #fed7aa; background: linear-gradient(160deg, #fff7ed, #fff);
         }
-        .ov-detail-card .ot { font-weight: 850; font-size: 1.12rem; color: #0f172a; }
+        .ov-detail-card .ot {
+            display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .45rem;
+            font-weight: 850; font-size: 1.12rem; color: #0f172a;
+        }
+        .ov-detail-card .ot .sched-type-badge,
+        .ov-detail-card .ot .cls-run-badge {
+            margin: 0;
+            height: 1.55rem;
+            font-size: .72rem;
+            line-height: 1.2;
+            padding: .2rem .55rem;
+            border-radius: .5rem;
+            vertical-align: middle;
+        }
         .ov-detail-card .om { font-size: .9rem; color: #64748b; margin-top: .25rem; }
 
         /* Director · school summary (Others) */
