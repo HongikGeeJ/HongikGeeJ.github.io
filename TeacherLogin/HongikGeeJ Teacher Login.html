@@ -28834,11 +28834,21 @@
             function renderTeacherOtBoard(user) {
                 const listEl = document.getElementById('ot-list');
                 const totalEl = document.getElementById('ot-total-frame');
-                if (!listEl || !user) return;
+                if (!user) return;
                 if (!isOtEligibleTeacher(user.id)) {
-                    listEl.innerHTML = `<p class="empty-note">${lang === 'th' ? 'พาร์ตไทม์ / จ้างเหมา — ไม่คิด OT' : lang === 'en' ? 'Part-time / contract — OT not applicable' : '파트타임·도급 — OT 해당 없음'}</p>`;
-                    if (totalEl) totalEl.innerHTML = '';
+                    /* Part-time / contract: no OT — hide empty total frame + "no OT" note */
+                    if (listEl) listEl.innerHTML = '';
+                    if (totalEl) {
+                        totalEl.innerHTML = '';
+                        totalEl.hidden = true;
+                        totalEl.style.display = 'none';
+                    }
                     return;
+                }
+                if (!listEl) return;
+                if (totalEl) {
+                    totalEl.hidden = false;
+                    totalEl.style.display = '';
                 }
                 ensureAutoOtSynced();
                 if (!teacherOtYm) teacherOtYm = todayKey().slice(0, 7);
@@ -31206,9 +31216,7 @@
                         <select id="teacher-ot-month-sel" class="sched-select" style="margin-left:.35rem">${otMonthOptionsHtml(ym)}</select>
                     </label>
                     <div id="ot-list"></div>
-                    <div class="pct-readable ot-total-frame" id="ot-total-frame"></div>` : `<h3 style="margin-top:0">${otTitleLabel()}</h3>
-                    <div id="ot-list"></div>
-                    <div class="pct-readable ot-total-frame" id="ot-total-frame"></div>`}
+                    <div class="pct-readable ot-total-frame" id="ot-total-frame"></div>` : ''}
                 </div></div>`;
             }
 
