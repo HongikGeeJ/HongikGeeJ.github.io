@@ -599,6 +599,171 @@
             40% { transform: rotate(-1.4deg) scale(1.03); }
             75% { transform: rotate(-2deg) scale(1.015); }
         }
+        /*
+          Eunha only (#dash-shell.is-eunha-shin): restore pre-34dec44 Shin corner décor.
+          TL = cheek + yellow star halo, BR = pajama sit. Behind framed h3 / body
+          (z-index:0); other accounts keep today-only flower blooms or none.
+        */
+        .dash-shell.is-eunha-shin .content-card,
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card {
+            isolation: isolate;
+            overflow: visible;
+        }
+        .dash-shell.is-eunha-shin .tab-panel > .content-card::before,
+        .dash-shell.is-eunha-shin .tab-panel > .content-card::after,
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::before,
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
+            content: '' !important;
+            display: block !important;
+            position: absolute;
+            pointer-events: none !important;
+            z-index: 0;
+            opacity: 1 !important;
+            width: auto !important;
+            height: auto !important;
+            background-repeat: no-repeat;
+            will-change: transform, background-size, background-position;
+            filter:
+                drop-shadow(0 1px 1px rgba(255, 255, 255, .9))
+                drop-shadow(0 3px 8px rgba(236, 120, 160, .28))
+                drop-shadow(0 1px 3px rgba(15, 23, 42, .12));
+            animation: none;
+        }
+        .dash-shell.is-eunha-shin .tab-panel > .content-card::before,
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::before {
+            --eunha-cheek-size: 54px;
+            width: 76px !important;
+            height: 76px !important;
+            top: -10px;
+            left: 4px;
+            right: auto;
+            bottom: auto;
+            transform: none;
+            transform-origin: 35% 75%;
+            background-image:
+                url('assets/decor/shinchan-cheek.png?v=cheek2'),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23fef08a' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23facc15' d='M6 0.4l1.45 3.55 3.85.3-2.95 2.55.9 3.75L6 8.5 2.75 10.55l.9-3.75L.7 4.25l3.85-.3z'/%3E%3C/svg%3E"),
+                radial-gradient(circle, #fef08a 0 55%, transparent 60%),
+                radial-gradient(circle, #facc15 0 50%, transparent 58%),
+                radial-gradient(circle, #fef08a 0 50%, transparent 58%) !important;
+            background-size:
+                var(--eunha-cheek-size) var(--eunha-cheek-size),
+                14px 14px, 11px 11px, 13px 13px, 10px 10px, 15px 15px,
+                6px 6px, 5px 5px, 7px 7px;
+            background-position:
+                center,
+                6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                48% 4%, 96% 72%, 22% 92%;
+            animation:
+                eunhaShinCheekBob 3.5s ease-in-out infinite,
+                eunhaCheekStarsTwinkle 2.35s ease-in-out infinite,
+                eunhaCheekStarsOrbit 9.5s linear infinite !important;
+        }
+        .dash-shell.is-eunha-shin .tab-panel > .content-card::after,
+        .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
+            width: 54px !important;
+            height: 68px !important;
+            top: auto;
+            left: auto;
+            right: 6px;
+            bottom: 4px;
+            background-image: url('assets/decor/shinchan-pajamas.png?v=pj2') !important;
+            background-size: contain;
+            background-position: center;
+            transform: none;
+            transform-origin: 50% 100%;
+            animation: eunhaShinPajamaSway 3.8s ease-in-out infinite !important;
+            animation-delay: .35s;
+        }
+        .dash-shell.is-eunha-shin .tab-panel > .content-card.compact-card::before {
+            --eunha-cheek-size: 52px;
+            width: 74px !important;
+            height: 74px !important;
+            top: -10px;
+            left: 4px;
+            background-size:
+                var(--eunha-cheek-size) var(--eunha-cheek-size),
+                12px 12px, 9px 9px, 11px 11px, 9px 9px, 13px 13px,
+                5px 5px, 4px 4px, 6px 6px;
+        }
+        .dash-shell.is-eunha-shin .tab-panel > .content-card.compact-card::after {
+            width: 44px !important;
+            height: 56px !important;
+            top: auto;
+            left: auto;
+            right: 4px;
+            bottom: 3px;
+        }
+        .dash-shell.is-eunha-shin .tab-panel > .content-card > * {
+            position: relative;
+            z-index: 1;
+        }
+        @keyframes eunhaShinCheekBob {
+            0%, 100% { transform: translateY(0) rotate(-2.2deg) scale(1); }
+            40% { transform: translateY(-2.5px) rotate(2deg) scale(1.045); }
+            70% { transform: translateY(-1px) rotate(1deg) scale(1.02); }
+        }
+        @keyframes eunhaCheekStarsTwinkle {
+            0%, 100% {
+                background-size:
+                    var(--eunha-cheek-size) var(--eunha-cheek-size),
+                    14px 14px, 11px 11px, 13px 13px, 10px 10px, 15px 15px,
+                    6px 6px, 5px 5px, 7px 7px;
+            }
+            40% {
+                background-size:
+                    var(--eunha-cheek-size) var(--eunha-cheek-size),
+                    17px 17px, 8px 8px, 16px 16px, 13px 13px, 10px 10px,
+                    9px 9px, 4px 4px, 10px 10px;
+            }
+            70% {
+                background-size:
+                    var(--eunha-cheek-size) var(--eunha-cheek-size),
+                    10px 10px, 15px 15px, 9px 9px, 12px 12px, 17px 17px,
+                    4px 4px, 8px 8px, 5px 5px;
+            }
+        }
+        @keyframes eunhaCheekStarsOrbit {
+            0% {
+                background-position:
+                    center,
+                    6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                    48% 4%, 96% 72%, 22% 92%;
+            }
+            25% {
+                background-position:
+                    center,
+                    22% 6%, 94% 28%, 82% 78%, 4% 52%, 52% 94%,
+                    78% 8%, 88% 90%, 8% 72%;
+            }
+            50% {
+                background-position:
+                    center,
+                    48% 4%, 90% 58%, 58% 94%, 6% 28%, 18% 88%,
+                    94% 42%, 62% 8%, 4% 48%;
+            }
+            75% {
+                background-position:
+                    center,
+                    78% 12%, 72% 90%, 22% 92%, 12% 8%, 4% 62%,
+                    92% 22%, 38% 4%, 28% 96%;
+            }
+            100% {
+                background-position:
+                    center,
+                    6% 14%, 86% 10%, 94% 48%, 8% 78%, 78% 86%,
+                    48% 4%, 96% 72%, 22% 92%;
+            }
+        }
+        @keyframes eunhaShinPajamaSway {
+            0%, 100% { transform: translate(0, 0) rotate(-2.5deg) scale(1); }
+            35% { transform: translate(-2px, -2px) rotate(2.2deg) scale(1.03); }
+            65% { transform: translate(-1px, -1px) rotate(1.2deg) scale(1.015); }
+        }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.45rem; }
             /* Login corners stay modest — never inherit dashboard / leaked sizes */
@@ -625,6 +790,26 @@
             .dash-shell .tab-panel[data-panel="today"] > .content-card::after {
                 width: 86px;
                 height: 68px;
+            }
+            .dash-shell.is-eunha-shin .tab-panel > .content-card::before,
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::before {
+                --eunha-cheek-size: 50px;
+                width: 72px !important;
+                height: 72px !important;
+                opacity: 1 !important;
+                top: -8px;
+                left: 3px;
+            }
+            .dash-shell.is-eunha-shin .tab-panel > .content-card::after,
+            .dash-shell.is-eunha-shin .tab-panel[data-panel="today"] > .content-card::after {
+                width: 42px !important;
+                height: 54px !important;
+                opacity: 1 !important;
+                top: auto;
+                left: auto;
+                right: 4px;
+                bottom: 3px;
+                transform: none;
             }
         }
         .dash-shell {
@@ -2278,7 +2463,7 @@
         }
 
         .taehyun-banner {
-            display: none;
+            display: flex;
             margin: 0 .85rem .35rem;
             padding: .5rem .95rem;
             border-radius: .85rem;
@@ -2291,8 +2476,8 @@
             box-shadow: 0 8px 20px rgba(90,110,140,.1);
             animation: taeBannerIn .65s cubic-bezier(.22,1,.36,1) both;
             overflow: hidden; position: relative;
+            z-index: 5;
         }
-        .dash-shell.theme-teacher-a .taehyun-banner { display: flex; }
         .taehyun-banner::before {
             content: '';
             position: absolute; left: 0; right: 0; top: 0; height: 3px;
@@ -2382,12 +2567,18 @@
         .school-info-badge {
             display: inline-flex; align-items: center; justify-content: center;
             width: 2.75rem; height: 2.75rem; margin: 0 auto .65rem;
+            padding: .22rem;
             border-radius: .85rem;
             background: linear-gradient(145deg, #ffffff, #e8eef6);
             border: 1px solid rgba(74, 111, 165, .22);
             box-shadow: 0 8px 18px rgba(74, 111, 165, .12);
-            color: #0047a0;
-            font-size: 1.25rem;
+            overflow: hidden;
+        }
+        .school-info-badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
         }
         .school-info-title {
             margin: 0;
@@ -10004,7 +10195,7 @@
             </header>
             <div class="taehyun-banner" id="taehyun-banner">
                 <span class="sig" id="taehyun-banner-sig">ขอให้วันนี้เป็นวันที่ดีของคุณครู</span>
-                <button type="button" id="taehyun-banner-text" class="taehyun-banner-brand" data-i18n="taehyunBanner" data-i18n-aria="schoolInfoOpenAria" aria-haspopup="dialog" aria-controls="school-info-modal" aria-label="학교 정보 보기">홍익지제이 · Hongik GeeJ</button>
+                <button type="button" id="taehyun-banner-text" class="taehyun-banner-brand" data-i18n-aria="schoolInfoOpenAria" aria-haspopup="dialog" aria-controls="school-info-modal" aria-label="학교 정보 보기"></button>
             </div>
             <nav class="dash-tabs" id="dash-tabs"></nav>
             <div class="dash-body">
@@ -17028,6 +17219,7 @@
             });
             saveDaySchedule(user.id, [dayOff]);
             notifySchedChange({ user, action: 'dayoff', item: dayOff });
+            flushDaySchedPortalAfterMutate();
         }
         function loadDirectorTodos() {
             try {
@@ -25380,6 +25572,10 @@
                     const todayEl = document.getElementById('dash-today');
                     if (todayEl) todayEl.textContent = formatToday();
                     try { updateDashLocation(currentUser); } catch (_) {}
+                    const bannerSig = document.getElementById('taehyun-banner-sig');
+                    if (bannerSig) bannerSig.textContent = t('taehyunSig');
+                    const bannerName = document.getElementById('taehyun-banner-text');
+                    if (bannerName) bannerName.textContent = displayName(currentUser) || t('taehyunBanner');
                 } catch (_) {}
                 try { loadPhoto(currentUser.id); } catch (_) {}
                 try { renderStats(currentUser); } catch (_) {}
@@ -30669,6 +30865,7 @@
                         list.sort((a, b) => String(a.start || '').localeCompare(String(b.start || '')));
                         saveDaySchedule(user.id, list);
                         notifySchedChange({ user, action: 'add', item: stamped });
+                        flushDaySchedPortalAfterMutate();
                         const subjEl = document.getElementById('sched-subject');
                         const otherEl = document.getElementById('sched-title-other');
                         if (subjEl) subjEl.value = '';
@@ -30777,6 +30974,7 @@
                                 });
                             }
                             notifySchedChange({ user, action: 'edit', item: nextItem });
+                            flushDaySchedPortalAfterMutate();
                             document.getElementById('schedule-msg').textContent = t('schedNotified');
                             statusDismissedKey = '';
                             renderPanels(user);
@@ -30796,6 +30994,7 @@
                             list.splice(idx, 1);
                             saveDaySchedule(user.id, list);
                             if (item) notifySchedChange({ user, action, item });
+                            flushDaySchedPortalAfterMutate();
                             statusDismissedKey = '';
                             document.getElementById('schedule-msg').textContent = t('schedNotified');
                             renderPanels(user);
@@ -30838,6 +31037,7 @@
                                     }
                                 }
                                 notifySchedChange({ user, action: 'edit', item: nextItem });
+                                flushDaySchedPortalAfterMutate();
                                 document.getElementById('schedule-msg').textContent = t('restoreClassDone');
                                 statusDismissedKey = '';
                                 renderPanels(user);
@@ -34126,6 +34326,7 @@
                 }, 'reason', reason);
                 cancels.push(cancelRec);
                 saveClassCancels(cancels);
+                flushDaySchedPortalAfterMutate();
                 if (msg) msg.textContent = t('cancelSent');
                 closeCancelForm();
                 statusDismissedKey = '';
