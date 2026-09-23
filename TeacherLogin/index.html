@@ -71,7 +71,7 @@
             from { opacity: .22; transform: scale(1); }
             to { opacity: .52; transform: scale(1.07); }
         }
-        /* login bottom sea — plain water blues + white, slow alternating tints */
+        /* login bottom sea — water blues + soft sunlight yellow ribbons + gentle shimmer */
         .login-sea {
             position: absolute; left: 0; right: 0; bottom: 0;
             height: min(148px, 22vh);
@@ -92,7 +92,7 @@
             transform-origin: 50% 100%;
             will-change: transform, background-color, opacity;
         }
-        /* ฟ้า / น้ำเงิน / ฟ้าอ่อน / ขาว / ฟ้าคราม — blue · navy · light blue · white · sky */
+        /* ฟ้า / น้ำเงิน / เหลืองอ่อนทอง / ขาว — blue · navy · soft pale gold · white */
         .login-sea-wave.w1 {
             height: 100%;
             opacity: .82;
@@ -101,7 +101,7 @@
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 160' preserveAspectRatio='none'%3E%3Cpath d='M0 160 V78 C90 52 170 98 280 68 C390 40 470 92 600 62 C730 34 820 88 940 58 C1040 38 1120 72 1200 52 V160 Z' fill='%23000'/%3E%3C/svg%3E");
             animation:
                 loginSeaFlow 5.2s cubic-bezier(.4, .05, .35, 1) infinite,
-                loginSeaTintW1 16s ease-in-out infinite;
+                loginSeaTintW1 18s ease-in-out infinite;
         }
         .login-sea-wave.w2 {
             height: 82%;
@@ -111,19 +111,19 @@
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 140' preserveAspectRatio='none'%3E%3Cpath d='M0 140 V70 C110 48 200 95 320 66 C440 40 530 90 670 64 C800 42 900 88 1040 68 C1120 56 1170 72 1200 62 V140 Z' fill='%23000'/%3E%3C/svg%3E");
             animation:
                 loginSeaFlowSoft 6s cubic-bezier(.4, .05, .35, 1) infinite,
-                loginSeaTintW2 18s ease-in-out infinite;
-            animation-delay: -1.4s, -4.5s;
+                loginSeaTintW2 20s ease-in-out infinite;
+            animation-delay: -1.4s, -5s;
         }
         .login-sea-wave.w3 {
             height: 64%;
             opacity: .9;
-            background-color: #F8FCFF;
+            background-color: #FFF6DC;
             -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0 120 V62 C130 48 220 82 360 60 C500 40 590 78 740 58 C880 40 980 72 1200 56 V120 Z' fill='%23000'/%3E%3C/svg%3E");
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0 120 V62 C130 48 220 82 360 60 C500 40 590 78 740 58 C880 40 980 72 1200 56 V120 Z' fill='%23000'/%3E%3C/svg%3E");
             animation:
                 loginSeaFlow 5.6s cubic-bezier(.4, .05, .35, 1) infinite,
-                loginSeaTintW3 15s ease-in-out infinite;
-            animation-delay: -2.8s, -2s;
+                loginSeaTintW3 16s ease-in-out infinite;
+            animation-delay: -2.8s, -3s;
         }
         .login-sea-wave.w4 {
             height: 48%;
@@ -133,10 +133,55 @@
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 100' preserveAspectRatio='none'%3E%3Cpath d='M0 100 V58 C150 48 280 72 430 56 C580 42 700 68 860 54 C980 44 1100 62 1200 52 V100 Z' fill='%23000'/%3E%3C/svg%3E");
             animation:
                 loginSeaFlowSoft 4.8s cubic-bezier(.4, .05, .35, 1) infinite,
-                loginSeaTintW4 17s ease-in-out infinite;
-            animation-delay: -.7s, -8s;
+                loginSeaTintW4 19s ease-in-out infinite;
+            animation-delay: -.7s, -9s;
         }
-        /* starlight twinkles on water surface (แสงดาววิบวับ บนผิวน้ำ) */
+        /* soft pale-gold sunlight ribbons across the water (not neon) */
+        .login-sea-sunribbons {
+            position: absolute; left: -18%; right: -18%;
+            top: 8%; bottom: -4%;
+            z-index: 1; pointer-events: none;
+            opacity: .55;
+            mix-blend-mode: soft-light;
+            background:
+                repeating-linear-gradient(
+                    -14deg,
+                    transparent 0 22px,
+                    rgba(255, 244, 210, .18) 22px,
+                    rgba(255, 236, 178, .42) 34px,
+                    rgba(255, 248, 220, .22) 44px,
+                    transparent 58px,
+                    transparent 86px
+                ),
+                repeating-linear-gradient(
+                    8deg,
+                    transparent 0 36px,
+                    rgba(255, 250, 230, .12) 36px,
+                    rgba(255, 232, 168, .28) 48px,
+                    transparent 62px,
+                    transparent 110px
+                );
+            -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 72%, transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 72%, transparent 100%);
+            animation: loginSeaSunRibbon 22s ease-in-out infinite;
+            will-change: transform, opacity;
+        }
+        .login-sea-sunribbons::after {
+            content: "";
+            position: absolute; inset: 0;
+            background: linear-gradient(
+                105deg,
+                transparent 0%,
+                rgba(255, 246, 210, .2) 28%,
+                transparent 42%,
+                transparent 58%,
+                rgba(255, 238, 186, .16) 72%,
+                transparent 88%
+            );
+            opacity: .7;
+            animation: loginSeaShimmerSweep 16s ease-in-out infinite;
+        }
+        /* gentle surface shimmer / sparkle (opacity only — no filter thrash) */
         .login-sea-sparkles {
             position: absolute; left: 0; right: 0; top: 0;
             height: 52%;
@@ -145,70 +190,69 @@
         .login-sea-sparkles span {
             position: absolute;
             width: 3px; height: 3px;
-            background: #fffefc;
+            background: #fffef8;
             border-radius: 50%;
             box-shadow:
-                0 0 4px 1px rgba(255,252,255,.9),
-                0 0 10px 2px rgba(180,220,250,.55),
-                0 0 14px 3px rgba(240,180,200,.3);
+                0 0 3px 1px rgba(255,250,230,.75),
+                0 0 8px 2px rgba(200,230,250,.35);
             opacity: 0;
-            animation: loginSeaSparkle 2.6s ease-in-out infinite;
+            animation: loginSeaSparkle 4.2s ease-in-out infinite;
         }
         .login-sea-sparkles span::before,
         .login-sea-sparkles span::after {
             content: "";
             position: absolute;
             left: 50%; top: 50%;
-            background: rgba(255,252,255,.95);
+            background: rgba(255,252,245,.9);
             border-radius: 1px;
-            box-shadow: 0 0 3px rgba(200,230,255,.75);
+            box-shadow: 0 0 2px rgba(255,236,180,.45);
         }
         .login-sea-sparkles span::before {
-            width: 8px; height: 1.5px;
+            width: 7px; height: 1.25px;
             transform: translate(-50%, -50%);
         }
         .login-sea-sparkles span::after {
-            width: 1.5px; height: 8px;
+            width: 1.25px; height: 7px;
             transform: translate(-50%, -50%);
         }
         .login-sea-sparkles span:nth-child(3n) {
             width: 2px; height: 2px;
-            background: #E8F4FF;
+            background: #FFF4D0;
             box-shadow:
-                0 0 5px 1px rgba(160,210,245,.75),
-                0 0 9px 2px rgba(110,170,220,.35);
-            animation-duration: 3.1s;
+                0 0 4px 1px rgba(255,230,160,.55),
+                0 0 7px 1px rgba(160,210,245,.25);
+            animation-duration: 4.8s;
         }
         .login-sea-sparkles span:nth-child(4n) {
-            width: 4px; height: 4px;
+            width: 3.5px; height: 3.5px;
             background: #FFFFFF;
             box-shadow:
-                0 0 6px 2px rgba(200,230,255,.8),
-                0 0 12px 3px rgba(120,180,230,.35);
-            animation-duration: 2.1s;
+                0 0 5px 1px rgba(255,248,230,.7),
+                0 0 9px 2px rgba(180,220,245,.3);
+            animation-duration: 3.6s;
         }
         .login-sea-sparkles span:nth-child(5n) {
-            animation-duration: 2.85s;
+            animation-duration: 5.1s;
         }
         /* clustered along the crest / surface line */
         .login-sea-sparkles span:nth-child(1)  { left: 6%;  top: 38%; animation-delay: 0s; }
-        .login-sea-sparkles span:nth-child(2)  { left: 14%; top: 22%; animation-delay: -.4s; }
-        .login-sea-sparkles span:nth-child(3)  { left: 22%; top: 44%; animation-delay: -.9s; }
-        .login-sea-sparkles span:nth-child(4)  { left: 31%; top: 18%; animation-delay: -.2s; }
-        .login-sea-sparkles span:nth-child(5)  { left: 39%; top: 36%; animation-delay: -1.1s; }
-        .login-sea-sparkles span:nth-child(6)  { left: 47%; top: 14%; animation-delay: -.6s; }
-        .login-sea-sparkles span:nth-child(7)  { left: 55%; top: 40%; animation-delay: -1.5s; }
-        .login-sea-sparkles span:nth-child(8)  { left: 63%; top: 26%; animation-delay: -.3s; }
-        .login-sea-sparkles span:nth-child(9)  { left: 71%; top: 46%; animation-delay: -1.8s; }
-        .login-sea-sparkles span:nth-child(10) { left: 79%; top: 20%; animation-delay: -.8s; }
-        .login-sea-sparkles span:nth-child(11) { left: 87%; top: 34%; animation-delay: -1.3s; }
-        .login-sea-sparkles span:nth-child(12) { left: 10%; top: 48%; animation-delay: -2s; }
-        .login-sea-sparkles span:nth-child(13) { left: 36%; top: 50%; animation-delay: -.5s; }
-        .login-sea-sparkles span:nth-child(14) { left: 68%; top: 12%; animation-delay: -1.6s; }
-        .login-sea-sparkles span:nth-child(15) { left: 94%; top: 42%; animation-delay: -1s; }
-        .login-sea-sparkles span:nth-child(16) { left: 18%; top: 32%; animation-delay: -2.2s; }
-        .login-sea-sparkles span:nth-child(17) { left: 52%; top: 28%; animation-delay: -1.4s; }
-        .login-sea-sparkles span:nth-child(18) { left: 84%; top: 48%; animation-delay: -.7s; }
+        .login-sea-sparkles span:nth-child(2)  { left: 14%; top: 22%; animation-delay: -.8s; }
+        .login-sea-sparkles span:nth-child(3)  { left: 22%; top: 44%; animation-delay: -1.6s; }
+        .login-sea-sparkles span:nth-child(4)  { left: 31%; top: 18%; animation-delay: -.4s; }
+        .login-sea-sparkles span:nth-child(5)  { left: 39%; top: 36%; animation-delay: -2.1s; }
+        .login-sea-sparkles span:nth-child(6)  { left: 47%; top: 14%; animation-delay: -1.1s; }
+        .login-sea-sparkles span:nth-child(7)  { left: 55%; top: 40%; animation-delay: -2.8s; }
+        .login-sea-sparkles span:nth-child(8)  { left: 63%; top: 26%; animation-delay: -.6s; }
+        .login-sea-sparkles span:nth-child(9)  { left: 71%; top: 46%; animation-delay: -3.2s; }
+        .login-sea-sparkles span:nth-child(10) { left: 79%; top: 20%; animation-delay: -1.4s; }
+        .login-sea-sparkles span:nth-child(11) { left: 87%; top: 34%; animation-delay: -2.4s; }
+        .login-sea-sparkles span:nth-child(12) { left: 10%; top: 48%; animation-delay: -3.6s; }
+        .login-sea-sparkles span:nth-child(13) { left: 36%; top: 50%; animation-delay: -.9s; }
+        .login-sea-sparkles span:nth-child(14) { left: 68%; top: 12%; animation-delay: -2.9s; }
+        .login-sea-sparkles span:nth-child(15) { left: 94%; top: 42%; animation-delay: -1.8s; }
+        .login-sea-sparkles span:nth-child(16) { left: 18%; top: 32%; animation-delay: -3.9s; }
+        .login-sea-sparkles span:nth-child(17) { left: 52%; top: 28%; animation-delay: -2.5s; }
+        .login-sea-sparkles span:nth-child(18) { left: 84%; top: 48%; animation-delay: -1.2s; }
         /* gentle horizontal flow + slight swell */
         @keyframes loginSeaFlow {
             0% { transform: translateX(-4.5%) translateY(-2px) scaleY(1.02); }
@@ -220,42 +264,55 @@
             50% { transform: translateX(-3.8%) translateY(6px) scaleY(.978); }
             100% { transform: translateX(3.8%) translateY(-1px) scaleY(1.015); }
         }
-        /* ฟ้าอ่อน ↔ ขาว ↔ ฟ้าคราม ↔ ฟ้า ↔ น้ำเงิน — slow seamless water tints */
+        /* ฟ้า ↔ เหลืองอ่อนทองสลับช้า ๆ — sunlight ribbons mixed into water blues */
         @keyframes loginSeaTintW1 {
             0%, 100% { background-color: #B8DCF5; opacity: .78; }   /* ฟ้าอ่อน */
-            25% { background-color: #FFFFFF; opacity: .92; }         /* ขาว */
-            50% { background-color: #7BB8E8; opacity: .86; }         /* ฟ้าคราม */
-            75% { background-color: #5BA3D9; opacity: .84; }         /* ฟ้า */
+            20% { background-color: #FFF1C8; opacity: .72; }         /* เหลืองอ่อนทอง */
+            40% { background-color: #7BB8E8; opacity: .86; }         /* ฟ้าคราม */
+            60% { background-color: #FFE9B0; opacity: .7; }          /* pale gold */
+            80% { background-color: #5BA3D9; opacity: .84; }         /* ฟ้า */
         }
         @keyframes loginSeaTintW2 {
             0%, 100% { background-color: #7BB8E8; opacity: .84; }   /* ฟ้าคราม */
-            25% { background-color: #5BA3D9; opacity: .88; }         /* ฟ้า */
-            50% { background-color: #C5E5FA; opacity: .9; }          /* ฟ้าอ่อน */
-            75% { background-color: #F8FCFF; opacity: .86; }         /* ขาว */
+            20% { background-color: #FFF6DC; opacity: .7; }          /* soft light yellow */
+            40% { background-color: #5BA3D9; opacity: .88; }         /* ฟ้า */
+            60% { background-color: #F5E4B5; opacity: .68; }         /* pale gold */
+            80% { background-color: #C5E5FA; opacity: .9; }          /* ฟ้าอ่อน */
         }
         @keyframes loginSeaTintW3 {
-            0%, 100% { background-color: #F8FCFF; opacity: .88; }   /* ขาว */
-            25% { background-color: #B8DCF5; opacity: .9; }          /* ฟ้าอ่อน */
-            50% { background-color: #6FAAD8; opacity: .92; }         /* ฟ้าคราม */
-            75% { background-color: #FFFFFF; opacity: .86; }         /* ขาว */
+            0%, 100% { background-color: #FFF6DC; opacity: .62; }   /* soft light yellow ribbon */
+            25% { background-color: #B8DCF5; opacity: .78; }         /* ฟ้าอ่อน */
+            50% { background-color: #FFE9B0; opacity: .58; }         /* pale gold */
+            75% { background-color: #F8FCFF; opacity: .72; }         /* ขาว */
         }
         @keyframes loginSeaTintW4 {
             0%, 100% { background-color: #2A5A8C; opacity: .92; }   /* น้ำเงิน */
-            25% { background-color: #5BA3D9; opacity: .9; }          /* ฟ้า */
+            25% { background-color: #E8D9A0; opacity: .55; }         /* muted gold wash */
             50% { background-color: #7BB8E8; opacity: .94; }         /* ฟ้าคราม */
             75% { background-color: #A8D4F2; opacity: .88; }         /* ฟ้าอ่อน */
         }
+        @keyframes loginSeaSunRibbon {
+            0%, 100% { transform: translateX(-2.5%) translateY(0); opacity: .48; }
+            50% { transform: translateX(2.5%) translateY(2px); opacity: .62; }
+        }
+        @keyframes loginSeaShimmerSweep {
+            0%, 100% { opacity: .35; transform: translateX(-6%); }
+            50% { opacity: .7; transform: translateX(6%); }
+        }
         @keyframes loginSeaSparkle {
-            0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); }
-            28% { opacity: .95; transform: scale(1.05) rotate(12deg); }
-            48% { opacity: .55; transform: scale(.85) rotate(-6deg); }
-            62% { opacity: .9; transform: scale(1) rotate(8deg); }
-            78% { opacity: .2; transform: scale(.55) rotate(0deg); }
+            0%, 100% { opacity: 0; transform: scale(.45); }
+            35% { opacity: .55; transform: scale(1); }
+            55% { opacity: .28; transform: scale(.9); }
+            70% { opacity: .48; transform: scale(1.02); }
+            85% { opacity: .12; transform: scale(.65); }
         }
         @media (prefers-reduced-motion: reduce) {
             .login-sea-wave,
+            .login-sea-sunribbons,
+            .login-sea-sunribbons::after,
             .login-sea-sparkles span { animation: none !important; }
-            .login-sea-sparkles span { opacity: .35; }
+            .login-sea-sparkles span { opacity: .28; }
+            .login-sea-sunribbons { opacity: .4; }
         }
         body:has(#dashboard-screen:not(.hidden-screen)) .login-sea,
         body:has(#dashboard-screen:not(.hidden-screen)) #nature-layer { visibility: hidden; pointer-events: none; }
@@ -7242,7 +7299,7 @@
             .dash-body { padding: 1.05rem 1.15rem 1.4rem; }
         }
         @media (prefers-reduced-motion: reduce) {
-            .mist, .petal, .leaf, .login-sea-wave, .login-sea-sparkles span,
+            .mist, .petal, .leaf, .login-sea-wave, .login-sea-sunribbons, .login-sea-sparkles span,
             .content-card::before, .content-card::after, .dc-c,
             .sakura, .hangul-float, .ko-cloud, .crane-bird,
             .bg-stage::before, .bg-stage::after {
@@ -7272,6 +7329,7 @@
             <div class="login-sea-wave w2"></div>
             <div class="login-sea-wave w3"></div>
             <div class="login-sea-wave w4"></div>
+            <div class="login-sea-sunribbons"></div>
             <div class="login-sea-sparkles">
                 <span></span><span></span><span></span><span></span><span></span>
                 <span></span><span></span><span></span><span></span><span></span>
