@@ -8208,31 +8208,91 @@
             position: relative;
             z-index: 1;
         }
-        /* Past months: cooler slate */
+        /* Month strip states: past (settled) · current (เด่นมาก) · future (ล่วงหน้า) */
         .ot-month-chip.is-past-month {
-            border-color: #cbd5e1;
-            background: #f8fafc;
+            border-color: #d6dde8;
+            background: #f1f5f9;
+            opacity: .92;
+            box-shadow: none;
         }
         .ot-month-chip.is-past-month .ot-month-ym {
             color: #64748b;
+            font-weight: 700;
+            font-size: .8rem;
         }
         .ot-month-chip.is-past-month.has-pay {
-            border-color: #fdba74;
-            background: #fff;
-            box-shadow: inset 3px 0 0 #ea580c99;
+            border-color: #cbd5e1;
+            background: #f8fafc;
+            box-shadow: inset 2px 0 0 #94a3b8;
         }
-        /* Current calendar month: warmer amber */
+        /* Past paid: mute metallic “due” — settled, not competing with current */
+        .ot-month-chip.is-past-month .pay-ok-badge.due,
+        .ot-pay-panel .ot-month-chip.is-past-month .pay-ok-badge.due {
+            --ot-metal-ink: #64748b;
+            --ot-metal-line: #cbd5e1;
+            color: #475569;
+            font-size: .78rem;
+            font-weight: 750;
+            background-image: none;
+            background: #e2e8f0;
+            border: 1px solid #cbd5e1;
+            box-shadow: none;
+            animation: none;
+            text-shadow: none;
+        }
+        /* Current calendar month: strongest visual */
         .ot-month-chip.is-current-month {
-            border-color: #fb923c;
-            background: #fffbeb;
-            box-shadow: inset 3px 0 0 #ea580c;
+            border-color: #ea580c;
+            background: #fff7ed;
+            box-shadow:
+                inset 3px 0 0 #c2410c,
+                0 0 0 1px rgba(194, 65, 12, .22),
+                0 0 14px rgba(234, 88, 12, .34),
+                0 0 28px rgba(251, 191, 36, .22);
+            opacity: 1;
+            z-index: 1;
         }
         .ot-month-chip.is-current-month .ot-month-ym {
             color: #9a3412;
+            font-weight: 900;
+            font-size: .95rem;
         }
-        .ot-month-chip.has-pay:not(.is-past-month):not(.is-current-month) {
+        .ot-month-chip.is-current-month .pay-ok-badge {
+            font-size: .82rem;
+            padding: .28rem .62rem;
+        }
+        .ot-month-chip.is-current-month .pay-ok-badge.due {
+            font-size: 1.05rem;
+        }
+        /* Upcoming / lookahead: planned — visible but secondary; ฿0 is OK (ไม่ใช่สูญ) */
+        .ot-month-chip.is-future-month {
+            border: 1.5px dashed #cbd5e1;
+            background: #fafbfc;
+            opacity: .95;
+            box-shadow: none;
+        }
+        .ot-month-chip.is-future-month .ot-month-ym {
+            color: #94a3b8;
+            font-weight: 700;
+            font-size: .8rem;
+        }
+        .ot-month-chip.is-future-month.zero-pay .pay-ok-badge {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border-color: #e2e8f0;
+            font-weight: 650;
+        }
+        .ot-month-chip.is-future-month.has-pay {
+            border-style: solid;
             border-color: #fdba74;
-            box-shadow: inset 3px 0 0 #c2410c;
+            background: #fffbeb;
+            box-shadow: inset 2px 0 0 #fb923c;
+        }
+        .ot-month-chip.is-future-month.has-pay .pay-ok-badge.due,
+        .ot-pay-panel .ot-month-chip.is-future-month.has-pay .pay-ok-badge.due {
+            font-size: .88rem;
+            font-weight: 800;
+            animation: none;
         }
         .ot-month-chip.zero-pay .ot-month-ym {
             color: #64748b;
@@ -8241,7 +8301,10 @@
         .ot-month-chip.zero-pay.is-current-month .ot-month-ym {
             color: #c2410c;
         }
-        /* Active: amber LED chase around rectangular rim + glow */
+        .ot-month-chip.zero-pay.is-future-month .ot-month-ym {
+            color: #94a3b8;
+        }
+        /* Active selection — LED glow ONLY on current month (past/future: quiet ring) */
         @property --ot-led-angle {
             syntax: '<angle>';
             inherits: false;
@@ -8251,48 +8314,43 @@
             to { --ot-led-angle: 360deg; }
         }
         .ot-month-chip.is-active {
-            border-color: transparent;
             outline: none;
-            background: #fff7ed;
-            box-shadow:
-                0 0 0 1px rgba(234, 88, 12, .22),
-                0 0 12px rgba(234, 88, 12, .32),
-                0 0 24px rgba(251, 191, 36, .2);
             z-index: 1;
         }
         .ot-month-chip.is-active.is-past-month {
-            background: #fff7ed;
+            border-color: #94a3b8;
+            background: #f8fafc;
+            opacity: 1;
             box-shadow:
-                0 0 0 1px rgba(234, 88, 12, .18),
-                0 0 10px rgba(234, 88, 12, .26),
-                0 0 18px rgba(251, 191, 36, .14);
+                inset 2px 0 0 #64748b,
+                0 0 0 2px rgba(100, 116, 139, .28);
+        }
+        .ot-month-chip.is-active.is-past-month.has-pay {
+            box-shadow:
+                inset 2px 0 0 #64748b,
+                0 0 0 2px rgba(100, 116, 139, .28);
+        }
+        .ot-month-chip.is-active.is-future-month {
+            border-style: solid;
+            border-color: #94a3b8;
+            background: #f8fafc;
+            box-shadow: 0 0 0 2px rgba(148, 163, 184, .35);
         }
         .ot-month-chip.is-active.is-current-month {
+            border-color: transparent;
             background: #ffedd5;
             box-shadow:
-                0 0 0 1px rgba(194, 65, 12, .28),
-                0 0 16px rgba(234, 88, 12, .4),
-                0 0 30px rgba(251, 191, 36, .28);
+                inset 3px 0 0 #c2410c,
+                0 0 0 1px rgba(194, 65, 12, .35),
+                0 0 18px rgba(234, 88, 12, .48),
+                0 0 34px rgba(251, 191, 36, .32);
         }
-        .ot-month-chip.is-active::before {
+        /* LED chase: current month only (effect off when month has passed) */
+        .ot-month-chip.is-active.is-current-month::before {
             content: '';
             position: absolute;
             inset: -2.5px;
             border-radius: calc(.7rem + 2px);
-            background: conic-gradient(
-                from var(--ot-led-angle),
-                transparent 0 58%,
-                #fdba74 66%,
-                #fbbf24 74%,
-                #ea580c 84%,
-                #fff7ed 92%,
-                transparent 100%
-            );
-            z-index: -2;
-            animation: ot-led-spin 1.75s linear infinite;
-            pointer-events: none;
-        }
-        .ot-month-chip.is-active.is-current-month::before {
             background: conic-gradient(
                 from var(--ot-led-angle),
                 transparent 0 52%,
@@ -8302,9 +8360,11 @@
                 #ffedd5 92%,
                 transparent 100%
             );
-            animation-duration: 1.45s;
+            z-index: -2;
+            animation: ot-led-spin 1.45s linear infinite;
+            pointer-events: none;
         }
-        .ot-month-chip.is-active::after {
+        .ot-month-chip.is-active.is-current-month::after {
             content: '';
             position: absolute;
             inset: 0;
@@ -8313,22 +8373,20 @@
             z-index: -1;
             pointer-events: none;
         }
-        .ot-month-chip.has-pay.is-active {
-            box-shadow:
-                inset 3px 0 0 #c2410c,
-                0 0 0 1px rgba(234, 88, 12, .22),
-                0 0 12px rgba(234, 88, 12, .32),
-                0 0 24px rgba(251, 191, 36, .2);
+        .ot-month-chip.is-active.is-past-month::before,
+        .ot-month-chip.is-active.is-past-month::after,
+        .ot-month-chip.is-active.is-future-month::before,
+        .ot-month-chip.is-active.is-future-month::after {
+            content: none;
+            display: none;
+            animation: none;
         }
-        .ot-month-chip.has-pay.is-active.is-current-month {
-            box-shadow:
-                inset 3px 0 0 #c2410c,
-                0 0 0 1px rgba(194, 65, 12, .28),
-                0 0 16px rgba(234, 88, 12, .4),
-                0 0 30px rgba(251, 191, 36, .28);
-        }
-        .ot-month-chip:hover:not(.is-active) {
+        .ot-month-chip:hover:not(.is-active):not(.is-past-month) {
             border-color: #fb923c;
+            transform: translateY(-1px);
+        }
+        .ot-month-chip.is-past-month:hover:not(.is-active) {
+            border-color: #94a3b8;
             transform: translateY(-1px);
         }
         .pay-ok-board { display: grid; gap: .55rem; margin-top: .55rem; }
@@ -29135,13 +29193,15 @@
                     </button>`;
                 }).join('');
 
-                const lookback = otLookbackMonthKeys(OT_LOOKBACK_MONTHS);
+                const monthKeys = otMonthKeys(OT_LOOKBACK_MONTHS, OT_LOOKAHEAD_MONTHS);
                 const currentYm = todayKey().slice(0, 7);
-                const monthOverview = lookback.map((m) => {
+                const monthOverview = monthKeys.map((m) => {
                     let sum = 0;
                     teachers.forEach((tea) => { sum += otMonthPaySum(otEntriesForMonth(tea.id, m)); });
                     const active = m === ym ? ' is-active' : '';
-                    const monthKind = m === currentYm ? ' is-current-month' : ' is-past-month';
+                    const monthKind = m < currentYm
+                        ? ' is-past-month'
+                        : (m === currentYm ? ' is-current-month' : ' is-future-month');
                     return `<button type="button" class="ot-month-chip ${sum > 0 ? 'has-pay' : 'zero-pay'}${monthKind}${active}" data-ot-ym="${m}">
                         <span class="ot-month-ym">${esc(m)}</span>
                         <span class="pay-ok-badge${sum > 0 ? ' due' : ''}">${t('baht')}${sum.toLocaleString()}</span>
@@ -31559,6 +31619,8 @@
 
             /** Teacher / accounting dedicated OT tab (same panel id as director pay board: otpay). */
             function buildTeacherOtPanel(user) {
+                /* Part-time / non-OT teachers: no OT tab panel (same gate as #ot-total-frame). */
+                if (!user || (user.role === 'teacher' && !isOtEligibleTeacher(user.id))) return '';
                 if (!teacherOtYm) teacherOtYm = todayKey().slice(0, 7);
                 const ym = teacherOtYm;
                 const eligible = isOtEligibleTeacher(user.id);
@@ -31612,6 +31674,10 @@
                     };
                     if (todayIdx >= 0) tabs.splice(todayIdx + 1, 0, ptTab);
                     else tabs.unshift(ptTab);
+                }
+                /* Hide OT tab for part-time / non-OT-eligible teachers (taehyun/eunha/sua keep it). */
+                if (user.role === 'teacher' && !isOtEligibleTeacher(user.id)) {
+                    tabs = tabs.filter((tb) => tb.id !== 'otpay');
                 }
                 if (user.role === 'director') {
                     tabs = [
@@ -34623,13 +34689,18 @@
             function resolveDashboardTab(user, preferred) {
                 let id = preferred == null ? '' : String(preferred);
                 if (id === 'classes') id = 'rooms';
+                const u = user || currentUser;
+                /* Non-OT-eligible teachers must never land on otpay → ptcalc (part-time) or today. */
+                if (id === 'otpay' && u && u.role === 'teacher' && !isOtEligibleTeacher(u.id)) {
+                    id = isPartTimeTeacher(u) ? 'ptcalc' : (defaultTabForRole(u) || 'today');
+                }
                 const btns = Array.from(document.querySelectorAll('#dash-tabs .tab-btn'));
                 const panels = Array.from(document.querySelectorAll('#tab-panels .tab-panel'));
                 const btnIds = new Set(btns.map((b) => b.dataset.tab).filter(Boolean));
                 const panelIds = new Set(panels.map((p) => p.dataset.panel).filter(Boolean));
                 const usable = (tid) => !!(tid && btnIds.has(tid) && (panelIds.has(tid) || !panelIds.size));
                 if (usable(id)) return id;
-                const fallback = defaultTabForRole(user || currentUser);
+                const fallback = defaultTabForRole(u);
                 if (usable(fallback)) return fallback;
                 for (const b of btns) {
                     const tid = b.dataset.tab;
