@@ -13295,7 +13295,7 @@
                 tabOt: 'OT',
                 othersTitle: '근무 · 기타',
                 workPercent: '출근률',
-                otTitle: 'OT (본인 · 8개월)',
+                otTitle: 'OT (본인 · {month})',
                 otHint: '출석 기준 자동 OT · 19:00 이후 · 시간당 ฿300',
                 otDate: '날짜',
                 otSubject: '과목 / 업무',
@@ -14260,7 +14260,7 @@
                 tabOt: 'OT',
                 othersTitle: 'งาน · อื่นๆ',
                 workPercent: 'เปอร์เซ็นต์การทำงาน',
-                otTitle: 'OT (ของตัวเอง · 8 เดือน)',
+                otTitle: 'OT (ของตัวเอง · {month})',
                 otHint: 'คำนวณอัตโนมัติจากเช็คชื่อ · หลัง 19:00 · ชม.ละ ฿300',
                 otDate: 'วันที่',
                 otSubject: 'วิชา / งาน',
@@ -15225,7 +15225,7 @@
                 tabOt: 'OT',
                 othersTitle: 'Work · More',
                 workPercent: 'Work rate',
-                otTitle: 'OT (yours · 8 months)',
+                otTitle: 'OT (yours · {month})',
                 otHint: 'Auto from attendance · after 19:00 · ฿300/hr',
                 otDate: 'Date',
                 otSubject: 'Subject / duty',
@@ -19769,6 +19769,10 @@
         }
         function withMonthLabel(titleKey) {
             return `${t(titleKey)} · ${currentMonthLabel()}`;
+        }
+        /** OT panel title: self-only scope + current calendar month (all accounts). */
+        function otTitleLabel(date = new Date()) {
+            return String(t('otTitle')).replace(/\{month\}/g, currentMonthLabel(date));
         }
 
         function loadDaySchedulesBundle() {
@@ -30564,14 +30568,14 @@
                         <button type="button" class="soft-btn" id="ot-refresh-sheet-btn">${t('otRefreshSheet')}</button>
                     </div>
                     <p class="text-xs text-slate-500" id="ot-sheet-sync-msg" style="margin:.35rem 0 0"></p>
-                    <h3 class="mt-3">${t('otTitle')}</h3>
+                    <h3 class="mt-3">${otTitleLabel()}</h3>
                     <p class="text-xs text-slate-500 mb-1">${t('otPayLinked')} · ${t('otLookback')} · ${t('otNoSelfOthers')}</p>
                     <p class="text-xs text-slate-500 mb-2">${t('otSheetRules')}</p>
                     <label class="text-xs" style="font-weight:700;color:#64748b;display:block;margin-bottom:.55rem">${t('otPickMonth')}
                         <select id="teacher-ot-month-sel" class="sched-select" style="margin-left:.35rem">${otMonthOptionsHtml(ym)}</select>
                     </label>
                     <div id="ot-list"></div>
-                    <div class="pct-readable ot-total-frame" id="ot-total-frame"></div>` : `<h3 style="margin-top:0">${t('otTitle')}</h3>
+                    <div class="pct-readable ot-total-frame" id="ot-total-frame"></div>` : `<h3 style="margin-top:0">${otTitleLabel()}</h3>
                     <div id="ot-list"></div>
                     <div class="pct-readable ot-total-frame" id="ot-total-frame"></div>`}
                 </div></div>`;
