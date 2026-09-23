@@ -1685,29 +1685,33 @@
             100% { transform: translate3d(28px, -118px, 0) rotate(14deg); opacity: 0; }
         }
 
-        /* Header-local Hangul FX — behind identity/controls, never steals clicks */
+        /* Header-local Hangul FX — in front of logout chrome; never steals clicks */
         .dash-header-fx {
             position: absolute;
             inset: 0;
-            z-index: 0;
+            z-index: 6;
             pointer-events: none;
             overflow: hidden;
             border-radius: inherit;
         }
         .dash-header > .dash-identity {
             position: relative;
-            z-index: 1;
+            z-index: 7;
         }
         .dash-header > .header-actions {
             position: relative;
-            /* Above identity / FX; keep lang menu free of sibling traps */
+            /* Below FX so watermark paints over logout; clicks pass via pointer-events:none */
             z-index: 5;
+        }
+        .dash-header-fx .hangul-float-layer {
+            z-index: 1;
         }
         .dash-header-fx .hangul-mark {
             position: absolute;
             right: 3.5%;
             top: 50%;
             transform: translateY(-50%);
+            z-index: 2;
             font-size: clamp(1.55rem, 4.2vw, 2.35rem);
             font-weight: 900;
             letter-spacing: .06em;
@@ -2393,7 +2397,7 @@
            Lang menu (12000) / modals (20000) unchanged. */
         .dash-shell.theme-director > .dash-header .dash-header-fx {
             overflow: visible;
-            z-index: 0;
+            z-index: 6;
             pointer-events: none;
         }
         .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float-layer {
@@ -13811,6 +13815,7 @@
                 date: item.date || todayKey(),
                 action,
                 classType: item.classType || item.kind || 'regular',
+                classStatus: normalizeClassStatus(item.classStatus || extra.classStatus),
                 start: item.start || '',
                 end: item.end || '',
                 room: item.room || '',
@@ -25114,6 +25119,7 @@
                     const isDayOff = item.kind === 'dayoff' || item.classType === 'dayoff';
                     const ctype = isDayOff ? 'dayoff' : normalizeClassType(item.classType);
                     const typeBadge = `<span class="sched-type-badge ${ctype}">${classTypeLabel(ctype)}</span>`;
+                    const statusBadge = (!isDayOff && !cancelled) ? classStatusBadgeHtml(item.classStatus) : '';
                     const titleText = String(pickLangText(item, 'title') || '').replace(/</g,'&lt;');
                     const meta = cancelled ? `<div class="cancel-meta">
                         <span class="badge" style="background:#ffedd5;color:#9a3412;margin-right:.35rem">${t('cancelledBadge')}</span>
@@ -25148,8 +25154,16 @@
                     }
                     const subjKey = matchTeachSubjectKey(item, user);
                     const otherVal = subjKey === 'other' ? String(pickLangText(item, 'title') || '').replace(/"/g, '&quot;') : '';
+                    const roomBlock = item.roomSlotId ? getRoomBlockById(item.roomSlotId) : null;
+                    const canStatus = canEditClassStatus(user, roomBlock || { teacherId: user.id, isBreak: false });
+                    const statusEdit = canStatus
+                        ? `<div class="full">
+                                <label class="sched-label">${t('classStatusLabel')}</label>
+                                <select class="sched-select sched-edit-class-status" data-idx="${idx}">${classStatusOptionsHtml(item.classStatus)}</select>
+                            </div>`
+                        : '';
                     return `<div class="sched-item" data-idx="${idx}">
-                        ${typeBadge}
+                        <div class="cls-run-row">${typeBadge}${statusBadge}</div>
                         <div class="sched-item-summary">
                             <span class="si-time">${item.start}–${item.end}</span>
                             <span class="si-title">${titleText}</span>
@@ -25171,6 +25185,7 @@
                                     <option value="online" ${ctype === 'online' ? 'selected' : ''}>${t('schedTypeOnline')}</option>
                                 </select>
                             </div>
+                            ${statusEdit}
                             <div class="full">
                                 <label class="sched-label">${t('teachWhat')}</label>
                                 <select class="sched-select sched-edit-subject" data-idx="${idx}">${teachSubjectOptionsHtml(subjKey, user)}</select>
@@ -25703,10 +25718,21 @@
                             }
                             const list = loadDaySchedule(user.id);
                             const prev = list[idx] || {};
+                            const prevStatus = normalizeClassStatus(prev.classStatus);
+                            const statusSel = row.querySelector('.sched-edit-class-status');
+                            const roomBlock = prev.roomSlotId ? getRoomBlockById(prev.roomSlotId) : null;
+                            const canStatus = canEditClassStatus(user, roomBlock || { teacherId: user.id, isBreak: false });
+                            const nextStatus = (canStatus && statusSel)
+                                ? normalizeClassStatus(statusSel.value)
+                                : prevStatus;
                             const nextItem = {
                                 ...stampTeachSubjectItem(prev, resolved),
                                 start, end, classType, kind: 'class',
+                                classStatus: nextStatus,
                                 subjectKey: resolved.subjectKey,
+                                room: prev.room,
+                                roomSlotId: prev.roomSlotId,
+                                fromRoom: prev.fromRoom,
                                 cancelled: prev.cancelled, cancelId: prev.cancelId,
                                 cancelReason: prev.cancelReason, cancelReasonKo: prev.cancelReasonKo,
                                 cancelReasonTh: prev.cancelReasonTh, cancelReasonEn: prev.cancelReasonEn,
@@ -25715,6 +25741,24 @@
                             list[idx] = nextItem;
                             list.sort((a, b) => String(a.start || '').localeCompare(String(b.start || '')));
                             saveDaySchedule(user.id, list);
+                            if (canStatus && prev.roomSlotId && roomBlock) {
+                                const saved = saveRoomBlock({ ...roomBlock, classStatus: nextStatus, userEdited: true }, user);
+                                if (saved.ok && saved.slot) {
+                                    notifyClassStatusToDirector({
+                                        user,
+                                        slot: saved.slot,
+                                        beforeStatus: prevStatus,
+                                        afterStatus: nextStatus
+                                    });
+                                }
+                            } else if (canStatus && nextStatus === 'student_postponed' && nextStatus !== prevStatus) {
+                                notifyClassStatusToDirector({
+                                    user,
+                                    slot: { ...nextItem, date: todayKey(), room: nextItem.room || '' },
+                                    beforeStatus: prevStatus,
+                                    afterStatus: nextStatus
+                                });
+                            }
                             notifySchedChange({ user, action: 'edit', item: nextItem });
                             document.getElementById('schedule-msg').textContent = t('schedNotified');
                             statusDismissedKey = '';
@@ -27770,30 +27814,36 @@
                     const isOff = c.action === 'dayoff' || c.classType === 'dayoff';
                     const isUndoOff = c.action === 'undodayoff';
                     const isRoomEdit = c.action === 'room_edit';
+                    const isClassStatus = c.action === 'class_status';
                     const isEdit = c.action === 'edit';
                     const isDelete = c.action === 'delete';
-                    const kind = isRoomEdit ? t('schedAlertKindRoomEdit')
+                    const kind = isClassStatus ? t('schedAlertKindClassStatus')
+                        : (isRoomEdit ? t('schedAlertKindRoomEdit')
                         : (isUndoOff ? t('schedAlertKindUndoOff')
                         : (isOff ? t('schedAlertKindOff')
                         : (isEdit ? t('schedAlertKindEdit')
-                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd')))));
-                    const summary = isRoomEdit ? t('schedAlertSummaryRoomEdit')
+                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd'))))));
+                    const summary = isClassStatus ? t('schedAlertSummaryStudentPostpone')
+                        : (isRoomEdit ? t('schedAlertSummaryRoomEdit')
                         : (isUndoOff ? t('schedAlertSummaryUndoOff')
                         : (isOff ? t('schedAlertSummaryOff')
                         : (isEdit ? t('schedAlertSummaryEdit')
-                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd')))));
+                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd'))))));
                     const subject = pickLangText(c, 'title') || c.title || (isOff || isUndoOff ? t('schedDayOffTitle') : '—');
                     const time = (!isOff && !isUndoOff && (c.start || c.end))
                         ? `${c.start || '—'}–${c.end || '—'}`
                         : '—';
-                    const typeLbl = isRoomEdit
+                    const typeLbl = isClassStatus
+                        ? classStatusLabel(c.classStatus || 'student_postponed')
+                        : (isRoomEdit
                         ? (c.room ? roomLabel(c.room) : t('schedActionRoomEdit'))
-                        : classTypeLabel((isOff || isUndoOff) ? 'dayoff' : (c.classType || 'regular'));
-                    const pill = isRoomEdit ? t('schedActionRoomEdit')
+                        : classTypeLabel((isOff || isUndoOff) ? 'dayoff' : (c.classType || 'regular')));
+                    const pill = isClassStatus ? t('schedActionClassStatus')
+                        : (isRoomEdit ? t('schedActionRoomEdit')
                         : (isUndoOff ? t('schedActionUndoDayOff')
                         : (isOff ? t('schedActionDayOff')
                         : (isEdit ? t('schedActionEdit')
-                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd')))));
+                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd'))))));
                     const cardClass = (isOff || isUndoOff ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
                     const teaLbl = schedAlertTeacherLabel(c);
                     const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
@@ -27808,7 +27858,7 @@
                             <div><dt>${esc(t('schedAlertLblDate'))}</dt><dd>${esc(c.date || '—')}</dd></div>
                             ${(isOff || isUndoOff) ? '' : `<div><dt>${esc(t('schedAlertLblTime'))}</dt><dd>${esc(time)}</dd></div>`}
                             <div><dt>${esc(t('schedAlertLblSubject'))}</dt><dd>${esc(subject)}</dd></div>
-                            <div><dt>${esc(t('schedAlertLblType'))}</dt><dd>${esc(typeLbl)}</dd></div>
+                            <div><dt>${esc(isClassStatus ? t('classStatusLabel') : t('schedAlertLblType'))}</dt><dd>${esc(typeLbl)}</dd></div>
                             <div><dt>${esc(t('schedAlertLblStatus'))}</dt><dd>${esc(t('pending'))}</dd></div>
                         </dl>
                     </div>`;
