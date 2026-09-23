@@ -80,7 +80,7 @@ hongikPushPortalNow()
 | `studyPauses` | พักเรียน |
 | `waitlist` | รอสนใจ |
 | `textbooks` | สต็อกหนังสือ |
-| `jobApps` | สมัครงานครู |
+| `jobApps` | สมัครงานครู (ไฟล์ → Storage `teacher-job-apps` · ดู `supabase/storage-job-apps.sql`) |
 | `attendance` | เช็คชื่อ (local marks) |
 | `studentEdits` | แก้ชื่อ/โน้ตนักเรียนในพอร์ทัล |
 | `helpChats` | แชทช่วยเหลือหัวหน้า |

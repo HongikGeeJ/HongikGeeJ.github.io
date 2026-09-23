@@ -2388,6 +2388,27 @@
             right: 3%;
             animation: hangulFloatCharm 11s cubic-bezier(.45,.05,.55,.95) infinite;
         }
+        /* Director only: hangul wallpaper may drift over #dash-tabs.
+           Header stays z-index 500 (above tabs); FX never steals clicks.
+           Lang menu (12000) / modals (20000) unchanged. */
+        .dash-shell.theme-director > .dash-header .dash-header-fx {
+            overflow: visible;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float-layer {
+            inset: 0 0 -5.75rem 0;
+            overflow: visible;
+            pointer-events: none;
+        }
+        .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float,
+        .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-mark {
+            pointer-events: none;
+        }
+        .dash-shell.theme-director > .dash-tabs {
+            position: relative;
+            z-index: 1;
+        }
         .theme-director .taehyun-fx .seal {
             border-color: rgba(30,58,95,.45);
             color: #1e3a5f;
@@ -6053,6 +6074,24 @@
             margin-top: .85rem; padding: .85rem; border-radius: .85rem;
             border: 1px dashed #c4b5fd; background: #faf5ff;
         }
+        .job-app-track {
+            margin: .85rem 0 .55rem; padding: .45rem .65rem;
+            border-radius: .55rem; background: #f5f3ff; border: 1px solid #ddd6fe;
+            font-weight: 850; font-size: .88rem; color: #5b21b6;
+        }
+        .job-app-person {
+            margin: .55rem 0 .35rem; font-weight: 800; font-size: .95rem; color: #0f172a;
+        }
+        .job-app-row.is-unread { box-shadow: inset 3px 0 0 #7c3aed; background: #faf5ff; }
+        .job-app-row .jr-tag.unread { background: #ede9fe; color: #6d28d9; }
+        .job-app-row .jr-tag.read { background: #dcfce7; color: #15803d; }
+        .job-app-files { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .4rem; }
+        .job-app-files a, .job-app-files button.jr-dl {
+            border: 1.5px solid #c4b5fd; background: #fff; border-radius: .45rem;
+            padding: .22rem .55rem; font-size: .72rem; font-weight: 750; font-family: inherit;
+            color: #5b21b6; text-decoration: none; cursor: pointer;
+        }
+        .job-app-files a:hover, .job-app-files button.jr-dl:hover { border-color: #7c3aed; }
         .dorm-notice .dn-title { font-weight: 850; font-size: 1rem; color: #0f172a; }
         .dorm-notice .dn-meta { font-size: .78rem; color: #64748b; margin-top: .2rem; }
         .dorm-notice .dn-count {
@@ -10248,6 +10287,22 @@
                 jobAppStatus: '상태',
                 jobAppPeople: '건',
                 jobAppPendingCount: '대기',
+                jobAppTrack: '과목 언어',
+                jobAppTrackEn: '영어',
+                jobAppTrackTh: '태국어',
+                jobAppTrackKo: '한국어',
+                jobAppFiles: '지원서 파일',
+                jobAppUpload: '파일 업로드',
+                jobAppDownload: '다운로드',
+                jobAppMarkRead: '읽음',
+                jobAppUnread: '안 읽음',
+                jobAppReadDone: '읽음',
+                jobAppCreated: '등록일',
+                jobAppGroupBy: '과목 언어별 · 지원자별',
+                jobAppUploading: '업로드 중…',
+                jobAppUploadOk: '저장됨',
+                jobAppNeedFile: '파일 또는 메모를 추가하세요',
+                jobAppUnreadCount: '안 읽음',
                 studyPauseTitle: '휴학 학생',
                 studyPauseHint: '휴학 신청 학생 · 눌러서 사유·복귀일 확인',
                 studyPauseClickHint: '눌러서 상세 보기',
@@ -11039,6 +11094,22 @@
                 jobAppStatus: 'สถานะ',
                 jobAppPeople: 'ใบ',
                 jobAppPendingCount: 'รอ',
+                jobAppTrack: 'ภาษาวิชา',
+                jobAppTrackEn: 'ภาษาอังกฤษ',
+                jobAppTrackTh: 'ภาษาไทย',
+                jobAppTrackKo: 'ภาษาเกาหลี',
+                jobAppFiles: 'ไฟล์ใบสมัคร',
+                jobAppUpload: 'อัปโหลดไฟล์',
+                jobAppDownload: 'ดาวน์โหลด',
+                jobAppMarkRead: 'อ่านแล้ว',
+                jobAppUnread: 'ยังไม่อ่าน',
+                jobAppReadDone: 'อ่านแล้ว',
+                jobAppCreated: 'วันที่บันทึก',
+                jobAppGroupBy: 'จัดกลุ่มตามภาษาวิชา · ตามชื่อผู้สมัคร',
+                jobAppUploading: 'กำลังอัปโหลด…',
+                jobAppUploadOk: 'บันทึกแล้ว',
+                jobAppNeedFile: 'เพิ่มไฟล์หรือรายละเอียด',
+                jobAppUnreadCount: 'ยังไม่อ่าน',
                 studyPauseTitle: 'นักเรียนพักการเรียน',
                 studyPauseHint: 'รายชื่อที่ขอพักการเรียน · คลิกดูเหตุผลและวันกลับ',
                 studyPauseClickHint: 'คลิกเพื่อดูรายละเอียด',
@@ -11830,6 +11901,22 @@
                 jobAppStatus: 'Status',
                 jobAppPeople: '',
                 jobAppPendingCount: 'Pending',
+                jobAppTrack: 'Subject language',
+                jobAppTrackEn: 'English',
+                jobAppTrackTh: 'Thai',
+                jobAppTrackKo: 'Korean',
+                jobAppFiles: 'Application files',
+                jobAppUpload: 'Upload files',
+                jobAppDownload: 'Download',
+                jobAppMarkRead: 'Mark read',
+                jobAppUnread: 'Unread',
+                jobAppReadDone: 'Read',
+                jobAppCreated: 'Created',
+                jobAppGroupBy: 'Grouped by subject language · by applicant',
+                jobAppUploading: 'Uploading…',
+                jobAppUploadOk: 'Saved',
+                jobAppNeedFile: 'Add a file or details',
+                jobAppUnreadCount: 'Unread',
                 studyPauseTitle: 'Students on leave',
                 studyPauseHint: 'Study pause requests · tap for reason & return date',
                 studyPauseClickHint: 'Tap to open details',
@@ -13926,6 +14013,99 @@
         function saveJobApps(list, { syncRemote = true } = {}) {
             localStorage.setItem(JOB_APP_STORE, JSON.stringify(Array.isArray(list) ? list : []));
             if (syncRemote && typeof queuePortalStorePush === 'function') queuePortalStorePush('jobApps');
+        }
+        const JOB_APP_FILES_BUCKET = 'teacher-job-apps';
+        const JOB_APP_TRACKS = ['en', 'th', 'ko'];
+        function canViewJobApps(user) {
+            return !!(user && (user.role === 'director' || user.role === 'admin' || user.id === 'taehyun'));
+        }
+        function canUploadJobApps(user) {
+            return !!(user && (user.id === 'taehyun' || user.role === 'admin'));
+        }
+        function canManageJobAppRead(user) {
+            return !!(user && (user.role === 'director' || user.role === 'admin'));
+        }
+        function normalizeJobAppTrack(v) {
+            const s = String(v || '').trim().toLowerCase();
+            if (s === 'en' || s === 'english' || /อังกฤษ|영어|english/.test(s)) return 'en';
+            if (s === 'th' || s === 'thai' || /ไทย|태국|thai/.test(s)) return 'th';
+            if (s === 'ko' || s === 'korean' || /เกาหลี|한국|korean|한국어/.test(s)) return 'ko';
+            return 'en';
+        }
+        function jobAppTrackLabel(track) {
+            const k = normalizeJobAppTrack(track);
+            return ({
+                en: t('jobAppTrackEn'),
+                th: t('jobAppTrackTh'),
+                ko: t('jobAppTrackKo')
+            })[k] || k;
+        }
+        function jobAppPersonKey(j) {
+            return String(pickLangText(j, 'name') || j.name || j.nameTh || j.nameKo || j.nameEn || '').trim().toLowerCase();
+        }
+        function jobAppFileHref(f) {
+            if (!f || typeof f !== 'object') return '';
+            const url = String(f.url || '').trim();
+            if (url) return url;
+            const dataUrl = String(f.dataUrl || '').trim();
+            return dataUrl || '';
+        }
+        function readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result || ''));
+                reader.onerror = () => reject(reader.error || new Error('read failed'));
+                reader.readAsDataURL(file);
+            });
+        }
+        async function uploadJobAppFileToStorage(sb, appId, fileName, dataUrl, mime) {
+            if (!sb || !appId || !dataUrl) return '';
+            const blob = typeof dataUrlToBlob === 'function' ? dataUrlToBlob(dataUrl) : null;
+            if (!blob) throw new Error('invalid file dataUrl');
+            const safeApp = String(appId).replace(/[^a-zA-Z0-9_-]/g, '_');
+            const safeName = String(fileName || 'file').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80) || 'file';
+            const path = `${safeApp}/${Date.now()}-${safeName}`;
+            const { error } = await sb.storage.from(JOB_APP_FILES_BUCKET).upload(path, blob, {
+                upsert: true,
+                contentType: mime || blob.type || 'application/octet-stream',
+                cacheControl: '60'
+            });
+            if (error) throw new Error(error.message || 'job-app storage upload failed');
+            const { data } = sb.storage.from(JOB_APP_FILES_BUCKET).getPublicUrl(path);
+            const base = String(data?.publicUrl || '').trim();
+            if (!base) throw new Error('no public URL from job-app storage');
+            return { url: base + (base.includes('?') ? '&' : '?') + 'v=' + Date.now(), path };
+        }
+        async function buildJobAppFilesFromInput(fileList, appId) {
+            const files = Array.from(fileList || []).filter(Boolean);
+            if (!files.length) return [];
+            let sb = null;
+            try { sb = await ensureSupabaseClient(); } catch (_) { sb = null; }
+            const out = [];
+            for (const file of files) {
+                const dataUrl = await readFileAsDataUrl(file);
+                const meta = {
+                    name: String(file.name || 'file'),
+                    mime: String(file.type || 'application/octet-stream'),
+                    size: Number(file.size) || 0,
+                    at: new Date().toISOString()
+                };
+                if (sb) {
+                    try {
+                        const up = await uploadJobAppFileToStorage(sb, appId, meta.name, dataUrl, meta.mime);
+                        out.push({ ...meta, url: up.url, path: up.path });
+                        continue;
+                    } catch (err) {
+                        console.warn('job-app storage upload failed; keeping dataUrl', err);
+                    }
+                }
+                // fallback: keep small files as dataUrl in portal_stores
+                if (dataUrl.length > 1_400_000) {
+                    throw new Error('file too large for local fallback');
+                }
+                out.push({ ...meta, dataUrl });
+            }
+            return out;
         }
         function dormStayStatus(from, to) {
             const today = todayKey();
@@ -21325,15 +21505,22 @@
 
             function renderJobAppBoard(user) {
                 const board = document.getElementById('job-app-board');
-                if (!board || !user || user.role !== 'director') return;
+                if (!board || !canViewJobApps(user)) return;
                 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+                const canUpload = canUploadJobApps(user);
+                const canRead = canManageJobAppRead(user);
                 const statusLabel = (st) => ({
                     pending: t('jobAppPending'),
                     review: t('jobAppReview'),
                     accepted: t('jobAppAccepted'),
                     rejected: t('jobAppRejected')
                 }[st] || t('jobAppPending'));
-                const list = loadJobApps().slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+                const list = loadJobApps().slice().sort((a, b) => {
+                    const atA = String(a.createdAt || a.date || '');
+                    const atB = String(b.createdAt || b.date || '');
+                    return atB.localeCompare(atA);
+                });
+                const unreadN = list.filter((j) => !j.read).length;
                 const go = (next, anim) => {
                     jobAppNav = { ...jobAppNav, ...next };
                     renderJobAppBoard(user);
@@ -21345,31 +21532,73 @@
                     }
                 };
 
-                if (jobAppNav.view === 'detail') {
-                    const rows = list.length ? list.map((j) => {
-                        const st = j.status || 'pending';
-                        return `<div class="job-app-row" data-job-id="${esc(j.id)}">
+                const renderFiles = (j) => {
+                    const files = Array.isArray(j.files) ? j.files : [];
+                    if (!files.length) return '';
+                    const links = files.map((f, idx) => {
+                        const href = jobAppFileHref(f);
+                        const label = esc(f.name || `${t('jobAppDownload')} ${idx + 1}`);
+                        if (!href) return '';
+                        if (String(href).startsWith('data:')) {
+                            return `<button type="button" class="jr-dl" data-job-dl="${esc(j.id)}" data-job-fi="${idx}"><i class="ph ph-download-simple"></i> ${label}</button>`;
+                        }
+                        return `<a href="${esc(href)}" target="_blank" rel="noopener" download="${esc(f.name || 'file')}"><i class="ph ph-download-simple"></i> ${label}</a>`;
+                    }).filter(Boolean).join('');
+                    return links ? `<div class="job-app-files"><span class="jr-meta" style="margin:0;width:100%">${t('jobAppFiles')}</span>${links}</div>` : '';
+                };
+
+                const renderGrouped = () => {
+                    if (!list.length) return `<p class="empty-note">${t('jobAppEmpty')}</p>`;
+                    return JOB_APP_TRACKS.map((track) => {
+                        const inTrack = list.filter((j) => normalizeJobAppTrack(j.subjectTrack || j.track || j.lang) === track);
+                        if (!inTrack.length) return '';
+                        const byPerson = new Map();
+                        inTrack.forEach((j) => {
+                            const key = jobAppPersonKey(j) || j.id;
+                            if (!byPerson.has(key)) byPerson.set(key, []);
+                            byPerson.get(key).push(j);
+                        });
+                        const peopleHtml = [...byPerson.entries()].map(([key, apps]) => {
+                            const title = pickLangText(apps[0], 'name') || apps[0].name || key;
+                            const rows = apps.map((j) => {
+                                const st = j.status || 'pending';
+                                const isRead = !!j.read;
+                                const readTag = canRead
+                                    ? `<span class="jr-tag ${isRead ? 'read' : 'unread'}">${isRead ? t('jobAppReadDone') : t('jobAppUnread')}</span>`
+                                    : '';
+                                const created = String(j.createdAt || j.date || '').slice(0, 16).replace('T', ' ');
+                                const actions = [];
+                                if (canRead) {
+                                    if (!isRead) {
+                                        actions.push(`<button type="button" data-job-read="${esc(j.id)}">${t('jobAppMarkRead')}</button>`);
+                                    }
+                                    actions.push(`<button type="button" data-job-st="pending" data-job-id="${esc(j.id)}">${t('jobAppPending')}</button>`);
+                                    actions.push(`<button type="button" data-job-st="review" data-job-id="${esc(j.id)}">${t('jobAppReview')}</button>`);
+                                    actions.push(`<button type="button" data-job-st="accepted" data-job-id="${esc(j.id)}">${t('jobAppAccepted')}</button>`);
+                                    actions.push(`<button type="button" data-job-st="rejected" data-job-id="${esc(j.id)}">${t('jobAppRejected')}</button>`);
+                                }
+                                if (canUpload || canRead) {
+                                    actions.push(`<button type="button" class="sched-del" data-job-del="${esc(j.id)}">${t('delete')}</button>`);
+                                }
+                                return `<div class="job-app-row${isRead || !canRead ? '' : ' is-unread'}" data-job-id="${esc(j.id)}">
                             <div>
-                                <div class="jr-name">${esc(pickLangText(j, 'name') || j.name || '')}</div>
-                                <div class="jr-meta">${t('jobAppSubject')}: ${esc(pickLangText(j, 'subject') || j.subject || '—')}</div>
-                                <div class="jr-meta">${t('jobAppPhone')}: ${esc(j.phone || '—')} · ${t('jobAppDate')}: ${esc(j.date || '—')}</div>
+                                <div class="jr-meta">${t('jobAppSubject')}: ${esc(pickLangText(j, 'subject') || j.subject || jobAppTrackLabel(track))}</div>
+                                <div class="jr-meta">${t('jobAppPhone')}: ${esc(j.phone || '—')} · ${t('jobAppDate')}: ${esc(j.date || '—')} · ${t('jobAppCreated')}: ${esc(created || '—')}</div>
                                 ${pickLangText(j, 'note') || j.note ? `<div class="jr-meta">${esc(pickLangText(j, 'note') || j.note)}</div>` : ''}
+                                ${renderFiles(j)}
                                 <span class="jr-tag ${st}">${statusLabel(st)}</span>
+                                ${readTag}
                             </div>
-                            <div class="jr-actions">
-                                <button type="button" data-job-st="pending" data-job-id="${esc(j.id)}">${t('jobAppPending')}</button>
-                                <button type="button" data-job-st="review" data-job-id="${esc(j.id)}">${t('jobAppReview')}</button>
-                                <button type="button" data-job-st="accepted" data-job-id="${esc(j.id)}">${t('jobAppAccepted')}</button>
-                                <button type="button" data-job-st="rejected" data-job-id="${esc(j.id)}">${t('jobAppRejected')}</button>
-                                <button type="button" class="sched-del" data-job-del="${esc(j.id)}">${t('delete')}</button>
-                            </div>
+                            <div class="jr-actions">${actions.join('')}</div>
                         </div>`;
-                    }).join('') : `<p class="empty-note">${t('jobAppEmpty')}</p>`;
-                    board.innerHTML = `
-                        <button type="button" class="job-app-back" id="job-app-back-btn"><i class="ph ph-caret-left"></i> ${t('jobAppBack')}</button>
-                        <h3 style="margin:0 0 .35rem;color:#0f172a"><i class="ph ph-identification-badge" style="color:#7c3aed"></i> ${t('jobAppDetail')}</h3>
-                        <p class="text-xs text-slate-500 mb-3">${t('jobAppHint')}</p>
-                        ${rows}
+                            }).join('');
+                            return `<div class="job-app-person">${esc(title)} · ${apps.length}</div>${rows}`;
+                        }).join('');
+                        return `<div class="job-app-track"><i class="ph ph-translate"></i> ${jobAppTrackLabel(track)} · ${inTrack.length}</div>${peopleHtml}`;
+                    }).join('') || `<p class="empty-note">${t('jobAppEmpty')}</p>`;
+                };
+
+                const addBox = canUpload ? `
                         <div class="job-app-add-box">
                             <p class="admin-label" style="margin-top:0">${t('jobAppAdd')}</p>
                             <div class="sched-form">
@@ -21386,6 +21615,14 @@
                                     <input type="date" id="job-app-date" class="sched-text" value="${todayKey()}">
                                 </div>
                                 <div class="full">
+                                    <label class="sched-label">${t('jobAppTrack')}</label>
+                                    <div style="display:flex;flex-wrap:wrap;gap:.65rem;margin-top:.25rem">
+                                        <label><input type="radio" name="job-app-track" value="en" checked> ${t('jobAppTrackEn')}</label>
+                                        <label><input type="radio" name="job-app-track" value="th"> ${t('jobAppTrackTh')}</label>
+                                        <label><input type="radio" name="job-app-track" value="ko"> ${t('jobAppTrackKo')}</label>
+                                    </div>
+                                </div>
+                                <div class="full">
                                     <label class="sched-label">${t('jobAppSubject')}</label>
                                     <input type="text" id="job-app-subject" class="sched-text" placeholder="${t('jobAppSubject')}">
                                 </div>
@@ -21393,38 +21630,87 @@
                                     <label class="sched-label">${t('jobAppNote')}</label>
                                     <input type="text" id="job-app-note" class="sched-text" placeholder="${t('jobAppNote')}">
                                 </div>
+                                <div class="full">
+                                    <label class="sched-label">${t('jobAppUpload')}</label>
+                                    <input type="file" id="job-app-files" class="sched-text" multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp,image/*,application/pdf">
+                                </div>
                             </div>
                             <div class="admin-actions">
                                 <button type="button" class="soft-btn" id="job-app-add-btn">${t('jobAppAdd')}</button>
                                 <span id="job-app-msg" class="text-xs text-slate-500"></span>
                             </div>
-                        </div>`;
+                        </div>` : '';
+
+                if (jobAppNav.view === 'detail') {
+                    board.innerHTML = `
+                        <button type="button" class="job-app-back" id="job-app-back-btn"><i class="ph ph-caret-left"></i> ${t('jobAppBack')}</button>
+                        <h3 style="margin:0 0 .35rem;color:#0f172a"><i class="ph ph-identification-badge" style="color:#7c3aed"></i> ${t('jobAppDetail')}</h3>
+                        <p class="text-xs text-slate-500 mb-3">${t('jobAppGroupBy')}</p>
+                        ${renderGrouped()}
+                        ${addBox}`;
                     document.getElementById('job-app-back-btn')?.addEventListener('click', () => go({ view: 'list' }, 'job-app-slide-back'));
-                    document.getElementById('job-app-add-btn')?.addEventListener('click', () => {
+                    document.getElementById('job-app-add-btn')?.addEventListener('click', async () => {
                         const name = (document.getElementById('job-app-name')?.value || '').trim();
                         const phone = (document.getElementById('job-app-phone')?.value || '').trim();
                         const subject = (document.getElementById('job-app-subject')?.value || '').trim();
                         const note = (document.getElementById('job-app-note')?.value || '').trim();
                         const date = document.getElementById('job-app-date')?.value || todayKey();
+                        const track = board.querySelector('input[name="job-app-track"]:checked')?.value || 'en';
+                        const fileInput = document.getElementById('job-app-files');
                         const msg = document.getElementById('job-app-msg');
                         if (!name) {
                             if (msg) msg.textContent = t('jobAppName');
                             return;
                         }
-                        let row = { id: 'ja-' + Date.now(), phone, date, status: 'pending' };
-                        row = stampLangText(row, 'name', name);
-                        row = stampLangText(row, 'subject', subject);
-                        row = stampLangText(row, 'note', note);
-                        const next = loadJobApps();
-                        next.unshift(row);
-                        saveJobApps(next);
-                        renderJobAppBoard(user);
+                        const fileCount = fileInput?.files?.length || 0;
+                        if (!fileCount && !note && !subject) {
+                            if (msg) msg.textContent = t('jobAppNeedFile');
+                            return;
+                        }
+                        const id = 'ja-' + Date.now();
+                        if (msg) msg.textContent = t('jobAppUploading');
+                        const btn = document.getElementById('job-app-add-btn');
+                        if (btn) btn.disabled = true;
+                        try {
+                            const files = await buildJobAppFilesFromInput(fileInput?.files, id);
+                            let row = {
+                                id,
+                                phone,
+                                date,
+                                subjectTrack: normalizeJobAppTrack(track),
+                                status: 'pending',
+                                read: false,
+                                createdAt: new Date().toISOString(),
+                                uploadedBy: user.id,
+                                files
+                            };
+                            row = stampLangText(row, 'name', name);
+                            row = stampLangText(row, 'subject', subject || jobAppTrackLabel(track));
+                            row = stampLangText(row, 'note', note);
+                            const next = loadJobApps();
+                            next.unshift(row);
+                            saveJobApps(next);
+                            if (msg) msg.textContent = t('jobAppUploadOk');
+                            renderJobAppBoard(user);
+                        } catch (err) {
+                            if (msg) msg.textContent = String(err?.message || err || 'upload failed');
+                            if (btn) btn.disabled = false;
+                        }
                     });
                     board.querySelectorAll('[data-job-st]').forEach((btn) => {
                         btn.addEventListener('click', () => {
                             const id = btn.dataset.jobId;
                             const st = btn.dataset.jobSt;
                             saveJobApps(loadJobApps().map(x => String(x.id) === String(id) ? { ...x, status: st } : x));
+                            renderJobAppBoard(user);
+                        });
+                    });
+                    board.querySelectorAll('[data-job-read]').forEach((btn) => {
+                        btn.addEventListener('click', () => {
+                            const id = btn.dataset.jobRead;
+                            saveJobApps(loadJobApps().map(x => String(x.id) === String(id)
+                                ? { ...x, read: true, readAt: new Date().toISOString(), readBy: user.id }
+                                : x));
                             renderJobAppBoard(user);
                         });
                     });
@@ -21435,17 +21721,36 @@
                             renderJobAppBoard(user);
                         });
                     });
+                    board.querySelectorAll('[data-job-dl]').forEach((btn) => {
+                        btn.addEventListener('click', () => {
+                            const id = btn.dataset.jobDl;
+                            const fi = Number(btn.dataset.jobFi);
+                            const row = loadJobApps().find(x => String(x.id) === String(id));
+                            const f = row && Array.isArray(row.files) ? row.files[fi] : null;
+                            const href = jobAppFileHref(f);
+                            if (!href) return;
+                            const a = document.createElement('a');
+                            a.href = href;
+                            a.download = f.name || 'file';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                        });
+                    });
                     return;
                 }
 
                 const n = list.length;
                 const pendingN = list.filter(j => (j.status || 'pending') === 'pending').length;
+                const unreadLabel = canRead && unreadN
+                    ? `${t('jobAppUnreadCount')}: ${unreadN} · `
+                    : '';
                 board.innerHTML = `
                     <button type="button" class="job-app-notice" id="job-app-open-btn">
                         <div>
                             <div class="dn-title"><i class="ph ph-identification-badge" style="color:#7c3aed"></i> ${t('jobAppTitle')}</div>
                             <div class="dn-meta">${t('jobAppHint')}</div>
-                            <div class="dn-meta" style="margin-top:.35rem">${t('jobAppPendingCount')}: ${pendingN} · ${t('jobAppClickHint')}</div>
+                            <div class="dn-meta" style="margin-top:.35rem">${unreadLabel}${t('jobAppPendingCount')}: ${pendingN} · ${t('jobAppClickHint')}</div>
                         </div>
                         <span class="dn-count">${n}${t('jobAppPeople') ? ` ${t('jobAppPeople')}` : ''}</span>
                     </button>`;
@@ -23340,6 +23645,7 @@
                     <div id="ot-list"></div>
                     <div class="pct-readable ot-total-frame" id="ot-total-frame"></div>`}
                     ${selfPasswordFormHtml()}
+                    <div id="job-app-board" style="margin-top:1.25rem"></div>
                     <div id="waitlist-board" style="margin-top:1.25rem"></div>
                 </div></div>`;
             }
@@ -23478,6 +23784,7 @@
                         <div id="sales-stats-board" style="margin-bottom:1rem"></div>
                         <div id="admin-ops-board" style="margin-bottom:1rem"></div>
                         <div id="ot-pay-board" style="margin-bottom:1rem"></div>
+                        <div id="job-app-board" style="margin-bottom:1rem"></div>
                         <div id="admin-school-board"></div>
                     </div></div>
                     <div class="tab-panel" data-panel="students"><div class="content-card compact-card">
@@ -23505,6 +23812,7 @@
                     renderStudentDbBoard(user);
                     if (document.getElementById('ot-pay-board')) renderOtPayBoard(user);
                     if (document.getElementById('sales-stats-board')) renderSalesStatsBoard(user);
+                    if (document.getElementById('job-app-board')) renderJobAppBoard(user);
                     if (adminSelectedId) fillAdminEditor(adminSelectedId);
                     return;
                 }
