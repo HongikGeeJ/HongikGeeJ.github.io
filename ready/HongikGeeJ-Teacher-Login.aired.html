@@ -9389,7 +9389,10 @@
         const BLOCKED_KEY = 'hongik-blocked-accounts-v1';
         const LEAVE_KEY = 'hongik-leave-requests-v1';
         const OT_KEY = (id) => `hongik-ot-${id}`;
-        const OT_BUNDLE_STORE = 'hongik-ot-bundle-v1';
+        /** v2: invalidate stale sheet OT cached before prefer-formatted-date parse. */
+        const OT_BUNDLE_STORE = 'hongik-ot-bundle-v2';
+        const OT_BUNDLE_LEGACY = 'hongik-ot-bundle-v1';
+        const OT_SHEET_PARSE_VER = 'prefer-cell-w-v2';
 
         function loadOtBundle() {
             try {
@@ -9408,21 +9411,48 @@
             if (raw && typeof raw === 'object' && !Array.isArray(raw) && Array.isArray(raw.items)) return raw.items;
             return Array.isArray(raw) ? raw : [];
         }
-        /** Migrate legacy per-user OT keys into the sync bundle (no remote push). */
+        function stripSheetOtItems(list) {
+            return (Array.isArray(list) ? list : []).filter((o) => !(o && (o.source === 'sheet' || o.fromSheet)));
+        }
+        /** Migrate legacy per-user OT keys / v1 bundle into v2; drop stale sheet OT so Refresh re-parses. */
         function ensureOtBundleHydrated() {
             const bundle = loadOtBundle();
             let changed = false;
+            const parseVer = (() => { try { return localStorage.getItem('hongik-ot-sheet-parse-ver') || ''; } catch (_) { return ''; } })();
+            if (parseVer !== OT_SHEET_PARSE_VER) {
+                try {
+                    const legacyBundle = JSON.parse(localStorage.getItem(OT_BUNDLE_LEGACY) || '{}');
+                    if (legacyBundle && typeof legacyBundle === 'object') {
+                        Object.keys(legacyBundle).forEach((id) => {
+                            if (Object.prototype.hasOwnProperty.call(bundle, id)) return;
+                            const items = stripSheetOtItems(normalizeOtList(legacyBundle[id]));
+                            bundle[id] = { items, updatedAt: new Date().toISOString() };
+                            changed = true;
+                        });
+                    }
+                } catch (_) {}
+                Object.keys(bundle).forEach((id) => {
+                    const cur = normalizeOtList(bundle[id]);
+                    const next = stripSheetOtItems(cur);
+                    if (next.length !== cur.length) {
+                        bundle[id] = { items: next, updatedAt: new Date().toISOString() };
+                        changed = true;
+                        try { localStorage.setItem(OT_KEY(id), JSON.stringify(next)); } catch (_) {}
+                    }
+                });
+                try { localStorage.setItem('hongik-ot-sheet-parse-ver', OT_SHEET_PARSE_VER); } catch (_) {}
+            }
             ['taehyun', 'eunha', 'sua', 'director', 'acct1', 'acct2', 'acct3', 'admin'].forEach((id) => {
                 if (Object.prototype.hasOwnProperty.call(bundle, id)) return;
                 try {
                     const legacy = localStorage.getItem(OT_KEY(id));
                     if (legacy == null) return;
-                    const list = normalizeOtList(JSON.parse(legacy || '[]'));
+                    const list = stripSheetOtItems(normalizeOtList(JSON.parse(legacy || '[]')));
                     bundle[id] = { items: list, updatedAt: new Date().toISOString() };
                     changed = true;
                 } catch (_) {}
             });
-            if (changed) saveOtBundle(bundle, { syncRemote: false, tick: false });
+            if (changed) saveOtBundle(bundle, { syncRemote: true, tick: true });
             return bundle;
         }
         function loadOT(userId) {
@@ -14331,18 +14361,22 @@
         }
         /** Parse teaching-schedule workbook OT marks → per-teacher entries.
          *  Only orange-style cells matching hrs.OT / OT tokens count (not green attendance checks).
-         *  Month of record = column-header date (D/M), NOT the (MM) prefix in cells like (08)3hrs.OT.
+         *  Month of record = column-header date (D/M from cell.w e.g. "5/9"), NOT the (MM) prefix in (08)3hrs.OT.
          *  Prefix is metadata only — e.g. (08)3hrs.OT under 5/9 on the Sept tab counts for September. */
         function parseHongikOtWorkbook(wb) {
             if (!wb || typeof XLSX === 'undefined') throw new Error('SheetJS missing');
             const byTeacher = { taehyun: [], eunha: [], sua: [] };
             const seen = new Set();
             const foundRows = [];
+            const skippedRows = [];
             const skippedSheets = [];
             (wb.SheetNames || []).forEach((name) => {
                 const ym = sheetMonthFromName(name);
-                if (!ym) return;
-                const rows = sheetRowsFromWorkbook(wb, name);
+                if (!ym) {
+                    skippedSheets.push({ sheet: String(name || ''), reason: 'no month in sheet name' });
+                    return;
+                }
+                const rows = sheetRowsForOtParse(wb, name);
                 if (!rows.length) return;
                 const monthPrefix = `${ym.year}-${String(ym.month).padStart(2, '0')}`;
                 let zoneId = null;
@@ -14361,9 +14395,19 @@
                         // Do NOT skip when tok.tagMonth !== sheet month — e.g. (08)3hrs.OT under 5/9 on the Sept tab.
                         let hours = tok.hours;
                         if (hours == null || !(hours > 0)) hours = findOtHoursBelow(rows, ri, ci);
-                        if (!(hours > 0)) continue;
+                        if (!(hours > 0)) {
+                            skippedRows.push({ sheet: name, cell: String(raw ?? '').trim(), reason: 'no hours', zone: zoneId });
+                            continue;
+                        }
                         const date = findOtDateInColumn(rows, ri, ci, ym.year, ym.month);
-                        if (!date || !String(date).startsWith(monthPrefix)) continue;
+                        if (!date) {
+                            skippedRows.push({ sheet: name, cell: String(raw ?? '').trim(), reason: 'date parse fail', zone: zoneId, hours });
+                            continue;
+                        }
+                        if (!String(date).startsWith(monthPrefix)) {
+                            skippedRows.push({ sheet: name, cell: String(raw ?? '').trim(), reason: `wrong month (${date} not ${monthPrefix})`, zone: zoneId, hours, date });
+                            continue;
+                        }
                         const course = findOtCourseNear(rows, ri);
                         let teacherId = zoneId;
                         if (!teacherId) {
@@ -14417,6 +14461,7 @@
                     total: byTeacher.taehyun.length + byTeacher.eunha.length + byTeacher.sua.length
                 },
                 foundRows,
+                skippedRows,
                 liveSyncedAt: new Date().toISOString(),
                 sourceId: STUDENT_SHEET_ID,
                 skippedSheets
@@ -14467,15 +14512,19 @@
                 try { ensureAutoOtSynced(); } catch (_) {}
                 if (currentUser) {
                     try {
-                        if (typeof softRefreshDashboard === 'function') softRefreshDashboard({ stores: ['otReports'] });
+                        if (typeof softRefreshDashboard === 'function') {
+                            softRefreshDashboard(currentUser, { stores: ['otReports'], reason: 'ot-sheet' });
+                        }
                     } catch (_) {}
                 }
                 if (!silent) {
                     console.info('OT sheet sync', payload.counts);
                     const sept = (payload.foundRows || []).filter((r) => String(r.date || '').startsWith('2026-09'));
                     if (sept.length) console.info('OT September rows', sept);
+                    const skippedSept = (payload.skippedRows || []).filter((r) => /9\s*월|2026-09|wrong month/i.test(JSON.stringify(r)));
+                    if (skippedSept.length) console.info('OT September skipped', skippedSept);
                 }
-                return { ok: true, changed, counts: payload.counts || {}, foundRows: payload.foundRows || [] };
+                return { ok: true, changed, counts: payload.counts || {}, foundRows: payload.foundRows || [], skippedRows: payload.skippedRows || [] };
             } catch (err) {
                 otSheetSyncState = {
                     ...otSheetSyncState,
@@ -15056,16 +15105,41 @@
             const out = { ...(localMap && typeof localMap === 'object' ? localMap : {}) };
             const remote = remoteMap && typeof remoteMap === 'object' ? remoteMap : {};
             let changed = false;
-            Object.keys(remote).forEach((userId) => {
+            const allIds = new Set([...Object.keys(out), ...Object.keys(remote)]);
+            allIds.forEach((userId) => {
                 const rem = remote[userId];
                 const loc = out[userId];
+                if (!rem && !loc) return;
                 const remAt = String((rem && rem.updatedAt) || '');
                 const locAt = String((loc && loc.updatedAt) || '');
                 const remItems = normalizeOtList(rem);
-                if (!loc || (remAt && remAt > locAt) || (!locAt && remAt)) {
-                    out[userId] = { items: remItems, updatedAt: remAt || new Date().toISOString() };
+                const locItems = normalizeOtList(loc);
+                const remManual = remItems.filter((o) => !isSheetOt(o));
+                const locManual = locItems.filter((o) => !isSheetOt(o));
+                const remSheet = remItems.filter(isSheetOt);
+                const locSheet = locItems.filter(isSheetOt);
+                // Manual OT: normal updatedAt winner
+                let manual = locManual;
+                if (!loc || (remAt && remAt > locAt) || (!locAt && remAt)) manual = remManual;
+                // Sheet OT is owned by live XLSX parse — prefer the richer set so a stale 1-row
+                // Supabase copy cannot wipe a fresh 4-row sheet sync (or vice versa after migrate).
+                let sheet = locSheet;
+                if (remSheet.length > locSheet.length) sheet = remSheet;
+                else if (locSheet.length > remSheet.length) sheet = locSheet;
+                else if (remAt && remAt > locAt) sheet = remSheet;
+                const items = manual.concat(sheet).sort((a, b) =>
+                    String(a.date).localeCompare(String(b.date)) || String(a.start || '').localeCompare(String(b.start || ''))
+                );
+                const nextAt = remAt && remAt > locAt ? remAt : (locAt || remAt || new Date().toISOString());
+                const prev = normalizeOtList(out[userId]);
+                const same = prev.length === items.length && prev.every((o, i) => {
+                    const c = items[i] || {};
+                    return o.date === c.date && o.start === c.start && o.end === c.end && (o.source || '') === (c.source || '');
+                });
+                if (!same) {
+                    out[userId] = { items, updatedAt: nextAt };
                     changed = true;
-                    try { localStorage.setItem(OT_KEY(userId), JSON.stringify(remItems)); } catch (_) {}
+                    try { localStorage.setItem(OT_KEY(userId), JSON.stringify(items)); } catch (_) {}
                 }
             });
             return { map: out, changed };
@@ -16303,6 +16377,39 @@
             if (!sheet) return [];
             return XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '', blankrows: false });
         }
+        /** OT rows: prefer SheetJS cell.w ("5/9") over Date/serial — Excel stores D/M as M/D and SheetJS shifts ~1 day. */
+        function sheetRowsForOtParse(wb, sheetName) {
+            const sheet = wb.Sheets[sheetName];
+            if (!sheet || !sheet['!ref']) return [];
+            const range = XLSX.utils.decode_range(sheet['!ref']);
+            const maxC = Math.min(range.e.c, 39);
+            const rows = [];
+            for (let R = range.s.r; R <= range.e.r; R++) {
+                const row = [];
+                let any = false;
+                for (let C = range.s.c; C <= maxC; C++) {
+                    const addr = XLSX.utils.encode_cell({ r: R, c: C });
+                    const cell = sheet[addr];
+                    if (!cell) { row.push(''); continue; }
+                    any = true;
+                    const w = String(cell.w != null ? cell.w : '').trim();
+                    // Prefer header-style date text (never invent month from (08)/(09) OT tags).
+                    if (w && /^\d{1,2}\/\d{1,2}(?:\/\d{2,4})?$/.test(w)) {
+                        row.push(w);
+                    } else if (cell.t === 'b') {
+                        row.push(!!cell.v);
+                    } else if (cell.v != null) {
+                        row.push(cell.v);
+                    } else if (w) {
+                        row.push(w);
+                    } else {
+                        row.push('');
+                    }
+                }
+                if (any) rows.push(row);
+            }
+            return rows;
+        }
 
         function inferTeachersFromCourse(course) {
             const c = String(course || '').toLowerCase();
@@ -16603,11 +16710,13 @@
         function startStudentSheetLiveSync() {
             stopStudentSheetLiveSync();
             syncStudentDbFromSheet({ silent: true });
+            try { syncOTFromSheet({ force: true, silent: true }); } catch (_) {}
             studentSheetSyncTimer = setInterval(() => {
                 if (!currentUser) return;
                 if (currentUser.role !== 'director' && currentUser.role !== 'admin') return;
                 if (document.hidden) return;
                 syncStudentDbFromSheet({ silent: true });
+                try { syncOTFromSheet({ silent: true }); } catch (_) {}
             }, syncIntervalMs(STUDENT_SHEET_SYNC_MS, 90000));
         }
         function stopStudentSheetLiveSync() {
@@ -19322,7 +19431,14 @@
                 } catch (_) {}
             }
 
-            softRefreshDashboard = function (user, { stores = null, reason = '' } = {}) {
+            softRefreshDashboard = function (user, opts) {
+                // Allow softRefreshDashboard({ stores, reason }) without a user arg
+                if (user && typeof user === 'object' && user.id == null && user.role == null
+                    && (Object.prototype.hasOwnProperty.call(user, 'stores') || Object.prototype.hasOwnProperty.call(user, 'reason'))) {
+                    opts = user;
+                    user = currentUser;
+                }
+                const { stores = null, reason = '' } = opts || {};
                 if (!user) return;
                 if (dashboardScreen?.classList.contains('hidden-screen')) return;
                 if (softRefreshBusy) {
@@ -19353,11 +19469,14 @@
                     softRefreshLastAt = now;
                 }
                 const stableId = canonicalAccountId(user) || user.id;
-                currentUser = { ...user, id: stableId };
+                const fresh = (stableId && typeof resolveAccountById === 'function')
+                    ? (resolveAccountById(stableId) || user)
+                    : user;
+                currentUser = { ...fresh, id: stableId || fresh.id };
                 try {
-                    document.getElementById('dash-name').textContent = displayName(user);
+                    document.getElementById('dash-name').textContent = displayName(currentUser);
                     const chip = document.getElementById('dash-role-chip');
-                    const roleText = displayRole(user);
+                    const roleText = displayRole(currentUser);
                     if (chip) {
                         if (roleText) {
                             chip.textContent = roleText;
@@ -19370,8 +19489,8 @@
                     const todayEl = document.getElementById('dash-today');
                     if (todayEl) todayEl.textContent = formatToday();
                 } catch (_) {}
-                try { loadPhoto(user.id); } catch (_) {}
-                try { renderStats(user); } catch (_) {}
+                try { loadPhoto(currentUser.id); } catch (_) {}
+                try { renderStats(currentUser); } catch (_) {}
                 try { updateHelpFabBadge(); } catch (_) {}
 
                 // Always patch ack pills first (works even while typing / other tabs)
@@ -19380,8 +19499,8 @@
                 }
 
                 if (isDashboardUiBusy()) {
-                    softRefreshDeferred = { user, stores, reason };
-                    try { maybeShowAlertPopups(user); } catch (_) {}
+                    softRefreshDeferred = { user: currentUser, stores, reason };
+                    try { maybeShowAlertPopups(currentUser); } catch (_) {}
                     return;
                 }
 
@@ -19389,31 +19508,31 @@
                 const runSoftRefreshPaint = () => {
                     try {
                         // Data-only: never remount theme FX / never wipe #tab-panels (that caused global flicker)
-                        refreshMountedDataBoards(user, { stores });
+                        refreshMountedDataBoards(currentUser, { stores });
 
                         // Director panels baked into renderPanels (orders / leave / cancels) — refresh shell only when needed & idle
                         // Never rebuild "today" schedule form shell on sync (that flashed 종료 시간 inputs)
                         const shellStores = ['headOrders', 'orderAcks', 'leaveRequests', 'classCancels', 'schedChanges', 'directorTodos'];
                         const orderOnly = !!(stores && stores.length && stores.every((s) => s === 'headOrders' || s === 'orderAcks'));
                         const needShell = !stores || !stores.length || stores.some((s) => shellStores.includes(s));
-                        const directorShellTab = user.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab);
+                        const directorShellTab = currentUser.role === 'director' && ['orders', 'leave', 'cancels', 'assign'].includes(currentTab);
                         // Order ack: patch pills in place (no remount flicker). Other shell stores remount when idle on that tab.
                         if (needShell && directorShellTab && typeof renderPanels === 'function') {
                             if (orderOnly) {
                                 try { patchDirectorOrderAckBadges(); } catch (_) {}
                             } else {
-                                renderPanels(user);
+                                renderPanels(currentUser);
                                 setTab(currentTab);
                             }
                         }
-                        try { maybeShowAlertPopups(user); } catch (_) {}
+                        try { maybeShowAlertPopups(currentUser); } catch (_) {}
                     } finally {
                         softRefreshBusy = false;
                         if (softRefreshDeferred) {
                             const pending = softRefreshDeferred;
                             softRefreshDeferred = null;
                             if (!isDashboardUiBusy()) {
-                                softRefreshDashboard(pending.user || user, { stores: pending.stores, reason: pending.reason || 'deferred' });
+                                softRefreshDashboard(pending.user || currentUser, { stores: pending.stores, reason: pending.reason || 'deferred' });
                             } else {
                                 softRefreshDeferred = pending;
                             }
