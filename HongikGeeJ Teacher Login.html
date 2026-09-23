@@ -2834,6 +2834,29 @@
         .ot-card .meta { font-size: .78rem; color: #cbd5e1; margin-top: .25rem; }
         .compact-card { padding: .85rem !important; }
         .compact-card h3 { font-size: 1rem; margin: 0 0 .5rem; }
+        /* Pin bulk-delete on cancels/admin report cards while list scrolls
+           (overrides .content-card > * { position: relative }) */
+        .content-card > .delete-read-reports-head {
+            position: sticky;
+            top: 0;
+            z-index: 6;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .55rem;
+            margin: 0 0 .45rem;
+            padding: .05rem 0 .4rem;
+            background: #fff;
+            box-shadow: 0 8px 12px -8px rgba(15, 23, 42, .12);
+        }
+        .content-card > .delete-read-reports-head > div:first-child {
+            min-width: 0;
+            flex: 1;
+        }
+        .content-card > .delete-read-reports-head #delete-read-reports-btn {
+            flex-shrink: 0;
+            margin-left: auto;
+        }
 
         .week-chart {
             margin-top: .85rem; padding: .85rem 1rem; border-radius: 1rem;
@@ -24082,11 +24105,9 @@
 
                     const readReportN = countReadReportMessages();
                     const deleteReadBtn = canPurgeRead
-                        ? `<div style="display:flex;justify-content:flex-end;margin:.15rem 0 .55rem">
-                            <button type="button" class="soft-btn ghost" id="delete-read-reports-btn" ${readReportN ? '' : 'disabled aria-disabled="true"'} style="padding:.38rem .85rem !important;font-size:.78rem !important;color:#b91c1c${readReportN ? '' : ';opacity:.45'}">
+                        ? `<button type="button" class="soft-btn ghost" id="delete-read-reports-btn" ${readReportN ? '' : 'disabled aria-disabled="true"'} style="padding:.38rem .85rem !important;font-size:.78rem !important;color:#b91c1c${readReportN ? '' : ';opacity:.45'}">
                                 <i class="ph ph-trash"></i> ${t('deleteReadReports')}${readReportN ? ` · ${readReportN}` : ''}
-                            </button>
-                        </div>`
+                            </button>`
                         : '';
 
                     const todos = directorTodosToday();
@@ -24167,8 +24188,11 @@
                         ${leaveInboxHead}
                         ${leaveInbox}
                     </div></div>`;
-                    extra += `<div class="tab-panel" data-panel="cancels"><div class="content-card compact-card">${heading('ph-calendar-x','cancelInbox')}
-                        ${deleteReadBtn}
+                    extra += `<div class="tab-panel" data-panel="cancels"><div class="content-card compact-card">
+                        <div class="delete-read-reports-head">
+                            ${heading('ph-calendar-x','cancelInbox')}
+                            ${deleteReadBtn}
+                        </div>
                         ${cancelInbox}
                         <h3 class="mt-3" style="font-size:.95rem">${t('schedChangeInbox')}</h3>
                         ${schedChangeInbox}
@@ -25431,16 +25455,18 @@
                     </div>`).join('') : `<p class="empty-note">${t('adminOpsEmpty')}</p>`;
                 const teaOpts = teachers.map((tea) => `<option value="${esc(tea.id)}">${esc(displayName(tea))}</option>`).join('');
                 const readReportN = countReadReportMessages();
-                const deleteReadBtn = `<div style="display:flex;justify-content:flex-end;margin:.15rem 0 .55rem">
-                    <button type="button" class="soft-btn ghost" id="delete-read-reports-btn" ${readReportN ? '' : 'disabled aria-disabled="true"'} style="padding:.38rem .85rem !important;font-size:.78rem !important;color:#b91c1c${readReportN ? '' : ';opacity:.45'}">
+                const deleteReadBtn = `<button type="button" class="soft-btn ghost" id="delete-read-reports-btn" ${readReportN ? '' : 'disabled aria-disabled="true"'} style="padding:.38rem .85rem !important;font-size:.78rem !important;color:#b91c1c${readReportN ? '' : ';opacity:.45'}">
                         <i class="ph ph-trash"></i> ${t('deleteReadReports')}${readReportN ? ` · ${readReportN}` : ''}
-                    </button>
-                </div>`;
+                    </button>`;
                 board.innerHTML = `
                     <div class="content-card" style="padding:0;border:none;box-shadow:none;background:transparent">
-                        <h3 style="margin:0 0 .25rem;color:#0f172a;font-size:1.05rem"><i class="ph ph-shield-check" style="color:#b45309"></i> ${t('adminOpsTitle')}</h3>
-                        <p class="text-xs text-slate-500 mb-2">${t('adminOpsHint')}</p>
-                        ${deleteReadBtn}
+                        <div class="delete-read-reports-head" style="background:transparent;box-shadow:none">
+                            <div>
+                                <h3 style="margin:0 0 .25rem;color:#0f172a;font-size:1.05rem"><i class="ph ph-shield-check" style="color:#b45309"></i> ${t('adminOpsTitle')}</h3>
+                                <p class="text-xs text-slate-500 mb-2">${t('adminOpsHint')}</p>
+                            </div>
+                            ${deleteReadBtn}
+                        </div>
                         <p class="admin-label" style="margin-top:.35rem">${t('adminOpsLeave')}</p>
                         ${leaveRows}
                         <p class="admin-label">${t('adminOpsCancels')}</p>
