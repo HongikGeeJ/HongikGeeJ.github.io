@@ -7754,68 +7754,129 @@
                 animation: roomTtLiveSpin .7s linear infinite !important;
             }
         }
+        /* Compact week navigator — shared for every teacher (minimal + soft light/flower) */
         .room-tt-nav {
-            display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
-            margin: .2rem .35rem .35rem .55rem;
-            padding: .15rem 0;
+            display: flex; align-items: center; gap: .32rem; flex-wrap: wrap;
+            margin: 0; padding: 0;
         }
         .room-tt-nav .soft-btn {
-            min-width: 2.6rem; min-height: 2.6rem; padding: .5rem .65rem; font-size: 1.1rem;
-            border-radius: .8rem;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
-            transition: transform .18s ease, box-shadow .18s ease;
+            position: relative;
+            min-width: 1.78rem; min-height: 1.78rem; padding: .22rem .34rem; font-size: .88rem;
+            border-radius: .5rem;
+            border-color: rgba(148, 163, 184, .55);
+            background: linear-gradient(165deg, #ffffff 0%, #f7fafc 100%);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+            transition: transform .2s ease, box-shadow .22s ease, border-color .22s ease, color .18s ease;
         }
         .room-tt-nav .soft-btn:hover:not(:disabled),
         .room-tt-nav .soft-btn:focus-visible:not(:disabled) {
-            transform: translateY(-1px) scale(1.05);
-            box-shadow: 0 4px 12px rgba(15, 23, 42, .1);
+            color: #1e3a5f;
+            border-color: #7eb6d9;
+            transform: translateY(-1px);
+            box-shadow:
+                0 0 0 3px rgba(126, 182, 217, .22),
+                0 0 14px rgba(186, 230, 253, .55),
+                0 3px 8px rgba(15, 23, 42, .08);
+            outline: none;
         }
         .room-tt-nav .soft-btn:active:not(:disabled) {
-            transform: scale(.96);
-            box-shadow: 0 1px 2px rgba(15, 23, 42, .08);
+            transform: scale(.94);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .06);
         }
         .room-tt-range {
-            font-weight: 800; font-size: 1.8rem; color: #0f172a;
-            letter-spacing: -.015em; min-width: 17rem; text-align: center;
-            border: 1.5px solid #93c5fd; background: #f8fbff; border-radius: .95rem;
-            padding: .55rem 1.25rem; cursor: pointer; font-family: inherit; line-height: 1.2;
-            box-shadow:
-                0 1px 0 rgba(255,255,255,.85) inset,
-                0 2px 10px rgba(14, 165, 233, .12);
-            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-        }
-        .room-tt-range:hover, .room-tt-range:focus-visible {
-            border-color: #38bdf8;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            font-weight: 750; font-size: 1.02rem; color: #1e293b;
+            letter-spacing: -.01em; min-width: 0; text-align: center;
+            border: 1px solid rgba(148, 163, 184, .42);
+            background:
+                url('assets/dancheong/corner-flower.svg?v=rtnav1') no-repeat left -6px top -8px / 20px auto,
+                url('assets/dancheong/corner-flower.svg?v=rtnav1') no-repeat right -6px bottom -8px / 17px auto,
+                linear-gradient(165deg, #fcfdff 0%, #f4f8fb 58%, #eef4f8 100%);
+            border-radius: .58rem;
+            padding: .28rem .78rem .3rem; cursor: pointer; font-family: inherit; line-height: 1.18;
             box-shadow:
                 0 1px 0 rgba(255,255,255,.9) inset,
-                0 4px 16px rgba(14, 165, 233, .18),
-                0 0 0 3px rgba(56,189,248,.14);
+                0 1px 4px rgba(15, 23, 42, .04);
+            transition: transform .2s ease, box-shadow .22s ease, border-color .22s ease;
+            animation: roomTtRangePulse 3.6s ease-in-out infinite;
+        }
+        .room-tt-range::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 0; pointer-events: none;
+            background: linear-gradient(
+                105deg,
+                transparent 0%,
+                transparent 38%,
+                rgba(255,255,255,.0) 42%,
+                rgba(255,255,255,.55) 50%,
+                rgba(186, 230, 253, .28) 54%,
+                transparent 62%,
+                transparent 100%
+            );
+            background-size: 220% 100%;
+            animation: roomTtRangeShimmer 5.2s ease-in-out infinite;
+            opacity: .85;
+        }
+        .room-tt-range > * { position: relative; z-index: 1; }
+        .room-tt-range:hover, .room-tt-range:focus-visible {
+            border-color: #7eb6d9;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,.95) inset,
+                0 0 0 2px rgba(126, 182, 217, .18),
+                0 0 16px rgba(186, 230, 253, .4),
+                0 3px 10px rgba(15, 23, 42, .06);
             transform: translateY(-1px);
             outline: none;
+            animation-play-state: paused;
         }
         .room-tt-range:active {
             transform: scale(.985);
         }
+        .room-tt-range .rt-range-label {
+            display: block;
+        }
         .room-tt-range .rt-range-hint {
-            display: block; font-size: 1.2rem; font-weight: 700; color: #64748b; margin-top: .22rem;
+            display: block; font-size: .68rem; font-weight: 650; color: #64748b;
+            margin-top: .06rem; letter-spacing: .01em; opacity: .82;
         }
         .room-tt-range.is-week-slide-next {
-            animation: roomTtRangeSlideNext .4s cubic-bezier(.22, 1, .36, 1) both;
+            animation: roomTtRangeFadeNext .38s cubic-bezier(.22, 1, .36, 1) both;
         }
         .room-tt-range.is-week-slide-prev {
-            animation: roomTtRangeSlidePrev .4s cubic-bezier(.22, 1, .36, 1) both;
+            animation: roomTtRangeFadePrev .38s cubic-bezier(.22, 1, .36, 1) both;
         }
-        @keyframes roomTtRangeSlideNext {
-            from { opacity: .55; transform: translateX(14px); }
-            to { opacity: 1; transform: translateX(0); }
+        @keyframes roomTtRangePulse {
+            0%, 100% {
+                box-shadow:
+                    0 1px 0 rgba(255,255,255,.9) inset,
+                    0 1px 4px rgba(15, 23, 42, .04);
+            }
+            50% {
+                box-shadow:
+                    0 1px 0 rgba(255,255,255,.95) inset,
+                    0 0 0 1px rgba(126, 182, 217, .16),
+                    0 0 12px rgba(186, 230, 253, .28),
+                    0 2px 6px rgba(15, 23, 42, .05);
+            }
         }
-        @keyframes roomTtRangeSlidePrev {
-            from { opacity: .55; transform: translateX(-14px); }
-            to { opacity: 1; transform: translateX(0); }
+        @keyframes roomTtRangeShimmer {
+            0%, 18% { background-position: 120% 0; }
+            48%, 100% { background-position: -40% 0; }
+        }
+        @keyframes roomTtRangeFadeNext {
+            from { opacity: 0; transform: translateX(8px) scale(.985); filter: blur(.4px); }
+            to { opacity: 1; transform: translateX(0) scale(1); filter: none; }
+        }
+        @keyframes roomTtRangeFadePrev {
+            from { opacity: 0; transform: translateX(-8px) scale(.985); filter: blur(.4px); }
+            to { opacity: 1; transform: translateX(0) scale(1); filter: none; }
         }
         @media (prefers-reduced-motion: reduce) {
             .room-tt-nav .soft-btn,
-            .room-tt-range {
+            .room-tt-range,
+            .room-tt-range::before {
                 transition: none !important;
                 animation: none !important;
             }
@@ -24464,7 +24525,7 @@
                             <div class="room-tt-nav">
                                 <button type="button" class="soft-btn ghost" id="room-tt-prev" aria-label="prev" ${canGoPrev ? '' : 'disabled'}><i class="ph ph-caret-left"></i></button>
                                 <button type="button" class="room-tt-range${roomTtNavSlideDir === 'next' ? ' is-week-slide-next' : roomTtNavSlideDir === 'prev' ? ' is-week-slide-prev' : ''}" id="room-tt-range-btn" title="${esc(t('roomTtMonthOpen'))}">
-                                    ${esc(formatRoomTtRange(roomTtWeekOffset))}
+                                    <span class="rt-range-label">${esc(formatRoomTtRange(roomTtWeekOffset))}</span>
                                     <span class="rt-range-hint">${esc(t('roomTtMonthOpen'))}</span>
                                 </button>
                                 <button type="button" class="soft-btn ghost" id="room-tt-next" aria-label="next" ${canGoNext ? '' : 'disabled'}><i class="ph ph-caret-right"></i></button>
@@ -28321,20 +28382,6 @@
                             if (!row) return;
                             const start = row.querySelector('.sched-edit-start').value;
                             const end = row.querySelector('.sched-edit-end').value;
-                            const resolved = resolveTeachTitleFromFields(
-                                row.querySelector('.sched-edit-subject')?.value,
-                                row.querySelector('.sched-edit-title-other')?.value,
-                                user
-                            );
-                            const classType = normalizeClassType(row.querySelector('.sched-edit-type')?.value);
-                            if (!resolved.ok) {
-                                document.getElementById('schedule-msg').textContent = resolved.msg;
-                                return;
-                            }
-                            if (start >= end) {
-                                document.getElementById('schedule-msg').textContent = `${t('timeStart')} < ${t('timeEnd')}`;
-                                return;
-                            }
                             const list = loadDaySchedule(user.id);
                             const prev = list[idx] || {};
                             const prevStatus = normalizeClassStatus(prev.classStatus);
@@ -28344,9 +28391,36 @@
                             const nextStatus = (canStatus && statusSel)
                                 ? normalizeClassStatus(statusSel.value)
                                 : prevStatus;
+                            const statusOnly = isNonNormalClassStatus(nextStatus);
+                            let resolved = resolveTeachTitleFromFields(
+                                row.querySelector('.sched-edit-subject')?.value,
+                                row.querySelector('.sched-edit-title-other')?.value,
+                                user
+                            );
+                            if (!resolved.ok) {
+                                if (statusOnly) {
+                                    resolved = {
+                                        ok: true,
+                                        subjectKey: prev.subjectKey || 'other',
+                                        useParts: false,
+                                        title: pickLangText(prev, 'title') || prev.title || classStatusLabel(nextStatus)
+                                    };
+                                } else {
+                                    document.getElementById('schedule-msg').textContent = resolved.msg;
+                                    return;
+                                }
+                            }
+                            const classType = normalizeClassType(row.querySelector('.sched-edit-type')?.value);
+                            if (!statusOnly && start >= end) {
+                                document.getElementById('schedule-msg').textContent = `${t('timeStart')} < ${t('timeEnd')}`;
+                                return;
+                            }
                             const nextItem = {
                                 ...stampTeachSubjectItem(prev, resolved),
-                                start, end, classType, kind: 'class',
+                                start: statusOnly ? (prev.start || start) : start,
+                                end: statusOnly ? (prev.end || end) : end,
+                                classType: statusOnly ? normalizeClassType(prev.classType) : classType,
+                                kind: 'class',
                                 classStatus: nextStatus,
                                 subjectKey: resolved.subjectKey,
                                 room: prev.room,

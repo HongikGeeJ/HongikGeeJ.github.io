@@ -990,9 +990,8 @@
             line-height: 0;
             -webkit-tap-highlight-color: transparent;
         }
-        .theme-teacher-a .header-shin-wrap,
-        .theme-teacher-b .header-shin-wrap,
-        .theme-teacher-c .header-shin-wrap {
+        /* Eunha only — toggled on #dash-shell via syncHeaderShinVisibility */
+        .dash-shell.is-eunha-shin .header-shin-wrap {
             display: block;
         }
         .header-shin-wrap::before {
@@ -4247,6 +4246,16 @@
             margin: .15rem 0 .35rem;
         }
         #room-tt-modal .cls-run-field { margin-bottom: .15rem; }
+        /* Non-normal status: status + Save only — other booking fields optional */
+        #room-tt-modal.is-status-only #room-tt-edit-fields > *:not(.cls-run-field),
+        #room-tt-modal.is-status-only #room-tt-extra-fields {
+            opacity: .42;
+            pointer-events: none;
+        }
+        #room-tt-modal.is-status-only #room-tt-modal-save {
+            opacity: 1;
+            pointer-events: auto;
+        }
         .room-tt-booked .cls-run-badge {
             font-size: .58rem; padding: .08rem .28rem; margin-top: .12rem;
             max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -7745,68 +7754,129 @@
                 animation: roomTtLiveSpin .7s linear infinite !important;
             }
         }
+        /* Compact week navigator — shared for every teacher (minimal + soft light/flower) */
         .room-tt-nav {
-            display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
-            margin: .2rem .35rem .35rem .55rem;
-            padding: .15rem 0;
+            display: flex; align-items: center; gap: .32rem; flex-wrap: wrap;
+            margin: 0; padding: 0;
         }
         .room-tt-nav .soft-btn {
-            min-width: 2.6rem; min-height: 2.6rem; padding: .5rem .65rem; font-size: 1.1rem;
-            border-radius: .8rem;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
-            transition: transform .18s ease, box-shadow .18s ease;
+            position: relative;
+            min-width: 1.78rem; min-height: 1.78rem; padding: .22rem .34rem; font-size: .88rem;
+            border-radius: .5rem;
+            border-color: rgba(148, 163, 184, .55);
+            background: linear-gradient(165deg, #ffffff 0%, #f7fafc 100%);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+            transition: transform .2s ease, box-shadow .22s ease, border-color .22s ease, color .18s ease;
         }
         .room-tt-nav .soft-btn:hover:not(:disabled),
         .room-tt-nav .soft-btn:focus-visible:not(:disabled) {
-            transform: translateY(-1px) scale(1.05);
-            box-shadow: 0 4px 12px rgba(15, 23, 42, .1);
+            color: #1e3a5f;
+            border-color: #7eb6d9;
+            transform: translateY(-1px);
+            box-shadow:
+                0 0 0 3px rgba(126, 182, 217, .22),
+                0 0 14px rgba(186, 230, 253, .55),
+                0 3px 8px rgba(15, 23, 42, .08);
+            outline: none;
         }
         .room-tt-nav .soft-btn:active:not(:disabled) {
-            transform: scale(.96);
-            box-shadow: 0 1px 2px rgba(15, 23, 42, .08);
+            transform: scale(.94);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .06);
         }
         .room-tt-range {
-            font-weight: 800; font-size: 1.8rem; color: #0f172a;
-            letter-spacing: -.015em; min-width: 17rem; text-align: center;
-            border: 1.5px solid #93c5fd; background: #f8fbff; border-radius: .95rem;
-            padding: .55rem 1.25rem; cursor: pointer; font-family: inherit; line-height: 1.2;
-            box-shadow:
-                0 1px 0 rgba(255,255,255,.85) inset,
-                0 2px 10px rgba(14, 165, 233, .12);
-            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-        }
-        .room-tt-range:hover, .room-tt-range:focus-visible {
-            border-color: #38bdf8;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            font-weight: 750; font-size: 1.02rem; color: #1e293b;
+            letter-spacing: -.01em; min-width: 0; text-align: center;
+            border: 1px solid rgba(148, 163, 184, .42);
+            background:
+                url('assets/dancheong/corner-flower.svg?v=rtnav1') no-repeat left -6px top -8px / 20px auto,
+                url('assets/dancheong/corner-flower.svg?v=rtnav1') no-repeat right -6px bottom -8px / 17px auto,
+                linear-gradient(165deg, #fcfdff 0%, #f4f8fb 58%, #eef4f8 100%);
+            border-radius: .58rem;
+            padding: .28rem .78rem .3rem; cursor: pointer; font-family: inherit; line-height: 1.18;
             box-shadow:
                 0 1px 0 rgba(255,255,255,.9) inset,
-                0 4px 16px rgba(14, 165, 233, .18),
-                0 0 0 3px rgba(56,189,248,.14);
+                0 1px 4px rgba(15, 23, 42, .04);
+            transition: transform .2s ease, box-shadow .22s ease, border-color .22s ease;
+            animation: roomTtRangePulse 3.6s ease-in-out infinite;
+        }
+        .room-tt-range::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 0; pointer-events: none;
+            background: linear-gradient(
+                105deg,
+                transparent 0%,
+                transparent 38%,
+                rgba(255,255,255,.0) 42%,
+                rgba(255,255,255,.55) 50%,
+                rgba(186, 230, 253, .28) 54%,
+                transparent 62%,
+                transparent 100%
+            );
+            background-size: 220% 100%;
+            animation: roomTtRangeShimmer 5.2s ease-in-out infinite;
+            opacity: .85;
+        }
+        .room-tt-range > * { position: relative; z-index: 1; }
+        .room-tt-range:hover, .room-tt-range:focus-visible {
+            border-color: #7eb6d9;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,.95) inset,
+                0 0 0 2px rgba(126, 182, 217, .18),
+                0 0 16px rgba(186, 230, 253, .4),
+                0 3px 10px rgba(15, 23, 42, .06);
             transform: translateY(-1px);
             outline: none;
+            animation-play-state: paused;
         }
         .room-tt-range:active {
             transform: scale(.985);
         }
+        .room-tt-range .rt-range-label {
+            display: block;
+        }
         .room-tt-range .rt-range-hint {
-            display: block; font-size: 1.2rem; font-weight: 700; color: #64748b; margin-top: .22rem;
+            display: block; font-size: .68rem; font-weight: 650; color: #64748b;
+            margin-top: .06rem; letter-spacing: .01em; opacity: .82;
         }
         .room-tt-range.is-week-slide-next {
-            animation: roomTtRangeSlideNext .4s cubic-bezier(.22, 1, .36, 1) both;
+            animation: roomTtRangeFadeNext .38s cubic-bezier(.22, 1, .36, 1) both;
         }
         .room-tt-range.is-week-slide-prev {
-            animation: roomTtRangeSlidePrev .4s cubic-bezier(.22, 1, .36, 1) both;
+            animation: roomTtRangeFadePrev .38s cubic-bezier(.22, 1, .36, 1) both;
         }
-        @keyframes roomTtRangeSlideNext {
-            from { opacity: .55; transform: translateX(14px); }
-            to { opacity: 1; transform: translateX(0); }
+        @keyframes roomTtRangePulse {
+            0%, 100% {
+                box-shadow:
+                    0 1px 0 rgba(255,255,255,.9) inset,
+                    0 1px 4px rgba(15, 23, 42, .04);
+            }
+            50% {
+                box-shadow:
+                    0 1px 0 rgba(255,255,255,.95) inset,
+                    0 0 0 1px rgba(126, 182, 217, .16),
+                    0 0 12px rgba(186, 230, 253, .28),
+                    0 2px 6px rgba(15, 23, 42, .05);
+            }
         }
-        @keyframes roomTtRangeSlidePrev {
-            from { opacity: .55; transform: translateX(-14px); }
-            to { opacity: 1; transform: translateX(0); }
+        @keyframes roomTtRangeShimmer {
+            0%, 18% { background-position: 120% 0; }
+            48%, 100% { background-position: -40% 0; }
+        }
+        @keyframes roomTtRangeFadeNext {
+            from { opacity: 0; transform: translateX(8px) scale(.985); filter: blur(.4px); }
+            to { opacity: 1; transform: translateX(0) scale(1); filter: none; }
+        }
+        @keyframes roomTtRangeFadePrev {
+            from { opacity: 0; transform: translateX(-8px) scale(.985); filter: blur(.4px); }
+            to { opacity: 1; transform: translateX(0) scale(1); filter: none; }
         }
         @media (prefers-reduced-motion: reduce) {
             .room-tt-nav .soft-btn,
-            .room-tt-range {
+            .room-tt-range,
+            .room-tt-range::before {
                 transition: none !important;
                 animation: none !important;
             }
@@ -8965,7 +9035,7 @@
                     <p class="room-tt-range-hint" data-i18n="roomTtRangeHint">เลือกเริ่ม–จบแล้วเชื่อมตารางทันทีเมื่อบันทึก</p>
                 </div>
             </div>
-            <div style="margin-top:1rem;padding-top:.85rem;border-top:1px solid rgba(15,23,42,.08)">
+            <div id="room-tt-extra-fields" style="margin-top:1rem;padding-top:.85rem;border-top:1px solid rgba(15,23,42,.08)">
                 <p class="sched-label" style="margin-bottom:.45rem" data-i18n="roomTtStudents">รายชื่อนักเรียน</p>
                 <div id="room-tt-students" class="room-tt-stu-list"></div>
                 <div class="sched-form" style="margin-top:.55rem">
@@ -11901,12 +11971,12 @@
                 schedTypeDayOff: '수업 없음',
                 classStatusLabel: '수업 상태',
                 classStatusNormal: '정상',
-                classStatusPostponed: '수업 연기',
+                classStatusPostponed: '선생님 연기',
                 classStatusStudentPostponed: '학생 수업 연기',
                 classStatusCancelled: '취소',
                 classStatusWaiting: '연락 대기',
-                classStatusHint: '이 수업의 진행 상태를 선택하세요 (담당 선생님만)',
-                classStatusOwnerOnly: '담당 선생님만 상태를 바꿀 수 있어요',
+                classStatusHint: '수업 상태 선택 (담당 선생님 · 원장 · 관리자)',
+                classStatusOwnerOnly: '담당 선생님·원장·관리자만 상태를 바꿀 수 있어요',
                 schedAlertKindClassStatus: '수업 상태 변경',
                 schedAlertSummaryStudentPostpone: '학생이 수업을 연기해 교실이 비었습니다',
                 schedActionClassStatus: '수업 상태',
@@ -12802,12 +12872,12 @@
                 schedTypeDayOff: 'ไม่มีคลาส',
                 classStatusLabel: 'สถานะคลาส',
                 classStatusNormal: 'ปกติ',
-                classStatusPostponed: 'เลื่อนคลาส',
+                classStatusPostponed: 'คุณครูขอเลื่อน',
                 classStatusStudentPostponed: 'นักเรียนเลื่อนคลาส',
                 classStatusCancelled: 'ยกเลิก',
                 classStatusWaiting: 'รอติดต่อ',
-                classStatusHint: 'เลือกสถานะคลาสนี้ (เฉพาะครูเจ้าของคลาส)',
-                classStatusOwnerOnly: 'เฉพาะครูเจ้าของคลาสเท่านั้นที่เปลี่ยนสถานะได้',
+                classStatusHint: 'เลือกสถานะคลาส (ครูเจ้าของคลาส · ผู้อำนวยการ · แอดมิน)',
+                classStatusOwnerOnly: 'เฉพาะครูเจ้าของคลาส · ผู้อำนวยการ · แอดมิน ที่เปลี่ยนสถานะได้',
                 schedAlertKindClassStatus: 'เปลี่ยนสถานะคลาส',
                 schedAlertSummaryStudentPostpone: 'นักเรียนเลื่อนคลาส — ห้องว่างให้จองทับได้',
                 schedActionClassStatus: 'สถานะคลาส',
@@ -13703,12 +13773,12 @@
                 schedTypeDayOff: 'No class',
                 classStatusLabel: 'Class status',
                 classStatusNormal: 'Normal',
-                classStatusPostponed: 'Postponed',
+                classStatusPostponed: 'Teacher postponed',
                 classStatusStudentPostponed: 'Student postponed',
                 classStatusCancelled: 'Cancelled',
                 classStatusWaiting: 'Waiting to contact',
-                classStatusHint: 'Set class status (owning teacher only)',
-                classStatusOwnerOnly: 'Only the owning teacher can change status',
+                classStatusHint: 'Set class status (owning teacher · director · admin)',
+                classStatusOwnerOnly: 'Only the owning teacher, director, or admin can change status',
                 schedAlertKindClassStatus: 'Class status changed',
                 schedAlertSummaryStudentPostpone: 'Student postponed — room freed for rebooking',
                 schedActionClassStatus: 'Class status',
@@ -14130,6 +14200,28 @@
         let shinPlayTimer = null;
         let shinBubbleTimer = null;
         let shinMoodTimer = null;
+        function isEunhaUser(user) {
+            const id = (typeof canonicalAccountId === 'function')
+                ? canonicalAccountId(user)
+                : String((user && typeof user === 'object' ? user.id : user) || '').trim();
+            return id === 'eunha';
+        }
+        function syncHeaderShinVisibility(user) {
+            const shell = document.getElementById('dash-shell');
+            const wrap = document.getElementById('header-shin-btn');
+            const on = !!(user && isEunhaUser(user));
+            if (shell) shell.classList.toggle('is-eunha-shin', on);
+            if (wrap) {
+                wrap.setAttribute('aria-hidden', on ? 'false' : 'true');
+                if (!on) {
+                    wrap.classList.remove('is-say', 'is-play', 'is-sync-pulse', 'is-morning', 'is-night');
+                    const bubble = document.getElementById('header-shin-bubble');
+                    if (bubble) bubble.textContent = '';
+                } else {
+                    try { refreshShinHourMood(); } catch (_) {}
+                }
+            }
+        }
         function getShinHourBucket(h) {
             const hour = Number.isFinite(h) ? h : new Date().getHours();
             if (hour >= 5 && hour < 11) return 'morning';
@@ -14139,7 +14231,7 @@
         }
         function refreshShinHourMood() {
             const wrap = document.getElementById('header-shin-btn');
-            if (!wrap) return;
+            if (!wrap || !isEunhaUser(currentUser)) return;
             const bucket = getShinHourBucket();
             wrap.classList.toggle('is-morning', bucket === 'morning');
             wrap.classList.toggle('is-night', bucket === 'night');
@@ -14152,7 +14244,7 @@
         }
         function pokeShinSyncPulse() {
             const wrap = document.getElementById('header-shin-btn');
-            if (!wrap || wrap.offsetParent === null) return;
+            if (!wrap || !isEunhaUser(currentUser) || wrap.offsetParent === null) return;
             wrap.classList.remove('is-sync-pulse');
             void wrap.offsetWidth;
             wrap.classList.add('is-sync-pulse');
@@ -14161,7 +14253,7 @@
         function playShinGreeting(opts) {
             const wrap = document.getElementById('header-shin-btn');
             const bubble = document.getElementById('header-shin-bubble');
-            if (!wrap || wrap.offsetParent === null) return;
+            if (!wrap || !isEunhaUser(currentUser) || wrap.offsetParent === null) return;
             const forceTip = !!(opts && opts.tip);
             const bucket = getShinHourBucket();
             const key = forceTip || Math.random() < 0.28
@@ -15192,10 +15284,16 @@
             return normalizeClassStatus(block?.classStatus) === 'student_postponed';
         }
         function canEditClassStatus(user, block) {
-            if (!user || user.role === 'director' || user.role === 'admin') return false;
+            if (!user) return false;
+            if (block?.isBreak || block?.teacherId === 'break') return false;
+            // Director/admin may change status on any room TT class (same as other room TT meta).
+            if (user.role === 'director' || user.role === 'admin') return true;
             if (!block) return true; // new booking by this teacher
-            if (block.isBreak || block.teacherId === 'break') return false;
+            if (block.teacherId === 'parttime') return true;
             return String(block.teacherId || '') === String(user.id || '');
+        }
+        function isNonNormalClassStatus(status) {
+            return normalizeClassStatus(status) !== 'normal';
         }
         function notifyClassStatusToDirector({ user, slot, beforeStatus, afterStatus }) {
             if (!user || !slot || user.role === 'director' || user.role === 'admin') return;
@@ -22637,6 +22735,7 @@
                 loginScreen.classList.remove('hidden-screen');
                 setLangVisibility(false);
                 applyStaticI18n();
+                try { syncHeaderShinVisibility(null); } catch (_) {}
                 setHelpFabVisible(false);
                 closeHelpPanel();
                 helpAiLog = [];
@@ -22939,6 +23038,7 @@
                         if (user.id === 'taehyun') shell.classList.add('theme-teacher-a');
                     }
                 } catch (_) {}
+                try { syncHeaderShinVisibility(currentUser || user); } catch (_) {}
                 // keepTab: do not remount theme FX (sun/flowers) — remounting replays enter animations = flicker
                 if (!keepTab) {
                     try { mountThemeFx(user); } catch (err) {
@@ -23139,6 +23239,7 @@
                     ? (resolveAccountById(stableId) || user)
                     : user;
                 currentUser = { ...fresh, id: stableId || fresh.id };
+                try { syncHeaderShinVisibility(currentUser); } catch (_) {}
                 try {
                     document.getElementById('dash-name').textContent = displayName(currentUser);
                     const chip = document.getElementById('dash-role-chip');
@@ -24424,7 +24525,7 @@
                             <div class="room-tt-nav">
                                 <button type="button" class="soft-btn ghost" id="room-tt-prev" aria-label="prev" ${canGoPrev ? '' : 'disabled'}><i class="ph ph-caret-left"></i></button>
                                 <button type="button" class="room-tt-range${roomTtNavSlideDir === 'next' ? ' is-week-slide-next' : roomTtNavSlideDir === 'prev' ? ' is-week-slide-prev' : ''}" id="room-tt-range-btn" title="${esc(t('roomTtMonthOpen'))}">
-                                    ${esc(formatRoomTtRange(roomTtWeekOffset))}
+                                    <span class="rt-range-label">${esc(formatRoomTtRange(roomTtWeekOffset))}</span>
                                     <span class="rt-range-hint">${esc(t('roomTtMonthOpen'))}</span>
                                 </button>
                                 <button type="button" class="soft-btn ghost" id="room-tt-next" aria-label="next" ${canGoNext ? '' : 'disabled'}><i class="ph ph-caret-right"></i></button>
@@ -28281,20 +28382,6 @@
                             if (!row) return;
                             const start = row.querySelector('.sched-edit-start').value;
                             const end = row.querySelector('.sched-edit-end').value;
-                            const resolved = resolveTeachTitleFromFields(
-                                row.querySelector('.sched-edit-subject')?.value,
-                                row.querySelector('.sched-edit-title-other')?.value,
-                                user
-                            );
-                            const classType = normalizeClassType(row.querySelector('.sched-edit-type')?.value);
-                            if (!resolved.ok) {
-                                document.getElementById('schedule-msg').textContent = resolved.msg;
-                                return;
-                            }
-                            if (start >= end) {
-                                document.getElementById('schedule-msg').textContent = `${t('timeStart')} < ${t('timeEnd')}`;
-                                return;
-                            }
                             const list = loadDaySchedule(user.id);
                             const prev = list[idx] || {};
                             const prevStatus = normalizeClassStatus(prev.classStatus);
@@ -28304,9 +28391,36 @@
                             const nextStatus = (canStatus && statusSel)
                                 ? normalizeClassStatus(statusSel.value)
                                 : prevStatus;
+                            const statusOnly = isNonNormalClassStatus(nextStatus);
+                            let resolved = resolveTeachTitleFromFields(
+                                row.querySelector('.sched-edit-subject')?.value,
+                                row.querySelector('.sched-edit-title-other')?.value,
+                                user
+                            );
+                            if (!resolved.ok) {
+                                if (statusOnly) {
+                                    resolved = {
+                                        ok: true,
+                                        subjectKey: prev.subjectKey || 'other',
+                                        useParts: false,
+                                        title: pickLangText(prev, 'title') || prev.title || classStatusLabel(nextStatus)
+                                    };
+                                } else {
+                                    document.getElementById('schedule-msg').textContent = resolved.msg;
+                                    return;
+                                }
+                            }
+                            const classType = normalizeClassType(row.querySelector('.sched-edit-type')?.value);
+                            if (!statusOnly && start >= end) {
+                                document.getElementById('schedule-msg').textContent = `${t('timeStart')} < ${t('timeEnd')}`;
+                                return;
+                            }
                             const nextItem = {
                                 ...stampTeachSubjectItem(prev, resolved),
-                                start, end, classType, kind: 'class',
+                                start: statusOnly ? (prev.start || start) : start,
+                                end: statusOnly ? (prev.end || end) : end,
+                                classType: statusOnly ? normalizeClassType(prev.classType) : classType,
+                                kind: 'class',
                                 classStatus: nextStatus,
                                 subjectKey: resolved.subjectKey,
                                 room: prev.room,
@@ -30778,7 +30892,7 @@
             const roomTtReauthModal = document.getElementById('room-tt-reauth-modal');
             let roomTtReauthPending = null;
             const closeRoomTtModal = () => {
-                roomTtModal?.classList.remove('open');
+                roomTtModal?.classList.remove('open', 'is-status-only');
                 roomTtDraft = null;
             };
             const closeRoomTtReauth = () => {
@@ -30864,30 +30978,35 @@
                     : currentUser;
                 const start = document.getElementById('room-tt-start')?.value || existing?.start || draft.start || '10:00';
                 const end = document.getElementById('room-tt-end')?.value || existing?.end || draft.end || roomTtFromMin(roomTtToMin(start) + 30);
-                if (roomTtToMin(end) <= roomTtToMin(start)) {
-                    if (msg) msg.textContent = t('roomTtBadRange');
-                    return;
-                }
                 const note = document.getElementById('room-tt-note')?.value || '';
                 const students = Array.isArray(draft.students) ? draft.students : [];
-                const canEditMeta = !existing || existing.teacherId === currentUser.id || existing.teacherId === 'parttime' || currentUser.role === 'director';
+                const canEditMeta = !existing || existing.teacherId === currentUser.id || existing.teacherId === 'parttime'
+                    || currentUser.role === 'director' || currentUser.role === 'admin';
                 const ownerCanStatus = canEditClassStatus(currentUser, existing);
                 const prevStatus = normalizeClassStatus(existing?.classStatus);
                 const nextStatusRaw = document.getElementById('room-tt-class-status')?.value;
                 const nextStatus = ownerCanStatus
                     ? normalizeClassStatus(nextStatusRaw)
                     : prevStatus;
+                const statusOnly = isNonNormalClassStatus(nextStatus);
+
+                // Non-normal status: skip subject/title requirements — status change is enough to save.
+                // Normal status keeps full booking-field validation.
+                if (!statusOnly && roomTtToMin(end) <= roomTtToMin(start)) {
+                    if (msg) msg.textContent = t('roomTtBadRange');
+                    return;
+                }
 
                 // Save (progress / booking edits): silent — no password popup.
                 // Status นักเรียนเลื่อนคลาส → director sched-alert notify.
                 if (existing) {
                     const next = {
                         ...existing,
-                        note,
-                        students,
+                        note: statusOnly ? (existing.note || note) : note,
+                        students: statusOnly ? (existing.students || students) : students,
                         userEdited: true
                     };
-                    if (canEditMeta) {
+                    if (canEditMeta && !statusOnly) {
                         const resolved = resolveTeachTitleFromFields(
                             document.getElementById('room-tt-subject')?.value,
                             document.getElementById('room-tt-title-other')?.value,
@@ -30920,14 +31039,23 @@
                         });
                     }
                 } else {
-                    const resolved = resolveTeachTitleFromFields(
+                    let resolved = resolveTeachTitleFromFields(
                         document.getElementById('room-tt-subject')?.value,
                         document.getElementById('room-tt-title-other')?.value,
                         currentUser
                     );
                     if (!resolved.ok) {
-                        if (msg) msg.textContent = resolved.msg;
-                        return;
+                        if (statusOnly) {
+                            resolved = {
+                                ok: true,
+                                subjectKey: 'other',
+                                useParts: false,
+                                title: classStatusLabel(nextStatus)
+                            };
+                        } else {
+                            if (msg) msg.textContent = resolved.msg;
+                            return;
+                        }
                     }
                     const classType = normalizeClassType(document.getElementById('room-tt-type')?.value);
                     const result = bookRoomSlot({
@@ -30947,8 +31075,8 @@
                     if (result.slot) {
                         const saved = saveRoomBlock({
                             ...result.slot,
-                            note,
-                            students,
+                            note: statusOnly ? '' : note,
+                            students: statusOnly ? [] : students,
                             classStatus: nextStatus,
                             userEdited: true
                         }, currentUser);
