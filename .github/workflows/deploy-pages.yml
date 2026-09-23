@@ -27,20 +27,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Stage TeacherLogin site
+      - name: Stage lean Pages site
         run: |
           set -euo pipefail
-          mkdir -p TeacherLogin
-          cp "HongikGeeJ Teacher Login.html" TeacherLogin/index.html
-          rm -rf TeacherLogin/assets TeacherLogin/data
-          cp -a assets TeacherLogin/assets
-          cp -a data TeacherLogin/data
-          cp -a logo.png TeacherLogin/logo.png
-          touch .nojekyll
-          test -f TeacherLogin/index.html
-          test -d TeacherLogin/assets
-          test -d TeacherLogin/data
-          echo "Staged TeacherLogin/ for https://hongikgeej.github.io/TeacherLogin/"
+          # Upload only what Pages serves — avoid shipping ready/ duplicates,
+          # which has been tripping Deploy to GitHub Pages failures.
+          rm -rf _site
+          mkdir -p _site/TeacherLogin
+          cp "HongikGeeJ Teacher Login.html" _site/TeacherLogin/index.html
+          cp -a assets _site/TeacherLogin/assets
+          cp -a data _site/TeacherLogin/data
+          cp -a logo.png _site/TeacherLogin/logo.png
+          if [ -f index.html ]; then
+            cp index.html _site/index.html
+          else
+            printf '%s\n' '<!doctype html><meta http-equiv="refresh" content="0;url=/TeacherLogin/">' > _site/index.html
+          fi
+          touch _site/.nojekyll
+          test -f _site/TeacherLogin/index.html
+          test -f _site/TeacherLogin/assets/dancheong/corner-flower-bottom.svg
+          test -d _site/TeacherLogin/data
+          echo "Staged _site/ for https://hongikgeej.github.io/TeacherLogin/"
+          du -sh _site _site/TeacherLogin
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -48,7 +56,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<script>/*hongik-sb-embed*/window.__HONGIK_SUPABASE_CONFIG__={"url":"https://qoxdpqlzbbsluxzqchuq.supabase.co","anonKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveGRwcWx6YmJzbHV4enFjaHVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMDEzNzYsImV4cCI6MjEwNTU3NzM3Nn0.sVpAV7RF_Q0O7B9YVx2x2DhpDmsvmZestIIkaMV8Sa4"};</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>HongikGeeJ Teacher Login</title>
@@ -348,17 +347,17 @@
             overflow: visible;
         }
         .dash-shell > .dc-corners .dc-c {
-            /* ~40% of prior 120px bump (60% smaller) — all accounts */
-            width: 48px;
-            height: 48px;
-            opacity: .92;
+            /* Shell corners ≤40px — all accounts; never crowd header/tabs */
+            width: 40px;
+            height: 40px;
+            opacity: .9;
         }
         /* Top corners: compact kiss so logo / actions stay clear */
         .dash-shell > .dc-corners .dc-c.tl,
         .dash-shell > .dc-corners .dc-c.tr {
-            width: 34px;
-            height: 34px;
-            opacity: .9;
+            width: 32px;
+            height: 32px;
+            opacity: .88;
         }
         .dash-shell > .dc-corners .dc-c.tl { top: -4px; left: 0; }
         .dash-shell > .dc-corners .dc-c.tr {
@@ -367,9 +366,9 @@
         /* Bottom pair: distinct asset + slightly wider horizontal tuck */
         .dash-shell > .dc-corners .dc-c.bl,
         .dash-shell > .dc-corners .dc-c.br {
-            width: 48px;
-            height: 48px;
-            opacity: .9;
+            width: 40px;
+            height: 40px;
+            opacity: .88;
         }
         .dash-shell > .dc-corners .dc-c.bl { top: calc(100% + 6px); left: -6px; }
         .dash-shell > .dc-corners .dc-c.br {
@@ -377,17 +376,17 @@
         }
         @media (max-width: 720px) {
             .dash-shell > .dc-corners .dc-c {
-                width: 40px; height: 40px; opacity: .9;
+                width: 36px; height: 36px; opacity: .88;
             }
             .dash-shell > .dc-corners .dc-c.tl,
             .dash-shell > .dc-corners .dc-c.tr {
-                width: 30px; height: 30px;
+                width: 28px; height: 28px;
             }
             .dash-shell > .dc-corners .dc-c.tl { top: -3px; left: 0; }
             .dash-shell > .dc-corners .dc-c.tr { top: -3px; left: 100%; }
             .dash-shell > .dc-corners .dc-c.bl,
             .dash-shell > .dc-corners .dc-c.br {
-                width: 40px; height: 40px;
+                width: 36px; height: 36px;
             }
             .dash-shell > .dc-corners .dc-c.bl { top: calc(100% + 4px); left: -4px; }
             .dash-shell > .dc-corners .dc-c.br { top: calc(100% + 4px); left: calc(100% + 4px); }
@@ -504,7 +503,7 @@
             .dc-c.bl { transform: scaleY(-1); }
             .dc-c.br { transform: scale(-1); }
         }
-        /* Dashboard card edge décor only (all roles): ~40% of prior 320px (=128px).
+        /* Dashboard card edge décor only (all roles): modest ~32px blooms.
            Horizontal edge-sparkles rails removed. Pseudos stay
            pointer-events:none so they cannot cover tabs / header / cards.
            Scoped under .dash-shell so login .panel is never affected. */
@@ -514,19 +513,24 @@
             background-color: #fff;
             background-image: none;
             pointer-events: auto;
+            /* Extra TL pad so h3 / icons clear corner blooms on every tab */
+            padding-top: 2.65rem;
+            padding-left: 1.75rem;
+            padding-right: 1.35rem;
+            padding-bottom: 2.35rem;
         }
         .dash-shell .content-card::before,
         .dash-shell .content-card::after {
             content: '';
             position: absolute;
-            width: 52px; height: 52px;
+            width: 32px; height: 32px;
             pointer-events: none !important;
             /* Under card content so blooms never cover text/icons */
             z-index: 0;
             background-repeat: no-repeat;
             background-size: contain;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom11');
-            opacity: .88;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom12');
+            opacity: .82;
             /*
               SVG authored for TL (outer L at 0,0). Always pin that vertex with
               transform-origin: 0 0, then place top-left on each corner and flip —
@@ -537,18 +541,18 @@
             transform-origin: 0 0;
         }
         .dash-shell .content-card > * { position: relative; z-index: 1; }
-        /* Top-left: modest inset cluster — clears title text */
+        /* Top-left: tuck mostly outside so title/icon stay clear */
         .dash-shell .content-card::before {
-            top: -4px; left: -4px;
+            top: -8px; left: -8px;
             transform: none;
             animation: cardBloomSway 5.2s ease-in-out infinite;
         }
         /* Bottom-right: distinct peach/cream horizontal spray (not flipped TL) */
         .dash-shell .content-card::after {
-            width: 56px; height: 42px;
+            width: 36px; height: 28px;
             top: calc(100% + 4px); left: calc(100% + 4px);
             bottom: auto; right: auto;
-            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom2');
+            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom3');
             transform: scale(-1);
             animation: cardBloomSwayFlip 5.2s ease-in-out infinite;
             animation-delay: .7s;
@@ -717,13 +721,19 @@
             35% { transform: translate(-2px, -2px) rotate(2.2deg) scale(1.03); }
             65% { transform: translate(-1px, -1px) rotate(1.2deg) scale(1.015); }
         }
+        .dash-shell .content-card.compact-card {
+            padding-top: 2.35rem;
+            padding-left: 1.55rem;
+            padding-right: 1.2rem;
+            padding-bottom: 2.05rem;
+        }
         .dash-shell .content-card.compact-card::before,
         .dash-shell .content-card.compact-card::after {
-            width: 42px; height: 42px; opacity: .84;
+            width: 28px; height: 28px; opacity: .8;
         }
-        .dash-shell .content-card.compact-card::before { top: -3px; left: -3px; }
+        .dash-shell .content-card.compact-card::before { top: -7px; left: -7px; }
         .dash-shell .content-card.compact-card::after {
-            width: 46px; height: 34px;
+            width: 32px; height: 24px;
             top: calc(100% + 3px); left: calc(100% + 3px);
         }
         .dash-shell .content-card[style*="transparent"] {
@@ -760,11 +770,17 @@
             #login-screen .panel > .dc-corners .dc-c.tr { top: -12px; left: calc(100% + 12px); right: auto; }
             #login-screen .panel > .dc-corners .dc-c.bl { top: calc(100% + 11px); left: -11px; bottom: auto; }
             #login-screen .panel > .dc-corners .dc-c.br { top: calc(100% + 11px); left: calc(100% + 11px); bottom: auto; right: auto; }
+            .dash-shell .content-card {
+                padding-top: 2.45rem;
+                padding-left: 1.55rem;
+                padding-right: 1.15rem;
+                padding-bottom: 2.15rem;
+            }
             .dash-shell .content-card::before,
-            .dash-shell .content-card::after { width: 40px; height: 40px; opacity: .84; }
-            .dash-shell .content-card::before { top: -3px; left: -3px; }
+            .dash-shell .content-card::after { width: 28px; height: 28px; opacity: .8; }
+            .dash-shell .content-card::before { top: -7px; left: -7px; }
             .dash-shell .content-card::after {
-                width: 44px; height: 32px;
+                width: 32px; height: 24px;
                 top: calc(100% + 2px); left: calc(100% + 2px);
             }
             .dash-shell.is-eunha-shin .content-card::before {
@@ -814,8 +830,8 @@
         @media (min-width: 1100px) {
             .dash-body { padding: 1.35rem 1.85rem 1.75rem; }
             .dash-header { padding-left: 1.5rem; padding-right: 1.5rem; }
-            .content-card { padding: 2.45rem 1.5rem; }
-            .content-card.compact-card { padding: 2.15rem 1.4rem; }
+            .content-card { padding: 2.65rem 1.55rem 2.35rem 1.85rem; }
+            .content-card.compact-card { padding: 2.35rem 1.4rem 2.1rem 1.65rem; }
             .tab-panel[data-panel="rooms"] .room-tt-wrap { max-height: none; }
         }
         @media (min-width: 1400px) {
@@ -1449,8 +1465,8 @@
         .stat-card .k { font-size: .72rem; font-weight: 700; color: #64748b; }
         .stat-card .v { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-top: .2rem; }
         .stat-card .h { font-size: .75rem; color: #94a3b8; margin-top: .15rem; }
-        /* Vertical pad clears tall wavy rails; corner blooms tuck outside */
-        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 2.35rem 1.1rem; margin-bottom: .85rem; }
+        /* Vertical/left pad clears corner blooms so titles never sit under décor */
+        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 2.65rem 1.35rem 2.35rem 1.75rem; margin-bottom: .85rem; }
         .content-card h3 { margin: 0; font-size: 1.12rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: .4rem; }
         .item-row { display: flex; justify-content: space-between; gap: .75rem; padding: .7rem 0; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
         .item-row:last-child { border-bottom: none; }
@@ -2931,17 +2947,20 @@
         */
         .theme-teacher-c .content-card {
             background-image: none;
-            padding-top: 2.15rem;
-            padding-bottom: 2.15rem;
+            padding-top: 2.55rem;
+            padding-left: 1.7rem;
+            padding-bottom: 2.25rem;
         }
         .theme-teacher-c .content-card.compact-card {
-            padding-top: 1.85rem;
-            padding-bottom: 1.85rem;
+            padding-top: 2.25rem;
+            padding-left: 1.5rem;
+            padding-bottom: 1.95rem;
         }
         @media (max-width: 480px) {
             .theme-teacher-c .content-card {
-                padding-top: 1.75rem;
-                padding-bottom: 1.75rem;
+                padding-top: 2.35rem;
+                padding-left: 1.5rem;
+                padding-bottom: 2.05rem;
             }
         }
 
@@ -9300,8 +9319,9 @@
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
             box-shadow: 0 1px 0 rgba(15, 23, 42, .04) !important;
-            /* Extra top pad so TL bloom clears ตารางห้องเรียน title */
-            padding-top: 1.85rem !important;
+            /* Extra top/left pad so TL bloom clears ตารางห้องเรียน title */
+            padding-top: 2.55rem !important;
+            padding-left: 1.75rem !important;
             padding-bottom: 1.35rem !important;
         }
         .tab-panel[data-panel="rooms"] > .content-card > h3 {
@@ -9312,7 +9332,7 @@
             margin: 0 0 .55rem;
             gap: .5rem;
             /* Nudge title past modest TL bloom */
-            padding-left: 1.65rem;
+            padding-left: .35rem;
         }
         .tab-panel[data-panel="rooms"] > .content-card > h3 .ph {
             font-size: 1.35em;
@@ -9828,12 +9848,12 @@
             .stat-grid, .stat-grid.work-stats { grid-template-columns: 1fr; }
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
-            .content-card { padding: 2.1rem .85rem; margin-bottom: .7rem; }
+            .content-card { padding: 2.45rem 1.15rem 2.15rem 1.55rem; margin-bottom: .7rem; }
             .dash-shell .content-card::before,
-            .dash-shell .content-card::after { width: 40px; height: 40px; opacity: .84; pointer-events: none !important; }
-            .dash-shell .content-card::before { top: -3px; left: -3px; }
+            .dash-shell .content-card::after { width: 28px; height: 28px; opacity: .8; pointer-events: none !important; }
+            .dash-shell .content-card::before { top: -7px; left: -7px; }
             .dash-shell .content-card::after {
-                width: 44px; height: 32px;
+                width: 32px; height: 24px;
                 top: calc(100% + 2px); left: calc(100% + 2px);
             }
             .dash-shell.is-eunha-shin .content-card::before {
