@@ -6664,9 +6664,41 @@
             display: inline-flex; align-items: center; gap: .45rem;
             font-size: 1.36rem; font-weight: 750; padding: .36rem .9rem;
             border-radius: 999px; border: 1.5px solid; animation: roomTtFadeIn .45s ease both;
+            font-family: inherit; line-height: 1.2; cursor: pointer;
+            appearance: none; -webkit-appearance: none;
+            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease, opacity .18s ease;
+        }
+        .room-tt-chip:hover, .room-tt-chip:focus-visible {
+            transform: translateY(-1px) scale(1.03);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, .12);
+            outline: none;
+        }
+        .room-tt-chip.is-active {
+            transform: translateY(-1px) scale(1.05);
+            box-shadow: 0 0 0 2px rgba(15, 23, 42, .18), 0 6px 14px rgba(15, 23, 42, .14);
+            filter: saturate(1.2);
         }
         .room-tt-chip i {
             width: 14px; height: 14px; border-radius: 50%; display: inline-block;
+        }
+        /* Legend focus: boost matching teacher bookings, dim the rest; empty + stays usable */
+        #room-tt-board[data-focus-teacher] .room-tt-booked {
+            opacity: .34;
+            filter: saturate(.45) brightness(.97);
+            transition: opacity .2s ease, filter .2s ease, box-shadow .2s ease, transform .2s ease;
+        }
+        #room-tt-board[data-focus-teacher="eunha"] .room-tt-booked[data-teacher="eunha"],
+        #room-tt-board[data-focus-teacher="taehyun"] .room-tt-booked[data-teacher="taehyun"],
+        #room-tt-board[data-focus-teacher="sua"] .room-tt-booked[data-teacher="sua"],
+        #room-tt-board[data-focus-teacher="parttime"] .room-tt-booked[data-teacher="parttime"] {
+            opacity: 1;
+            filter: saturate(1.45) brightness(1.06);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, .18);
+            z-index: 3;
+            position: relative;
+        }
+        #room-tt-board[data-focus-teacher] .room-tt-plus {
+            opacity: .88;
         }
         .room-tt-scroll {
             overflow: auto; overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -9783,6 +9815,7 @@
         let orderResendCdTimer = null;
         let roomTtWeekOffset = 0;
         let roomTtNavSlideDir = ''; // 'prev' | 'next' | ''
+        let roomTtFocusTeacher = null; // 'eunha' | 'taehyun' | 'sua' | 'parttime' | null
         let roomTtSyncStatusMsg = '';
         let roomTtDraft = null;
         let roomTtRangePick = null; // { date, room, start } when selecting กี่โมง→กี่โมง
@@ -9841,6 +9874,7 @@
                 tabRooms: '교실 시간표',
                 roomTtTitle: '교실 시간표',
                 roomTtHint: '월~일 · 10:00–22:00 · 30분 · 교실 3개 · 8개월 보관 · 6개월 미리보기 · 날짜 범위 클릭 = 월간 보기',
+                roomTtFocusHint: '클릭하면 이 선생님 수업만 강조',
                 roomTtLive: '시간표 실시간 업데이트',
                 roomTtThisWeek: '이번 주',
                 roomTtPickMonth: '월 선택',
@@ -10655,6 +10689,7 @@
                 tabRooms: 'ตารางห้องเรียน',
                 roomTtTitle: 'ตารางห้องเรียน',
                 roomTtHint: 'จ–อา · 10:00–22:00 · ทุก 30 นาที · 3 ห้อง · ย้อนหลัง 8 เดือน · ล่วงหน้า 6 เดือน · กดช่วงวันที่ = ดูเดือนใหญ่',
+                roomTtFocusHint: 'คลิกเพื่อเน้นตารางครูคนนี้',
                 roomTtLive: 'อัปเดตตารางแบบเรียลไทม์',
                 roomTtThisWeek: 'สัปดาห์นี้',
                 roomTtPickMonth: 'เลือกเดือน',
@@ -11469,6 +11504,7 @@
                 tabRooms: 'Room timetable',
                 roomTtTitle: 'Room timetable',
                 roomTtHint: 'Mon–Sun · 10:00–22:00 · 30-min · 3 rooms · 8-mo archive · 6-mo look-ahead · tap date range = month view',
+                roomTtFocusHint: 'Click to highlight this teacher’s bookings',
                 roomTtLive: 'Update timetable live',
                 roomTtThisWeek: 'This week',
                 roomTtPickMonth: 'Pick month',
@@ -21272,7 +21308,8 @@
                 ];
                 const legend = legendTeachers.map((tea, i) => {
                     const c = roomTtTeacherColor(tea.id);
-                    return `<span class="room-tt-chip" style="background:${c.bg};border-color:${c.border};color:${c.accent};animation-delay:${(i * 0.06).toFixed(2)}s"><i style="background:${c.accent}"></i>${esc(tea.label)}</span>`;
+                    const on = roomTtFocusTeacher === tea.id;
+                    return `<button type="button" class="room-tt-chip${on ? ' is-active' : ''}" data-rt-focus="${esc(tea.id)}" aria-pressed="${on ? 'true' : 'false'}" title="${esc(t('roomTtFocusHint'))}" style="background:${c.bg};border-color:${c.border};color:${c.accent};animation-delay:${(i * 0.06).toFixed(2)}s"><i style="background:${c.accent}" aria-hidden="true"></i>${esc(tea.label)}</button>`;
                 }).join('');
 
                 let headCells = `<div class="room-tt-cell is-corner" style="grid-column:1;grid-row:1"></div>`;
@@ -21349,6 +21386,7 @@
                             body += `<div class="room-tt-cell${colCls}${merged ? ' is-span-host' : ''}" style="grid-column:${col};grid-row:${row} / span ${span}">
                                 <button type="button" class="room-tt-booked${mine ? ' is-mine' : ''}${slot.isBreak ? ' is-break' : ''}${merged ? ' is-merged' : ''}"
                                     data-rt-edit="${esc(slot.id)}"
+                                    data-teacher="${esc(slot.teacherId || '')}"
                                     style="background:${c.bg};border-color:${c.border};color:${c.accent}">
                                     <span class="rt-name">${avHtml}${esc(teaLabel)}</span>
                                     <span class="rt-subj">${esc(subj)}</span>
@@ -21395,6 +21433,9 @@
                         </div>
                     </div>`;
 
+                if (roomTtFocusTeacher) board.setAttribute('data-focus-teacher', roomTtFocusTeacher);
+                else board.removeAttribute('data-focus-teacher');
+
                 document.getElementById('room-tt-prev')?.addEventListener('click', () => {
                     roomTtNavSlideDir = 'prev';
                     roomTtWeekOffset = clampRoomTtOffset(roomTtWeekOffset - 1);
@@ -21421,6 +21462,14 @@
                 document.getElementById('room-tt-month-open')?.addEventListener('click', openMonth);
                 document.getElementById('room-tt-live-refresh')?.addEventListener('click', () => {
                     refreshRoomTtLive(user, document.getElementById('room-tt-live-refresh'));
+                });
+                board.querySelectorAll('[data-rt-focus]').forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        const id = String(btn.dataset.rtFocus || '');
+                        if (!id) return;
+                        roomTtFocusTeacher = roomTtFocusTeacher === id ? null : id;
+                        renderRoomTimetableBoard(user);
+                    });
                 });
                 roomTtNavSlideDir = '';
                 const rangeBannerHost = board.querySelector('.room-tt-head');
