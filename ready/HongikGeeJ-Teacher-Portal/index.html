@@ -8160,7 +8160,8 @@
             .ot-pay-panel .ot-month-chip.has-pay .pay-ok-badge.due,
             .pay-ok-badge.due,
             .ot-pay-panel .pay-ok-total,
-            .pct-readable.ot-total-frame {
+            .pct-readable.ot-total-frame,
+            .ot-month-chip.is-active.is-current-month::before {
                 animation: none;
             }
         }
@@ -29259,10 +29260,10 @@
                     let sum = 0;
                     teachers.forEach((tea) => { sum += otMonthPaySum(otEntriesForMonth(tea.id, m)); });
                     const active = m === ym ? ' is-active' : '';
-                    const monthKind = m < currentYm
-                        ? ' is-past-month'
-                        : (m === currentYm ? ' is-current-month' : ' is-future-month');
-                    return `<button type="button" class="ot-month-chip ${sum > 0 ? 'has-pay' : 'zero-pay'}${monthKind}${active}" data-ot-ym="${m}">
+                    /* past · current · future — LED/glow only for current calendar month */
+                    const state = m < currentYm ? 'past' : (m === currentYm ? 'current' : 'future');
+                    const monthKind = ` is-${state}-month`;
+                    return `<button type="button" class="ot-month-chip ${sum > 0 ? 'has-pay' : 'zero-pay'}${monthKind}${active}" data-ot-ym="${m}" data-ot-month-state="${state}">
                         <span class="ot-month-ym">${esc(m)}</span>
                         <span class="pay-ok-badge${sum > 0 ? ' due' : ''}">${t('baht')}${sum.toLocaleString()}</span>
                     </button>`;
