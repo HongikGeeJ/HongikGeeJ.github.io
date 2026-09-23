@@ -561,98 +561,134 @@
         }
         #login-screen .panel > .dc-corners .dc-stars > i {
             position: absolute;
-            width: 11px;
-            height: 11px;
+            width: 12px;
+            height: 12px;
             margin: 0;
             padding: 0;
             font-style: normal;
-            background: #ffe566;
+            /* yellow-forward base — bright gold that reads on flower petals */
+            background: #ffd700;
             clip-path: polygon(
                 50% 0%, 62% 36%, 100% 38%, 68% 60%,
                 78% 100%, 50% 76%, 22% 100%, 32% 60%,
                 0% 38%, 38% 36%
             );
             box-shadow:
-                0 0 6px 2px rgba(255, 230, 120, .95),
-                0 0 14px 4px rgba(255, 200, 80, .55);
+                0 0 4px 1px rgba(255, 255, 220, 1),
+                0 0 10px 4px rgba(255, 220, 60, 1),
+                0 0 20px 8px rgba(255, 190, 40, .75),
+                0 0 32px 12px rgba(255, 230, 120, .4);
             opacity: 0;
             transform: translate(-50%, -50%) scale(.55);
             transform-origin: center;
-            animation: loginSparkTwinkle 1.7s ease-in-out infinite;
+            animation: loginSparkTwinkle 1.55s ease-in-out infinite;
             will-change: opacity, transform, filter;
         }
         #login-screen .panel > .dc-corners .dc-stars > i::after {
             content: '';
             position: absolute;
             left: 50%; top: 50%;
-            width: 3px; height: 3px;
+            width: 4px; height: 4px;
             border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 0 5px 2px rgba(255,252,230,.95);
+            background: #fffef5;
+            box-shadow: 0 0 7px 3px rgba(255, 252, 200, 1);
             transform: translate(-50%, -50%);
         }
+        /* 1: bright lemon yellow (hero sparkle) */
         #login-screen .panel > .dc-corners .dc-stars > i:nth-child(1) {
-            left: 78%; top: 14%; width: 13px; height: 13px;
-            animation-duration: 1.55s; animation-delay: 0s;
-        }
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(2) {
-            left: 94%; top: 36%; width: 9px; height: 9px;
-            background: #fff8d0;
-            animation-duration: 1.9s; animation-delay: -.35s;
-        }
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(3) {
-            left: 72%; top: 58%; width: 12px; height: 12px;
-            background: #ffd54a;
-            animation-duration: 1.65s; animation-delay: -.7s;
-        }
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(4) {
-            left: 48%; top: 78%; width: 10px; height: 10px;
-            background: #fff1a8;
-            animation-duration: 2s; animation-delay: -1.05s;
-        }
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(5) {
-            left: 18%; top: 88%; width: 8px; height: 8px;
-            background: #e8f4ff;
+            left: 78%; top: 14%; width: 14px; height: 14px;
+            background: #ffe566;
             box-shadow:
-                0 0 5px 2px rgba(180, 220, 255, .9),
-                0 0 12px 3px rgba(140, 190, 255, .45);
-            animation-duration: 1.8s; animation-delay: -1.4s;
+                0 0 4px 1px rgba(255, 255, 230, 1),
+                0 0 12px 5px rgba(255, 230, 80, 1),
+                0 0 22px 9px rgba(255, 200, 30, .8);
+            animation-duration: 1.4s; animation-delay: 0s;
         }
+        /* 2: white-gold */
+        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(2) {
+            left: 94%; top: 36%; width: 10px; height: 10px;
+            background: #fff3a0;
+            box-shadow:
+                0 0 4px 1px #fff,
+                0 0 10px 4px rgba(255, 240, 160, 1),
+                0 0 18px 6px rgba(255, 220, 100, .7);
+            animation-duration: 1.75s; animation-delay: -.35s;
+        }
+        /* 3: deep gold */
+        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(3) {
+            left: 72%; top: 58%; width: 13px; height: 13px;
+            background: #ffc107;
+            box-shadow:
+                0 0 4px 1px rgba(255, 248, 200, 1),
+                0 0 12px 5px rgba(255, 193, 7, 1),
+                0 0 22px 8px rgba(255, 160, 0, .7);
+            animation-duration: 1.5s; animation-delay: -.7s;
+        }
+        /* 4: soft peach-pink accent */
+        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(4) {
+            left: 48%; top: 78%; width: 11px; height: 11px;
+            background: #ffb7c5;
+            box-shadow:
+                0 0 4px 1px rgba(255, 240, 245, 1),
+                0 0 10px 4px rgba(255, 160, 180, .95),
+                0 0 18px 6px rgba(255, 120, 150, .55);
+            animation-duration: 1.85s; animation-delay: -1.05s;
+        }
+        /* 5: light cyan accent */
+        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(5) {
+            left: 18%; top: 88%; width: 9px; height: 9px;
+            background: #b8f4ff;
+            box-shadow:
+                0 0 4px 1px rgba(240, 255, 255, 1),
+                0 0 10px 4px rgba(120, 220, 255, 1),
+                0 0 18px 6px rgba(80, 190, 255, .6);
+            animation-duration: 1.65s; animation-delay: -1.4s;
+        }
+        /* 6: hot white-gold flash */
         #login-screen .panel > .dc-corners .dc-stars > i:nth-child(6) {
-            left: 96%; top: 62%; width: 7px; height: 7px;
-            background: #fff;
-            animation-duration: 1.45s; animation-delay: -.2s;
+            left: 96%; top: 62%; width: 8px; height: 8px;
+            background: #fffef0;
+            box-shadow:
+                0 0 5px 2px #fff,
+                0 0 12px 5px rgba(255, 245, 180, 1),
+                0 0 20px 7px rgba(255, 220, 80, .65);
+            animation-duration: 1.3s; animation-delay: -.2s;
         }
+        /* 7: warm peach-gold */
         #login-screen .panel > .dc-corners .dc-stars > i:nth-child(7) {
-            left: 58%; top: 6%; width: 8px; height: 8px;
-            background: #ffe082;
-            animation-duration: 2.1s; animation-delay: -.9s;
+            left: 58%; top: 6%; width: 9px; height: 9px;
+            background: #ffcc66;
+            box-shadow:
+                0 0 4px 1px rgba(255, 245, 210, 1),
+                0 0 10px 4px rgba(255, 200, 80, 1),
+                0 0 18px 6px rgba(255, 160, 60, .65);
+            animation-duration: 1.95s; animation-delay: -.9s;
         }
         @keyframes loginSparkTwinkle {
             0%, 100% {
-                opacity: .15;
-                transform: translate(-50%, -50%) scale(.45);
-                filter: brightness(.9);
+                opacity: .42;
+                transform: translate(-50%, -50%) scale(.55);
+                filter: brightness(1.05);
             }
             18% {
                 opacity: 1;
-                transform: translate(-50%, -50%) scale(1.35);
-                filter: brightness(1.35);
+                transform: translate(-50%, -50%) scale(1.5);
+                filter: brightness(1.65);
             }
             36% {
-                opacity: .35;
-                transform: translate(-50%, -50%) scale(.7);
-                filter: brightness(1);
+                opacity: .5;
+                transform: translate(-50%, -50%) scale(.75);
+                filter: brightness(1.15);
             }
             55% {
-                opacity: .95;
-                transform: translate(-50%, -50%) scale(1.2);
-                filter: brightness(1.25);
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.35);
+                filter: brightness(1.5);
             }
             78% {
-                opacity: .25;
-                transform: translate(-50%, -50%) scale(.6);
-                filter: brightness(.95);
+                opacity: .45;
+                transform: translate(-50%, -50%) scale(.65);
+                filter: brightness(1.1);
             }
         }
         @media (prefers-reduced-motion: reduce) {
@@ -11210,7 +11246,7 @@
             }
             /* Login corner sparkles keep twinkle on mobile/iPad */
             #login-screen .panel > .dc-corners .dc-stars > i {
-                animation: loginSparkTwinkle 1.7s ease-in-out infinite !important;
+                animation: loginSparkTwinkle 1.55s ease-in-out infinite !important;
                 will-change: opacity, transform, filter;
             }
             .dash-shell > .dc-corners .dc-c {
