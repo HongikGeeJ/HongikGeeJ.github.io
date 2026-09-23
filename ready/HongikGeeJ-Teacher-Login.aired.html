@@ -329,8 +329,12 @@
         }
         /* Frame-hugging corner accents — flush to the white border stroke */
         .dc-corners {
-            position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            position: absolute; inset: 0; z-index: 1; pointer-events: none !important;
             border-radius: inherit; overflow: visible;
+        }
+        .dc-corners .dc-c,
+        .dc-corners * {
+            pointer-events: none !important;
         }
         /* Post-login shell: same flower language for every account / role */
         .dash-shell > .dc-corners {
@@ -378,7 +382,7 @@
             filter: drop-shadow(0 1px 1.5px rgba(120,90,110,.12));
             will-change: transform;
             /* decorative only — never capture taps over inputs */
-            pointer-events: none;
+            pointer-events: none !important;
             /*
               SVG is authored for top-left (outer L at 0,0).
               Always anchor that vertex with transform-origin: 0 0, then
@@ -599,25 +603,6 @@
             .dash-header { padding-left: 1.5rem; padding-right: 1.5rem; }
             .content-card { padding: 5.65rem 1.5rem; }
             .content-card.compact-card { padding: 5rem 1.4rem; }
-            #overview-board {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: .85rem;
-                align-items: start;
-            }
-            #overview-board > h3,
-            #overview-board > p.text-xs,
-            #overview-board > .ov-back,
-            #overview-board > .ov-detail-head,
-            #overview-board > .ov-detail-sub,
-            #overview-board > .ov-detail-card,
-            #overview-board > .empty-note {
-                grid-column: 1 / -1;
-            }
-            #overview-board .ov-teacher-btn {
-                margin-bottom: 0;
-                height: 100%;
-            }
             .tab-panel[data-panel="rooms"] .room-tt-wrap { max-height: none; }
         }
         @media (min-width: 1400px) {
@@ -639,7 +624,6 @@
                 min-height: 100dvh;
                 border-radius: 0;
             }
-            #overview-board { display: block; }
         }
 
         .logo-wrap {
@@ -988,36 +972,164 @@
             line-height: 1.2;
             pointer-events: auto;
         }
-        /* Shin-chan + Shiro — between lang flag & logout, sits on header divider */
-        .header-shin-decor {
+        /* Shin-chan + Shiro — between lang flag & logout; soft pink halo + light play */
+        .header-shin-wrap {
             display: none;
-            width: 40px;
-            height: auto;
+            position: relative;
             flex-shrink: 0;
             align-self: flex-end;
-            margin: 0 .05rem -.42rem;
-            position: relative;
-            /* Below .dash-logo / #logout-btn (z-index: 9); never steal clicks */
-            z-index: 1;
+            margin: 0 .12rem -.36rem;
+            padding: .1rem .14rem 0;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            /* Below #logout-btn (z-index: 9); clickable without covering logo/logout */
+            z-index: 2;
+            pointer-events: auto;
+            line-height: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .theme-teacher-a .header-shin-wrap,
+        .theme-teacher-b .header-shin-wrap,
+        .theme-teacher-c .header-shin-wrap {
+            display: block;
+        }
+        .header-shin-wrap::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 6%;
+            width: 118%;
+            height: 72%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background:
+                radial-gradient(ellipse at 50% 70%, rgba(255, 196, 210, .62) 0%, rgba(255, 214, 224, .28) 42%, transparent 72%);
+            filter: blur(1.5px);
+            z-index: 0;
             pointer-events: none;
+            transition: opacity .35s ease, transform .35s ease;
+        }
+        .header-shin-wrap.is-night::before {
+            opacity: .72;
+            background:
+                radial-gradient(ellipse at 50% 70%, rgba(255, 210, 230, .38) 0%, rgba(210, 190, 230, .16) 48%, transparent 72%);
+        }
+        .header-shin-wrap.is-morning::before {
+            opacity: 1;
+            transform: translateX(-50%) scale(1.06);
+        }
+        .header-shin-wrap.is-sync-pulse::before {
+            animation: shinHaloPulse .95s ease-out 1;
+        }
+        .header-shin-decor {
+            display: block;
+            position: relative;
+            z-index: 1;
+            width: 38px;
+            height: auto;
+            margin: 0;
             user-select: none;
             -webkit-user-drag: none;
-            filter: drop-shadow(0 2px 5px rgba(15, 23, 42, .14));
+            pointer-events: none;
+            filter:
+                drop-shadow(0 1px 1px rgba(255, 255, 255, .85))
+                drop-shadow(0 3px 7px rgba(190, 90, 120, .22))
+                drop-shadow(0 1px 2px rgba(15, 23, 42, .1));
             transform-origin: 50% 100%;
             animation: shinDecorBob 3.4s ease-in-out infinite;
             will-change: transform;
         }
-        .theme-teacher-a .header-shin-decor,
-        .theme-teacher-b .header-shin-decor,
-        .theme-teacher-c .header-shin-decor {
-            display: block;
+        .header-shin-wrap.is-morning .header-shin-decor {
+            animation-name: shinDecorWave;
+            animation-duration: 2.6s;
+        }
+        .header-shin-wrap.is-night .header-shin-decor {
+            animation-name: shinDecorSleepy;
+            animation-duration: 4.6s;
+            filter:
+                drop-shadow(0 1px 1px rgba(255, 255, 255, .7))
+                drop-shadow(0 3px 8px rgba(140, 110, 160, .18))
+                drop-shadow(0 1px 2px rgba(15, 23, 42, .1))
+                brightness(.96);
+        }
+        .header-shin-wrap.is-play .header-shin-decor {
+            animation: shinDecorHappy .72s cubic-bezier(.34, 1.45, .64, 1) 1;
+        }
+        .header-shin-bubble {
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 4px);
+            transform: translateX(-50%) translateY(4px) scale(.92);
+            min-width: max-content;
+            max-width: 11.5rem;
+            padding: .28rem .5rem;
+            border-radius: 12px 12px 12px 4px;
+            background: rgba(255, 252, 253, .97);
+            color: #9f4560;
+            font-size: .68rem;
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: .01em;
+            white-space: nowrap;
+            box-shadow:
+                0 0 0 1px rgba(255, 182, 198, .45),
+                0 6px 16px rgba(190, 90, 120, .16);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3;
+            transition: opacity .22s ease, transform .22s ease;
+        }
+        .header-shin-bubble::after {
+            content: '';
+            position: absolute;
+            left: 42%;
+            bottom: -5px;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 252, 253, .97);
+            border-right: 1px solid rgba(255, 182, 198, .45);
+            border-bottom: 1px solid rgba(255, 182, 198, .45);
+            transform: rotate(45deg);
+        }
+        .header-shin-wrap.is-say .header-shin-bubble {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
         }
         @keyframes shinDecorBob {
             0%, 100% { transform: translateY(0) rotate(-1.5deg); }
-            50% { transform: translateY(-7px) rotate(1.5deg); }
+            50% { transform: translateY(-6px) rotate(1.5deg); }
+        }
+        @keyframes shinDecorWave {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            40% { transform: translateY(-8px) rotate(4deg); }
+            70% { transform: translateY(-3px) rotate(-2deg); }
+        }
+        @keyframes shinDecorSleepy {
+            0%, 100% { transform: translateY(0) rotate(2deg); }
+            50% { transform: translateY(-3px) rotate(-1deg); }
+        }
+        @keyframes shinDecorHappy {
+            0% { transform: translateY(0) rotate(0) scale(1); }
+            22% { transform: translateY(-11px) rotate(-14deg) scale(1.08); }
+            48% { transform: translateY(-3px) rotate(12deg) scale(1.04); }
+            72% { transform: translateY(-8px) rotate(-7deg) scale(1.06); }
+            100% { transform: translateY(0) rotate(0) scale(1); }
+        }
+        @keyframes shinHaloPulse {
+            0% { opacity: .85; transform: translateX(-50%) scale(1); }
+            40% { opacity: 1; transform: translateX(-50%) scale(1.28); filter: blur(2px); }
+            100% { opacity: .85; transform: translateX(-50%) scale(1); }
         }
         @media (max-width: 720px) {
-            .header-shin-decor { width: 32px; margin-bottom: -.28rem; }
+            .header-shin-wrap { margin: 0 .06rem -.28rem; padding: .06rem .08rem 0; }
+            .header-shin-decor { width: 30px; }
+            .header-shin-bubble {
+                font-size: .62rem;
+                max-width: 9.5rem;
+                white-space: normal;
+                text-align: center;
+            }
         }
         .header-actions {
             margin-left: auto;
@@ -6827,13 +6939,70 @@
         .dir-plan-del:hover { background: rgba(140, 80, 70, .08); color: #7a4538; border-color: rgba(140, 80, 70, .22); }
 
         /* Director overview · teacher drill-down */
-        .ov-teacher-btn {
-            width: 100%; text-align: left; font-family: inherit; cursor: pointer;
-            display: flex; flex-direction: column; align-items: stretch; gap: .35rem;
-            padding: .85rem .9rem; margin-bottom: .5rem;
-            border: 1.5px solid #e2e8f0; border-radius: 1rem; background: #fff;
+        #overview-board {
+            display: block;
+        }
+        #overview-board .ov-board-head {
+            display: flex;
+            flex-direction: column;
+            gap: .28rem;
+            margin-bottom: .85rem;
+        }
+        #overview-board .ov-board-head h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 750;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+        #overview-board .ov-board-hint {
+            margin: 0;
+            font-size: .72rem;
+            color: #64748b;
+            line-height: 1.4;
+        }
+        #overview-board .ov-board-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .75rem;
+            align-items: stretch;
+        }
+        @media (max-width: 720px) {
+            #overview-board .ov-board-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Card must NOT be a <button> — edit pencil is a real button (nested buttons break the DOM). */
+        .ov-teacher-card {
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: .55rem;
+            padding: .85rem .9rem .75rem;
+            margin: 0;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1rem;
+            background: #fff;
             transition: transform .18s, box-shadow .18s, border-color .18s;
             position: relative;
+            min-height: 0;
+            box-sizing: border-box;
+        }
+        .ov-teacher-card:hover,
+        .ov-teacher-card:focus-visible {
+            transform: translateY(-2px);
+            border-color: #93c5fd;
+            box-shadow: 0 8px 20px rgba(37,99,235,.1);
+            outline: none;
+        }
+        .ov-teacher-card:focus-visible {
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(37,99,235,.45), 0 8px 20px rgba(37,99,235,.1);
         }
         .ov-edit-corner,
         .em-edit-corner {
@@ -6864,39 +7033,43 @@
         }
         .em-profile { position: relative; }
         .em-profile .em-edit-corner { top: .65rem; right: .65rem; }
-        .ov-teacher-btn:hover {
-            transform: translateX(4px);
-            border-color: #93c5fd;
-            box-shadow: 0 8px 20px rgba(37,99,235,.1);
+        .ov-teacher-card .ov-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: .55rem;
+            padding-right: 2.1rem;
         }
-        .ov-teacher-btn .ov-top {
-            display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem;
+        .ov-teacher-card .ov-name {
+            font-weight: 850;
+            font-size: .98rem;
+            color: #0f172a;
+            line-height: 1.25;
+            min-width: 0;
         }
-        .ov-teacher-btn .ov-name { font-weight: 850; font-size: 1rem; color: #0f172a; }
-        .ov-teacher-btn .ov-arrow { color: #64748b; font-size: 1.1rem; }
-        .ov-teacher-btn .ov-header-end {
+        .ov-teacher-card .ov-header-end {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             gap: .28rem;
             flex-shrink: 0;
         }
-        .ov-teacher-btn .ov-lang-flags,
-        .theme-director .ov-teacher-btn .ov-lang-flags.badge {
+        .ov-teacher-card .ov-lang-flags,
+        .theme-director .ov-teacher-card .ov-lang-flags.badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: .3rem .7rem !important;
-            min-width: 5.1rem;
+            gap: 6px;
+            padding: .22rem .5rem !important;
+            min-width: 0;
             line-height: 1;
             background: #f8fafc !important;
             color: inherit !important;
             border: 1px solid #e2e8f0 !important;
             font-weight: 700 !important;
         }
-        .ov-teacher-btn .ov-click-more,
-        .theme-director .ov-teacher-btn .ov-click-more.badge {
+        .ov-teacher-card .ov-click-more,
+        .theme-director .ov-teacher-card .ov-click-more.badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -6908,30 +7081,45 @@
             font-size: .68rem !important;
             font-weight: 800 !important;
             line-height: 1.15;
-            padding: .2rem .45rem !important;
+            padding: .22rem .5rem !important;
             white-space: nowrap;
             max-width: 100%;
+            border-radius: .45rem;
         }
-        .ov-teacher-btn .ov-lang-flags img {
-            width: 18px;
-            height: 18px;
+        .ov-teacher-card .ov-lang-flags img {
+            width: 16px;
+            height: 16px;
             border-radius: 2px;
             flex-shrink: 0;
             object-fit: cover;
             display: block;
             box-shadow: 0 0 0 1px rgba(15, 23, 42, .08);
         }
-        .ov-teacher-btn .ov-lessons {
+        .ov-teacher-card .ov-lessons {
             display: flex;
             flex-direction: column;
-            gap: .18rem;
+            gap: .2rem;
             text-align: left;
             width: 100%;
+            flex: 1 1 auto;
+            min-height: 2.4rem;
         }
-        .ov-teacher-btn .ov-lesson-line {
+        .ov-teacher-card .ov-lesson-line {
             font-size: .78rem;
             color: #475569;
             line-height: 1.35;
+        }
+        .ov-teacher-card .ov-empty-line {
+            font-size: .78rem;
+            color: #94a3b8;
+            line-height: 1.35;
+            text-align: left;
+        }
+        .ov-teacher-card .ov-status-row {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            flex-wrap: wrap;
         }
         /* Room pills — same tones as ตารางห้องเรียน column headers (A blue / B pink / C purple) */
         .room-badge {
@@ -8496,9 +8684,12 @@
                 animation: none !important;
                 transition: none !important;
             }
-            .header-shin-decor {
+            .header-shin-wrap .header-shin-decor,
+            .header-shin-wrap.is-play .header-shin-decor,
+            .header-shin-wrap.is-sync-pulse::before {
                 animation: none !important;
             }
+            .header-shin-bubble { transition: none !important; }
             #order-modal .order-sakura,
             #attend-modal .order-sakura,
             #attend-modal .attend-sparkles { display: none !important; }
@@ -8613,7 +8804,10 @@
                             <button type="button" class="lang-btn" data-lang="en" title="English"><img src="https://flagcdn.com/w80/gb.png" alt="EN" width="24" height="24"></button>
                         </div>
                     </div>
-                    <img class="header-shin-decor" src="assets/decor/shinchan-shiro.png" alt="" width="40" height="64" decoding="async" aria-hidden="true">
+                    <button type="button" class="header-shin-wrap" id="header-shin-btn" data-i18n-aria="shinAria" aria-label="짱구와 흰둥이">
+                        <img class="header-shin-decor" src="assets/decor/shinchan-shiro.png" alt="" width="38" height="61" decoding="async" draggable="false">
+                        <span class="header-shin-bubble" id="header-shin-bubble" aria-hidden="true"></span>
+                    </button>
                     <button id="logout-btn" type="button" class="logout-btn px-3 py-2 rounded-xl bg-white text-sm font-bold text-slate-600 border border-slate-200 shadow-sm" data-i18n="logout">로그아웃</button>
                 </div>
             </header>
@@ -11451,6 +11645,12 @@
                 systemBackupFail: '이 PC에는 백업됨 · 클라우드 동기화 실패',
                 systemBackupFailHard: '시스템 백업 실패',
                 systemBackupNeedSql: ' · Supabase SQL Editor에서 FIX-systemBackup.sql 실행 필요',
+                shinAria: '짱구와 흰둥이',
+                shinHiMorning: '좋은 아침! 화이팅!',
+                shinHiDay: '오늘도 화이팅!',
+                shinHiEvening: '수고했어, 선생님!',
+                shinHiNight: '쿨쿨… 조금만 더!',
+                shinTip: '저장은 자동이에요!',
                 leaveRequest: '휴가/연차 신청',
                 leaveFrom: '시작일',
                 leaveTo: '종료일',
@@ -12345,6 +12545,12 @@
                 systemBackupFail: 'สำรองในเครื่องแล้ว · แต่ซิงก์คลาวด์ล้มเหลว',
                 systemBackupFailHard: 'สำรองข้อมูลระบบล้มเหลว',
                 systemBackupNeedSql: ' · รัน FIX-systemBackup.sql ใน Supabase SQL Editor',
+                shinAria: 'ชินจังกับชิโระ',
+                shinHiMorning: 'อรุณสวัสดิ์ครู!',
+                shinHiDay: 'วันนี้สู้ ๆ นะ!',
+                shinHiEvening: 'เหนื่อยแล้วพักนิดนึงนะ',
+                shinHiNight: 'zzz… ฝันดีนะ',
+                shinTip: 'ระบบเซฟให้อัตโนมัติแล้ว!',
                 leaveRequest: 'ขอลางาน/หยุด',
                 leaveFrom: 'ตั้งแต่วันที่',
                 leaveTo: 'ถึงวันที่',
@@ -13239,6 +13445,12 @@
                 systemBackupFail: 'Saved on this PC · cloud sync failed',
                 systemBackupFailHard: 'System backup failed',
                 systemBackupNeedSql: ' · run FIX-systemBackup.sql in Supabase SQL Editor',
+                shinAria: 'Shin-chan & Shiro',
+                shinHiMorning: 'Good morning!',
+                shinHiDay: 'You got this!',
+                shinHiEvening: 'Nice work today!',
+                shinHiNight: 'zzz… sweet dreams',
+                shinTip: 'Auto-save has your back!',
                 leaveRequest: 'Leave request',
                 leaveFrom: 'From',
                 leaveTo: 'To',
@@ -13889,6 +14101,76 @@
             return next;
         }
 
+        let shinPlayTimer = null;
+        let shinBubbleTimer = null;
+        let shinMoodTimer = null;
+        function getShinHourBucket(h) {
+            const hour = Number.isFinite(h) ? h : new Date().getHours();
+            if (hour >= 5 && hour < 11) return 'morning';
+            if (hour >= 11 && hour < 17) return 'day';
+            if (hour >= 17 && hour < 21) return 'evening';
+            return 'night';
+        }
+        function refreshShinHourMood() {
+            const wrap = document.getElementById('header-shin-btn');
+            if (!wrap) return;
+            const bucket = getShinHourBucket();
+            wrap.classList.toggle('is-morning', bucket === 'morning');
+            wrap.classList.toggle('is-night', bucket === 'night');
+        }
+        function shinSpeechKey(bucket) {
+            if (bucket === 'morning') return 'shinHiMorning';
+            if (bucket === 'evening') return 'shinHiEvening';
+            if (bucket === 'night') return 'shinHiNight';
+            return 'shinHiDay';
+        }
+        function pokeShinSyncPulse() {
+            const wrap = document.getElementById('header-shin-btn');
+            if (!wrap || wrap.offsetParent === null) return;
+            wrap.classList.remove('is-sync-pulse');
+            void wrap.offsetWidth;
+            wrap.classList.add('is-sync-pulse');
+            setTimeout(() => wrap.classList.remove('is-sync-pulse'), 1000);
+        }
+        function playShinGreeting(opts) {
+            const wrap = document.getElementById('header-shin-btn');
+            const bubble = document.getElementById('header-shin-bubble');
+            if (!wrap || wrap.offsetParent === null) return;
+            const forceTip = !!(opts && opts.tip);
+            const bucket = getShinHourBucket();
+            const key = forceTip || Math.random() < 0.28
+                ? 'shinTip'
+                : shinSpeechKey(bucket);
+            const msg = (typeof t === 'function' ? t(key) : '') || '';
+            if (bubble && msg) {
+                bubble.textContent = msg;
+                wrap.classList.add('is-say');
+                clearTimeout(shinBubbleTimer);
+                shinBubbleTimer = setTimeout(() => wrap.classList.remove('is-say'), 2200);
+            }
+            wrap.classList.remove('is-play');
+            void wrap.offsetWidth;
+            wrap.classList.add('is-play');
+            clearTimeout(shinPlayTimer);
+            shinPlayTimer = setTimeout(() => wrap.classList.remove('is-play'), 780);
+        }
+        function initHeaderShinDecor() {
+            const wrap = document.getElementById('header-shin-btn');
+            if (!wrap || wrap.dataset.bound === '1') {
+                refreshShinHourMood();
+                return;
+            }
+            wrap.dataset.bound = '1';
+            wrap.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                playShinGreeting();
+            });
+            refreshShinHourMood();
+            if (shinMoodTimer) clearInterval(shinMoodTimer);
+            shinMoodTimer = setInterval(refreshShinHourMood, 10 * 60 * 1000);
+        }
+
         function applyStaticI18n() {
             document.querySelectorAll('[data-i18n]').forEach((el) => {
                 const key = el.getAttribute('data-i18n');
@@ -13896,6 +14178,10 @@
             });
             document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
                 el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+            });
+            document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+                const key = el.getAttribute('data-i18n-aria');
+                if (key) el.setAttribute('aria-label', t(key));
             });
             document.querySelectorAll('.lang-btn').forEach((btn) => {
                 btn.classList.toggle('active', btn.dataset.lang === lang);
@@ -13906,6 +14192,7 @@
                 const map = { ko: 'kr', th: 'th', en: 'gb' };
                 flag.src = `https://flagcdn.com/w80/${map[lang] || 'kr'}.png`;
             }
+            try { refreshShinHourMood(); } catch (_) {}
         }
 
         function setLang(next) {
@@ -18568,10 +18855,12 @@
                     systemBackupState.firstOkToasted = true;
                     const msg = (typeof t === 'function' ? t('systemBackupOk') : '') || 'System backup saved';
                     showAppToast(msg, 'ok', { throttleKey: 'systemBackup-ok' });
+                    try { pokeShinSyncPulse(); } catch (_) {}
                 } else if (toast === true) {
                     const msg = (typeof t === 'function' ? t('systemBackupOk') : '') || 'System backup saved';
                     // Manual backup confirm — never throttled
                     showAppToast(msg, 'ok');
+                    try { pokeShinSyncPulse(); } catch (_) {}
                 }
                 return { ok: true, local: true, remote, item };
             } catch (err) {
@@ -22153,6 +22442,7 @@
 
             applySchoolLogo();
             applyStaticI18n();
+            try { initHeaderShinDecor(); } catch (_) {}
             document.getElementById('lang-switch')?.classList.remove('hidden-lang');
             document.getElementById('dash-lang')?.classList.remove('show');
             try { ensureStudentDbSeeded(); } catch (_) {}
@@ -25131,6 +25421,7 @@
             function renderOverviewBoard(user) {
                 const board = document.getElementById('overview-board');
                 if (!board || !user || user.role !== 'director') return;
+                try {
                 const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                 const teachers = teacherAccounts();
                 const nowM = minutesNow();
@@ -25196,6 +25487,7 @@
                 }
 
                 const list = teachers.map((tea, i) => {
+                    try {
                     const { lessons, dayOff } = overviewLessonsForTeacher(tea.id, todayKey());
                     const activeSched = lessons.filter((it) => !it.cancelled);
                     const myLeave = leaves.find(L => L.fromId === tea.id && L.status === 'pending');
@@ -25226,7 +25518,7 @@
                     const flagsHtml = flagCodes.length
                         ? flagCodes.map((code) => {
                             const alt = code === 'th' ? 'TH' : code === 'kr' ? 'KR' : 'EN';
-                            return `<img src="https://flagcdn.com/w40/${code}.png" alt="${alt}" width="18" height="18">`;
+                            return `<img src="https://flagcdn.com/w40/${code}.png" alt="${alt}" width="16" height="16">`;
                         }).join('')
                         : '';
                     const flagsPill = flagsHtml
@@ -25241,27 +25533,44 @@
                         : '';
                     const lessonLines = (!myLeave && !dayOff && activeSched.length)
                         ? `<div class="ov-lessons">${activeSched.map((it) => `<div class="ov-lesson-line">${fmtLessonHtml(it)}</div>`).join('')}</div>`
-                        : `<div class="text-xs text-slate-500 text-left">${esc(note)}</div>`;
+                        : `<div class="ov-lessons"><div class="ov-empty-line">${esc(note)}</div></div>`;
                     const editCorner = `<button type="button" class="ov-edit-corner" data-ov-edit="${tea.id}" title="${esc(t('dirTeaEditCorner'))}" aria-label="${esc(t('dirTeaEditCorner'))}"><i class="ph ph-pencil-simple"></i></button>`;
-                    return `<button type="button" class="ov-teacher-btn" data-ov-tea="${tea.id}" style="border-left:4px solid ${c.accent}">
+                    // Use <article>, not <button>: nested edit button would break the DOM (empty shells).
+                    return `<article class="ov-teacher-card" data-ov-tea="${tea.id}" role="button" tabindex="0" style="border-left:4px solid ${c.accent}">
                         ${editCorner}
                         <div class="ov-top">
-                            <span class="ov-name" style="color:${c.accent};display:inline-flex;align-items:center;gap:.45rem">${avatarHtml}${displayName(tea)}</span>
+                            <span class="ov-name" style="color:${c.accent};display:inline-flex;align-items:center;gap:.45rem">${avatarHtml}${esc(displayName(tea))}</span>
                             ${headerEnd}
                         </div>
                         ${statusRow}
                         ${lessonLines}
-                        <div class="text-xs text-slate-400 text-left">${t('overviewClickHint')}</div>
                         ${clickMorePill}
-                    </button>`;
-                }).join('');
+                    </article>`;
+                    } catch (_) {
+                        return '';
+                    }
+                }).filter(Boolean).join('');
 
                 board.innerHTML = `
-                    <h3 style="margin:0 0 .35rem"><i class="ph ph-kanban" style="color:var(--accent)"></i> ${t('todayBoard')}</h3>
-                    <p class="text-xs text-slate-500 mb-3">${t('overviewClickHint')}</p>
-                    ${list || `<p class="empty-note">${t('none')}</p>`}`;
-                board.querySelectorAll('[data-ov-tea]').forEach((btn) => {
-                    btn.addEventListener('click', () => go({ view: 'detail', teacherId: btn.dataset.ovTea }, 'ov-slide-in'));
+                    <div class="ov-board-head">
+                        <h3><i class="ph ph-kanban" style="color:var(--accent)"></i> ${t('todayBoard')}</h3>
+                        <p class="ov-board-hint">${t('overviewClickHint')}</p>
+                    </div>
+                    ${list
+                        ? `<div class="ov-board-grid">${list}</div>`
+                        : `<p class="empty-note">${t('none')}</p>`}`;
+                const openTea = (id) => {
+                    if (!id) return;
+                    go({ view: 'detail', teacherId: id }, 'ov-slide-in');
+                };
+                board.querySelectorAll('[data-ov-tea]').forEach((card) => {
+                    card.addEventListener('click', () => openTea(card.dataset.ovTea));
+                    card.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            openTea(card.dataset.ovTea);
+                        }
+                    });
                 });
                 board.querySelectorAll('[data-ov-edit]').forEach((btn) => {
                     btn.addEventListener('click', (e) => {
@@ -25270,6 +25579,12 @@
                         openDirectorTeacherEditModal(btn.dataset.ovEdit);
                     });
                 });
+                } catch (err) {
+                    try {
+                        board.innerHTML = `<div class="ov-board-head"><h3><i class="ph ph-kanban" style="color:var(--accent)"></i> ${typeof t === 'function' ? t('todayBoard') : 'Overview'}</h3></div><p class="empty-note">${typeof t === 'function' ? t('none') : '—'}</p>`;
+                    } catch (_) {}
+                    try { console.warn('renderOverviewBoard', err); } catch (_) {}
+                }
             }
             renderOverviewBoardRef = renderOverviewBoard;
 
