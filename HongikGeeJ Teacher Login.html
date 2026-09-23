@@ -347,38 +347,38 @@
             overflow: visible;
         }
         .dash-shell > .dc-corners .dc-c {
-            width: 72px;
-            height: 72px;
+            width: 280px;
+            height: 280px;
             opacity: .92;
         }
-        /* Top corners: compact kiss so logo / actions stay clear */
+        /* Top corners: still clear of logo / actions, but ~5–6× prior */
         .dash-shell > .dc-corners .dc-c.tl,
         .dash-shell > .dc-corners .dc-c.tr {
-            width: 52px;
-            height: 52px;
+            width: 200px;
+            height: 200px;
             opacity: .9;
         }
-        .dash-shell > .dc-corners .dc-c.tl { top: -6px; left: 0; }
+        .dash-shell > .dc-corners .dc-c.tl { top: -36px; left: -20px; }
         .dash-shell > .dc-corners .dc-c.tr {
-            top: -6px; left: 100%; right: auto;
+            top: -36px; left: calc(100% + 20px); right: auto;
         }
         @media (max-width: 720px) {
             .dash-shell > .dc-corners .dc-c {
-                width: 56px; height: 56px; opacity: .9;
+                width: 180px; height: 180px; opacity: .9;
             }
             .dash-shell > .dc-corners .dc-c.tl,
             .dash-shell > .dc-corners .dc-c.tr {
-                width: 42px; height: 42px;
+                width: 140px; height: 140px;
             }
-            .dash-shell > .dc-corners .dc-c.tl { top: -4px; left: 0; }
-            .dash-shell > .dc-corners .dc-c.tr { top: -4px; left: 100%; }
+            .dash-shell > .dc-corners .dc-c.tl { top: -24px; left: -12px; }
+            .dash-shell > .dc-corners .dc-c.tr { top: -24px; left: calc(100% + 12px); }
         }
         /* Geometric rails replaced by shared flower chrome */
         .taehyun-fx .dancheong-rail { display: none !important; }
         .dc-c {
-            position: absolute; width: 88px; height: 88px;
+            position: absolute; width: 320px; height: 320px;
             background-repeat: no-repeat; background-size: contain;
-            background-image: url('assets/dancheong/corner-flower.svg?v=cluster7');
+            background-image: url('assets/dancheong/corner-flower.svg?v=cluster10');
             opacity: 1;
             /* Static shadow only — never animate filter (caused color flicker) */
             filter: drop-shadow(0 1px 1.5px rgba(120,90,110,.12));
@@ -425,24 +425,24 @@
           No filter/brightness — internal bloom/leaf/petal motion lives in the SVG (SMIL).
         */
         @keyframes dcSwayTl {
-            0%, 100% { transform: rotate(-2.1deg) translate(0, 0) scale(1); }
-            35% { transform: rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
-            70% { transform: rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
+            0%, 100% { transform: rotate(-5.5deg) translate(0, 0) scale(1); }
+            35% { transform: rotate(4.2deg) translate(2.5px, -4px) scale(1.09); }
+            70% { transform: rotate(6deg) translate(-1.8px, 2px) scale(1.05); }
         }
         @keyframes dcSwayTr {
-            0%, 100% { transform: scaleX(-1) rotate(-2.1deg) translate(0, 0) scale(1); }
-            35% { transform: scaleX(-1) rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
-            70% { transform: scaleX(-1) rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
+            0%, 100% { transform: scaleX(-1) rotate(-5.5deg) translate(0, 0) scale(1); }
+            35% { transform: scaleX(-1) rotate(4.2deg) translate(2.5px, -4px) scale(1.09); }
+            70% { transform: scaleX(-1) rotate(6deg) translate(-1.8px, 2px) scale(1.05); }
         }
         @keyframes dcSwayBl {
-            0%, 100% { transform: scaleY(-1) rotate(-2.1deg) translate(0, 0) scale(1); }
-            35% { transform: scaleY(-1) rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
-            70% { transform: scaleY(-1) rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
+            0%, 100% { transform: scaleY(-1) rotate(-5.5deg) translate(0, 0) scale(1); }
+            35% { transform: scaleY(-1) rotate(4.2deg) translate(2.5px, -4px) scale(1.09); }
+            70% { transform: scaleY(-1) rotate(6deg) translate(-1.8px, 2px) scale(1.05); }
         }
         @keyframes dcSwayBr {
-            0%, 100% { transform: scale(-1) rotate(-2.1deg) translate(0, 0) scale(1); }
-            35% { transform: scale(-1) rotate(1.4deg) translate(0.6px, -0.9px) scale(1.035); }
-            70% { transform: scale(-1) rotate(2.4deg) translate(-0.4px, 0.5px) scale(1.02); }
+            0%, 100% { transform: scale(-1) rotate(-5.5deg) translate(0, 0) scale(1); }
+            35% { transform: scale(-1) rotate(4.2deg) translate(2.5px, -4px) scale(1.09); }
+            70% { transform: scale(-1) rotate(6deg) translate(-1.8px, 2px) scale(1.05); }
         }
         /* Mobile / lite: quieter sway, still a soft breathe */
         @keyframes dcSwayTlLite {
@@ -480,25 +480,26 @@
             overflow: visible;
             background-color: #fff;
             background-image:
-                url('assets/dancheong/edge-sparkles.svg?v=flower1'),
-                url('assets/dancheong/edge-sparkles.svg?v=flower1');
+                url('assets/dancheong/edge-sparkles.svg?v=wave10'),
+                url('assets/dancheong/edge-sparkles.svg?v=wave10');
             background-repeat: no-repeat;
-            /* Tuck flush to card edges — less content intrusion */
-            background-position: center top 0, center bottom 0;
-            background-size: min(100%, 480px) 48px;
+            /* Tall wavy garland (~10× prior tiny rail) — tuck to edges */
+            background-position: center top -18px, center bottom -18px;
+            background-size: min(100%, 920px) 160px;
+            pointer-events: auto;
         }
         .content-card::before,
         .content-card::after {
             content: '';
             position: absolute;
-            width: 32px; height: 32px;
+            width: 320px; height: 320px;
             pointer-events: none !important;
             /* Under card content so blooms never cover text/icons */
             z-index: 0;
             background-repeat: no-repeat;
             background-size: contain;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom6');
-            opacity: .88;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom10');
+            opacity: .94;
             /*
               SVG authored for TL (outer L at 0,0). Always pin that vertex with
               transform-origin: 0 0, then place top-left on each corner and flip —
@@ -511,26 +512,26 @@
         .content-card > * { position: relative; z-index: 1; }
         /* Flush kiss on rounded card stroke */
         .content-card::before {
-            top: -1px; left: -1px;
+            top: -72px; left: -72px;
             transform: none;
             animation: cardBloomSway 5.2s ease-in-out infinite;
         }
         .content-card::after {
-            top: calc(100% + 1px); left: calc(100% + 1px);
+            top: calc(100% + 72px); left: calc(100% + 72px);
             bottom: auto; right: auto;
             transform: scale(-1);
             animation: cardBloomSwayFlip 5.2s ease-in-out infinite;
             animation-delay: .7s;
         }
         @keyframes cardBloomSway {
-            0%, 100% { transform: rotate(-2deg) scale(1); }
-            40% { transform: rotate(1.6deg) scale(1.04); }
-            75% { transform: rotate(2.3deg) scale(1.02); }
+            0%, 100% { transform: rotate(-4.5deg) translate(0, 0) scale(1); }
+            35% { transform: rotate(3.8deg) translate(2px, -4px) scale(1.08); }
+            70% { transform: rotate(5.2deg) translate(-2px, 2px) scale(1.045); }
         }
         @keyframes cardBloomSwayFlip {
-            0%, 100% { transform: scale(-1) rotate(-2deg); }
-            40% { transform: scale(-1.04) rotate(1.6deg); }
-            75% { transform: scale(-1.02) rotate(2.3deg); }
+            0%, 100% { transform: scale(-1) rotate(-4.5deg) translate(0, 0); }
+            35% { transform: scale(-1.08) rotate(3.8deg) translate(2px, -4px); }
+            70% { transform: scale(-1.045) rotate(5.2deg) translate(-2px, 2px); }
         }
         /*
           Eunha only (#dash-shell.is-eunha-shin): content-card corner blooms → Shin décor.
@@ -597,10 +598,15 @@
         }
         .content-card.compact-card::before,
         .content-card.compact-card::after {
-            width: 26px; height: 26px; opacity: .82;
+            width: 260px; height: 260px; opacity: .9;
+        }
+        .content-card.compact-card::before { top: -58px; left: -58px; }
+        .content-card.compact-card::after {
+            top: calc(100% + 58px); left: calc(100% + 58px);
         }
         .content-card.compact-card {
-            background-size: min(100%, 380px) 42px;
+            background-size: min(100%, 780px) 140px;
+            background-position: center top -14px, center bottom -14px;
         }
         .content-card[style*="transparent"] {
             background-image: none;
@@ -612,8 +618,8 @@
         @media (prefers-reduced-motion: reduce) {
             .content-card {
                 background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1');
+                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10'),
+                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10');
             }
             .content-card::before,
             .content-card::after {
@@ -629,14 +635,16 @@
         }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.45rem; }
-            .dc-c { width: 68px; height: 68px; opacity: .95; }
-            .dc-c.tl { top: -12px; left: -12px; }
-            .dc-c.tr { top: -12px; left: calc(100% + 12px); right: auto; }
-            .dc-c.bl { top: calc(100% + 12px); left: -12px; bottom: auto; }
-            .dc-c.br { top: calc(100% + 12px); left: calc(100% + 12px); bottom: auto; right: auto; }
+            .dc-c { width: 220px; height: 220px; opacity: .95; }
+            .dc-c.tl { top: -40px; left: -40px; }
+            .dc-c.tr { top: -40px; left: calc(100% + 40px); right: auto; }
+            .dc-c.bl { top: calc(100% + 40px); left: -40px; bottom: auto; }
+            .dc-c.br { top: calc(100% + 40px); left: calc(100% + 40px); bottom: auto; right: auto; }
             .content-card::before,
-            .content-card::after { width: 24px; height: 24px; opacity: .7; }
-            .content-card { background-size: min(100%, 320px) 40px; }
+            .content-card::after { width: 200px; height: 200px; opacity: .88; }
+            .content-card::before { top: -48px; left: -48px; }
+            .content-card::after { top: calc(100% + 48px); left: calc(100% + 48px); }
+            .content-card { background-size: min(100%, 640px) 120px; }
             .dash-shell.is-eunha-shin .content-card::before {
                 width: 36px; height: 36px; opacity: 1;
                 top: -6px; left: -6px;
@@ -682,8 +690,8 @@
         @media (min-width: 1100px) {
             .dash-body { padding: 1.35rem 1.85rem 1.75rem; }
             .dash-header { padding-left: 1.5rem; padding-right: 1.5rem; }
-            .content-card { padding: 3.35rem 1.5rem; }
-            .content-card.compact-card { padding: 3rem 1.4rem; }
+            .content-card { padding: 2.45rem 1.5rem; }
+            .content-card.compact-card { padding: 2.15rem 1.4rem; }
             .tab-panel[data-panel="rooms"] .room-tt-wrap { max-height: none; }
         }
         @media (min-width: 1400px) {
@@ -1291,9 +1299,9 @@
         .stat-card .k { font-size: .72rem; font-weight: 700; color: #64748b; }
         .stat-card .v { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-top: .2rem; }
         .stat-card .h { font-size: .75rem; color: #94a3b8; margin-top: .15rem; }
-        /* Vertical pad clears ~48px top/bottom flower rails tucked to edges */
-        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 3.25rem 1.1rem; margin-bottom: .85rem; }
-        .content-card h3 { margin: 0; font-size: 1rem; font-weight: 750; color: #0f172a; display: flex; align-items: center; gap: .4rem; }
+        /* Vertical pad clears tall wavy rails; corner blooms tuck outside */
+        .content-card { background-color: #fff; border: 1px solid #e8eef6; border-radius: 1.15rem; padding: 2.35rem 1.1rem; margin-bottom: .85rem; }
+        .content-card h3 { margin: 0; font-size: 1.12rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: .4rem; }
         .item-row { display: flex; justify-content: space-between; gap: .75rem; padding: .7rem 0; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
         .item-row:last-child { border-bottom: none; }
         /* Director orders feed: alternate navy / cream so consecutive sends stay distinct */
@@ -2557,29 +2565,29 @@
         }
         .theme-teacher-c .content-card {
             background-image:
-                url('assets/dancheong/edge-sparkles.svg?v=flower1'),
-                url('assets/dancheong/edge-sparkles.svg?v=flower1');
+                url('assets/dancheong/edge-sparkles.svg?v=wave10'),
+                url('assets/dancheong/edge-sparkles.svg?v=wave10');
             background-repeat: no-repeat;
-            background-position: center top 0, center bottom 0;
-            background-size: min(100%, 480px) 48px;
+            background-position: center top -18px, center bottom -18px;
+            background-size: min(100%, 920px) 160px;
             padding-top: 3.25rem;
             padding-bottom: 3.25rem;
         }
         .theme-teacher-c .content-card::before,
         .theme-teacher-c .content-card::after {
-            width: 96px;
-            height: 96px;
+            width: 320px;
+            height: 320px;
             pointer-events: none !important;
         }
         .theme-teacher-c .content-card.compact-card {
-            background-size: min(100%, 380px) 42px;
+            background-size: min(100%, 780px) 140px;
             padding-top: 3rem;
             padding-bottom: 3rem;
         }
         .theme-teacher-c .content-card.compact-card::before,
         .theme-teacher-c .content-card.compact-card::after {
-            width: 78px;
-            height: 78px;
+            width: 260px;
+            height: 260px;
         }
         @media (max-width: 720px) {
             .dash-shell.theme-teacher-c > .dc-corners .dc-c {
@@ -2594,21 +2602,21 @@
         }
         @media (max-width: 480px) {
             .theme-teacher-c .content-card {
-                background-size: min(100%, 320px) 40px;
+                background-size: min(100%, 640px) 120px;
                 padding-top: 3rem;
                 padding-bottom: 3rem;
             }
             .theme-teacher-c .content-card::before,
             .theme-teacher-c .content-card::after {
-                width: 72px; height: 72px;
+                width: 200px; height: 200px;
                 pointer-events: none !important;
             }
         }
         @media (prefers-reduced-motion: reduce) {
             .theme-teacher-c .content-card {
                 background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1');
+                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10'),
+                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10');
             }
         }
 
@@ -8108,39 +8116,43 @@
         }
         .room-tt-range {
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             isolation: isolate;
-            font-weight: 750; font-size: 1.02rem; color: #1e293b;
+            font-weight: 800; font-size: 1.18rem; color: #0f172a;
             letter-spacing: -.01em; min-width: 0; text-align: center;
             border: 1px solid rgba(148, 163, 184, .42);
-            background:
-                url('assets/dancheong/corner-flower.svg?v=rtnav1') no-repeat left -6px top -8px / 20px auto,
-                url('assets/dancheong/corner-flower.svg?v=rtnav1') no-repeat right -6px bottom -8px / 17px auto,
-                linear-gradient(165deg, #fcfdff 0%, #f4f8fb 58%, #eef4f8 100%);
-            border-radius: .58rem;
-            padding: .28rem .78rem .3rem; cursor: pointer; font-family: inherit; line-height: 1.18;
+            background: linear-gradient(165deg, #fcfdff 0%, #f4f8fb 58%, #eef4f8 100%);
+            border-radius: .72rem;
+            padding: .48rem 1.15rem .52rem; cursor: pointer; font-family: inherit; line-height: 1.2;
             box-shadow:
                 0 1px 0 rgba(255,255,255,.9) inset,
                 0 1px 4px rgba(15, 23, 42, .04);
             transition: transform .2s ease, box-shadow .22s ease, border-color .22s ease;
             animation: roomTtRangePulse 3.6s ease-in-out infinite;
         }
-        .room-tt-range::before {
+        /* TL + BR corner flowers ~8× prior (20px/17px → 160px/136px), decorative only */
+        .room-tt-range::before,
+        .room-tt-range::after {
             content: '';
-            position: absolute; inset: 0; z-index: 0; pointer-events: none;
-            background: linear-gradient(
-                105deg,
-                transparent 0%,
-                transparent 38%,
-                rgba(255,255,255,.0) 42%,
-                rgba(255,255,255,.55) 50%,
-                rgba(186, 230, 253, .28) 54%,
-                transparent 62%,
-                transparent 100%
-            );
-            background-size: 220% 100%;
-            animation: roomTtRangeShimmer 5.2s ease-in-out infinite;
-            opacity: .85;
+            position: absolute;
+            z-index: 0;
+            pointer-events: none !important;
+            background: url('assets/dancheong/corner-flower.svg?v=rtnav8') no-repeat center / contain;
+            opacity: .92;
+            will-change: transform;
+        }
+        .room-tt-range::before {
+            width: 160px; height: 160px;
+            top: -52px; left: -52px;
+            transform-origin: 30% 30%;
+            animation: roomTtFlowerSwayTl 4.8s ease-in-out infinite;
+        }
+        .room-tt-range::after {
+            width: 136px; height: 136px;
+            right: -48px; bottom: -48px; left: auto; top: auto;
+            transform-origin: 70% 70%;
+            animation: roomTtFlowerSwayBr 5.4s ease-in-out infinite;
+            animation-delay: -.9s;
         }
         .room-tt-range > * { position: relative; z-index: 1; }
         .room-tt-range:hover, .room-tt-range:focus-visible {
@@ -8161,8 +8173,18 @@
             display: block;
         }
         .room-tt-range .rt-range-hint {
-            display: block; font-size: .68rem; font-weight: 650; color: #64748b;
-            margin-top: .06rem; letter-spacing: .01em; opacity: .82;
+            display: block; font-size: .78rem; font-weight: 700; color: #475569;
+            margin-top: .1rem; letter-spacing: .01em; opacity: .9;
+        }
+        @keyframes roomTtFlowerSwayTl {
+            0%, 100% { transform: rotate(-6deg) translate(0, 0) scale(1); }
+            40% { transform: rotate(7deg) translate(3px, -5px) scale(1.12); }
+            70% { transform: rotate(4deg) translate(-2px, 3px) scale(1.06); }
+        }
+        @keyframes roomTtFlowerSwayBr {
+            0%, 100% { transform: scale(-1) rotate(-6deg) translate(0, 0); }
+            40% { transform: scale(-1.12) rotate(7deg) translate(3px, -5px); }
+            70% { transform: scale(-1.06) rotate(4deg) translate(-2px, 3px); }
         }
         .room-tt-range.is-week-slide-next {
             animation: roomTtRangeFadeNext .38s cubic-bezier(.22, 1, .36, 1) both;
@@ -8199,10 +8221,12 @@
         @media (prefers-reduced-motion: reduce) {
             .room-tt-nav .soft-btn,
             .room-tt-range,
-            .room-tt-range::before {
+            .room-tt-range::before,
+            .room-tt-range::after {
                 transition: none !important;
                 animation: none !important;
             }
+            .room-tt-range::after { transform: scale(-1); }
             .room-tt-nav .soft-btn:hover:not(:disabled),
             .room-tt-nav .soft-btn:focus-visible:not(:disabled),
             .room-tt-nav .soft-btn:active:not(:disabled),
@@ -8626,6 +8650,24 @@
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
             box-shadow: 0 1px 0 rgba(15, 23, 42, .04) !important;
+            /* Pull title/header up — less empty space above ตารางห้องเรียน */
+            padding-top: 1.15rem !important;
+            padding-bottom: 1.35rem !important;
+        }
+        .tab-panel[data-panel="rooms"] > .content-card > h3 {
+            font-size: 1.42rem;
+            font-weight: 900;
+            color: #0b1220;
+            letter-spacing: -.02em;
+            margin: 0 0 .55rem;
+            gap: .5rem;
+        }
+        .tab-panel[data-panel="rooms"] > .content-card > h3 .ph {
+            font-size: 1.35em;
+            color: #1d4ed8;
+        }
+        .tab-panel[data-panel="rooms"] .room-tt-head {
+            margin-top: 0;
         }
         .theme-teacher-a .tab-panel[data-panel="rooms"].active .content-card,
         .theme-teacher-b .tab-panel[data-panel="rooms"] > .content-card,
@@ -8897,8 +8939,8 @@
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
                 background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=flower1') !important;
+                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10'),
+                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10') !important;
             }
             .content-card::before,
             .content-card::after {
@@ -9136,9 +9178,11 @@
             .stat-grid, .stat-grid.work-stats { grid-template-columns: 1fr; }
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
-            .content-card { padding: 3rem .85rem; margin-bottom: .7rem; }
+            .content-card { padding: 2.1rem .85rem; margin-bottom: .7rem; }
             .content-card::before,
-            .content-card::after { width: 24px; height: 24px; opacity: .7; pointer-events: none !important; }
+            .content-card::after { width: 200px; height: 200px; opacity: .88; pointer-events: none !important; }
+            .content-card::before { top: -48px; left: -48px; }
+            .content-card::after { top: calc(100% + 48px); left: calc(100% + 48px); }
             .dash-shell.is-eunha-shin .content-card::before {
                 width: 38px; height: 38px; opacity: 1;
                 top: -6px; left: -6px;
@@ -24990,6 +25034,19 @@
 
                 const tryMoveToDay = (dateKey) => {
                     if (!roomTtMonthPick || !canEdit) return false;
+                    if (isPastRoomTtDate(dateKey)) {
+                        showAppToast(t('roomTtPastLocked'), 'warn');
+                        roomTtMonthPick = null;
+                        renderRoomTtMonthBody(user);
+                        return true;
+                    }
+                    const pickBlock = getRoomBlockById(roomTtMonthPick);
+                    if (pickBlock && isPastRoomTtDate(pickBlock.date)) {
+                        showAppToast(t('roomTtPastLocked'), 'warn');
+                        roomTtMonthPick = null;
+                        renderRoomTtMonthBody(user);
+                        return true;
+                    }
                     roomTtMonthBusy = true;
                     const res = moveRoomBlockToDate(roomTtMonthPick, dateKey, user);
                     roomTtMonthPick = null;
@@ -25008,13 +25065,17 @@
                 body.querySelectorAll('[data-rt-month-chip]').forEach((chip) => {
                     chip.addEventListener('click', (e) => {
                         e.stopPropagation();
+                        const id = chip.dataset.rtMonthChip;
+                        const chipBlock = getRoomBlockById(id);
+                        if (chipBlock && isPastRoomTtDate(chipBlock.date)) {
+                            showAppToast(t('roomTtPastLocked'), 'warn');
+                            return;
+                        }
                         if (!canEdit) {
-                            const id = chip.dataset.rtMonthChip;
                             closeRoomTtMonthView();
                             openRoomTtModal(user, { blockId: id });
                             return;
                         }
-                        const id = chip.dataset.rtMonthChip;
                         if (roomTtMonthPick === id) {
                             roomTtMonthPick = null;
                         } else {
@@ -25024,9 +25085,16 @@
                     });
                     chip.addEventListener('dragstart', (e) => {
                         if (!canEdit) return;
+                        const id = chip.dataset.rtMonthChip;
+                        const chipBlock = getRoomBlockById(id);
+                        if (chipBlock && isPastRoomTtDate(chipBlock.date)) {
+                            e.preventDefault();
+                            showAppToast(t('roomTtPastLocked'), 'warn');
+                            return;
+                        }
                         roomTtMonthBusy = true;
-                        roomTtMonthPick = chip.dataset.rtMonthChip;
-                        try { e.dataTransfer.setData('text/plain', chip.dataset.rtMonthChip); } catch (_) {}
+                        roomTtMonthPick = id;
+                        try { e.dataTransfer.setData('text/plain', id); } catch (_) {}
                         try { e.dataTransfer.effectAllowed = 'move'; } catch (_) {}
                     });
                     chip.addEventListener('dragend', () => {
@@ -31789,7 +31857,6 @@
                     return;
                 }
                 pruneNonFirstSchedAlerts();
-                backfillTodayCancelledSchedAlerts();
                 const pending = pendingDirectorSchedChanges();
                 if (!pending.length) {
                     modal.classList.remove('open');
@@ -31807,40 +31874,36 @@
                     const isUndoOff = c.action === 'undodayoff';
                     const isRoomEdit = c.action === 'room_edit';
                     const isClassStatus = c.action === 'class_status';
-                    const isCancelledStatus = isClassStatus && normalizeClassStatus(c.classStatus) === 'cancelled';
                     const isEdit = c.action === 'edit';
                     const isDelete = c.action === 'delete';
-                    const kind = isCancelledStatus ? t('schedAlertKindClassCancelled')
-                        : (isClassStatus ? t('schedAlertKindClassStatus')
+                    const kind = isClassStatus ? t('schedAlertKindClassStatus')
                         : (isRoomEdit ? t('schedAlertKindRoomEdit')
                         : (isUndoOff ? t('schedAlertKindUndoOff')
                         : (isOff ? t('schedAlertKindOff')
                         : (isEdit ? t('schedAlertKindEdit')
-                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd')))))));
-                    const summary = isCancelledStatus ? t('schedAlertSummaryClassCancelled')
-                        : (isClassStatus ? t('schedAlertSummaryStudentPostpone')
+                        : (isDelete ? t('schedAlertKindDelete') : t('schedAlertKindAdd'))))));
+                    const summary = isClassStatus ? t('schedAlertSummaryStudentPostpone')
                         : (isRoomEdit ? t('schedAlertSummaryRoomEdit')
                         : (isUndoOff ? t('schedAlertSummaryUndoOff')
                         : (isOff ? t('schedAlertSummaryOff')
                         : (isEdit ? t('schedAlertSummaryEdit')
-                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd')))))));
+                        : (isDelete ? t('schedAlertSummaryDelete') : t('schedAlertSummaryAdd'))))));
                     const subject = pickLangText(c, 'title') || c.title || (isOff || isUndoOff ? t('schedDayOffTitle') : '—');
                     const time = (!isOff && !isUndoOff && (c.start || c.end))
                         ? `${c.start || '—'}–${c.end || '—'}`
                         : '—';
                     const typeLbl = isClassStatus
-                        ? classStatusLabel(c.classStatus || (isCancelledStatus ? 'cancelled' : 'student_postponed'))
+                        ? classStatusLabel(c.classStatus || 'student_postponed')
                         : (isRoomEdit
                         ? (c.room ? roomLabel(c.room) : t('schedActionRoomEdit'))
                         : classTypeLabel((isOff || isUndoOff) ? 'dayoff' : (c.classType || 'regular')));
-                    const pill = isCancelledStatus ? t('schedActionClassCancelled')
-                        : (isClassStatus ? t('schedActionClassStatus')
+                    const pill = isClassStatus ? t('schedActionClassStatus')
                         : (isRoomEdit ? t('schedActionRoomEdit')
                         : (isUndoOff ? t('schedActionUndoDayOff')
                         : (isOff ? t('schedActionDayOff')
                         : (isEdit ? t('schedActionEdit')
-                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd')))))));
-                    const cardClass = (isOff || isUndoOff || isCancelledStatus ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
+                        : (isDelete ? t('schedActionDelete') : t('schedActionAdd'))))));
+                    const cardClass = (isOff || isUndoOff ? 'is-off' : 'is-add') + (wasOpen ? ' no-pop' : '');
                     const teaLbl = schedAlertTeacherLabel(c);
                     const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                     return `<div class="sched-alert-card ${cardClass}">
@@ -31854,7 +31917,6 @@
                             <div><dt>${esc(t('schedAlertLblDate'))}</dt><dd>${esc(c.date || '—')}</dd></div>
                             ${(isOff || isUndoOff) ? '' : `<div><dt>${esc(t('schedAlertLblTime'))}</dt><dd>${esc(time)}</dd></div>`}
                             <div><dt>${esc(t('schedAlertLblSubject'))}</dt><dd>${esc(subject)}</dd></div>
-                            ${c.room ? `<div><dt>${esc(t('schedAlertLblRoom'))}</dt><dd>${esc(roomLabel(c.room))}</dd></div>` : ''}
                             <div><dt>${esc(isClassStatus ? t('classStatusLabel') : t('schedAlertLblType'))}</dt><dd>${esc(typeLbl)}</dd></div>
                             <div><dt>${esc(t('schedAlertLblStatus'))}</dt><dd>${esc(t('pending'))}</dd></div>
                         </dl>
