@@ -21075,6 +21075,26 @@
                     }
                 }
                 const headerFx = document.getElementById('dash-header-fx');
+                /** Large header watermark: personal Korean name for teachers; institute brand for director. */
+                const hangulMarkForUser = (u) => {
+                    if (!u) return '';
+                    if (u.role === 'director') return '홍익지제이';
+                    if (u.role !== 'teacher') return '';
+                    const fromProfile = String(u.nameKo || '')
+                        .replace(/\s*(선생님|쌤|교사)\s*$/u, '')
+                        .trim();
+                    if (fromProfile) return fromProfile;
+                    return ({ taehyun: '태현', eunha: '은나', sua: '수아' })[u.id] || '';
+                };
+                const hangulGlyphsForMark = (markText) => {
+                    const base = Array.from(String(markText || ''));
+                    const fillers = ['홍', '익', '한', '국', '빛', '길', '꿈', '힘', '정', '성', '학', '원', '덕', '지'];
+                    const out = base.slice();
+                    for (let i = 0; out.length < (lite ? 5 : 14) && i < fillers.length; i++) {
+                        if (!out.includes(fillers[i])) out.push(fillers[i]);
+                    }
+                    return out;
+                };
                 const paintHeaderHangul = (glyphs, markText, sizeBase, sizeStep) => {
                     if (!headerFx) return;
                     const headerGlyphs = lite ? glyphs.slice(0, 5) : glyphs;
@@ -21090,26 +21110,29 @@
                         <div class="hangul-float-layer">${hangul}</div>
                         <span class="hangul-mark">${markText}</span>`;
                 };
-                if (!fx) {
-                    if (user.id === 'taehyun') {
-                        paintHeaderHangul(
-                            lite ? ['태', '현', '홍', '익', '빛'] : ['태', '현', '홍', '익', '한', '국', '빛', '길', '꿈', '힘', '정', '성', '학', '원'],
-                            '태현', 0.95, 0.22
-                        );
-                    } else if (user.role === 'director') {
-                        paintHeaderHangul(
-                            lite ? ['홍', '익', '지', '제', '이'] : ['홍', '익', '지', '제', '이', '원', '장', '학', '정', '성', '한', '국', '빛', '길', '힘', '덕'],
-                            '홍익지제이', 0.88, 0.18
-                        );
-                    } else if (headerFx) {
-                        headerFx.innerHTML = '';
+                const paintUserHeaderHangul = () => {
+                    const mark = hangulMarkForUser(user);
+                    if (!mark) {
+                        if (headerFx) headerFx.innerHTML = '';
+                        return false;
                     }
+                    const glyphs = user.role === 'director'
+                        ? (lite
+                            ? ['홍', '익', '지', '제', '이']
+                            : ['홍', '익', '지', '제', '이', '원', '장', '학', '정', '성', '한', '국', '빛', '길', '힘', '덕'])
+                        : hangulGlyphsForMark(mark);
+                    const sizeBase = user.role === 'director' ? 0.88 : 0.95;
+                    const sizeStep = user.role === 'director' ? 0.18 : 0.22;
+                    paintHeaderHangul(glyphs, mark, sizeBase, sizeStep);
+                    return true;
+                };
+                if (!fx) {
+                    paintUserHeaderHangul();
                     return;
                 }
                 if (user.id === 'taehyun') {
-                    const glyphs = lite
-                        ? ['태', '현', '홍', '익', '빛']
-                        : ['태', '현', '홍', '익', '한', '국', '빛', '길', '꿈', '힘', '정', '성', '학', '원'];
+                    const mark = hangulMarkForUser(user) || '태현';
+                    const glyphs = hangulGlyphsForMark(mark);
                     const hangul = glyphs.map((ch, i) => {
                         const left = 4 + (i * 7) % 90;
                         const size = (1.15 + (i % 5) * 0.38).toFixed(2);
@@ -21118,7 +21141,7 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
-                    paintHeaderHangul(glyphs, '태현', 0.95, 0.22);
+                    paintHeaderHangul(glyphs, mark, 0.95, 0.22);
                     const petalKinds = ['pink', 'purple', 'green', 'yellow'];
                     const petalCount = lite ? 6 : 22;
                     const petals = Array.from({ length: petalCount }, (_, i) => {
@@ -21245,7 +21268,7 @@
                         const cls = `c${(i % 5) + 1}`;
                         return `<span class="hangul-float ${cls}" style="left:${left}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:-${delay}s">${ch}</span>`;
                     }).join('');
-                    paintHeaderHangul(glyphs, '홍익지제이', 0.88, 0.18);
+                    paintHeaderHangul(glyphs, hangulMarkForUser(user) || '홍익지제이', 0.88, 0.18);
                     const dots = Array.from({ length: lite ? 4 : 14 }, (_, i) => {
                         const left = 6 + (i * 6.8) % 90;
                         const delay = (i * 0.7).toFixed(1);
@@ -21273,7 +21296,8 @@
                         ${dots}`;
                     return;
                 }
-                if (headerFx) headerFx.innerHTML = '';
+                /* Other teachers (은나, 수아, …): personal hangul watermark only */
+                paintUserHeaderHangul();
                 fx.innerHTML = '';
             }
 
