@@ -94,7 +94,7 @@ Priority when saving / syncing portal stores:
 2. Else **Apps Script** if `data/photos/sync-config.json` `syncUrl` is set  
 3. Else **localStorage only** (no crash)
 
-**Profile photos:** upload JPEG → Supabase Storage bucket `teacher-photos` (public URL) + `portal_stores.photos` index (per-account merge, never wipe other teachers). Quality stays high (~720px JPEG q≈0.92). **Emergency contacts:** teachers save via emergency tab → `localStorage hongik-account-data-v2` + portal `accountData` (same blob). **One-time SQL:** paste `data/supabase/FIX-RUN-IN-SQL-EDITOR.sql` (or `FIX-accountData.sql`) in Supabase SQL Editor if cloud save fails (`store_name_check` or Storage bucket missing). Until then, photos/emergency stay on that PC only.
+**Profile photos:** upload JPEG → Supabase Storage bucket `teacher-photos` (public URL) + `portal_stores.photos` index (per-account merge, never wipe other teachers). Quality stays high (~720px JPEG q≈0.92). **Emergency contacts:** teachers save via emergency tab → `localStorage hongik-account-data-v2` + portal `accountData` (same blob). **Login passwords:** custom PINs live in `localStorage hongik-passwords-v1` and are mirrored into `accountData.__loginPasswords__` (merge + flush with the same portal store); login pulls remote before validate so mobile picks up a PC password change. **One-time SQL:** paste `data/supabase/FIX-RUN-IN-SQL-EDITOR.sql` (or `FIX-accountData.sql`) in Supabase SQL Editor if cloud save fails (`store_name_check` or Storage bucket missing). Until then, photos/emergency/password sync stay on that PC only.
 
 Live site:
 
