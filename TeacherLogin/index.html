@@ -13064,10 +13064,10 @@
                 adminOpsDone: '처리됨',
                 helpTitle: '도움말 · AI',
                 helpHint: 'Gemini에게 질문 · 원장 개인 메시지 · 계정 권한 기준 안내',
-                helpHintDirector: 'Gemini에게 질문 · 선생님 메시지(우리에게) · 계정 권한 기준 안내',
+                helpHintDirector: 'Gemini에게 질문 · 다른 사람이 보낸 메시지 · 계정 권한 기준 안내',
                 helpTabAi: 'AI 도움',
                 helpTabHead: '원장에게',
-                helpTabToUs: '우리에게 온 메시지',
+                helpTabToUs: '다른 사람이 보낸 메시지',
                 helpTabInbox: '수신함',
                 helpAiPh: '질문해 주세요… (예약·휴가·학생 등 · Gemini)',
                 helpHeadPh: '원장에게 보낼 개인 메시지',
@@ -13079,6 +13079,8 @@
                 helpMarkedDone: '완료 처리했습니다',
                 helpWelcome: '안녕하세요! Hongik GeeJ Gemini 도우미입니다.\n계정 권한에 맞춰 사용법·문제 해결·예약 안내를 도와드릴게요.',
                 helpSentHead: '원장에게 메시지를 보냈습니다.',
+                helpNewMsgToast: '새 메시지 · 도움말에서 확인하세요',
+                helpNewReplyToast: '원장 답장이 왔습니다',
                 helpEmptyInbox: '받은 메시지가 없습니다',
                 helpNoAccess: '이 계정으로는 해당 기능을 사용할 수 없습니다.',
                 helpGoRooms: '강의실 표로 이동',
@@ -14022,10 +14024,10 @@
                 adminOpsDone: 'ดำเนินการแล้ว',
                 helpTitle: 'ช่วยเหลือ · AI',
                 helpHint: 'ถาม Gemini · ส่งข้อความส่วนตัวถึงหัวหน้า · ตอบตามสิทธิ์บัญชี',
-                helpHintDirector: 'ถาม Gemini · ข้อความถึงเราจากครู · ตอบตามสิทธิ์บัญชี',
+                helpHintDirector: 'ถาม Gemini · ข้อความจากคนอื่นส่งถึงเรา · ตอบตามสิทธิ์บัญชี',
                 helpTabAi: 'AI ช่วยเหลือ',
                 helpTabHead: 'ถึงหัวหน้า',
-                helpTabToUs: 'ข้อความถึงเรา',
+                helpTabToUs: 'ข้อความจากคนอื่นส่งถึงเรา',
                 helpTabInbox: 'กล่องข้อความ',
                 helpAiPh: 'ถามได้เลย… (จองห้อง·ลา·นักเรียน ฯลฯ · Gemini)',
                 helpHeadPh: 'ข้อความส่วนตัวถึงหัวหน้า',
@@ -14037,6 +14039,8 @@
                 helpMarkedDone: 'ทำเครื่องหมายเสร็จแล้ว',
                 helpWelcome: 'สวัสดีค่ะ! ผู้ช่วย Gemini ของ Hongik GeeJ ครับ\nจะแนะนำวิธีใช้ แก้ปัญหา หรือช่วยจองห้อง ตามสิทธิ์ของบัญชีคุณ',
                 helpSentHead: 'ส่งข้อความถึงหัวหน้าแล้ว',
+                helpNewMsgToast: 'มีข้อความใหม่ · เปิดช่วยเหลือเพื่ออ่าน',
+                helpNewReplyToast: 'หัวหน้าตอบข้อความแล้ว',
                 helpEmptyInbox: 'ยังไม่มีข้อความ',
                 helpNoAccess: 'บัญชีนี้ไม่มีสิทธิ์ใช้ฟังก์ชันนั้น',
                 helpGoRooms: 'ไปตารางห้อง',
@@ -14980,10 +14984,10 @@
                 adminOpsDone: 'Done',
                 helpTitle: 'Help · AI',
                 helpHint: 'Ask Gemini · private message to head · answers respect your account limits',
-                helpHintDirector: 'Ask Gemini · messages to us from staff · answers respect your account limits',
+                helpHintDirector: 'Ask Gemini · messages from others to us · answers respect your account limits',
                 helpTabAi: 'AI help',
                 helpTabHead: 'To head',
-                helpTabToUs: 'Messages to us',
+                helpTabToUs: 'Messages from others to us',
                 helpTabInbox: 'Inbox',
                 helpAiPh: 'Ask anything… (rooms · leave · students · Gemini)',
                 helpHeadPh: 'Private message to the head',
@@ -14995,6 +14999,8 @@
                 helpMarkedDone: 'Marked as done',
                 helpWelcome: 'Hi! I’m the Hongik GeeJ Gemini helper.\nI’ll guide usage, troubleshoot, and booking steps based on your account role.',
                 helpSentHead: 'Message sent to the head.',
+                helpNewMsgToast: 'New message · open Help to read',
+                helpNewReplyToast: 'Reply from the head',
                 helpEmptyInbox: 'No messages yet',
                 helpNoAccess: 'Your account cannot use that feature.',
                 helpGoRooms: 'Open room timetable',
@@ -20032,8 +20038,9 @@
                 threadMap.set(id, {
                     ...base,
                     messages: [...msgMap.values()].sort((x, y) => String(x.at || '').localeCompare(String(y.at || ''))),
-                    unreadForHead: !!(prev.unreadForHead || th.unreadForHead),
-                    unreadForUser: !!(prev.unreadForUser || th.unreadForUser)
+                    // Prefer newer thread's unread flags so "mark read" can clear after sync
+                    unreadForHead: b > a ? !!th.unreadForHead : (a > b ? !!prev.unreadForHead : !!(prev.unreadForHead || th.unreadForHead)),
+                    unreadForUser: b > a ? !!th.unreadForUser : (a > b ? !!prev.unreadForUser : !!(prev.unreadForUser || th.unreadForUser))
                 });
             };
             (Array.isArray(local.threads) ? local.threads : []).forEach(ingestThread);
@@ -25080,6 +25087,8 @@
                 if (!keepTab) {
                     helpAiLog = [];
                     helpUi = { tab: 'ai', inboxId: null, aiBooted: false };
+                    helpToastBootstrapped = false;
+                    helpUnreadNotified = 0;
                 } else if (document.getElementById('help-panel')?.classList.contains('open')) {
                     try { renderHelpPanel(); } catch (_) {}
                 }
@@ -28834,10 +28843,32 @@
         } catch (_) {}
 
         function helpCanMessageHead(user) {
+            // Director is the head — no "message to head" / "message to us" compose for director
             return !!(user && (user.role === 'teacher' || user.role === 'accounting' || user.role === 'admin'));
         }
         function helpCanInbox(user) {
+            // Director/admin receive teacher→head threads (inbox tab + FAB badge + toast)
             return !!(user && (user.role === 'director' || user.role === 'admin'));
+        }
+        let helpToastBootstrapped = false;
+        let helpUnreadNotified = 0;
+        let helpToastCooldownUntil = 0;
+        function notifyHelpChatIncoming() {
+            if (!currentUser) return;
+            const n = helpUnreadFor(currentUser);
+            if (!helpToastBootstrapped) {
+                helpToastBootstrapped = true;
+                helpUnreadNotified = n;
+                return;
+            }
+            if (n > helpUnreadNotified && Date.now() > helpToastCooldownUntil) {
+                const isHead = currentUser.role === 'director' || currentUser.role === 'admin';
+                const key = isHead ? 'helpNewMsgToast' : 'helpNewReplyToast';
+                const msg = (typeof t === 'function' ? t(key) : '') || (isHead ? 'New message' : 'New reply');
+                try { showAppToast(msg, 'ok'); } catch (_) {}
+                helpToastCooldownUntil = Date.now() + 2800;
+            }
+            helpUnreadNotified = Math.max(0, n);
         }
         function helpUnreadFor(user) {
             if (!user) return 0;
@@ -29110,7 +29141,7 @@
                 pushDraft();
                 if (user.role === 'director') {
                     return {
-                        text: lang === 'th' ? 'ข้อความจากครู/พนักงานอยู่ที่แท็บ «ข้อความถึงเรา» · เปิดอ่าน ตอบกลับ หรือทำเครื่องหมายเสร็จได้' : lang === 'en' ? 'Staff messages are in «Messages to us» — open, reply, or mark done' : '선생님 메시지는 «우리에게 온 메시지» 탭에서 확인·답장·완료 처리하세요',
+                        text: lang === 'th' ? 'ข้อความจากครู/พนักงานอยู่ที่แท็บ «ข้อความจากคนอื่นส่งถึงเรา» · เปิดอ่าน ตอบกลับ หรือทำเครื่องหมายเสร็จได้' : lang === 'en' ? 'Staff messages are in «Messages from others to us» — open, reply, or mark done' : '선생님 메시지는 «다른 사람이 보낸 메시지» 탭에서 확인·답장·완료 처리하세요',
                         actions
                     };
                 }
@@ -29144,6 +29175,7 @@
             const n = helpUnreadFor(currentUser);
             badge.textContent = String(n);
             badge.classList.toggle('show', n > 0);
+            try { notifyHelpChatIncoming(); } catch (_) {}
         }
         function openHelpPanel(tab) {
             const panel = document.getElementById('help-panel');
