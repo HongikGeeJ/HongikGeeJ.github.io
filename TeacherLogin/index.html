@@ -6227,6 +6227,9 @@
             display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .45rem;
             font-size: .78rem; font-weight: 750; color: #64748b;
         }
+        .pt-calc-toolbar .pt-calc-chip-range {
+            margin-left: .15rem;
+        }
         .pt-calc-sum {
             position: relative;
             overflow: hidden;
@@ -13662,6 +13665,8 @@
         const DAY_SCHEDULES_STORE = 'hongik-day-schedules-v1';
         const READ_ORDERS_KEY = (id) => `hongik-orders-read-${id}`;
         const PW_KEY = 'hongik-passwords-v1';
+        /** Reserved accountData key — login PINs synced via portal_stores.accountData (no new SQL). */
+        const LOGIN_PW_ACCOUNT_KEY = '__loginPasswords__';
         const DELETED_KEY = 'hongik-deleted-accounts-v1';
         const BLOCKED_KEY = 'hongik-blocked-accounts-v1';
         const LEAVE_KEY = 'hongik-leave-requests-v1'; /* LEAVE_WORKFLOW_V2 */
@@ -21832,6 +21837,132 @@
             });
             return { map: out, changed };
         }
+        /**
+         * Login PIN map — accepts legacy `{ id: "1234" }` or `{ id: { pass, updatedAt } }`.
+         * Synced inside accountData[`__loginPasswords__`] so mobile/PC share one source of truth.
+         */
+        function normalizePasswordsMap(raw) {
+            const out = {};
+            if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+            Object.keys(raw).forEach((id) => {
+                const sid = String(id || '').trim();
+                if (!sid || sid === LOGIN_PW_ACCOUNT_KEY) return;
+                const v = raw[sid];
+                if (v == null || v === '') return;
+                if (typeof v === 'string' || typeof v === 'number') {
+                    const pass = String(v).trim();
+                    if (!pass) return;
+                    out[sid] = { pass, updatedAt: '' };
+                    return;
+                }
+                if (typeof v !== 'object' || Array.isArray(v)) return;
+                const pass = String(v.pass != null ? v.pass : (v.pw != null ? v.pw : (v.password != null ? v.password : ''))).trim();
+                if (!pass) return;
+                out[sid] = { pass, updatedAt: String(v.updatedAt || '') };
+            });
+            return out;
+        }
+        /** Merge PIN maps — `b` wins when newer/equal updatedAt; legacy-without-ts prefers `b`. */
+        function mergePasswordsMaps(a, b) {
+            const out = { ...normalizePasswordsMap(a) };
+            Object.entries(normalizePasswordsMap(b)).forEach(([id, right]) => {
+                const left = out[id];
+                if (!left) {
+                    out[id] = { pass: right.pass, updatedAt: right.updatedAt || '' };
+                    return;
+                }
+                const rAt = String(right.updatedAt || '');
+                const lAt = String(left.updatedAt || '');
+                if (rAt && (!lAt || rAt >= lAt)) {
+                    out[id] = { pass: right.pass, updatedAt: rAt };
+                } else if (!rAt && !lAt && right.pass !== left.pass) {
+                    out[id] = { pass: right.pass, updatedAt: '' };
+                }
+            });
+            const before = normalizePasswordsMap(a);
+            const changed = JSON.stringify(before) !== JSON.stringify(out);
+            return { map: out, changed };
+        }
+        function writePasswordsLocal(map) {
+            const normalized = normalizePasswordsMap(map);
+            const wire = {};
+            Object.keys(normalized).forEach((id) => {
+                const e = normalized[id];
+                wire[id] = e.updatedAt ? { pass: e.pass, updatedAt: e.updatedAt } : e.pass;
+            });
+            localStorage.setItem(PW_KEY, JSON.stringify(wire));
+            try { localStorage.setItem(PW_KEY + ':tick', String(Date.now())); } catch (_) {}
+        }
+        /** Apply accountData[`__loginPasswords__`] → local PW_KEY (no re-push). */
+        function hydratePasswordsFromAccountData(accountMap) {
+            try {
+                const mirror = accountMap && typeof accountMap === 'object'
+                    ? accountMap[LOGIN_PW_ACCOUNT_KEY]
+                    : null;
+                if (!mirror || typeof mirror !== 'object') return false;
+                const merged = mergePasswordsMaps(loadPasswords(), normalizePasswordsMap(mirror));
+                if (!merged.changed) return false;
+                writePasswordsLocal(merged.map);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+        /** Pull central accountData (incl. PINs) before login validate — fixes stale mobile localStorage. */
+        async function ensureLoginPasswordsFromCentral() {
+            try {
+                const sb = typeof ensureSupabaseClient === 'function' ? await ensureSupabaseClient() : null;
+                const remote = typeof fetchRemoteAccountDataMap === 'function'
+                    ? await fetchRemoteAccountDataMap(sb)
+                    : {};
+                if (!remote || typeof remote !== 'object' || !Object.keys(remote).length) return false;
+                const merged = mergeAccountDataMaps(loadOverrides(), remote);
+                const wasApplying = !!portalSyncApplying;
+                portalSyncApplying = true;
+                try {
+                    if (merged.changed) saveOverrides(merged.map, { syncRemote: false });
+                    hydratePasswordsFromAccountData(merged.map);
+                } finally {
+                    portalSyncApplying = wasApplying;
+                }
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+        /**
+         * After portal pull: publish local PINs still missing from the cloud mirror
+         * (password changed on this PC before sync). Never overwrite keys already in remote.
+         */
+        async function publishMissingLoginPasswordsAfterSync() {
+            try {
+                const local = loadPasswords();
+                if (!Object.keys(local).length) return false;
+                const sb = typeof ensureSupabaseClient === 'function' ? await ensureSupabaseClient() : null;
+                const remote = typeof fetchRemoteAccountDataMap === 'function'
+                    ? await fetchRemoteAccountDataMap(sb)
+                    : {};
+                const remoteMirror = normalizePasswordsMap(remote && remote[LOGIN_PW_ACCOUNT_KEY]);
+                try { hydratePasswordsFromAccountData(remote || {}); } catch (_) {}
+                const additions = {};
+                Object.entries(local).forEach(([id, entry]) => {
+                    if (remoteMirror[id]) return;
+                    if (!entry || !entry.pass) return;
+                    additions[id] = {
+                        pass: entry.pass,
+                        updatedAt: entry.updatedAt || new Date().toISOString()
+                    };
+                });
+                if (!Object.keys(additions).length) return false;
+                const ov = loadOverrides() || {};
+                ov[LOGIN_PW_ACCOUNT_KEY] = { ...remoteMirror, ...additions };
+                saveOverrides(ov, { syncRemote: true });
+                writePasswordsLocal(mergePasswordsMaps(local, ov[LOGIN_PW_ACCOUNT_KEY]).map);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
         /** Per-account overrides (emergency contacts, names, work days, …) — LWW by updatedAt. */
         function mergeAccountDataMaps(localMap, remoteMap) {
             const out = { ...(localMap && typeof localMap === 'object' ? localMap : {}) };
@@ -21840,6 +21971,18 @@
             Object.keys(remote).forEach((uid) => {
                 const rem = remote[uid];
                 if (!rem || typeof rem !== 'object' || Array.isArray(rem)) return;
+                // Login PINs: per-id LWW (never whole-row wipe with emergency/profile updates)
+                if (uid === LOGIN_PW_ACCOUNT_KEY) {
+                    const mergedPw = mergePasswordsMaps(
+                        normalizePasswordsMap(out[uid]),
+                        normalizePasswordsMap(rem)
+                    );
+                    if (mergedPw.changed || !out[uid]) {
+                        out[uid] = mergedPw.map;
+                        changed = true;
+                    }
+                    return;
+                }
                 const loc = out[uid];
                 if (!loc || typeof loc !== 'object' || Array.isArray(loc)) {
                     out[uid] = JSON.parse(JSON.stringify(rem));
@@ -22344,8 +22487,10 @@
                     const merged = mergeAccountDataMaps(loadOverrides(), remoteData);
                     if (merged.changed) {
                         saveOverrides(merged.map, { syncRemote: false });
+                        try { hydratePasswordsFromAccountData(merged.map); } catch (_) {}
                         return true;
                     }
+                    try { hydratePasswordsFromAccountData(remoteData); } catch (_) {}
                     return false;
                 }
                 if (name === 'photos') {
@@ -22831,6 +22976,7 @@
             const out = {};
             Object.keys(val).forEach((k) => {
                 if (SYSTEM_BACKUP_SECRET_KEYS.test(k)) return;
+                if (k === LOGIN_PW_ACCOUNT_KEY || k === '__loginPasswords__') return;
                 if (k === 'dataUrl' && typeof val[k] === 'string' && String(val[k]).startsWith('data:')) {
                     if (val.url || val.publicUrl) return;
                     out[k] = '[omitted-dataUrl]';
@@ -25072,8 +25218,29 @@
             }
         }
 
-        function loadPasswords() { try { return JSON.parse(localStorage.getItem(PW_KEY) || '{}'); } catch { return {}; } }
-        function savePasswords(m) { localStorage.setItem(PW_KEY, JSON.stringify(m)); }
+        function loadPasswords() {
+            try { return normalizePasswordsMap(JSON.parse(localStorage.getItem(PW_KEY) || '{}')); }
+            catch { return {}; }
+        }
+        function savePasswords(m, { syncRemote = true } = {}) {
+            const normalized = normalizePasswordsMap(m);
+            writePasswordsLocal(normalized);
+            const applying = !!(typeof portalSyncApplying !== 'undefined' && portalSyncApplying);
+            if (!syncRemote || applying) return;
+            try {
+                const ov = loadOverrides() || {};
+                const wire = {};
+                Object.keys(normalized).forEach((id) => {
+                    const e = normalized[id];
+                    wire[id] = {
+                        pass: e.pass,
+                        updatedAt: e.updatedAt || new Date().toISOString()
+                    };
+                });
+                ov[LOGIN_PW_ACCOUNT_KEY] = wire;
+                saveOverrides(ov, { syncRemote: true });
+            } catch (_) {}
+        }
         function loadDeletedAccounts() {
             try {
                 const raw = JSON.parse(localStorage.getItem(DELETED_KEY) || '[]');
@@ -25121,22 +25288,24 @@
             try {
                 const pws = loadPasswords();
                 // Old defaults were 1111 / 2025 — clear so new default 5010 works
-                if (String(pws.admin) === '1111' || String(pws.admin) === '2025') {
+                if (pws.admin && (String(pws.admin.pass) === '1111' || String(pws.admin.pass) === '2025')) {
                     delete pws.admin;
-                    savePasswords(pws);
+                    savePasswords(pws, { syncRemote: false });
                 }
             } catch (_) {}
         }
         migrateAdminPasscode();
+        try { hydratePasswordsFromAccountData(loadOverrides()); } catch (_) {}
         migrateOfficialTimetable();
 
         function getPasswordForId(id) {
-            const custom = loadPasswords()[id];
-            return (custom != null && custom !== '') ? String(custom) : DEFAULT_PASS_BY_ID[id];
+            const entry = loadPasswords()[id];
+            const custom = entry && entry.pass != null ? String(entry.pass) : '';
+            return custom !== '' ? custom : DEFAULT_PASS_BY_ID[id];
         }
         function setPasswordForId(id, pw) {
             const store = loadPasswords();
-            store[id] = String(pw);
+            store[id] = { pass: String(pw), updatedAt: new Date().toISOString() };
             savePasswords(store);
         }
         function isValidPasscode(pw) {
@@ -25577,6 +25746,7 @@
                 const store = loadOverrides() || {};
                 let changed = false;
                 Object.keys(store).forEach((key) => {
+                    if (key === LOGIN_PW_ACCOUNT_KEY) return;
                     const canon = typeof canonicalAccountId === 'function' ? canonicalAccountId(key) : key;
                     if (!canon || canon === key) return;
                     const from = store[key] && typeof store[key] === 'object' ? store[key] : null;
@@ -25652,20 +25822,22 @@
             const code = String(passcode || '').trim();
             if (!code) return null;
             const pws = loadPasswords();
-            for (const [id, pw] of Object.entries(pws)) {
-                if (pw == null || pw === '') continue;
-                if (String(pw) === code) {
+            for (const [id, entry] of Object.entries(pws)) {
+                const pw = entry && entry.pass != null ? String(entry.pass) : '';
+                if (!pw) continue;
+                if (pw === code) {
                     if (isAccountDeleted(id)) return null;
-                    const entry = Object.entries(ACCOUNTS).find(([, a]) => a.id === id);
-                    if (!entry) return null;
-                    return { id, account: mergeAccount(entry[1], code), blocked: isAccountBlocked(id) };
+                    const entryAcc = Object.entries(ACCOUNTS).find(([, a]) => a.id === id);
+                    if (!entryAcc) return null;
+                    return { id, account: mergeAccount(entryAcc[1], code), blocked: isAccountBlocked(id) };
                 }
             }
             const base = ACCOUNTS[code];
             if (!base) return null;
             if (isAccountDeleted(base.id)) return null;
-            const custom = pws[base.id];
-            if (custom != null && custom !== '' && String(custom) !== code) return null;
+            const customEntry = pws[base.id];
+            const custom = customEntry && customEntry.pass != null ? String(customEntry.pass) : '';
+            if (custom !== '' && custom !== code) return null;
             return { id: base.id, account: mergeAccount(base, code), blocked: isAccountBlocked(base.id) };
         }
 
@@ -27252,10 +27424,22 @@
             const orderCheck = document.getElementById('order-read-check');
             const orderConfirm = document.getElementById('order-confirm-btn');
 
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const code = passcode.value.trim();
                 if (!code) { errorText.textContent = t('needPass'); errorMsg.classList.remove('hidden'); return; }
+                const submitBtn = form.querySelector('[type="submit"]');
+                if (submitBtn) submitBtn.disabled = true;
+                try {
+                    // Pull central PINs before validate — mobile must not keep a stale local override
+                    await Promise.race([
+                        ensureLoginPasswordsFromCentral(),
+                        new Promise((resolve) => setTimeout(resolve, 4500))
+                    ]);
+                } catch (_) {}
+                finally {
+                    if (submitBtn) submitBtn.disabled = false;
+                }
                 const hit = matchAccountByPasscode(code);
                 if (!hit) {
                     errorText.textContent = t('badPass');
@@ -30846,12 +31030,12 @@
                         <div class="pt-calc-note" role="note" aria-label="${isSelf ? t('ptSelfHint') : t('ptCalcHint')}">
                             <span class="pt-calc-chip">${t('ptCalcChipRate')}</span>
                             <span class="pt-calc-chip">${isSelf ? t('ptSelfFormula') : t('ptCalcChipFormula')}</span>
-                            ${isSelf ? '' : `<span class="pt-calc-chip pt-calc-chip-range">${ptCalcChipLookbackLabel()}</span>`}
                         </div>
                         <div class="pt-calc-toolbar">
                             <label class="pt-month-wrap">${t('ptPickMonth')}
                                 <select class="sched-select pt-calc-month">${monthSel}</select>
                             </label>
+                            ${isSelf ? '' : `<span class="pt-calc-chip pt-calc-chip-range">${ptCalcChipLookbackLabel()}</span>`}
                         </div>
                     </div>
                     ${buildPtCalendarHtml(ym, records, canEdit, esc)}
