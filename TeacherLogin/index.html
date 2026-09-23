@@ -472,20 +472,14 @@
             .dc-c.bl { transform: scaleY(-1); }
             .dc-c.br { transform: scale(-1); }
         }
-        /* Corner blooms + mini-flower rail on card edges (all roles).
-           Rails are background-image only (never hit-test). Pseudos must stay
-           pointer-events:none so they cannot cover #dash-tabs / header / cards. */
+        /* Card edge décor (all roles): Sua-style corner blooms only.
+           Horizontal edge-sparkles rails removed. Pseudos stay
+           pointer-events:none so they cannot cover tabs / header / cards. */
         .content-card {
             position: relative;
             overflow: visible;
             background-color: #fff;
-            background-image:
-                url('assets/dancheong/edge-sparkles.svg?v=wave10'),
-                url('assets/dancheong/edge-sparkles.svg?v=wave10');
-            background-repeat: no-repeat;
-            /* Tall wavy garland (~10× prior tiny rail) — tuck to edges */
-            background-position: center top -18px, center bottom -18px;
-            background-size: min(100%, 920px) 160px;
+            background-image: none;
             pointer-events: auto;
         }
         .content-card::before,
@@ -604,10 +598,6 @@
         .content-card.compact-card::after {
             top: calc(100% + 58px); left: calc(100% + 58px);
         }
-        .content-card.compact-card {
-            background-size: min(100%, 780px) 140px;
-            background-position: center top -14px, center bottom -14px;
-        }
         .content-card[style*="transparent"] {
             background-image: none;
         }
@@ -617,9 +607,7 @@
         }
         @media (prefers-reduced-motion: reduce) {
             .content-card {
-                background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10');
+                background-image: none;
             }
             .content-card::before,
             .content-card::after {
@@ -644,7 +632,6 @@
             .content-card::after { width: 200px; height: 200px; opacity: .88; }
             .content-card::before { top: -48px; left: -48px; }
             .content-card::after { top: calc(100% + 48px); left: calc(100% + 48px); }
-            .content-card { background-size: min(100%, 640px) 120px; }
             .dash-shell.is-eunha-shin .content-card::before {
                 width: 36px; height: 36px; opacity: 1;
                 top: -6px; left: -6px;
@@ -2532,8 +2519,9 @@
         .theme-teacher-c .stat-card {
             border-color: rgba(91,140,90,.14);
             box-shadow: 0 8px 22px rgba(91,140,90,.07);
-            /* background-color only — keep edge flower strip (background-image) */
+            /* background-color only — no horizontal edge-sparkles rail */
             background-color: rgba(255,255,255,.88);
+            background-image: none;
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
         }
@@ -2547,31 +2535,26 @@
         .theme-teacher-c #dash-name { color: #2d3b2c !important; line-height: 1.55 !important; padding-bottom: .2em; overflow: visible; }
 
         /*
-          Sua only (.theme-teacher-c): larger corner blooms + dash-shell .dc-c.
-          Edge mini-flower strip matches shared tucked rail (~48px).
+          Sua (.theme-teacher-c) reference: large corner blooms + dash-shell .dc-c.
+          No horizontal edge-sparkles strip — shared globally for all similar accounts.
         */
         .dash-shell.theme-teacher-c > .dc-corners .dc-c {
-            width: 216px;
-            height: 216px;
+            width: 280px;
+            height: 280px;
         }
         .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl,
         .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
-            width: 156px;
-            height: 156px;
+            width: 200px;
+            height: 200px;
         }
-        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -18px; left: 0; }
+        .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -36px; left: -20px; }
         .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
-            top: -18px; left: 100%; right: auto;
+            top: -36px; left: calc(100% + 20px); right: auto;
         }
         .theme-teacher-c .content-card {
-            background-image:
-                url('assets/dancheong/edge-sparkles.svg?v=wave10'),
-                url('assets/dancheong/edge-sparkles.svg?v=wave10');
-            background-repeat: no-repeat;
-            background-position: center top -18px, center bottom -18px;
-            background-size: min(100%, 920px) 160px;
-            padding-top: 3.25rem;
-            padding-bottom: 3.25rem;
+            background-image: none;
+            padding-top: 2.15rem;
+            padding-bottom: 2.15rem;
         }
         .theme-teacher-c .content-card::before,
         .theme-teacher-c .content-card::after {
@@ -2580,9 +2563,8 @@
             pointer-events: none !important;
         }
         .theme-teacher-c .content-card.compact-card {
-            background-size: min(100%, 780px) 140px;
-            padding-top: 3rem;
-            padding-bottom: 3rem;
+            padding-top: 1.85rem;
+            padding-bottom: 1.85rem;
         }
         .theme-teacher-c .content-card.compact-card::before,
         .theme-teacher-c .content-card.compact-card::after {
@@ -2591,32 +2573,24 @@
         }
         @media (max-width: 720px) {
             .dash-shell.theme-teacher-c > .dc-corners .dc-c {
-                width: 168px; height: 168px;
+                width: 180px; height: 180px;
             }
             .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl,
             .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr {
-                width: 126px; height: 126px;
+                width: 140px; height: 140px;
             }
-            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -12px; left: 0; }
-            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr { top: -12px; left: 100%; }
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tl { top: -24px; left: -12px; }
+            .dash-shell.theme-teacher-c > .dc-corners .dc-c.tr { top: -24px; left: calc(100% + 12px); }
         }
         @media (max-width: 480px) {
             .theme-teacher-c .content-card {
-                background-size: min(100%, 640px) 120px;
-                padding-top: 3rem;
-                padding-bottom: 3rem;
+                padding-top: 1.75rem;
+                padding-bottom: 1.75rem;
             }
             .theme-teacher-c .content-card::before,
             .theme-teacher-c .content-card::after {
                 width: 200px; height: 200px;
                 pointer-events: none !important;
-            }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .theme-teacher-c .content-card {
-                background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10');
             }
         }
 
@@ -8938,9 +8912,7 @@
             .content-card {
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
-                background-image:
-                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10'),
-                    url('assets/dancheong/edge-sparkles-static.svg?v=wave10') !important;
+                background-image: none !important;
             }
             .content-card::before,
             .content-card::after {

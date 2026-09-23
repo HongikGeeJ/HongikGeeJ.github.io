@@ -1,132 +1,107 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 22" fill="none" shape-rendering="geometricPrecision">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 160" fill="none" shape-rendering="geometricPrecision">
   <!--
-    Static mini-flower rail (prefers-reduced-motion / lite-fx).
-    Same Korean soft pastel cluster as edge-sparkles.svg — no SMIL.
+    Static large wavy flower rail (prefers-reduced-motion / lite-fx).
   -->
   <defs>
-    <linearGradient id="seaHairS" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
+    <linearGradient id="seaHairS" x1="0" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#7eb6d9" stop-opacity="0"/>
-      <stop offset="12%" stop-color="#7eb6d9" stop-opacity=".24"/>
-      <stop offset="50%" stop-color="#4a6fa5" stop-opacity=".3"/>
-      <stop offset="88%" stop-color="#7eb6d9" stop-opacity=".24"/>
+      <stop offset="10%" stop-color="#7eb6d9" stop-opacity=".22"/>
+      <stop offset="50%" stop-color="#4a6fa5" stop-opacity=".28"/>
+      <stop offset="90%" stop-color="#7eb6d9" stop-opacity=".22"/>
       <stop offset="100%" stop-color="#7eb6d9" stop-opacity="0"/>
     </linearGradient>
     <g id="fPinkS">
-      <ellipse cx="0" cy="-2.55" rx="1.3" ry="2.3" fill="#F2A0B8"/>
-      <ellipse cx="0" cy="-2.55" rx="1.3" ry="2.3" fill="#E888A8" transform="rotate(72)"/>
-      <ellipse cx="0" cy="-2.55" rx="1.3" ry="2.3" fill="#F6B8CC" transform="rotate(144)"/>
-      <ellipse cx="0" cy="-2.55" rx="1.3" ry="2.3" fill="#E890A8" transform="rotate(216)"/>
-      <ellipse cx="0" cy="-2.55" rx="1.3" ry="2.3" fill="#F8C4D4" transform="rotate(288)"/>
-      <circle cx="0" cy="0" r="1.1" fill="#E8C84A"/>
-      <circle cx="-.22" cy="-.28" r=".38" fill="#FFFCE8"/>
+      <ellipse cx="0" cy="-10.2" rx="5.2" ry="9.2" fill="#F2A0B8"/>
+      <ellipse cx="0" cy="-10.2" rx="5.2" ry="9.2" fill="#E888A8" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-10.2" rx="5.2" ry="9.2" fill="#F6B8CC" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-10.2" rx="5.2" ry="9.2" fill="#E890A8" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-10.2" rx="5.2" ry="9.2" fill="#F8C4D4" transform="rotate(288)"/>
+      <circle cx="0" cy="0" r="4.4" fill="#E8C84A"/>
+      <circle cx="-.9" cy="-1.1" r="1.5" fill="#FFFCE8"/>
     </g>
     <g id="fLavS">
-      <ellipse cx="0" cy="-2.3" rx="1.15" ry="2.05" fill="#8B6BC9"/>
-      <ellipse cx="0" cy="-2.3" rx="1.15" ry="2.05" fill="#A888E0" transform="rotate(72)"/>
-      <ellipse cx="0" cy="-2.3" rx="1.15" ry="2.05" fill="#7B5CB8" transform="rotate(144)"/>
-      <ellipse cx="0" cy="-2.3" rx="1.15" ry="2.05" fill="#B094E8" transform="rotate(216)"/>
-      <ellipse cx="0" cy="-2.3" rx="1.15" ry="2.05" fill="#9470CC" transform="rotate(288)"/>
-      <circle cx="0" cy="0" r=".95" fill="#F5DC5A"/>
-      <circle cx="-.18" cy="-.22" r=".32" fill="#FFFCE8"/>
+      <ellipse cx="0" cy="-9.2" rx="4.6" ry="8.2" fill="#8B6BC9"/>
+      <ellipse cx="0" cy="-9.2" rx="4.6" ry="8.2" fill="#A888E0" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-9.2" rx="4.6" ry="8.2" fill="#7B5CB8" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-9.2" rx="4.6" ry="8.2" fill="#B094E8" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-9.2" rx="4.6" ry="8.2" fill="#9470CC" transform="rotate(288)"/>
+      <circle cx="0" cy="0" r="3.8" fill="#F5DC5A"/>
+      <circle cx="-.7" cy="-.9" r="1.3" fill="#FFFCE8"/>
     </g>
     <g id="fWhiteS">
-      <circle cx="0" cy="-1.8" r="1.1" fill="#FFF9FC"/>
-      <circle cx="1.5" cy="-.52" r="1.1" fill="#F5E0EA"/>
-      <circle cx=".92" cy="1.3" r="1.1" fill="#FFF9FC"/>
-      <circle cx="-.92" cy="1.3" r="1.1" fill="#F5E0EA"/>
-      <circle cx="-1.5" cy="-.52" r="1.1" fill="#FFF9FC"/>
-      <circle cx="0" cy="0" r=".8" fill="#E0C04A"/>
+      <circle cx="0" cy="-7.2" r="4.4" fill="#FFF9FC"/>
+      <circle cx="6" cy="-2.1" r="4.4" fill="#F5E0EA"/>
+      <circle cx="3.7" cy="5.2" r="4.4" fill="#FFF9FC"/>
+      <circle cx="-3.7" cy="5.2" r="4.4" fill="#F5E0EA"/>
+      <circle cx="-6" cy="-2.1" r="4.4" fill="#FFF9FC"/>
+      <circle cx="0" cy="0" r="3.2" fill="#E0C04A"/>
     </g>
     <g id="fSeaS">
-      <ellipse cx="0" cy="-2.05" rx="1.05" ry="1.9" fill="#7eb6d9"/>
-      <ellipse cx="0" cy="-2.05" rx="1.05" ry="1.9" fill="#bae6fd" transform="rotate(72)"/>
-      <ellipse cx="0" cy="-2.05" rx="1.05" ry="1.9" fill="#4a6fa5" transform="rotate(144)"/>
-      <ellipse cx="0" cy="-2.05" rx="1.05" ry="1.9" fill="#c7dff0" transform="rotate(216)"/>
-      <ellipse cx="0" cy="-2.05" rx="1.05" ry="1.9" fill="#93c5fd" transform="rotate(288)"/>
-      <circle cx="0" cy="0" r=".85" fill="#F5DC5A"/>
+      <ellipse cx="0" cy="-8.2" rx="4.2" ry="7.6" fill="#7eb6d9"/>
+      <ellipse cx="0" cy="-8.2" rx="4.2" ry="7.6" fill="#bae6fd" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-8.2" rx="4.2" ry="7.6" fill="#4a6fa5" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-8.2" rx="4.2" ry="7.6" fill="#c7dff0" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-8.2" rx="4.2" ry="7.6" fill="#93c5fd" transform="rotate(288)"/>
+      <circle cx="0" cy="0" r="3.4" fill="#F5DC5A"/>
     </g>
     <g id="fBudS">
-      <ellipse cx="0" cy="0" rx="1.3" ry="1.85" fill="#9B7AD4" transform="rotate(18)"/>
-      <ellipse cx="0" cy="0" rx=".72" ry="1.15" fill="#EDE4F8" transform="rotate(18)"/>
-      <circle cx=".12" cy="-.08" r=".5" fill="#E8C84A"/>
+      <ellipse cx="0" cy="0" rx="5.2" ry="7.4" fill="#9B7AD4" transform="rotate(18)"/>
+      <ellipse cx="0" cy="0" rx="2.9" ry="4.6" fill="#EDE4F8" transform="rotate(18)"/>
+      <circle cx=".5" cy="-.3" r="2" fill="#E8C84A"/>
     </g>
     <g id="leafS">
-      <ellipse cx="0" cy="0" rx="1.05" ry="2.3" fill="#8FC99A" transform="rotate(-35)"/>
-      <ellipse cx=".32" cy="-.18" rx=".5" ry="1.4" fill="#C5E8CB" transform="rotate(-35)"/>
+      <ellipse cx="0" cy="0" rx="4.2" ry="9.2" fill="#8FC99A" transform="rotate(-35)"/>
+      <ellipse cx="1.3" cy="-.7" rx="2" ry="5.6" fill="#C5E8CB" transform="rotate(-35)"/>
     </g>
   </defs>
 
-  <path d="M10 11 C50 9.2 90 12.8 130 11 S210 9.2 250 11 S330 12.8 390 11"
-        stroke="url(#seaHairS)" stroke-width=".85" stroke-linecap="round" opacity=".6"/>
+  <path d="M12 80 C60 42 110 118 160 72 S260 38 310 88 S400 128 468 80"
+        stroke="url(#seaHairS)" stroke-width="2.4" stroke-linecap="round" opacity=".4"/>
 
-  <g opacity=".9">
-    <g transform="translate(14 12.2) scale(.7)"><use href="#leafS"/></g>
-    <g transform="translate(18.5 10.1) scale(.72)"><use href="#fPinkS"/></g>
-    <g transform="translate(24.8 12.5) scale(.52)"><use href="#fWhiteS"/></g>
-    <g transform="translate(30.2 9.5) scale(.66)"><use href="#fLavS"/></g>
-    <g transform="translate(35.8 12.9) rotate(42) scale(.62)"><use href="#leafS"/></g>
-    <g transform="translate(40.5 11.1) scale(.58)"><use href="#fSeaS"/></g>
-    <g transform="translate(46.5 9.3) scale(.78)"><use href="#fPinkS"/></g>
-    <g transform="translate(52.2 12.6) scale(.68)"><use href="#fBudS"/></g>
-    <g transform="translate(57.8 10.4) scale(.6)"><use href="#fLavS"/></g>
-    <g transform="translate(63.5 9.2) scale(.56)"><use href="#fWhiteS"/></g>
-    <g transform="translate(68.8 12.5) rotate(-22) scale(.68)"><use href="#leafS"/></g>
-    <g transform="translate(74 10.9) scale(.64)"><use href="#fPinkS"/></g>
-    <g transform="translate(80 9.4) scale(.74)"><use href="#fLavS"/></g>
-    <g transform="translate(86 12.3) scale(.54)"><use href="#fSeaS"/></g>
-    <g transform="translate(91.5 10.3) scale(.6)"><use href="#fWhiteS"/></g>
-    <g transform="translate(97.5 9.2) scale(.7)"><use href="#fPinkS"/></g>
-    <g transform="translate(103.2 12.1) scale(.62)"><use href="#fBudS"/></g>
-    <g transform="translate(108.2 10.7) rotate(28) scale(.58)"><use href="#leafS"/></g>
-    <g transform="translate(113.5 9.7) scale(.66)"><use href="#fLavS"/></g>
-    <g transform="translate(119.2 11.6) scale(.56)"><use href="#fPinkS"/></g>
-    <g transform="translate(124.8 9.3) scale(.68)"><use href="#fWhiteS"/></g>
-    <g transform="translate(130.8 11) scale(.6)"><use href="#fSeaS"/></g>
-    <g transform="translate(136.5 9.5) scale(.72)"><use href="#fLavS"/></g>
-    <g transform="translate(142.2 12.6) rotate(-32) scale(.66)"><use href="#leafS"/></g>
-    <g transform="translate(147.8 10.1) scale(.74)"><use href="#fPinkS"/></g>
-    <g transform="translate(153.5 12.4) scale(.58)"><use href="#fBudS"/></g>
-    <g transform="translate(159 9.4) scale(.54)"><use href="#fWhiteS"/></g>
-    <g transform="translate(164.5 11.2) scale(.64)"><use href="#fLavS"/></g>
-    <g transform="translate(170.5 9.2) scale(.7)"><use href="#fPinkS"/></g>
-    <g transform="translate(176.2 12.1) scale(.56)"><use href="#fSeaS"/></g>
-    <g transform="translate(181.2 10.4) rotate(18) scale(.62)"><use href="#leafS"/></g>
-    <g transform="translate(187 9.6) scale(.76)"><use href="#fLavS"/></g>
-    <g transform="translate(193 11.5) scale(.58)"><use href="#fWhiteS"/></g>
-    <g transform="translate(198.5 9.4) scale(.66)"><use href="#fPinkS"/></g>
-    <g transform="translate(204.2 12.3) scale(.68)"><use href="#fBudS"/></g>
-    <g transform="translate(209.8 10.2) scale(.6)"><use href="#fLavS"/></g>
-    <g transform="translate(215.5 9.3) scale(.64)"><use href="#fSeaS"/></g>
-    <g transform="translate(221 12.7) rotate(-26) scale(.68)"><use href="#leafS"/></g>
-    <g transform="translate(226.5 10.7) scale(.72)"><use href="#fPinkS"/></g>
-    <g transform="translate(232.5 9.1) scale(.56)"><use href="#fWhiteS"/></g>
-    <g transform="translate(238 11.6) scale(.62)"><use href="#fLavS"/></g>
-    <g transform="translate(244 9.5) scale(.78)"><use href="#fPinkS"/></g>
-    <g transform="translate(249.8 12.5) scale(.6)"><use href="#fBudS"/></g>
-    <g transform="translate(255.2 10.4) scale(.58)"><use href="#fSeaS"/></g>
-    <g transform="translate(260.8 9.7) rotate(36) scale(.58)"><use href="#leafS"/></g>
-    <g transform="translate(266.5 11.1) scale(.7)"><use href="#fLavS"/></g>
-    <g transform="translate(272.5 9.3) scale(.62)"><use href="#fWhiteS"/></g>
-    <g transform="translate(278 12.1) scale(.56)"><use href="#fPinkS"/></g>
-    <g transform="translate(283.5 9.7) scale(.74)"><use href="#fLavS"/></g>
-    <g transform="translate(289.5 11.5) scale(.54)"><use href="#fSeaS"/></g>
-    <g transform="translate(294.5 10.1) rotate(-16) scale(.66)"><use href="#leafS"/></g>
-    <g transform="translate(300.2 9.4) scale(.7)"><use href="#fPinkS"/></g>
-    <g transform="translate(306.2 12.3) scale(.54)"><use href="#fWhiteS"/></g>
-    <g transform="translate(311.8 10.3) scale(.66)"><use href="#fBudS"/></g>
-    <g transform="translate(317.5 9.2) scale(.64)"><use href="#fLavS"/></g>
-    <g transform="translate(323.5 11.2) scale(.72)"><use href="#fPinkS"/></g>
-    <g transform="translate(329 12.6) rotate(22) scale(.62)"><use href="#leafS"/></g>
-    <g transform="translate(334.5 9.6) scale(.6)"><use href="#fSeaS"/></g>
-    <g transform="translate(340 11) scale(.58)"><use href="#fWhiteS"/></g>
-    <g transform="translate(345.5 9.4) scale(.7)"><use href="#fLavS"/></g>
-    <g transform="translate(351.5 12.2) scale(.56)"><use href="#fPinkS"/></g>
-    <g transform="translate(357 10.1) scale(.64)"><use href="#fBudS"/></g>
-    <g transform="translate(362 11.9) rotate(-38) scale(.58)"><use href="#leafS"/></g>
-    <g transform="translate(367.5 9.5) scale(.66)"><use href="#fLavS"/></g>
-    <g transform="translate(373.5 11.1) scale(.62)"><use href="#fPinkS"/></g>
-    <g transform="translate(379 9.8) scale(.52)"><use href="#fWhiteS"/></g>
-    <g transform="translate(384.5 11.6) scale(.5)"><use href="#fSeaS"/></g>
-    <g transform="translate(389.5 10.3) scale(.58)"><use href="#fLavS"/></g>
+  <g opacity=".94">
+    <g transform="translate(18.0 96.3) rotate(32) scale(0.72)"><use href="#leafS"/></g>
+    <g transform="translate(28.3 96.0) rotate(-12) scale(1.05)"><use href="#fPinkS"/></g>
+    <g transform="translate(38.7 130.6) rotate(18) scale(0.95)"><use href="#fLavS"/></g>
+    <g transform="translate(49.0 118.8) rotate(-28) scale(0.78)"><use href="#fWhiteS"/></g>
+    <g transform="translate(59.3 111.4) rotate(8) scale(0.88)"><use href="#fSeaS"/></g>
+    <g transform="translate(69.6 116.6) rotate(42) scale(0.82)"><use href="#fBudS"/></g>
+    <g transform="translate(80.0 120.0) rotate(-6) scale(1.12)"><use href="#fPinkS"/></g>
+    <g transform="translate(90.3 85.2) rotate(24) scale(0.92)"><use href="#fLavS"/></g>
+    <g transform="translate(100.6 108.9) rotate(-35) scale(0.68)"><use href="#leafS"/></g>
+    <g transform="translate(110.9 110.9) rotate(14) scale(0.85)"><use href="#fSeaS"/></g>
+    <g transform="translate(121.3 98.7) rotate(-20) scale(0.74)"><use href="#fWhiteS"/></g>
+    <g transform="translate(131.6 102.6) rotate(6) scale(1.00)"><use href="#fPinkS"/></g>
+    <g transform="translate(141.9 129.8) rotate(30) scale(0.98)"><use href="#fLavS"/></g>
+    <g transform="translate(152.2 99.1) rotate(-16) scale(0.80)"><use href="#fBudS"/></g>
+    <g transform="translate(162.6 106.0) rotate(22) scale(0.70)"><use href="#leafS"/></g>
+    <g transform="translate(172.9 113.0) rotate(-8) scale(1.08)"><use href="#fPinkS"/></g>
+    <g transform="translate(183.2 104.2) rotate(36) scale(0.86)"><use href="#fSeaS"/></g>
+    <g transform="translate(193.5 87.2) rotate(-24) scale(0.94)"><use href="#fLavS"/></g>
+    <g transform="translate(203.9 112.2) rotate(10) scale(0.76)"><use href="#fWhiteS"/></g>
+    <g transform="translate(214.2 97.9) rotate(28) scale(1.02)"><use href="#fPinkS"/></g>
+    <g transform="translate(224.5 96.3) rotate(-30) scale(0.66)"><use href="#leafS"/></g>
+    <g transform="translate(234.8 92.6) rotate(16) scale(0.90)"><use href="#fLavS"/></g>
+    <g transform="translate(245.2 94.3) rotate(-18) scale(0.78)"><use href="#fBudS"/></g>
+    <g transform="translate(255.5 66.2) rotate(12) scale(0.84)"><use href="#fSeaS"/></g>
+    <g transform="translate(265.8 60.2) rotate(5) scale(1.10)"><use href="#fPinkS"/></g>
+    <g transform="translate(276.1 40.2) rotate(-22) scale(0.72)"><use href="#fWhiteS"/></g>
+    <g transform="translate(286.5 37.1) rotate(38) scale(0.70)"><use href="#leafS"/></g>
+    <g transform="translate(296.8 28.0) rotate(-10) scale(0.96)"><use href="#fLavS"/></g>
+    <g transform="translate(307.1 28.0) rotate(20) scale(1.04)"><use href="#fPinkS"/></g>
+    <g transform="translate(317.4 29.5) rotate(-26) scale(0.88)"><use href="#fSeaS"/></g>
+    <g transform="translate(327.8 37.8) rotate(8) scale(0.80)"><use href="#fBudS"/></g>
+    <g transform="translate(338.1 33.5) rotate(34) scale(0.92)"><use href="#fLavS"/></g>
+    <g transform="translate(348.4 67.8) rotate(-14) scale(0.68)"><use href="#leafS"/></g>
+    <g transform="translate(358.7 58.8) rotate(15) scale(1.06)"><use href="#fPinkS"/></g>
+    <g transform="translate(369.1 56.8) rotate(-32) scale(0.74)"><use href="#fWhiteS"/></g>
+    <g transform="translate(379.4 68.9) rotate(11) scale(0.90)"><use href="#fLavS"/></g>
+    <g transform="translate(389.7 79.7) rotate(26) scale(0.82)"><use href="#fSeaS"/></g>
+    <g transform="translate(400.0 51.8) rotate(-5) scale(1.00)"><use href="#fPinkS"/></g>
+    <g transform="translate(410.4 81.3) rotate(30) scale(0.70)"><use href="#leafS"/></g>
+    <g transform="translate(420.7 87.4) rotate(-18) scale(0.94)"><use href="#fLavS"/></g>
+    <g transform="translate(431.0 77.7) rotate(7) scale(0.78)"><use href="#fBudS"/></g>
+    <g transform="translate(441.3 82.7) rotate(-28) scale(0.72)"><use href="#fWhiteS"/></g>
+    <g transform="translate(451.7 110.2) rotate(14) scale(1.08)"><use href="#fPinkS"/></g>
+    <g transform="translate(462.0 79.7) rotate(22) scale(0.88)"><use href="#fLavS"/></g>
   </g>
 </svg>
