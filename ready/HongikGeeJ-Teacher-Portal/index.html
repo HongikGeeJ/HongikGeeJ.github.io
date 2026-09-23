@@ -13566,6 +13566,7 @@
         function renderOrderBoard(user) {
             const board = document.getElementById('order-board');
             if (!board || user.role === 'director') return;
+            try { purgeStaleHeadOrders({ syncRemote: true }); } catch (_) {}
             const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
             const go = (next, anim) => {
                 orderNav = { ...orderNav, ...next };
@@ -13617,8 +13618,16 @@
 
             const listHtml = renderTeacherOrderCards(user.id);
             board.innerHTML = `
-                <div><h3><i class="ph ph-megaphone" style="color:var(--accent)"></i> ${t('headOrders')}</h3></div>
-                ${listHtml || `<p class="empty-note">${t('noOrders')}</p>`}`;
+                <div class="order-board-head">
+                    <div><h3><i class="ph ph-megaphone" style="color:var(--accent)"></i> ${t('headOrders')}</h3></div>
+                    ${orderMonthSelectHtml('order-board-month-sel')}
+                </div>
+                ${listHtml || `<p class="empty-note">${t('orderMonthEmpty')}</p>`}`;
+            document.getElementById('order-board-month-sel')?.addEventListener('change', (e) => {
+                setOrderBoardYmFromSelect(e.target.value);
+                orderNav = { view: 'list', orderId: null };
+                renderOrderBoard(user);
+            });
             board.querySelectorAll('[data-order-open]').forEach((btn) => {
                 btn.addEventListener('click', () => {
                     go({ view: 'detail', orderId: btn.getAttribute('data-order-open') }, 'order-slide-in');
@@ -26720,7 +26729,10 @@
                 const canEdit = !!(user && (user.role === 'admin' || user.role === 'director' || user.role === 'teacher' || user.role === 'accounting'));
                 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
                 const go = (next) => {
+                    const prevId = studentDbNav.studentId;
                     studentDbNav = { ...studentDbNav, ...next };
+                    if (next.view && next.view !== 'detail') studentDbNav.editing = false;
+                    else if (next.studentId != null && next.studentId !== prevId && next.editing === undefined) studentDbNav.editing = false;
                     renderStudentDbBoard(user);
                 };
                 const findStu = (id) => unique.find((s) => s.id === id || (s._ids || []).includes(id));
