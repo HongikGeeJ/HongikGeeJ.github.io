@@ -29920,8 +29920,8 @@
                 if (!app || !user) return;
                 ensureNoteRosterSeeded();
                 const esc = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
-                // Eunha teaches Korean only — no English notes track
-                const notesLangs = user.id === 'eunha' ? ['ko'] : ['ko', 'en'];
+                // Eunha / part-time: Korean notes only — no English track
+                const notesLangs = (user.id === 'eunha' || user.id === 'parttime') ? ['ko'] : ['ko', 'en'];
                 const go = (next) => {
                     notesNav = { ...notesNav, ...next };
                     if (notesNav.lang && !notesLangs.includes(notesNav.lang)) notesNav.lang = 'ko';
