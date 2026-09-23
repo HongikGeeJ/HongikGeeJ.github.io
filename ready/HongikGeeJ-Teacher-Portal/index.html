@@ -2165,21 +2165,83 @@
             user-select: none;
         }
         .dash-location {
-            display: block;
-            margin: .06rem 0 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: .28rem;
+            margin: .1rem 0 0;
             padding: 0 .12rem 0 0;
             position: relative;
             z-index: 2;
-            font-size: clamp(.54rem, 1.2vw, .68rem);
-            font-weight: 550;
-            letter-spacing: .015em;
-            line-height: 1.15;
+            font-size: clamp(.72rem, 1.55vw, .9rem);
+            font-weight: 700;
+            letter-spacing: .04em;
+            line-height: 1.2;
             white-space: nowrap;
-            color: #64748b;
-            font-family: 'Noto Sans Thai', 'Noto Sans KR', 'Pretendard Variable', Pretendard, sans-serif;
+            color: #3d5a80;
+            font-family: 'Noto Sans KR', 'Pretendard Variable', Pretendard, sans-serif;
             pointer-events: none !important;
             user-select: none;
-            opacity: .92;
+            opacity: .95;
+            animation: dashLocPulse 3.6s ease-in-out infinite;
+            will-change: opacity, transform, filter;
+        }
+        .dash-location .dash-loc-ico {
+            display: inline-block;
+            font-size: .92em;
+            line-height: 1;
+            transform-origin: center;
+            animation: dashLocIco 3.6s ease-in-out infinite;
+            filter: drop-shadow(0 0 0 rgba(61, 90, 128, 0));
+        }
+        .dash-location .dash-loc-text {
+            display: inline-block;
+            background: linear-gradient(105deg,
+                #3d5a80 0%,
+                #5b7aa5 38%,
+                #8eb0d4 50%,
+                #5b7aa5 62%,
+                #3d5a80 100%);
+            background-size: 220% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            animation: dashLocShimmer 4.8s ease-in-out infinite;
+        }
+        @keyframes dashLocPulse {
+            0%, 100% { opacity: .82; transform: translateY(0) scale(1); }
+            50% { opacity: 1; transform: translateY(-0.5px) scale(1.035); }
+        }
+        @keyframes dashLocIco {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(61, 90, 128, 0)); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 0 4px rgba(94, 140, 190, .35)); }
+        }
+        @keyframes dashLocShimmer {
+            0%, 100% { background-position: 100% 50%; }
+            50% { background-position: 0% 50%; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .dash-location,
+            .dash-location .dash-loc-ico,
+            .dash-location .dash-loc-text {
+                animation: none !important;
+            }
+            .dash-location .dash-loc-text {
+                color: #3d5a80;
+                -webkit-text-fill-color: #3d5a80;
+                background: none;
+            }
+        }
+        html.lite-fx .dash-location,
+        html.lite-fx .dash-location .dash-loc-ico,
+        html.lite-fx .dash-location .dash-loc-text {
+            animation: none !important;
+        }
+        html.lite-fx .dash-location .dash-loc-text {
+            color: #3d5a80;
+            -webkit-text-fill-color: #3d5a80;
+            background: none;
         }
         /* Tabs / body stay clickable — above header (600) so décor overflow never steals nav taps */
         .dash-shell > .dash-tabs,
@@ -2209,7 +2271,8 @@
                 font-size: clamp(.56rem, 2.6vw, .68rem);
             }
             .dash-location {
-                font-size: clamp(.5rem, 2.3vw, .6rem);
+                font-size: clamp(.66rem, 2.9vw, .82rem);
+                gap: .22rem;
             }
         }
 
@@ -31064,17 +31127,19 @@
                 return ['เชียงใหม่', '치앙마이', 'chiang mai', 'chiangmai', 'chiang-mai'].includes(s);
             }
             function formatLocationDisplay(raw) {
-                if (isDefaultChiangMaiLocation(raw)) {
-                    return (typeof t === 'function' ? t('locationDefault') : '') || 'เชียงใหม่';
-                }
-                return normalizeLocation(raw);
+                // Header line: always Korean for Chiang Mai (치앙마이), not Thai.
+                if (isDefaultChiangMaiLocation(raw)) return '치앙마이';
+                return normalizeLocation(raw) || '치앙마이';
             }
             function updateDashLocation(userOrId) {
                 const el = document.getElementById('dash-location');
                 if (!el) return;
                 const uid = userOrId || (typeof currentUser !== 'undefined' ? currentUser : null);
                 const label = formatLocationDisplay(accountLocation(uid));
-                if (el.textContent !== label) el.textContent = label;
+                const next = `<span class="dash-loc-ico" aria-hidden="true">🛕</span><span class="dash-loc-text">${String(label).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;
+                if (el.dataset.locLabel === label && el.querySelector('.dash-loc-text')) return;
+                el.dataset.locLabel = label;
+                el.innerHTML = next;
             }
             function pushAccountDataSave(reason) {
                 try { clearTimeout(portalSyncPushTimer); } catch (_) {}
