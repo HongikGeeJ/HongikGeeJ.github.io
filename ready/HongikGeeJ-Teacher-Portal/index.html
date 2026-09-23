@@ -3675,16 +3675,16 @@
             animation: ot-metal-shine 5.2s ease-in-out infinite;
         }
         .pct-readable.ot-total-frame strong {
-            font-size: 1.2rem;
-            font-weight: 850;
+            font-size: clamp(1.55rem, 4.2vw, 1.95rem);
+            font-weight: 900;
             letter-spacing: -.02em;
             font-variant-numeric: tabular-nums;
-            color: transparent;
-            background-image: linear-gradient(120deg, #8a7020 0%, #c9a227 28%, #6e6e78 48%, #d4af37 68%, #5c4a1a 100%);
-            background-size: 180% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            animation: ot-metal-shift 7s ease-in-out infinite;
+            color: #dc2626;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            animation: none;
+            text-shadow: none;
         }
         .self-pw-wrap {
             margin-top: 2.15rem;
@@ -7519,11 +7519,14 @@
         .ot-month-chip.has-pay .pay-ok-badge.due,
         .ot-pay-panel .ot-month-chip.has-pay .pay-ok-badge.due,
         .pay-ok-badge.due {
-            --ot-metal-ink: #4a3c18;
-            --ot-metal-line: #9a8040;
+            --ot-metal-ink: #dc2626;
+            --ot-metal-line: #e8d5a3;
             position: relative;
             overflow: hidden;
-            color: var(--ot-metal-ink);
+            color: #dc2626;
+            font-size: 1.2rem;
+            font-weight: 900;
+            letter-spacing: -.02em;
             background-image:
                 linear-gradient(
                     105deg,
@@ -7535,9 +7538,7 @@
                 linear-gradient(135deg,
                     #f7f3e8 0%,
                     #e8e4d8 16%,
-                    #d4af37 36%,
                     #f5f0e0 50%,
-                    #c8cad0 66%,
                     #e8d5a3 84%,
                     #f7f3e8 100%);
             background-size: 220% 100%, 200% 100%;
@@ -7545,16 +7546,16 @@
             border: 1px solid var(--ot-metal-line);
             box-shadow:
                 inset 0 1px 0 rgba(255, 255, 255, .88),
-                inset 0 -1px 0 rgba(74, 60, 24, .1),
-                0 0 0 1px rgba(192, 196, 204, .4),
-                0 2px 5px rgba(74, 60, 24, .1);
-            text-shadow: 0 1px 0 rgba(255, 255, 255, .4);
+                inset 0 -1px 0 rgba(74, 60, 24, .08),
+                0 0 0 1px rgba(192, 196, 204, .35),
+                0 2px 5px rgba(74, 60, 24, .08);
+            text-shadow: none;
             font-variant-numeric: tabular-nums;
             animation: ot-metal-shine 4.8s ease-in-out infinite;
         }
         .ot-pay-panel .pay-ok-total {
             --ot-metal-ink: #3f3414;
-            --ot-metal-line: #9a8040;
+            --ot-metal-line: #e8d5a3;
             color: var(--ot-metal-ink);
             background-image:
                 linear-gradient(
@@ -7567,9 +7568,7 @@
                 linear-gradient(145deg,
                     #faf7ef 0%,
                     #ebe4d2 22%,
-                    #d4af37 42%,
                     #f0ebe0 55%,
-                    #c0c4cc 72%,
                     #e6d7a8 88%,
                     #f8f5ec 100%);
             background-size: 220% 100%, 200% 100%;
@@ -7577,10 +7576,18 @@
             border: 1.5px solid var(--ot-metal-line);
             box-shadow:
                 inset 0 1px 0 rgba(255, 255, 255, .85),
-                inset 0 -1px 0 rgba(74, 60, 24, .1),
-                0 0 0 1px rgba(192, 196, 204, .4),
-                0 8px 18px rgba(74, 60, 24, .12);
+                inset 0 -1px 0 rgba(74, 60, 24, .08),
+                0 0 0 1px rgba(192, 196, 204, .35),
+                0 8px 18px rgba(74, 60, 24, .1);
             animation: ot-metal-shine 5.2s ease-in-out infinite;
+        }
+        .ot-pay-panel .pay-ok-total > span:last-child {
+            color: #dc2626;
+            font-size: clamp(1.45rem, 3.8vw, 1.85rem);
+            font-weight: 900;
+            letter-spacing: -.02em;
+            font-variant-numeric: tabular-nums;
+            text-shadow: none;
         }
         @media (prefers-reduced-motion: reduce) {
             .ot-pay-panel .pay-ok-badge.due,
@@ -7588,12 +7595,11 @@
             .ot-pay-panel .ot-month-chip.has-pay .pay-ok-badge.due,
             .pay-ok-badge.due,
             .ot-pay-panel .pay-ok-total,
-            .pct-readable.ot-total-frame,
-            .pct-readable.ot-total-frame strong {
+            .pct-readable.ot-total-frame {
                 animation: none;
             }
         }
-        /* OT lookback month strip (ย้อนหลัง 8 เดือน) — oldest left → newest right */
+        /* OT lookback month strip (ย้อนหลัง 8 เดือน · ดูล่วงหน้า 3 เดือน) — oldest left → newest right */
         .ot-month-board {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(10.75rem, 1fr));
@@ -13455,7 +13461,7 @@
                 otPayDetail: '이번 달 OT 상세',
                 otPayLinked: '시트 주황 hrs.OT + 교사 신고 · 초록=출석 체크(OT 아님) · 열 날짜 기준((08)/(09) 아님)',
                 otSheetRules: 'Overtime Tracker 시트(월 탭) · 교사 신고와 병합 · Refresh로 재다운로드',
-                otLookback: '최근 8개월 조회',
+                otLookback: '최근 8개월 · 앞 3개월',
                 otPickMonth: '월 선택',
                 otReportBadge: '교사 신고',
                 otSheetBadge: '시트 OT',
@@ -14414,7 +14420,7 @@
                 otPayDetail: 'รายละเอียด OT เดือนนี้',
                 otPayLinked: 'นับจากช่องส้ม hrs.OT บนชีต + ที่ครูแจ้งเอง · โทนเขียว = เช็คเข้าเรียน ไม่ใช่ชม. OT · นับตามวันที่หัวคอลัมน์ ไม่ใช่เลขในวงเล็บ (08)/(09)',
                 otSheetRules: 'ชีต Overtime Tracker (แท็บรายเดือน) · รวมกับ OT ที่ครูรายงาน · กด Refresh เพื่อดาวน์โหลดใหม่',
-                otLookback: 'ย้อนหลัง 8 เดือน',
+                otLookback: 'ย้อนหลัง 8 เดือน · ดูล่วงหน้า 3 เดือน',
                 otPickMonth: 'เลือกเดือน',
                 otReportBadge: 'ครูแจ้งเอง',
                 otSheetBadge: 'OT จากชีต',
@@ -16031,6 +16037,9 @@
         const ROOM_TT_LOOKBACK_MONTHS = 8;
         const ROOM_TT_LOOKAHEAD_MONTHS = 6;
         const WEEK_CLASS_LOOKAHEAD_MONTHS = 6;
+        /** Teacher OT / OT-pay month select: past months kept + up to N months ahead (sheet tabs when present). */
+        const OT_LOOKBACK_MONTHS = 8;
+        const OT_LOOKAHEAD_MONTHS = 3;
         const DRIVE_FOLDER_ID = '1PyqEMeBcTtEujY5qbJTBrg4FzMsMdVDA';
         const DRIVE_FOLDER_URL = 'https://drive.google.com/drive/folders/' + DRIVE_FOLDER_ID;
         const DRIVE_MANIFEST_URL = 'data/drive/manifest.json';
