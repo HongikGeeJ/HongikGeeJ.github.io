@@ -894,15 +894,18 @@
             .dash-shell .content-card.compact-card {
                 padding: .9rem 1rem 1rem;
             }
+            .dash-shell.theme-teacher-a .tab-panel > .content-card {
+                padding-top: 2.35rem !important;
+                padding-bottom: 1.65rem !important;
+            }
             .dash-shell.theme-teacher-a .tab-panel > .content-card::before,
             .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
-                width: 108px !important;
-                height: 108px !important;
-                opacity: .88 !important;
+                width: 112px !important;
+                height: 112px !important;
             }
             .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
-                width: 120px !important;
-                height: 90px !important;
+                width: 148px !important;
+                height: 148px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child,
@@ -10787,6 +10790,16 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: none; }
+            /* Taehyun blooms keep pop in/out on lite/mobile (overrides FX kill above). */
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::before {
+                animation: cardBloomPop 3.8s ease-in-out infinite !important;
+                will-change: transform, opacity;
+            }
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
+                animation: cardBloomPopBr 3.8s ease-in-out infinite !important;
+                animation-delay: 1.15s !important;
+                will-change: transform, opacity;
+            }
             /* Eunha Shin décor keeps slow wobble on mobile/iPad (overrides FX kill above). */
             .dash-shell.is-eunha-shin .tab-panel > .content-card::before {
                 animation: none !important;
@@ -11045,18 +11058,25 @@
             .dash-tabs { padding: .55rem .65rem .7rem; }
             .dash-body { padding: .9rem .85rem 1.25rem; }
             .content-card { padding: 1rem 1.05rem 1.1rem; margin-bottom: .7rem; }
-            /* Taehyun panel blooms: shrink for narrow viewports */
+            /* Taehyun panel blooms: shrink for narrow viewports (keep BR fuller) */
+            .dash-shell.theme-teacher-a .tab-panel > .content-card {
+                padding-top: 2.15rem !important;
+                padding-bottom: 1.45rem !important;
+            }
+            .dash-shell.theme-teacher-a .tab-panel[data-panel="rooms"] > .content-card {
+                padding-top: 2rem !important;
+                padding-bottom: 1.35rem !important;
+            }
             .dash-shell.theme-teacher-a .tab-panel > .content-card::before,
             .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
                 content: '' !important;
                 display: block !important;
-                width: 78px !important;
-                height: 78px !important;
-                opacity: .75 !important;
+                width: 84px !important;
+                height: 84px !important;
             }
             .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
-                width: 86px !important;
-                height: 68px !important;
+                width: 118px !important;
+                height: 118px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child,
