@@ -9877,6 +9877,11 @@
             .dash-shell.is-eunha-shin .content-card::after {
                 transform: none !important;
             }
+            .dash-shell.is-eunha-shin .content-card h3::after {
+                animation: none !important;
+                transform: translateY(-50%) !important;
+                will-change: auto !important;
+            }
             /*
               Login panel corners must keep sway on mobile/iPad — do not kill .dc-c.
               Use lighter keyframes (no glow pulse). Dash-shell corners stay static.
@@ -10158,9 +10163,13 @@
                 animation: none !important;
             }
             .dash-shell.is-eunha-shin .content-card::before,
-            .dash-shell.is-eunha-shin .content-card::after {
+            .dash-shell.is-eunha-shin .content-card::after,
+            .dash-shell.is-eunha-shin .content-card h3::after {
                 animation: none !important;
                 transform: none !important;
+            }
+            .dash-shell.is-eunha-shin .content-card h3::after {
+                transform: translateY(-50%) !important;
             }
             .header-shin-bubble { transition: none !important; }
             #order-modal .order-sakura,
