@@ -13340,7 +13340,7 @@
                 adminMapTeachers: '교사 계정',
                 adminMapDirector: '원장 계정',
                 adminMapAccounting: '회계 계정',
-                adminMapTeachersHint: '태현 · 은나 · 수아 · 파트타임 등 교사',
+                adminMapTeachersHint: '태현 · 은나 · 수아 · 파트타임 선생님 등',
                 adminMapDirectorHint: '원장 / Head',
                 adminMapAccountingHint: '회계 2–3',
                 adminHubTitle: '오늘 다룬 시스템 · 바로 열기',
@@ -14119,7 +14119,7 @@
                 overviewClickMore: '자세히 보기',
                 reloadBoard: '다시 불러오기',
                 overviewNoClass: '오늘 등록된 수업이 없습니다',
-                ptTitle: '파트타임 교사',
+                ptTitle: '파트타임 선생님',
                 ptHint: '언어별 파트타임 일정·출석·시급(฿300) 관리',
                 ptPickLang: '과목 언어 선택',
                 ptLangKo: '한국어',
@@ -14127,7 +14127,7 @@
                 ptMonths: '월별 파트타임',
                 ptNoMonth: '이달 파트타임 없음',
                 ptHasWork: '수업 있음',
-                ptAddTeacher: '파트타임 교사 추가',
+                ptAddTeacher: '파트타임 선생님 추가',
                 ptTeacherName: '교사 이름',
                 ptLinkAccount: '계정 ID (나중 연결용)',
                 ptAddSession: '수업 추가',
@@ -14140,7 +14140,7 @@
                 ptNoSessions: '등록된 수업 없음',
                 ptBack: '뒤로',
                 tabPtCalc: '파트타임 비용',
-                ptCalcTitle: '파트타임 교사 비용 계산',
+                ptCalcTitle: '파트타임 선생님 비용 계산',
                 ptCalcHint: '시급 ฿300 · 시간×주×300으로 계산·월별 저장',
                 ptCalcChipRate: '시급 ฿300',
                 ptCalcChipFormula: '시간×주×300',
@@ -14163,9 +14163,9 @@
                 ptLookback: '해당 기간만 입력할 수 있습니다',
                 ptViewOnly: '조회 전용',
                 ptSelfTab: '이달 수입 요약',
-                ptSelfHint: '이번 달 근무일·시간을 등록 · 시급 ฿300 · 중앙 시간표에 반영',
+                ptSelfHint: '이번 달 근무일·시간을 등록 · 시급 ฿300 · 중앙 시간표에 반영 · 프로필 이름 저장 시 상단 이름도 바로 바뀝니다',
                 ptSelfProfile: '내 프로필',
-                ptSelfName: '프로필 이름',
+                ptSelfName: '표시 이름',
                 ptSelfWorkFrom: '근무 시작 요일',
                 ptSelfWorkTo: '근무 종료 요일',
                 ptSelfSaveProfile: '프로필 저장',
@@ -14318,7 +14318,7 @@
                 adminMapTeachers: 'บัญชีคุณครู',
                 adminMapDirector: 'บัญชีหัวหน้า',
                 adminMapAccounting: 'บัญชีฝ่ายบัญชี',
-                adminMapTeachersHint: 'แทฮยอน · อึนนา · ซูอา · part time ฯลฯ',
+                adminMapTeachersHint: 'แทฮยอน · อึนนา · ซูอา · คุณครูพาร์ตไทม์ ฯลฯ',
                 adminMapDirectorHint: 'ผู้อำนวยการ / หัวหน้า',
                 adminMapAccountingHint: 'บัญชี 2–3',
                 adminHubTitle: 'ระบบที่พูดถึงวันนี้ · เปิดดูได้ทันที',
@@ -15296,7 +15296,7 @@
                 adminMapTeachers: 'Teacher accounts',
                 adminMapDirector: 'Director account',
                 adminMapAccounting: 'Accounting accounts',
-                adminMapTeachersHint: 'Taehyun · Eunna · Sua · Part time, etc.',
+                adminMapTeachersHint: 'Taehyun · Eunna · Sua · Part-time, etc.',
                 adminMapDirectorHint: 'Director / Head',
                 adminMapAccountingHint: 'Accounting 2–3',
                 adminHubTitle: "Today's systems · open & edit",
@@ -16322,7 +16322,7 @@
         // ---- Official weekly timetable (from school sheet) ----
         // Pink=Part-time · Blue=Taehyun · Yellow=Eunna · Green=Sua
         const TIMETABLE_VER_KEY = 'hongik-timetable-ver';
-        const TIMETABLE_VER = '2026-09-sheet-v6-no-paren';
+        const TIMETABLE_VER = '2026-09-sheet-v7-pt-names';
         /** Sole student for Taehyun Wed/Thu Korean Group (방 1) */
         const PRAEWA_CLASS_STUDENT = {
             name: 'แพรวา',
@@ -16384,15 +16384,50 @@
                 cls('Sun', '14:40–16:40', 'ENGLISH KIDS', '방 3', { titleKo: '영어 키즈', titleTh: 'English Kids' })
             ],
             parttime: [
-                cls('Mon', '18:00–20:00', 'Part-time 수업 1', '방 1', { titleKo: '파트타임 수업 1', titleTh: 'Part-time class 1', titleEn: 'Part-time class 1' }),
-                cls('Tue', '18:00–20:00', 'Part-time 수업 1', '방 1', { titleKo: '파트타임 수업 1', titleTh: 'Part-time class 1', titleEn: 'Part-time class 1' })
+                cls('Mon', '18:00–20:00', '파트타임 수업 1', '방 1', { titleKo: '파트타임 수업 1', titleTh: 'คลาสพาร์ตไทม์ 1', titleEn: 'Part-time class 1' }),
+                cls('Tue', '18:00–20:00', '파트타임 수업 1', '방 1', { titleKo: '파트타임 수업 1', titleTh: 'คลาสพาร์ตไทม์ 1', titleEn: 'Part-time class 1' })
             ]
         };
+        function migratePartTimeDisplayNames() {
+            const polished = PT_DEFAULT_NAMES;
+            const legacy = {
+                th: ['คุณครูpart time', 'คุณครู part time', 'คุณครูPart time'],
+                en: ['Teacher Part time', 'Teacher Part Time', 'Part time Teacher'],
+                ko: ['파트타임선생님']
+            };
+            const isLegacy = (val, list) => list.some((x) => String(val || '').trim() === x);
+            try {
+                if (TEACHER_DISPLAY.parttime) {
+                    if (isLegacy(TEACHER_DISPLAY.parttime.th, legacy.th)) TEACHER_DISPLAY.parttime.th = polished.th;
+                    if (isLegacy(TEACHER_DISPLAY.parttime.en, legacy.en)) TEACHER_DISPLAY.parttime.en = polished.en;
+                    if (isLegacy(TEACHER_DISPLAY.parttime.ko, legacy.ko) || !TEACHER_DISPLAY.parttime.ko) TEACHER_DISPLAY.parttime.ko = polished.ko;
+                }
+                const entry = Object.entries(ACCOUNTS || {}).find(([, a]) => a && a.id === 'parttime');
+                if (entry && entry[1]) {
+                    if (isLegacy(entry[1].nameTh, legacy.th) || !entry[1].nameTh) entry[1].nameTh = polished.th;
+                    if (isLegacy(entry[1].nameEn, legacy.en) || !entry[1].nameEn) entry[1].nameEn = polished.en;
+                    if (isLegacy(entry[1].nameKo, legacy.ko) || !entry[1].nameKo) entry[1].nameKo = polished.ko;
+                }
+                const store = loadOverrides();
+                const row = store.parttime;
+                if (row && typeof row === 'object') {
+                    let changed = false;
+                    if (isLegacy(row.nameTh, legacy.th)) { row.nameTh = polished.th; changed = true; }
+                    if (isLegacy(row.nameEn, legacy.en)) { row.nameEn = polished.en; changed = true; }
+                    if (isLegacy(row.nameKo, legacy.ko)) { row.nameKo = polished.ko; changed = true; }
+                    if (changed) {
+                        row.updatedAt = new Date().toISOString();
+                        store.parttime = row;
+                        saveOverrides(store, { syncRemote: false });
+                    }
+                }
+            } catch (_) {}
+        }
         function migrateOfficialTimetable() {
             try {
                 if (localStorage.getItem(TIMETABLE_VER_KEY) === TIMETABLE_VER) return;
                 const store = loadOverrides();
-                ['taehyun', 'eunha', 'sua'].forEach((id) => {
+                ['taehyun', 'eunha', 'sua', 'parttime'].forEach((id) => {
                     if (store[id] && Object.prototype.hasOwnProperty.call(store[id], 'classes')) {
                         delete store[id].classes;
                         if (!Object.keys(store[id]).length) delete store[id];
@@ -16460,13 +16495,13 @@
             },
             // บัญชี 1 (passcode 0000) → part-time teacher (was accounting). Login unchanged.
             '0000': {
-                ...account('parttime', 'PT', '파트타임 선생님', 'Teacher Part time', 'คุณครูpart time', 'teacher', 'theme-teacher-d', '2026-09-01', 0),
+                ...account('parttime', 'PT', '파트타임 선생님', 'Teacher Part-time', 'คุณครูพาร์ตไทม์', 'teacher', 'theme-teacher-d', '2026-09-01', 0),
                 classes: WEEKLY_CLASSES.parttime,
                 workDaysNote: 'Mon Tue',
                 workDaysNoteKo: '월·화',
                 workDaysNoteTh: 'จ·อ',
                 workDaysNoteEn: 'Mon Tue',
-                langFlags: ['th']
+                langFlags: ['th', 'kr']
             },
             '0001': { ...account('acct2', 'ACC2', '회계 2', 'Accounting 2', 'บัญชี 2', 'accounting', 'theme-acct-2', '2024-07-01', 0), finance: [{ label: '급여', value: '7명' }] },
             '0002': { ...account('acct3', 'ACC3', '회계 3', 'Accounting 3', 'บัญชี 3', 'accounting', 'theme-acct-3', '2025-04-01', 3), finance: [{ label: '비품', value: '฿5,800' }] },
@@ -18041,7 +18076,7 @@
                     n = n.replace(/\s*선생님$/, '').replace(/^Teacher\s+/i, '').replace(/^คุณครู/, '').trim();
                     if (n) return n;
                 }
-                return lang === 'th' ? 'part time' : lang === 'en' ? 'Part time' : '파트타임';
+                return lang === 'th' ? 'พาร์ตไทม์' : lang === 'en' ? 'Part-time' : '파트타임';
             }
             const u = typeof uOrId === 'string' ? resolveAccountById(uOrId, { allowBlocked: true }) : uOrId;
             if (!u) return String(uOrId || '');
@@ -18065,11 +18100,11 @@
                 // Mon
                 R(1, 'A', '13:00', '14:00', 'eunha', 'KOREAN 1:1'),
                 R(1, 'A', '14:00', '16:00', 'eunha', 'KOREAN ONLINE 1:1'),
-                R(1, 'A', '18:00', '20:00', 'parttime', 'Part-time 수업 1'),
+                R(1, 'A', '18:00', '20:00', 'parttime', '파트타임 수업 1'),
                 // Tue
                 R(2, 'A', '13:00', '14:00', 'eunha', 'KOREAN 1:1'),
                 R(2, 'A', '14:00', '16:00', 'eunha', 'KOREAN ONLINE 1:1'),
-                R(2, 'A', '18:00', '20:00', 'parttime', 'Part-time 수업 1'),
+                R(2, 'A', '18:00', '20:00', 'parttime', '파트타임 수업 1'),
                 // Wed
                 R(3, 'A', '10:00', '11:00', 'sua', 'English con. 1:1'),
                 R(3, 'A', '13:00', '14:00', 'sua', 'Korean 1:1'),
@@ -18935,8 +18970,8 @@
             return {
                 id: 'parttime',
                 nameKo: '파트타임 선생님',
-                nameEn: 'Teacher Part time',
-                nameTh: 'คุณครูpart time',
+                nameEn: 'Teacher Part-time',
+                nameTh: 'คุณครูพาร์ตไทม์',
                 role: 'teacher',
                 classes: WEEKLY_CLASSES.parttime
             };
@@ -20116,8 +20151,40 @@
             taehyun: { ko: '태현 선생님', en: 'Teacher Taehyun', th: 'คุณครูแทฮยอน' },
             eunha: { ko: '은나 선생님', en: 'Teacher Eunna', th: 'คุณครูอึนนา' },
             sua: { ko: '수아 선생님', en: 'Teacher Sua', th: 'คุณครูซูอา' },
-            parttime: { ko: '파트타임 선생님', en: 'Teacher Part time', th: 'คุณครูpart time' }
+            parttime: { ko: '파트타임 선생님', en: 'Teacher Part-time', th: 'คุณครูพาร์ตไทม์' }
         };
+        const PT_DEFAULT_NAMES = TEACHER_DISPLAY.parttime;
+        function partTimeDefaultDisplayName(forLang = lang) {
+            if (forLang === 'th') return PT_DEFAULT_NAMES.th;
+            if (forLang === 'en') return PT_DEFAULT_NAMES.en;
+            return PT_DEFAULT_NAMES.ko;
+        }
+        /** Header + banner + photo chip — same path regular teachers use after profile edits. */
+        function syncDashIdentity(user) {
+            if (!user) return;
+            try {
+                const shown = displayName(user);
+                const nameEl = document.getElementById('dash-name');
+                if (nameEl) nameEl.textContent = shown;
+                const chip = document.getElementById('dash-role-chip');
+                const roleText = displayRole(user);
+                if (chip) {
+                    if (roleText) {
+                        chip.textContent = roleText;
+                        chip.classList.remove('hidden');
+                    } else {
+                        chip.textContent = '';
+                        chip.classList.add('hidden');
+                    }
+                }
+                const bannerName = document.getElementById('taehyun-banner-text');
+                if (bannerName) {
+                    bannerName.textContent = shown || (typeof t === 'function' ? t('taehyunBanner') : '');
+                }
+                const photoName = document.getElementById('photo-modal-name');
+                if (photoName) photoName.textContent = shown;
+            } catch (_) {}
+        }
 
         function displayName(u) {
             if (!u) return '';
@@ -22785,7 +22852,7 @@
             const tea = teacherAccounts().find((x) => x.id === id) || resolveAccountById(id, { allowBlocked: true });
             if (tea) return displayName(tea);
             if (id === 'parttime') {
-                return lang === 'th' ? 'คุณครูpart time' : lang === 'en' ? 'Teacher Part time' : '파트타임 선생님';
+                return partTimeDefaultDisplayName();
             }
             return id || '—';
         }
@@ -23904,7 +23971,7 @@
             let list = (typeof loadScheduleForDate === 'function' ? loadScheduleForDate(uid, dateKey) : []).slice();
             list = list.filter((it) => !(it && String(it.ptRecordId || '') === String(rec.id)));
             if (!remove && rec.start && rec.end && String(rec.end) > String(rec.start)) {
-                const name = String(rec.teacherName || 'คุณครูpart time').trim() || 'คุณครูpart time';
+                const name = String(rec.teacherName || partTimeDefaultDisplayName()).trim() || partTimeDefaultDisplayName();
                 list.push({
                     start: rec.start,
                     end: rec.end,
@@ -24568,6 +24635,7 @@
             return mergeAccount(entry[1], getPasswordForId(id));
         }
 
+        try { migratePartTimeDisplayNames(); } catch (_) {}
         try { migrateStripSampleEmergency(); } catch (_) {}
         try { migrateCanonicalAccountDataKeys(); } catch (_) {}
 
@@ -26283,19 +26351,7 @@
                     }
                 }
                 try {
-                    const nameEl = document.getElementById('dash-name');
-                    if (nameEl) nameEl.textContent = displayName(user);
-                    const chip = document.getElementById('dash-role-chip');
-                    const roleText = displayRole(user);
-                    if (chip) {
-                        if (roleText) {
-                            chip.textContent = roleText;
-                            chip.classList.remove('hidden');
-                        } else {
-                            chip.textContent = '';
-                            chip.classList.add('hidden');
-                        }
-                    }
+                    syncDashIdentity(user);
                     const todayEl = document.getElementById('dash-today');
                     if (todayEl) todayEl.textContent = formatToday();
                     try { updateDashLocation(user); } catch (_) {}
@@ -26305,8 +26361,7 @@
                 try {
                     const bannerSig = document.getElementById('taehyun-banner-sig');
                     if (bannerSig) bannerSig.textContent = t('taehyunSig');
-                    const bannerName = document.getElementById('taehyun-banner-text');
-                    if (bannerName) bannerName.textContent = displayName(user) || t('taehyunBanner');
+                    syncDashIdentity(user);
                 } catch (_) {}
                 try { loadPhoto(user.id); } catch (_) {}
                 try { renderStats(user); } catch (_) {}
@@ -26513,25 +26568,12 @@
                 currentUser = { ...fresh, id: stableId || fresh.id };
                 try { syncHeaderShinVisibility(currentUser); } catch (_) {}
                 try {
-                    document.getElementById('dash-name').textContent = displayName(currentUser);
-                    const chip = document.getElementById('dash-role-chip');
-                    const roleText = displayRole(currentUser);
-                    if (chip) {
-                        if (roleText) {
-                            chip.textContent = roleText;
-                            chip.classList.remove('hidden');
-                        } else {
-                            chip.textContent = '';
-                            chip.classList.add('hidden');
-                        }
-                    }
+                    syncDashIdentity(currentUser);
                     const todayEl = document.getElementById('dash-today');
                     if (todayEl) todayEl.textContent = formatToday();
                     try { updateDashLocation(currentUser); } catch (_) {}
                     const bannerSig = document.getElementById('taehyun-banner-sig');
                     if (bannerSig) bannerSig.textContent = t('taehyunSig');
-                    const bannerName = document.getElementById('taehyun-banner-text');
-                    if (bannerName) bannerName.textContent = displayName(currentUser) || t('taehyunBanner');
                 } catch (_) {}
                 try { loadPhoto(currentUser.id); } catch (_) {}
                 try { renderStats(currentUser); } catch (_) {}
@@ -29515,7 +29557,7 @@
                         const msgEl = document.getElementById('pt-calc-msg');
                         const selfMode = isPartTimeTeacher(cur) && cur.role === 'teacher';
                         let teacherName = (document.getElementById('pt-calc-name')?.value || '').trim();
-                        if (selfMode) teacherName = displayName(cur) || teacherName || 'คุณครูpart time';
+                        if (selfMode) teacherName = displayName(cur) || teacherName || partTimeDefaultDisplayName();
                         const dateV = document.getElementById('pt-calc-date')?.value || '';
                         const start = document.getElementById('pt-calc-start')?.value || '';
                         const end = document.getElementById('pt-calc-end')?.value || '';
@@ -29905,13 +29947,25 @@
                         workDaysNoteKo: notes.ko || noteTh,
                         workDaysNote: notes.en || notes.th || noteTh
                     });
+                    const fresh = resolveAccountById(user.id) || { ...user, nameTh: name, nameEn: name, nameKo: name };
+                    currentUser = fresh;
+                    try { syncDashIdentity(fresh); } catch (_) {}
+                    try { if (typeof renderStats === 'function') renderStats(fresh); } catch (_) {}
+                    try { renderPtSelfProfile(fresh); } catch (_) {}
+                    try { renderPartTimeApp(fresh); } catch (_) {}
+                    const msg2 = document.getElementById('pt-self-profile-msg');
+                    if (msg2) { msg2.style.color = '#15803d'; msg2.textContent = t('ptSelfProfileSaved'); }
+                    // Keep success toast if softRefresh rebuilds profile shortly after cloud push
                     try {
-                        currentUser = resolveAccountById(user.id) || currentUser;
-                        const dashName = document.getElementById('dash-name');
-                        if (dashName && currentUser) dashName.textContent = displayName(currentUser);
+                        setTimeout(() => {
+                            const m = document.getElementById('pt-self-profile-msg');
+                            if (m && !m.textContent) {
+                                m.style.color = '#15803d';
+                                m.textContent = t('ptSelfProfileSaved');
+                            }
+                            try { syncDashIdentity(resolveAccountById('parttime') || currentUser); } catch (_) {}
+                        }, 450);
                     } catch (_) {}
-                    if (msg) { msg.style.color = '#15803d'; msg.textContent = t('ptSelfProfileSaved'); }
-                    try { renderPartTimeApp(resolveAccountById(user.id) || user); } catch (_) {}
                 });
             }
 
@@ -32846,6 +32900,14 @@
                         th: next.nameTh || TEACHER_DISPLAY[id].th
                     };
                 }
+                try {
+                    const entry = Object.entries(ACCOUNTS || {}).find(([, a]) => a && a.id === id);
+                    if (entry && entry[1]) {
+                        if (next.nameKo) entry[1].nameKo = next.nameKo;
+                        if (next.nameEn) entry[1].nameEn = next.nameEn;
+                        if (next.nameTh) entry[1].nameTh = next.nameTh;
+                    }
+                } catch (_) {}
                 pushAccountDataSave('profile-save');
                 return next;
             }
