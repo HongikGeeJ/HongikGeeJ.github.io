@@ -1292,7 +1292,7 @@
             0% { opacity: .78; }
             100% { opacity: 1; }
         }
-        /* soft cartoon Korean mountains (minhwa / irworobongdo feel) at bottom — sun/moon handled by .tae-celestial */
+        /* soft cartoon Korean mountains (minhwa feel) at bottom */
         .dash-shell.theme-teacher-a::after {
             content: '';
             position: absolute; left: 0; right: 0; bottom: 0; height: 168px; z-index: 0; pointer-events: none;
@@ -1302,86 +1302,6 @@
         @keyframes taeMountainBreathe {
             0%,100% { transform: translateY(0); opacity: .92; }
             50% { transform: translateY(-5px); opacity: 1; }
-        }
-
-        /* Irworobongdo-inspired sun ↔ moon (민화 일월) — cute slow-spin sun */
-        .taehyun-fx .tae-celestial {
-            position: absolute;
-            left: 50%;
-            top: 38%;
-            width: 128px;
-            height: 128px;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-            pointer-events: none;
-        }
-        .taehyun-fx .tae-celestial .orb {
-            position: absolute; inset: 0;
-            display: grid; place-items: center;
-            transition: opacity .9s ease, transform .9s cubic-bezier(.22,1,.36,1), filter .9s ease;
-        }
-        .taehyun-fx .tae-celestial .orb.sun {
-            opacity: 1;
-            transform: scale(1);
-            filter: drop-shadow(0 0 14px rgba(251,191,36,.4));
-            animation: taeSunPulseGlow 5s ease-in-out infinite;
-        }
-        .taehyun-fx .tae-celestial .orb.sun .tae-sun-spin {
-            position: absolute; inset: 0;
-            display: grid; place-items: center;
-            animation: taeSunSlowSpin 42s linear infinite;
-        }
-        .taehyun-fx .tae-celestial .orb.sun .tae-sun-face {
-            position: absolute; inset: 0;
-            display: grid; place-items: center;
-            animation: taeSunFaceBob 6s ease-in-out infinite;
-        }
-        .taehyun-fx .tae-celestial .orb.sun svg {
-            width: 118px; height: 118px;
-            overflow: visible;
-        }
-        .taehyun-fx .tae-celestial .orb.sun .tae-sun-face svg {
-            width: 72px; height: 72px;
-            filter: drop-shadow(0 4px 10px rgba(245,158,11,.28));
-        }
-        .taehyun-fx .tae-celestial .orb.moon {
-            opacity: 0; transform: scale(.72) rotate(-18deg);
-            pointer-events: none;
-        }
-        .taehyun-fx .tae-celestial .orb.moon svg {
-            width: 88px; height: 88px;
-            filter: drop-shadow(0 8px 18px rgba(15,23,42,.12));
-        }
-        .taehyun-fx .tae-celestial.show-moon .orb.sun {
-            opacity: 0; transform: scale(.72);
-            animation: none;
-            pointer-events: none;
-        }
-        .taehyun-fx .tae-celestial.show-moon .orb.moon {
-            opacity: 1; transform: scale(1) rotate(0deg);
-            animation: taeMoonGlow 5s ease-in-out infinite;
-        }
-        @keyframes taeSunSlowSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        @keyframes taeSunPulseGlow {
-            0%,100% { filter: drop-shadow(0 0 12px rgba(251,191,36,.38)); transform: scale(1); }
-            50% { filter: drop-shadow(0 0 26px rgba(251,146,60,.58)); transform: scale(1.045); }
-        }
-        @keyframes taeSunFaceBob {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-2px); }
-        }
-        @keyframes taeMoonGlow {
-            0%,100% { filter: drop-shadow(0 0 12px rgba(148,163,184,.4)); transform: scale(1); }
-            50% { filter: drop-shadow(0 0 24px rgba(191,219,254,.65)); transform: scale(1.03); }
-        }
-        @media (max-width: 560px) {
-            .taehyun-fx .tae-celestial { width: 96px; height: 96px; top: 34%; }
-            .taehyun-fx .tae-celestial .orb.sun svg { width: 90px; height: 90px; }
-            .taehyun-fx .tae-celestial .orb.sun .tae-sun-face svg { width: 56px; height: 56px; }
-            .taehyun-fx .tae-celestial .orb.moon svg { width: 66px; height: 66px; }
         }
         .dash-shell.theme-teacher-a > *:not(.taehyun-fx):not(.dc-corners) { position: relative; z-index: 1; }
         .dash-shell.theme-teacher-a > .dc-corners { position: absolute; z-index: 520; }
@@ -10230,7 +10150,6 @@
         let roomTtMonthPick = null; // block id selected in big-month view for relocate
         let roomTtMonthKeyView = ''; // YYYY-MM currently shown in month modal
         let roomTtMonthBusy = false; // soft-refresh: skip board remount while month UI mid-edit
-        let celestialTimer = null;
         let emergencyEditMode = false;
         let emergencyDraft = null;
         let emModalState = { kind: 'known', editIndex: -1 };
@@ -21329,99 +21248,18 @@
                     const clouds = cloudSrc.map((c) =>
                         `<span class="ko-cloud${c.tint}" style="left:${c.left};top:${c.top};animation-duration:${c.dur}s;animation-delay:${c.delay}s;transform:scale(${c.scale})"></span>`
                     ).join('');
-                    const sunRaysSvg = `<svg viewBox="0 0 100 100" aria-hidden="true">
-                        <defs>
-                            <linearGradient id="taeRayGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stop-color="#fef08a"/>
-                                <stop offset="100%" stop-color="#f59e0b"/>
-                            </linearGradient>
-                        </defs>
-                        <g fill="url(#taeRayGrad)" opacity=".92">
-                            <polygon points="50,2 54.5,19 45.5,19"/>
-                            <polygon points="50,98 54.5,81 45.5,81"/>
-                            <polygon points="2,50 19,45.5 19,54.5"/>
-                            <polygon points="98,50 81,45.5 81,54.5"/>
-                            <polygon points="17,17 29,22 22,29"/>
-                            <polygon points="83,83 78,71 71,78"/>
-                            <polygon points="83,17 78,29 71,22"/>
-                            <polygon points="17,83 29,78 22,71"/>
-                        </g>
-                        <g fill="#fde68a" opacity=".8">
-                            <circle cx="50" cy="10" r="2.4"/>
-                            <circle cx="50" cy="90" r="2.4"/>
-                            <circle cx="10" cy="50" r="2.4"/>
-                            <circle cx="90" cy="50" r="2.4"/>
-                            <circle cx="21" cy="21" r="1.9"/>
-                            <circle cx="79" cy="79" r="1.9"/>
-                            <circle cx="79" cy="21" r="1.9"/>
-                            <circle cx="21" cy="79" r="1.9"/>
-                        </g>
-                    </svg>`;
-                    const sunFaceSvg = `<svg viewBox="0 0 100 100" aria-hidden="true">
-                        <defs>
-                            <radialGradient id="taeSunCore" cx="38%" cy="34%" r="62%">
-                                <stop offset="0%" stop-color="#fffbeb"/>
-                                <stop offset="40%" stop-color="#fde68a"/>
-                                <stop offset="100%" stop-color="#f59e0b"/>
-                            </radialGradient>
-                        </defs>
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="#fcd34d" stroke-width="4" opacity=".45"/>
-                        <circle cx="50" cy="50" r="34" fill="url(#taeSunCore)" stroke="#ea580c" stroke-width="1.6"/>
-                        <circle cx="38" cy="36" r="8" fill="#fff" opacity=".4"/>
-                        <ellipse cx="38" cy="46" rx="4.2" ry="5" fill="#78350f" opacity=".82"/>
-                        <ellipse cx="62" cy="46" rx="4.2" ry="5" fill="#78350f" opacity=".82"/>
-                        <circle cx="39.5" cy="44.5" r="1.3" fill="#fff" opacity=".7"/>
-                        <circle cx="63.5" cy="44.5" r="1.3" fill="#fff" opacity=".7"/>
-                        <path d="M40 60 Q50 68 60 60" fill="none" stroke="#b45309" stroke-width="2.4" stroke-linecap="round"/>
-                        <circle cx="32" cy="56" r="4" fill="#fb7185" opacity=".35"/>
-                        <circle cx="68" cy="56" r="4" fill="#fb7185" opacity=".35"/>
-                    </svg>`;
-                    const moonSvg = `<svg viewBox="0 0 100 100" aria-hidden="true">
-                        <defs>
-                            <radialGradient id="taeMoonCore" cx="38%" cy="35%" r="65%">
-                                <stop offset="0%" stop-color="#f8fafc"/>
-                                <stop offset="55%" stop-color="#e2e8f0"/>
-                                <stop offset="100%" stop-color="#94a3b8"/>
-                            </radialGradient>
-                        </defs>
-                        <circle cx="50" cy="50" r="26" fill="url(#taeMoonCore)" stroke="#cbd5e1" stroke-width="1.5"/>
-                        <circle cx="62" cy="42" r="18" fill="#f1f5f9" opacity=".92"/>
-                        <circle cx="38" cy="48" r="3.2" fill="#94a3b8" opacity=".35"/>
-                        <circle cx="48" cy="62" r="2.2" fill="#94a3b8" opacity=".28"/>
-                        <circle cx="44" cy="38" r="1.8" fill="#94a3b8" opacity=".3"/>
-                        <g fill="#fde68a" opacity=".85">
-                            <polygon points="72,18 73.5,22 78,22 74.5,24.5 76,29 72,26.5 68,29 69.5,24.5 66,22 70.5,22"/>
-                        </g>
-                    </svg>`;
-                    const celestial = lite ? '' : `<span class="tae-celestial" id="tae-celestial" aria-hidden="true">
-                        <span class="orb sun">
-                            <span class="tae-sun-spin">${sunRaysSvg}</span>
-                            <span class="tae-sun-face">${sunFaceSvg}</span>
-                        </span>
-                        <span class="orb moon">${moonSvg}</span>
-                    </span>`;
                     fx.innerHTML = `
                         <span class="dancheong-rail"></span>
                         <span class="dancheong-rail bottom"></span>
                         <span class="ink-splash"></span>
                         ${lite ? '' : '<span class="ink-splash"></span><span class="ink-splash"></span><span class="ink-splash"></span>'}
-                        ${celestial}
                         ${clouds}
                         <span class="crane-bird" style="top:26%;left:-10%"></span>
                         ${lite ? '' : '<span class="crane-bird c2" style="top:48%;left:-15%"></span>'}
                         <div class="hangul-float-layer">${hangul}</div>
                         <div class="sakura-layer">${petals}</div>`;
-                    if (celestialTimer) clearInterval(celestialTimer);
-                    if (!lite) {
-                        celestialTimer = setInterval(() => {
-                            document.getElementById('tae-celestial')?.classList.toggle('show-moon');
-                        }, 60000);
-                    } else {
-                        celestialTimer = null;
-                    }
                     return;
                 }
-                if (celestialTimer) { clearInterval(celestialTimer); celestialTimer = null; }
                 if (user.role === 'director') {
                     const glyphs = lite
                         ? ['홍', '익', '지', '제', '이']
