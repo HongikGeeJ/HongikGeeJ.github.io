@@ -2458,12 +2458,62 @@
         .theme-director .stat-card .k,
         .theme-director .empty-note,
         .theme-director .sched-label { color: #475569 !important; }
-        /* Never paint order-ack status chips with the generic director badge color */
-        .theme-director .badge:not(.order-ack-badge) {
+        /* Never paint order-ack / inbox-status chips with the generic director badge color */
+        .theme-director .badge:not(.order-ack-badge):not(.inbox-status-badge) {
             background: #e8eef5 !important;
             color: #1e3a5f !important;
             font-weight: 800;
             border: 1px solid rgba(30,58,95,.18) !important;
+        }
+        /* Cancel / sched report pills: อ่านแล้ว soft green · รออนุมัติ amber · voided muted */
+        .theme-director .badge.inbox-status-badge.is-read,
+        .badge.inbox-status-badge.is-read {
+            background: #dcfce7 !important;
+            color: #166534 !important;
+            border: 1px solid rgba(22, 163, 74, .35) !important;
+            font-weight: 800;
+        }
+        .theme-director .badge.inbox-status-badge.is-pending,
+        .badge.inbox-status-badge.is-pending {
+            background: #ffedd5 !important;
+            color: #9a3412 !important;
+            border: 1px solid rgba(234, 88, 12, .35) !important;
+            font-weight: 750;
+        }
+        .theme-director .badge.inbox-status-badge.is-voided,
+        .badge.inbox-status-badge.is-voided {
+            background: #f1f5f9 !important;
+            color: #475569 !important;
+            border: 1px solid rgba(100, 116, 139, .25) !important;
+            font-weight: 750;
+        }
+        /* Director/admin only: pending badge opens approve/reject */
+        button.badge.inbox-status-badge.is-pending.report-pending-btn {
+            cursor: pointer;
+            font: inherit;
+            line-height: inherit;
+            transition: filter .15s ease, box-shadow .15s ease;
+        }
+        button.badge.inbox-status-badge.is-pending.report-pending-btn:hover {
+            filter: brightness(0.97);
+            box-shadow: 0 0 0 2px rgba(234, 88, 12, .35);
+        }
+        button.badge.inbox-status-badge.is-pending.report-pending-btn:focus-visible {
+            outline: 2px solid #c2410c;
+            outline-offset: 2px;
+        }
+        .report-decide {
+            margin-top: .35rem;
+            padding: .55rem .65rem;
+            border-radius: .7rem;
+            background: #fff7ed;
+            border: 1px solid rgba(234, 88, 12, .28);
+        }
+        .report-decide .rd-hint {
+            margin: 0 0 .4rem;
+            font-size: .75rem;
+            font-weight: 700;
+            color: #c2410c;
         }
         /* Sent but not acked: amber / muted — green reserved for อ่านแล้ว */
         .theme-director .order-ack-badge.is-pending.badge,
@@ -2834,6 +2884,39 @@
         .ot-card .meta { font-size: .78rem; color: #cbd5e1; margin-top: .25rem; }
         .compact-card { padding: .85rem !important; }
         .compact-card h3 { font-size: 1rem; margin: 0 0 .5rem; }
+        /* Ack-status card: minimal quick-compose under title (sticky while list scrolls) */
+        .content-card > .order-quick-compose {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            margin: 0 0 .65rem;
+            padding: .55rem .6rem .6rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: .75rem;
+            box-shadow: 0 8px 12px -8px rgba(15, 23, 42, .1);
+        }
+        .order-quick-compose #order-quick-text {
+            width: 100%;
+            min-height: 2.6rem;
+            resize: vertical;
+        }
+        .order-quick-compose-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .45rem;
+            margin-top: .45rem;
+        }
+        .order-quick-compose-bar .sched-select {
+            flex: 1 1 8rem;
+            min-width: 0;
+            max-width: 12rem;
+        }
+        .order-quick-compose-bar .soft-btn {
+            padding: .42rem .9rem !important;
+            font-size: .82rem !important;
+        }
         /* Pin bulk-delete on cancels/admin report cards while list scrolls
            (overrides .content-card > * { position: relative }) */
         .content-card > .delete-read-reports-head {
@@ -6426,51 +6509,51 @@
             gap: .45rem .65rem; margin: 0;
         }
         .room-tt-live {
-            display: inline-flex; align-items: center; gap: .4rem;
-            min-height: 2rem; font-size: .78rem; font-weight: 800; letter-spacing: .01em;
-            color: #065f46;
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 55%, #6ee7b7 140%);
-            border: 1.5px solid #059669; border-radius: 999px;
-            padding: .38rem .85rem .38rem .7rem;
+            display: inline-flex; align-items: center; gap: .5rem;
+            min-height: 2.55rem; font-size: .95rem; font-weight: 800; letter-spacing: .01em;
+            color: #3f6212;
+            background: linear-gradient(135deg, #f0fdf0 0%, #d9f0c4 50%, #bee8a0 140%);
+            border: 1.5px solid #7cb342; border-radius: 999px;
+            padding: .55rem 1.15rem .55rem .95rem;
             cursor: pointer; font-family: inherit; line-height: 1.15;
             white-space: nowrap; flex-shrink: 0;
             box-shadow:
-                0 1px 0 rgba(255,255,255,.55) inset,
-                0 2px 6px rgba(5, 150, 105, .22),
-                0 0 0 1px rgba(16, 185, 129, .12);
+                0 1px 0 rgba(255,255,255,.6) inset,
+                0 2px 8px rgba(124, 179, 66, .22),
+                0 0 0 1px rgba(139, 195, 74, .14);
             transition: background .18s, border-color .18s, box-shadow .18s, transform .18s, color .18s;
         }
         .room-tt-live:hover, .room-tt-live:focus-visible {
-            color: #064e3b;
-            background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 60%, #34d399 130%);
-            border-color: #047857;
+            color: #365314;
+            background: linear-gradient(135deg, #e2f5cf 0%, #c5e6a0 55%, #a8d86c 130%);
+            border-color: #689f38;
             box-shadow:
-                0 1px 0 rgba(255,255,255,.6) inset,
-                0 4px 12px rgba(5, 150, 105, .28),
-                0 0 0 3px rgba(16, 185, 129, .28);
+                0 1px 0 rgba(255,255,255,.65) inset,
+                0 4px 14px rgba(124, 179, 66, .3),
+                0 0 0 3px rgba(139, 195, 74, .28);
             transform: scale(1.04);
             outline: none;
         }
         .room-tt-live:active { transform: scale(.97); }
         .room-tt-live .live-dot {
-            width: 9px; height: 9px; margin-right: 0; flex-shrink: 0;
-            background: #16a34a;
-            box-shadow: 0 0 0 3px rgba(22, 163, 74, .28);
+            width: 11px; height: 11px; margin-right: 0; flex-shrink: 0;
+            background: #65a30d;
+            box-shadow: 0 0 0 3px rgba(101, 163, 13, .28);
             animation: roomTtLiveDotPulse 1.5s ease-in-out infinite;
         }
         .room-tt-live .rt-live-refresh {
-            font-size: .95rem; opacity: .95; margin-left: .02rem; flex-shrink: 0;
+            font-size: 1.15rem; opacity: .95; margin-left: .02rem; flex-shrink: 0;
             transform-origin: center;
             animation: roomTtLiveIconNudge 2.4s ease-in-out infinite;
         }
         .room-tt-live.is-loading {
             pointer-events: none; opacity: .85;
-            border-color: #059669;
+            border-color: #7cb342;
             transform: none;
         }
         .room-tt-live.is-loading .live-dot {
             animation: none;
-            box-shadow: 0 0 0 3px rgba(22, 163, 74, .2);
+            box-shadow: 0 0 0 3px rgba(101, 163, 13, .2);
         }
         .room-tt-live.is-loading .rt-live-refresh {
             animation: roomTtLiveSpin .7s linear infinite;
@@ -6500,24 +6583,76 @@
             }
         }
         .room-tt-nav {
-            display: flex; align-items: center; gap: .35rem; flex-wrap: wrap;
+            display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;
+            margin: .2rem .35rem .35rem .55rem;
+            padding: .15rem 0;
         }
         .room-tt-nav .soft-btn {
-            min-width: 2.05rem; padding: .35rem .5rem; font-size: .82rem;
+            min-width: 2.6rem; min-height: 2.6rem; padding: .5rem .65rem; font-size: 1.1rem;
+            border-radius: .8rem;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+        .room-tt-nav .soft-btn:hover:not(:disabled),
+        .room-tt-nav .soft-btn:focus-visible:not(:disabled) {
+            transform: translateY(-1px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, .1);
+        }
+        .room-tt-nav .soft-btn:active:not(:disabled) {
+            transform: scale(.96);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .08);
         }
         .room-tt-range {
-            font-weight: 800; font-size: .9rem; color: #0f172a;
-            letter-spacing: -.01em; min-width: 9rem; text-align: center;
-            border: 1.5px solid #bfdbfe; background: #f8fbff; border-radius: .75rem;
-            padding: .35rem .65rem; cursor: pointer; font-family: inherit;
-            transition: background .15s, border-color .15s, box-shadow .15s;
+            font-weight: 800; font-size: 1.8rem; color: #0f172a;
+            letter-spacing: -.015em; min-width: 17rem; text-align: center;
+            border: 1.5px solid #93c5fd; background: #f8fbff; border-radius: .95rem;
+            padding: .55rem 1.25rem; cursor: pointer; font-family: inherit; line-height: 1.2;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,.85) inset,
+                0 2px 10px rgba(14, 165, 233, .12);
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
         }
         .room-tt-range:hover, .room-tt-range:focus-visible {
-            background: #eff6ff; border-color: #38bdf8;
-            box-shadow: 0 0 0 3px rgba(56,189,248,.18); outline: none;
+            border-color: #38bdf8;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,.9) inset,
+                0 4px 16px rgba(14, 165, 233, .18),
+                0 0 0 3px rgba(56,189,248,.14);
+            transform: translateY(-1px);
+            outline: none;
+        }
+        .room-tt-range:active {
+            transform: scale(.985);
         }
         .room-tt-range .rt-range-hint {
-            display: block; font-size: .62rem; font-weight: 700; color: #64748b; margin-top: .1rem;
+            display: block; font-size: 1.2rem; font-weight: 700; color: #64748b; margin-top: .22rem;
+        }
+        .room-tt-range.is-week-slide-next {
+            animation: roomTtRangeSlideNext .4s cubic-bezier(.22, 1, .36, 1) both;
+        }
+        .room-tt-range.is-week-slide-prev {
+            animation: roomTtRangeSlidePrev .4s cubic-bezier(.22, 1, .36, 1) both;
+        }
+        @keyframes roomTtRangeSlideNext {
+            from { opacity: .55; transform: translateX(14px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes roomTtRangeSlidePrev {
+            from { opacity: .55; transform: translateX(-14px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .room-tt-nav .soft-btn,
+            .room-tt-range {
+                transition: none !important;
+                animation: none !important;
+            }
+            .room-tt-nav .soft-btn:hover:not(:disabled),
+            .room-tt-nav .soft-btn:focus-visible:not(:disabled),
+            .room-tt-nav .soft-btn:active:not(:disabled),
+            .room-tt-range:hover, .room-tt-range:focus-visible, .room-tt-range:active {
+                transform: none;
+            }
         }
         .room-tt-hint {
             font-size: 1.48rem; color: #64748b; margin: 0; line-height: 1.4;
@@ -6553,21 +6688,28 @@
         }
         .soft-btn:disabled { opacity: .4; pointer-events: none; }
         .room-tt-monthbar {
-            display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .55rem;
-            margin: 0; padding: .4rem .55rem;
+            display: flex; flex-wrap: wrap; align-items: center; gap: .55rem .9rem;
+            margin: 0; padding: .7rem .95rem;
             background: #f8fafc; border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 14px;
         }
-        .room-tt-monthbar label { font-size: .7rem; font-weight: 750; color: #64748b; }
+        .room-tt-monthbar label { font-size: 1.4rem; font-weight: 750; color: #64748b; }
         .room-tt-monthbar select, .room-tt-monthbar .soft-btn {
-            font-size: .78rem; padding: .3rem .55rem; border-radius: 10px;
+            font-size: 1.56rem; padding: .55rem 1.05rem; border-radius: 12px;
         }
         .room-tt-monthbar select {
             border: 1px solid #e2e8f0; background: #fff; font-weight: 700; color: #0f172a;
+            min-width: 6.75rem;
+        }
+        #room-tt-month-open {
+            min-width: 13.5rem;
+            padding-left: 1.2rem;
+            padding-right: 1.2rem;
+            white-space: nowrap;
         }
         .room-tt-lookback {
-            font-size: .66rem; font-weight: 750; color: #0369a1;
-            background: #e0f2fe; border-radius: 999px; padding: .16rem .5rem;
+            font-size: 1.32rem; font-weight: 750; color: #0369a1;
+            background: #e0f2fe; border-radius: 999px; padding: .35rem 1rem;
         }
         .room-tt-booked.is-break {
             background: #fee2e2 !important; border-color: #f87171 !important; color: #b91c1c !important;
@@ -9640,6 +9782,7 @@
         let clockTimer = null;
         let orderResendCdTimer = null;
         let roomTtWeekOffset = 0;
+        let roomTtNavSlideDir = ''; // 'prev' | 'next' | ''
         let roomTtSyncStatusMsg = '';
         let roomTtDraft = null;
         let roomTtRangePick = null; // { date, room, start } when selecting กี่โมง→กี่โมง
@@ -9669,6 +9812,8 @@
         let weekClassNav = { weekOffset: 0, page: 0, rangeFrom: '', rangeTo: '', opened: false };
         let orderNav = { view: 'list', orderId: null };
         let leaveInboxOpenId = null;
+        /** Director cancel/sched inbox: `cancel:id` | `sched:id` while decide panel open */
+        let reportInboxOpenKey = null;
         let orderPopupIdx = 0;
         let orderPopupSnoozed = false; // dismissed with × / backdrop until tab change
         let attendPopupSnoozed = false; // dismissed with × / backdrop until tab change
@@ -9700,7 +9845,7 @@
                 roomTtThisWeek: '이번 주',
                 roomTtPickMonth: '월 선택',
                 roomTtLookback: '보관 8개월 · 미리보기 6개월',
-                roomTtMonthOpen: '월간 달력',
+                roomTtMonthOpen: '전체 달력 보기',
                 roomTtMonthHint: '수업을 눌러 선택한 뒤 다른 날짜를 누르면 이동합니다 · 날짜를 누르면 그 주로 이동합니다',
                 roomTtMonthMoveHint: '이동할 날짜를 눌러 주세요 (같은 교실·시간 유지)',
                 roomTtMonthMoved: '월간 보기에서 이동했습니다',
@@ -10114,6 +10259,8 @@
                 assignLangEn: '영어',
                 assignMultiHint: '언어별로 작성하면 선생님 화면 언어에 맞춰 바로 보입니다',
                 readStatus: '확인 현황',
+                orderQuickPh: '빠른 지시 입력…',
+                orderQuickSend: '보내기',
                 readDone: '확인함',
                 unread: '미확인',
                 msgSent: '미확인',
@@ -10217,6 +10364,11 @@
                 deleteReadReportsDone: '읽은 메시지를 삭제했습니다',
                 deleteReadReportsNone: '삭제할 읽은 메시지가 없습니다',
                 deleteReadReportOneConfirm: '이 읽은 보고를 삭제할까요? 되돌릴 수 없습니다.',
+                approveReportTitle: '클릭하여 승인·반려',
+                approveReportHint: '내용을 확인한 뒤 승인 또는 반려하세요',
+                approveReportConfirm: '이 보고를 승인할까요? 상태가 「확인함」으로 바뀝니다.',
+                rejectReportConfirm: '이 보고를 반려할까요?',
+                rejectCancelReportConfirm: '이 수업 취소 보고를 반려할까요? 해당 수업은 취소 전 상태로 복구됩니다.',
                 teachersEmergency: '교사 비상 연락처',
                 teachersEmergencyHint: '각 교사가 등록한 비상 연락처 요약입니다',
                 noTeacherEm: '등록된 비상 연락처 없음',
@@ -10507,7 +10659,7 @@
                 roomTtThisWeek: 'สัปดาห์นี้',
                 roomTtPickMonth: 'เลือกเดือน',
                 roomTtLookback: 'เก็บ 8 เดือน · ดูล่วงหน้า 6 เดือน',
-                roomTtMonthOpen: 'ปฏิทินเดือนใหญ่',
+                roomTtMonthOpen: 'ดูปฏิทินโดยรวม',
                 roomTtMonthHint: 'กดคลาสเพื่อเลือก แล้วกดวันอื่นเพื่อย้าย · กดวันที่เพื่อไปสัปดาห์นั้น',
                 roomTtMonthMoveHint: 'กดวันที่ต้องการย้ายไป (คงห้องและเวลาเดิม)',
                 roomTtMonthMoved: 'ย้ายจากมุมมองเดือนแล้ว',
@@ -10921,6 +11073,8 @@
                 assignLangEn: 'อังกฤษ',
                 assignMultiHint: 'ใส่ข้อความแยกภาษา · สลับภาษาแล้วเนื้อหาจะเปลี่ยนตามทันที',
                 readStatus: 'สถานการณ์รับทราบงานของครูแต่ละคน',
+                orderQuickPh: 'พิมพ์ข้อความด่วน…',
+                orderQuickSend: 'ส่ง',
                 readDone: 'อ่านแล้ว',
                 unread: 'ยังไม่ได้อ่าน',
                 msgSent: 'ยังไม่ได้อ่าน',
@@ -11024,6 +11178,11 @@
                 deleteReadReportsDone: 'ลบข้อความที่อ่านแล้วเรียบร้อย',
                 deleteReadReportsNone: 'ไม่มีข้อความที่อ่านแล้วให้ลบ',
                 deleteReadReportOneConfirm: 'ลบรายงานที่อ่านแล้วรายการนี้เลยไหม? กู้คืนไม่ได้',
+                approveReportTitle: 'คลิกเพื่ออนุมัติ / ไม่อนุมัติ',
+                approveReportHint: 'ตรวจรายละเอียดแล้วเลือกอนุมัติหรือไม่อนุมัติ',
+                approveReportConfirm: 'อนุมัติรายงานนี้เลยไหม? สถานะจะเป็น「อ่านแล้ว」',
+                rejectReportConfirm: 'ไม่อนุมัติรายงานนี้เลยไหม?',
+                rejectCancelReportConfirm: 'ไม่อนุมัติรายงานยกเลิกคลาสนี้เลยไหม? คลาสจะถูกคืนสถานะก่อนยกเลิก',
                 teachersEmergency: 'ติดต่อฉุกเฉินของคุณครู',
                 teachersEmergencyHint: 'สรุปเบอร์ที่คุณครูแต่ละคนลงทะเบียนไว้ · แยกสีตามคน',
                 noTeacherEm: 'ยังไม่ได้ลงทะเบียน',
@@ -11314,7 +11473,7 @@
                 roomTtThisWeek: 'This week',
                 roomTtPickMonth: 'Pick month',
                 roomTtLookback: '8 mo stored · 6 mo ahead',
-                roomTtMonthOpen: 'Month calendar',
+                roomTtMonthOpen: 'View full calendar',
                 roomTtMonthHint: 'Tap a class then another day to move · tap a day to open that week',
                 roomTtMonthMoveHint: 'Tap the destination day (keeps room & time)',
                 roomTtMonthMoved: 'Moved from month view',
@@ -11728,6 +11887,8 @@
                 assignLangEn: 'English',
                 assignMultiHint: 'Enter each language · content switches live when teachers change language',
                 readStatus: 'Read status',
+                orderQuickPh: 'Quick message…',
+                orderQuickSend: 'Send',
                 readDone: 'Read',
                 unread: 'Not yet read',
                 msgSent: 'Not yet read',
@@ -11831,6 +11992,11 @@
                 deleteReadReportsDone: 'Deleted read messages',
                 deleteReadReportsNone: 'No read messages to delete',
                 deleteReadReportOneConfirm: 'Delete this read report? This cannot be undone.',
+                approveReportTitle: 'Click to approve / reject',
+                approveReportHint: 'Review, then approve or reject',
+                approveReportConfirm: 'Approve this report? Status becomes Read.',
+                rejectReportConfirm: 'Reject this report?',
+                rejectCancelReportConfirm: 'Reject this class-cancellation report? The class will be restored.',
                 teachersEmergency: "Teachers' emergency contacts",
                 teachersEmergencyHint: 'Summary of contacts each teacher registered · color-coded',
                 noTeacherEm: 'Not registered yet',
@@ -12862,6 +13028,34 @@
         }
         function canDeleteReadReports(user) {
             return !!(user && (user.role === 'director' || user.role === 'admin'));
+        }
+        function canApproveReportInbox(user) {
+            return !!(user && (user.role === 'director' || user.role === 'admin'));
+        }
+        /** Same transition as cancel-alert-confirm, for one report. Pushes via saveClassCancels → portal_stores. */
+        function approveClassCancelReport(cancelId) {
+            const key = String(cancelId || '');
+            if (!key) return false;
+            const list = loadClassCancels();
+            const c = list.find((row) => String(row.id) === key);
+            if (!c || c.status !== 'pending_director') return false;
+            const now = new Date().toISOString();
+            c.status = c.source === 'room_tt' ? 'acked' : 'acked_pending_teacher';
+            c.directorAckAt = now;
+            saveClassCancels(list);
+            return true;
+        }
+        /** Same transition as sched-alert-confirm, for one report. Pushes via saveSchedChanges → portal_stores. */
+        function approveSchedChangeReport(changeId) {
+            const key = String(changeId || '');
+            if (!key) return false;
+            const list = loadSchedChanges();
+            const c = list.find((row) => String(row.id) === key);
+            if (!c || c.status !== 'pending_director' || !isDirectorSchedAlertAction(c.action)) return false;
+            c.status = 'acked';
+            c.directorAckAt = new Date().toISOString();
+            saveSchedChanges(list);
+            return true;
         }
         function countReadReportMessages() {
             const cancels = loadClassCancels().filter((c) => isInboxReadStatus(c.status)).length;
@@ -19226,6 +19420,35 @@
                 applyOrderResendCooldownUi(document);
             }, 1000);
         }
+        /** Shared head-order create → same acks/unread + portal store path as assign tab. */
+        function createHeadOrder(user, { ko = '', th = '', en = '', target = 'all' } = {}) {
+            if (!user || (user.role !== 'director' && user.role !== 'admin')) return null;
+            const textKo = String(ko || '').trim();
+            const textTh = String(th || '').trim();
+            const textEn = String(en || '').trim();
+            if (!textKo && !textTh && !textEn) return null;
+            const now = new Date();
+            const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const stamped = stampAllLangText({}, 'text', { ko: textKo, th: textTh, en: textEn });
+            const tgt = String(target || 'all');
+            const order = {
+                id: 'o' + Date.now(),
+                from: displayName(user),
+                fromId: user.id,
+                ...stamped,
+                time,
+                date: todayKey(),
+                targets: tgt === 'all' ? ['all'] : [tgt],
+                acks: {},
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            const orders = loadHeadOrders();
+            orders.push(order);
+            saveHeadOrders(orders);
+            flushHeadOrderStoresNow();
+            return order;
+        }
         function resendHeadOrder(orderId, onlyUserId) {
             const oid = String(orderId || '');
             if (!oid) return 0;
@@ -21121,7 +21344,7 @@
                             </button>
                             <div class="room-tt-nav">
                                 <button type="button" class="soft-btn ghost" id="room-tt-prev" aria-label="prev" ${canGoPrev ? '' : 'disabled'}><i class="ph ph-caret-left"></i></button>
-                                <button type="button" class="room-tt-range" id="room-tt-range-btn" title="${esc(t('roomTtMonthOpen'))}">
+                                <button type="button" class="room-tt-range${roomTtNavSlideDir === 'next' ? ' is-week-slide-next' : roomTtNavSlideDir === 'prev' ? ' is-week-slide-prev' : ''}" id="room-tt-range-btn" title="${esc(t('roomTtMonthOpen'))}">
                                     ${esc(formatRoomTtRange(roomTtWeekOffset))}
                                     <span class="rt-range-hint">${esc(t('roomTtMonthOpen'))}</span>
                                 </button>
@@ -21148,19 +21371,24 @@
                     </div>`;
 
                 document.getElementById('room-tt-prev')?.addEventListener('click', () => {
+                    roomTtNavSlideDir = 'prev';
                     roomTtWeekOffset = clampRoomTtOffset(roomTtWeekOffset - 1);
                     renderRoomTimetableBoard(user);
                 });
                 document.getElementById('room-tt-next')?.addEventListener('click', () => {
+                    roomTtNavSlideDir = 'next';
                     roomTtWeekOffset = clampRoomTtOffset(roomTtWeekOffset + 1);
                     renderRoomTimetableBoard(user);
                 });
                 document.getElementById('room-tt-today')?.addEventListener('click', () => {
+                    roomTtNavSlideDir = roomTtWeekOffset > 0 ? 'prev' : 'next';
                     roomTtWeekOffset = 0;
                     renderRoomTimetableBoard(user);
                 });
                 document.getElementById('room-tt-month')?.addEventListener('change', (e) => {
-                    roomTtWeekOffset = roomTtOffsetForMonthKey(e.target.value);
+                    const nextOff = roomTtOffsetForMonthKey(e.target.value);
+                    roomTtNavSlideDir = nextOff > roomTtWeekOffset ? 'next' : nextOff < roomTtWeekOffset ? 'prev' : '';
+                    roomTtWeekOffset = nextOff;
                     renderRoomTimetableBoard(user);
                 });
                 const openMonth = () => openRoomTtMonthView(user, monthKey);
@@ -21169,6 +21397,7 @@
                 document.getElementById('room-tt-live-refresh')?.addEventListener('click', () => {
                     refreshRoomTtLive(user, document.getElementById('room-tt-live-refresh'));
                 });
+                roomTtNavSlideDir = '';
                 const rangeBannerHost = board.querySelector('.room-tt-head');
                 if (roomTtRangePick && rangeBannerHost) {
                     const pick = roomTtRangePick;
@@ -24047,11 +24276,31 @@
                     ${pendingLeaveN ? `<p class="text-xs mb-2" style="color:#c2410c;font-weight:700">${t('leaveClickOpen')}</p>` : ''}`;
 
                     const canPurgeRead = canDeleteReadReports(user);
+                    const canApproveReports = canApproveReportInbox(user);
                     const allCancels = loadClassCancels().slice().reverse();
                     const cancelInbox = allCancels.length ? allCancels.map(C => {
+                        const cid = String(C.id || '').replace(/"/g, '');
+                        const isPending = C.status === 'pending_director';
                         const isRead = isInboxReadStatus(C.status);
+                        const statusCls = isPending ? 'is-pending' : C.status === 'voided_admin' ? 'is-voided' : 'is-read';
+                        const statusLbl = isPending ? t('pending') :
+                            C.status === 'voided_admin' ? t('leaveCancelledAdmin') : t('readDone');
+                        const openKey = `cancel:${cid}`;
+                        const isDecideOpen = canApproveReports && isPending && reportInboxOpenKey === openKey;
+                        const statusBadge = (canApproveReports && isPending)
+                            ? `<button type="button" class="badge inbox-status-badge ${statusCls} report-pending-btn" data-report-open="${openKey}" title="${t('approveReportTitle')}" aria-label="${t('approveReportTitle')}" aria-expanded="${isDecideOpen ? 'true' : 'false'}">${statusLbl}</button>`
+                            : `<span class="badge inbox-status-badge ${statusCls}">${statusLbl}</span>`;
                         const delOne = canPurgeRead && isRead
-                            ? `<button type="button" class="soft-btn ghost" data-del-read-cancel="${String(C.id || '').replace(/"/g, '')}" title="${t('delete')}" style="padding:.28rem .55rem !important;font-size:.72rem !important;color:#b91c1c;flex-shrink:0"><i class="ph ph-trash"></i></button>`
+                            ? `<button type="button" class="soft-btn ghost" data-del-read-cancel="${cid}" title="${t('delete')}" style="padding:.28rem .55rem !important;font-size:.72rem !important;color:#b91c1c;flex-shrink:0"><i class="ph ph-trash"></i></button>`
+                            : '';
+                        const decide = isDecideOpen
+                            ? `<div class="report-decide">
+                                <p class="rd-hint"><i class="ph ph-hand-pointing"></i> ${t('approveReportHint')}</p>
+                                <div class="admin-actions">
+                                    <button type="button" class="soft-btn" data-report-approve-cancel="${cid}">${t('approve')}</button>
+                                    <button type="button" class="soft-btn ghost" data-report-reject-cancel="${cid}">${t('reject')}</button>
+                                </div>
+                            </div>`
                             : '';
                         return `
                         <div class="item-row" style="flex-direction:column;align-items:stretch;gap:.35rem">
@@ -24064,14 +24313,11 @@
                                     ${C.note ? `<div class="text-xs text-slate-500">${t('cancelNote')}: ${C.note}</div>` : ''}
                                 </div>
                                 <div style="display:flex;align-items:flex-start;gap:.35rem;flex-shrink:0">
-                                    <span class="badge" style="background:${C.status==='pending_director'?'#ffedd5':C.status==='voided_admin'?'#f1f5f9':'#dbeafe'};color:${C.status==='pending_director'?'#9a3412':C.status==='voided_admin'?'#475569':'#1e40af'}">${
-                                        C.status === 'pending_director' ? t('pending') :
-                                        C.status === 'voided_admin' ? t('leaveCancelledAdmin') :
-                                        C.status === 'acked_pending_teacher' ? t('readDone') : t('readDone')
-                                    }</span>
+                                    ${statusBadge}
                                     ${delOne}
                                 </div>
                             </div>
+                            ${decide}
                         </div>`;
                     }).join('') : `<p class="empty-note">${t('noCancels')}</p>`;
 
@@ -24080,9 +24326,28 @@
                         .slice()
                         .reverse();
                     const schedChangeInbox = allSchedCh.length ? allSchedCh.map(S => {
+                        const sid = String(S.id || '').replace(/"/g, '');
+                        const isPending = S.status === 'pending_director';
                         const isRead = isInboxReadStatus(S.status);
+                        const statusCls = isPending ? 'is-pending' : S.status === 'voided_admin' ? 'is-voided' : 'is-read';
+                        const statusLbl = isPending ? t('pending') :
+                            S.status === 'voided_admin' ? t('leaveCancelledAdmin') : t('readDone');
+                        const openKey = `sched:${sid}`;
+                        const isDecideOpen = canApproveReports && isPending && reportInboxOpenKey === openKey;
+                        const statusBadge = (canApproveReports && isPending)
+                            ? `<button type="button" class="badge inbox-status-badge ${statusCls} report-pending-btn" data-report-open="${openKey}" title="${t('approveReportTitle')}" aria-label="${t('approveReportTitle')}" aria-expanded="${isDecideOpen ? 'true' : 'false'}">${statusLbl}</button>`
+                            : `<span class="badge inbox-status-badge ${statusCls}">${statusLbl}</span>`;
                         const delOne = canPurgeRead && isRead
-                            ? `<button type="button" class="soft-btn ghost" data-del-read-sched="${String(S.id || '').replace(/"/g, '')}" title="${t('delete')}" style="padding:.28rem .55rem !important;font-size:.72rem !important;color:#b91c1c;flex-shrink:0"><i class="ph ph-trash"></i></button>`
+                            ? `<button type="button" class="soft-btn ghost" data-del-read-sched="${sid}" title="${t('delete')}" style="padding:.28rem .55rem !important;font-size:.72rem !important;color:#b91c1c;flex-shrink:0"><i class="ph ph-trash"></i></button>`
+                            : '';
+                        const decide = isDecideOpen
+                            ? `<div class="report-decide">
+                                <p class="rd-hint"><i class="ph ph-hand-pointing"></i> ${t('approveReportHint')}</p>
+                                <div class="admin-actions">
+                                    <button type="button" class="soft-btn" data-report-approve-sched="${sid}">${t('approve')}</button>
+                                    <button type="button" class="soft-btn ghost" data-report-reject-sched="${sid}">${t('reject')}</button>
+                                </div>
+                            </div>`
                             : '';
                         return `
                         <div class="item-row" style="flex-direction:column;align-items:stretch;gap:.35rem">
@@ -24093,13 +24358,11 @@
                                     <div class="text-sm">${(S.action === 'dayoff' || S.action === 'undodayoff') ? (pickLangText(S, 'title') || t('schedDayOffTitle')) : `${S.start || ''}–${S.end || ''} · ${pickLangText(S, 'title') || S.title || ''}`}</div>
                                 </div>
                                 <div style="display:flex;align-items:flex-start;gap:.35rem;flex-shrink:0">
-                                    <span class="badge" style="background:${S.status==='pending_director'?'#ffedd5':S.status==='voided_admin'?'#f1f5f9':'#dcfce7'};color:${S.status==='pending_director'?'#9a3412':S.status==='voided_admin'?'#475569':'#166534'}">${
-                                        S.status === 'pending_director' ? t('pending') :
-                                        S.status === 'voided_admin' ? t('leaveCancelledAdmin') : t('readDone')
-                                    }</span>
+                                    ${statusBadge}
                                     ${delOne}
                                 </div>
                             </div>
+                            ${decide}
                         </div>`;
                     }).join('') : `<p class="empty-note">${t('noSchedChanges')}</p>`;
 
@@ -24201,6 +24464,17 @@
                         <div id="ot-pay-board"></div>
                     </div></div>`;
                     extra += `<div class="tab-panel" data-panel="orders"><div class="content-card compact-card">${heading('ph-checks','readStatus')}
+                        <div class="order-quick-compose" id="order-quick-compose">
+                            <textarea id="order-quick-text" class="sched-text" rows="2" placeholder="${t('orderQuickPh')}" aria-label="${t('orderQuickPh')}"></textarea>
+                            <div class="order-quick-compose-bar">
+                                <select id="order-quick-target" class="sched-select" aria-label="${t('assignAll')}">
+                                    <option value="all">${t('assignAll')}</option>
+                                    ${teacherOpts}
+                                </select>
+                                <button type="button" class="soft-btn" id="order-quick-send">${t('orderQuickSend')}</button>
+                                <span id="order-quick-msg" class="text-xs text-slate-500"></span>
+                            </div>
+                        </div>
                         ${readBoard}
                     </div></div>`;
                     directorEmHtml = teacherEmBoard;
@@ -24537,41 +24811,61 @@
                     setTab('leave');
                 });
 
-                // director assign
+                // director assign (full multi-lang form) + ack-status quick-compose
+                const afterHeadOrderSent = (msgEl) => {
+                    if (msgEl) msgEl.textContent = t('saved');
+                    openDashboard(resolveAccountById(user.id), true);
+                    setTab('orders');
+                };
                 document.getElementById('assign-send-btn')?.addEventListener('click', () => {
                     const ko = (document.getElementById('assign-text-ko')?.value || '').trim();
                     const th = (document.getElementById('assign-text-th')?.value || '').trim();
                     const en = (document.getElementById('assign-text-en')?.value || '').trim();
-                    const target = document.getElementById('assign-target').value;
+                    const target = document.getElementById('assign-target')?.value || 'all';
+                    const msgEl = document.getElementById('assign-msg');
                     if (!ko && !th && !en) {
-                        document.getElementById('assign-msg').textContent = t('assignTask');
+                        if (msgEl) msgEl.textContent = t('assignTask');
                         return;
                     }
-                    const now = new Date();
-                    const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-                    const orders = loadHeadOrders();
-                    const stamped = stampAllLangText({}, 'text', { ko, th, en });
-                    orders.push({
-                        id: 'o' + Date.now(),
-                        from: displayName(user),
-                        fromId: user.id,
-                        ...stamped,
-                        time,
-                        date: todayKey(),
-                        targets: target === 'all' ? ['all'] : [target],
-                        acks: {},
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    });
-                    saveHeadOrders(orders);
-                    flushHeadOrderStoresNow();
-                    document.getElementById('assign-msg').textContent = t('saved');
+                    const created = createHeadOrder(user, { ko, th, en, target });
+                    if (!created) {
+                        if (msgEl) msgEl.textContent = t('assignTask');
+                        return;
+                    }
                     ['assign-text-ko', 'assign-text-th', 'assign-text-en'].forEach((id) => {
                         const el = document.getElementById(id);
                         if (el) el.value = '';
                     });
-                    openDashboard(resolveAccountById(user.id), true);
-                    setTab('orders');
+                    afterHeadOrderSent(msgEl);
+                });
+                document.getElementById('order-quick-send')?.addEventListener('click', () => {
+                    const raw = (document.getElementById('order-quick-text')?.value || '').trim();
+                    const target = document.getElementById('order-quick-target')?.value || 'all';
+                    const msgEl = document.getElementById('order-quick-msg');
+                    if (!raw) {
+                        if (msgEl) msgEl.textContent = t('orderQuickPh');
+                        return;
+                    }
+                    // One box → stamp current UI lang; other langs seeded so teachers still see text
+                    const stamped = stampLangText({}, 'text', raw);
+                    const created = createHeadOrder(user, {
+                        ko: stamped.textKo || '',
+                        th: stamped.textTh || '',
+                        en: stamped.textEn || '',
+                        target
+                    });
+                    if (!created) {
+                        if (msgEl) msgEl.textContent = t('orderQuickPh');
+                        return;
+                    }
+                    const ta = document.getElementById('order-quick-text');
+                    if (ta) ta.value = '';
+                    afterHeadOrderSent(msgEl);
+                });
+                document.getElementById('order-quick-text')?.addEventListener('keydown', (e) => {
+                    if (e.key !== 'Enter' || (!e.metaKey && !e.ctrlKey)) return;
+                    e.preventDefault();
+                    document.getElementById('order-quick-send')?.click();
                 });
 
                 // director: resend head order to pending teachers
@@ -24712,6 +25006,78 @@
                     });
                 };
                 bindDeleteReadReports();
+
+                // director/admin: click 「รออนุมัติ」 → approve / reject (reuses alert ack + admin void)
+                const bindApproveReportInbox = () => {
+                    if (!canApproveReportInbox(user)) return;
+                    const refreshCancelsTab = () => {
+                        openDashboard(resolveAccountById(user.id), true);
+                        if (user.role === 'director') setTab('cancels');
+                        else if (user.role === 'admin') setTab('admin');
+                        try {
+                            if (typeof maybeShowAlertPopups === 'function') maybeShowAlertPopups(resolveAccountById(user.id));
+                        } catch (_) {}
+                    };
+                    document.querySelectorAll('[data-report-open]').forEach((btn) => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const key = btn.getAttribute('data-report-open');
+                            if (!key) return;
+                            reportInboxOpenKey = reportInboxOpenKey === key ? null : key;
+                            refreshCancelsTab();
+                        });
+                    });
+                    document.querySelectorAll('[data-report-approve-cancel]').forEach((btn) => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const id = btn.getAttribute('data-report-approve-cancel');
+                            if (!id || !confirm(t('approveReportConfirm'))) return;
+                            if (approveClassCancelReport(id)) {
+                                reportInboxOpenKey = null;
+                                refreshCancelsTab();
+                            }
+                        });
+                    });
+                    document.querySelectorAll('[data-report-reject-cancel]').forEach((btn) => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const id = btn.getAttribute('data-report-reject-cancel');
+                            if (!id || !confirm(t('rejectCancelReportConfirm'))) return;
+                            if (adminVoidClassCancel(id)) {
+                                reportInboxOpenKey = null;
+                                refreshCancelsTab();
+                            }
+                        });
+                    });
+                    document.querySelectorAll('[data-report-approve-sched]').forEach((btn) => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const id = btn.getAttribute('data-report-approve-sched');
+                            if (!id || !confirm(t('approveReportConfirm'))) return;
+                            if (approveSchedChangeReport(id)) {
+                                reportInboxOpenKey = null;
+                                refreshCancelsTab();
+                            }
+                        });
+                    });
+                    document.querySelectorAll('[data-report-reject-sched]').forEach((btn) => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const id = btn.getAttribute('data-report-reject-sched');
+                            if (!id || !confirm(t('rejectReportConfirm'))) return;
+                            if (adminVoidSchedChange(id)) {
+                                reportInboxOpenKey = null;
+                                refreshCancelsTab();
+                            }
+                        });
+                    });
+                };
+                bindApproveReportInbox();
 
                 // director personal plan (top of work board)
                 const addDirTodo = () => {
