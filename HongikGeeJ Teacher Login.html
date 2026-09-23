@@ -518,14 +518,14 @@
         .dash-shell .content-card::after {
             content: '';
             position: absolute;
-            width: 128px; height: 128px;
+            width: 52px; height: 52px;
             pointer-events: none !important;
             /* Under card content so blooms never cover text/icons */
             z-index: 0;
             background-repeat: no-repeat;
             background-size: contain;
-            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom10');
-            opacity: .9;
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom11');
+            opacity: .88;
             /*
               SVG authored for TL (outer L at 0,0). Always pin that vertex with
               transform-origin: 0 0, then place top-left on each corner and flip —
@@ -536,31 +536,31 @@
             transform-origin: 0 0;
         }
         .dash-shell .content-card > * { position: relative; z-index: 1; }
-        /* Top-left: white/purple dense cluster */
+        /* Top-left: modest inset cluster — clears title text */
         .dash-shell .content-card::before {
-            top: -8px; left: -8px;
+            top: -4px; left: -4px;
             transform: none;
             animation: cardBloomSway 5.2s ease-in-out infinite;
         }
         /* Bottom-right: distinct peach/cream horizontal spray (not flipped TL) */
         .dash-shell .content-card::after {
-            width: 136px; height: 100px;
-            top: calc(100% + 6px); left: calc(100% + 6px);
+            width: 56px; height: 42px;
+            top: calc(100% + 4px); left: calc(100% + 4px);
             bottom: auto; right: auto;
-            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom1');
+            background-image: url('assets/dancheong/corner-bloom-bottom.svg?v=bottom2');
             transform: scale(-1);
             animation: cardBloomSwayFlip 5.2s ease-in-out infinite;
             animation-delay: .7s;
         }
         @keyframes cardBloomSway {
             0%, 100% { transform: rotate(-2deg) scale(1); }
-            40% { transform: rotate(1.6deg) scale(1.04); }
-            75% { transform: rotate(2.3deg) scale(1.02); }
+            40% { transform: rotate(1.4deg) scale(1.03); }
+            75% { transform: rotate(2deg) scale(1.015); }
         }
         @keyframes cardBloomSwayFlip {
             0%, 100% { transform: scale(-1) rotate(-2deg); }
-            40% { transform: scale(-1.04) rotate(1.6deg); }
-            75% { transform: scale(-1.02) rotate(2.3deg); }
+            40% { transform: scale(-1.03) rotate(1.4deg); }
+            75% { transform: scale(-1.015) rotate(2deg); }
         }
         /*
           Eunha only (#dash-shell.is-eunha-shin): content-card corner blooms → Shin décor.
@@ -718,12 +718,12 @@
         }
         .dash-shell .content-card.compact-card::before,
         .dash-shell .content-card.compact-card::after {
-            width: 104px; height: 104px; opacity: .86;
+            width: 42px; height: 42px; opacity: .84;
         }
-        .dash-shell .content-card.compact-card::before { top: -6px; left: -6px; }
+        .dash-shell .content-card.compact-card::before { top: -3px; left: -3px; }
         .dash-shell .content-card.compact-card::after {
-            width: 112px; height: 84px;
-            top: calc(100% + 4px); left: calc(100% + 4px);
+            width: 46px; height: 34px;
+            top: calc(100% + 3px); left: calc(100% + 3px);
         }
         .dash-shell .content-card[style*="transparent"] {
             background-image: none;
@@ -760,11 +760,11 @@
             #login-screen .panel > .dc-corners .dc-c.bl { top: calc(100% + 11px); left: -11px; bottom: auto; }
             #login-screen .panel > .dc-corners .dc-c.br { top: calc(100% + 11px); left: calc(100% + 11px); bottom: auto; right: auto; }
             .dash-shell .content-card::before,
-            .dash-shell .content-card::after { width: 52px; height: 52px; opacity: .86; }
-            .dash-shell .content-card::before { top: -4px; left: -4px; }
+            .dash-shell .content-card::after { width: 40px; height: 40px; opacity: .84; }
+            .dash-shell .content-card::before { top: -3px; left: -3px; }
             .dash-shell .content-card::after {
-                width: 56px; height: 42px;
-                top: calc(100% + 3px); left: calc(100% + 3px);
+                width: 44px; height: 32px;
+                top: calc(100% + 2px); left: calc(100% + 2px);
             }
             .dash-shell.is-eunha-shin .content-card::before {
                 --eunha-cheek-size: 50px;
@@ -8750,7 +8750,7 @@
         }
         .room-tt-range {
             position: relative;
-            overflow: visible;
+            overflow: hidden;
             isolation: isolate;
             font-weight: 800; font-size: 1.18rem; color: #0f172a;
             letter-spacing: -.01em; min-width: 0; text-align: center;
@@ -8764,26 +8764,26 @@
             transition: transform .2s ease, box-shadow .22s ease, border-color .22s ease;
             animation: roomTtRangePulse 3.6s ease-in-out infinite;
         }
-        /* TL + BR corner flowers ~8× prior (20px/17px → 160px/136px), decorative only */
+        /* TL + BR corner flowers — modest inset (was 160/136), decorative only */
         .room-tt-range::before,
         .room-tt-range::after {
             content: '';
             position: absolute;
             z-index: 0;
             pointer-events: none !important;
-            background: url('assets/dancheong/corner-flower.svg?v=rtnav8') no-repeat center / contain;
-            opacity: .92;
+            background: url('assets/dancheong/corner-flower.svg?v=rtnav9') no-repeat center / contain;
+            opacity: .78;
             will-change: transform;
         }
         .room-tt-range::before {
-            width: 160px; height: 160px;
-            top: -52px; left: -52px;
+            width: 28px; height: 28px;
+            top: 2px; left: 2px;
             transform-origin: 30% 30%;
             animation: roomTtFlowerSwayTl 4.8s ease-in-out infinite;
         }
         .room-tt-range::after {
-            width: 136px; height: 136px;
-            right: -48px; bottom: -48px; left: auto; top: auto;
+            width: 24px; height: 24px;
+            right: 2px; bottom: 2px; left: auto; top: auto;
             transform-origin: 70% 70%;
             animation: roomTtFlowerSwayBr 5.4s ease-in-out infinite;
             animation-delay: -.9s;
@@ -8811,14 +8811,14 @@
             margin-top: .1rem; letter-spacing: .01em; opacity: .9;
         }
         @keyframes roomTtFlowerSwayTl {
-            0%, 100% { transform: rotate(-6deg) translate(0, 0) scale(1); }
-            40% { transform: rotate(7deg) translate(3px, -5px) scale(1.12); }
-            70% { transform: rotate(4deg) translate(-2px, 3px) scale(1.06); }
+            0%, 100% { transform: rotate(-4deg) translate(0, 0) scale(1); }
+            40% { transform: rotate(4deg) translate(1px, -1.5px) scale(1.05); }
+            70% { transform: rotate(2deg) translate(-1px, 1px) scale(1.03); }
         }
         @keyframes roomTtFlowerSwayBr {
-            0%, 100% { transform: scale(-1) rotate(-6deg) translate(0, 0); }
-            40% { transform: scale(-1.12) rotate(7deg) translate(3px, -5px); }
-            70% { transform: scale(-1.06) rotate(4deg) translate(-2px, 3px); }
+            0%, 100% { transform: scale(-1) rotate(-4deg) translate(0, 0); }
+            40% { transform: scale(-1.05) rotate(4deg) translate(1px, -1.5px); }
+            70% { transform: scale(-1.03) rotate(2deg) translate(-1px, 1px); }
         }
         .room-tt-range.is-week-slide-next {
             animation: roomTtRangeFadeNext .38s cubic-bezier(.22, 1, .36, 1) both;
@@ -9299,8 +9299,8 @@
             backdrop-filter: none !important;
             -webkit-backdrop-filter: none !important;
             box-shadow: 0 1px 0 rgba(15, 23, 42, .04) !important;
-            /* Pull title/header up — less empty space above ตารางห้องเรียน */
-            padding-top: 1.15rem !important;
+            /* Extra top pad so TL bloom clears ตารางห้องเรียน title */
+            padding-top: 1.85rem !important;
             padding-bottom: 1.35rem !important;
         }
         .tab-panel[data-panel="rooms"] > .content-card > h3 {
@@ -9310,6 +9310,8 @@
             letter-spacing: -.02em;
             margin: 0 0 .55rem;
             gap: .5rem;
+            /* Nudge title past modest TL bloom */
+            padding-left: 1.65rem;
         }
         .tab-panel[data-panel="rooms"] > .content-card > h3 .ph {
             font-size: 1.35em;
@@ -9827,11 +9829,11 @@
             .dash-body { padding: .9rem .85rem 1.25rem; }
             .content-card { padding: 2.1rem .85rem; margin-bottom: .7rem; }
             .dash-shell .content-card::before,
-            .dash-shell .content-card::after { width: 52px; height: 52px; opacity: .86; pointer-events: none !important; }
-            .dash-shell .content-card::before { top: -4px; left: -4px; }
+            .dash-shell .content-card::after { width: 40px; height: 40px; opacity: .84; pointer-events: none !important; }
+            .dash-shell .content-card::before { top: -3px; left: -3px; }
             .dash-shell .content-card::after {
-                width: 56px; height: 42px;
-                top: calc(100% + 3px); left: calc(100% + 3px);
+                width: 44px; height: 32px;
+                top: calc(100% + 2px); left: calc(100% + 2px);
             }
             .dash-shell.is-eunha-shin .content-card::before {
                 --eunha-cheek-size: 52px;
