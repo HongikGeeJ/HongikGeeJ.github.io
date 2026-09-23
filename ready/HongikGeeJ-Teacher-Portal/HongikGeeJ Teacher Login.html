@@ -20245,6 +20245,29 @@
                     : `${y}년 ${mo}월`;
             return { title, ymShort: `${mo}/${y}` };
         }
+        function ptYmShortLabel(ym) {
+            const [y, mo] = String(ym || '').split('-').map(Number);
+            if (!(y > 0) || !(mo >= 1 && mo <= 12)) return ym || '';
+            const th = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+            const en = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            if (lang === 'th') return `${th[mo - 1]} ${y}`;
+            if (lang === 'en') return `${en[mo - 1]} ${y}`;
+            return `${y}.${mo}`;
+        }
+        function ptCalcChipLookbackLabel() {
+            const a = ptYmShortLabel(PT_MIN_YM);
+            const b = ptYmShortLabel(PT_MAX_YM);
+            if (lang === 'th') return `หน้านี้ครอบคลุมช่วง ${a} – ${b}`;
+            if (lang === 'en') return `This page covers ${a} – ${b}`;
+            return `이 페이지는 ${a}–${b} 기간을 다룹니다`;
+        }
+        function ptLookbackMessage() {
+            const a = ptYmShortLabel(PT_MIN_YM);
+            const b = ptYmShortLabel(PT_MAX_YM);
+            if (lang === 'th') return `เลือกได้เฉพาะช่วง ${a} – ${b}`;
+            if (lang === 'en') return `Only ${a} – ${b} is supported`;
+            return `${a}–${b} 기간만 입력할 수 있습니다`;
+        }
         function ptClampMonth(ym) {
             const keys = ptCalcMonthKeys();
             if (keys.includes(ym)) return ym;
@@ -25381,7 +25404,7 @@
                         if (!dateV) { if (msgEl) msgEl.textContent = t('otDate'); return; }
                         const ymSave = String(dateV).slice(0, 7);
                         if (ymSave < PT_MIN_YM || ymSave > PT_MAX_YM) {
-                            if (msgEl) msgEl.textContent = t('ptLookback');
+                            if (msgEl) msgEl.textContent = ptLookbackMessage();
                             return;
                         }
                         if (!(hours > 0) && start && end && end > start) hours = ptHours(start, end);
@@ -25564,8 +25587,7 @@
                         <div class="pt-calc-note" role="note" aria-label="${t('ptCalcHint')}">
                             <span class="pt-calc-chip">${t('ptCalcChipRate')}</span>
                             <span class="pt-calc-chip">${t('ptCalcChipFormula')}</span>
-                            <span class="pt-calc-chip">${t('ptCalcChipLookback')}</span>
-                            <span class="pt-calc-chip">${t('ptCalcChipAuto')}</span>
+                            <span class="pt-calc-chip pt-calc-chip-range">${ptCalcChipLookbackLabel()}</span>
                         </div>
                         <div class="pt-calc-toolbar">
                             <label class="pt-month-wrap">${t('ptPickMonth')}
