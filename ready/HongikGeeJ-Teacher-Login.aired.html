@@ -1150,12 +1150,19 @@
         .dash-tabs {
             display: flex; flex-wrap: wrap; gap: .45rem; padding: .9rem 1.25rem;
             border-bottom: 1px solid rgba(148,163,184,.2); background: rgba(255,255,255,.65);
+            /* Above shell .dc-corners (520) so tabs always receive clicks */
+            position: relative;
+            z-index: 650;
+            pointer-events: auto;
         }
         .tab-btn {
             border: 1px solid transparent; background: transparent; color: #64748b;
             font-size: .82rem; font-weight: 600; padding: .55rem .85rem; border-radius: 999px;
             cursor: pointer; transition: .2s; font-family: inherit;
             display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15;
+            position: relative;
+            z-index: 1;
+            pointer-events: auto;
         }
         .tab-btn:hover { background: #fff; color: #334155; }
         .tab-btn.active {
@@ -1938,7 +1945,7 @@
         }
         .dash-shell.theme-teacher-a > .dash-tabs,
         .dash-shell.theme-director > .dash-tabs {
-            z-index: 610 !important;
+            z-index: 650 !important;
             pointer-events: auto !important;
         }
         @media (max-width: 720px) {
@@ -2740,18 +2747,17 @@
             /* Brand mark sits left of the digital clock for director too */
             animation: hangulFloatCharm 11s cubic-bezier(.45,.05,.55,.95) infinite;
         }
-        /* Director only: hangul wallpaper may drift over #dash-tabs visually.
-           FX is pointer-events:none; #dash-tabs is z-index 610 (above header 600) so nav stays clickable.
-           Lang menu (12000) / modals (20000) unchanged. */
+        /* Director hangul FX clipped to header — never covers #dash-tabs.
+           Tabs stay z-index 650 (above .dc-corners 520 + header décor). */
         .dash-shell.theme-director > .dash-header .dash-header-fx {
-            overflow: visible;
+            overflow: hidden;
             z-index: 1;
-            pointer-events: none;
+            pointer-events: none !important;
         }
         .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float-layer {
-            inset: 0 0 -5.75rem 0;
-            overflow: visible;
-            pointer-events: none;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none !important;
         }
         .dash-shell.theme-director > .dash-header .dash-header-fx .hangul-float,
         .dash-shell.theme-director > .dash-header .header-actions .hangul-mark,
@@ -2760,7 +2766,7 @@
         }
         .dash-shell.theme-director > .dash-tabs {
             position: relative;
-            z-index: 610 !important;
+            z-index: 650 !important;
             pointer-events: auto !important;
         }
         .theme-director .taehyun-fx .seal {
@@ -17781,6 +17787,7 @@
         function workDaysBadgeHtml(text) {
             const s = String(text || '').trim();
             if (!s) return '';
+            const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
             return `<span class="em-workdays-pill">${esc(s)}</span>`;
         }
 
