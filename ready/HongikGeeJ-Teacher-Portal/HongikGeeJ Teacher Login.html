@@ -20132,6 +20132,43 @@
                 return local;
             }
         }
+        /** Pull cloud daySchedules and LWW-merge with local before push — never wipe another PC's edits. */
+        async function buildMergedDaySchedulesPayload(sb) {
+            const local = loadDaySchedulesBundle();
+            if (!sb) return local;
+            try {
+                const { data, error } = await sb
+                    .from('portal_stores')
+                    .select('data, updated_at')
+                    .eq('store_name', 'daySchedules')
+                    .maybeSingle();
+                if (error || !data) return local;
+                const remoteRaw = data.data && typeof data.data === 'object' && !Array.isArray(data.data)
+                    ? data.data
+                    : {};
+                return mergeDaySchedulesMaps(local, remoteRaw).map;
+            } catch (_) {
+                return local;
+            }
+        }
+        /** Pull cloud list store and id-merge with local before push (schedChanges / classCancels). */
+        async function buildMergedPortalListPayload(sb, storeName, loadFn) {
+            const local = typeof loadFn === 'function' ? loadFn() : [];
+            const localArr = Array.isArray(local) ? local : [];
+            if (!sb) return localArr;
+            try {
+                const { data, error } = await sb
+                    .from('portal_stores')
+                    .select('data, updated_at')
+                    .eq('store_name', storeName)
+                    .maybeSingle();
+                if (error || !data) return localArr;
+                const remoteRaw = Array.isArray(data.data) ? data.data : [];
+                return mergePortalListById(localArr, remoteRaw);
+            } catch (_) {
+                return localArr;
+            }
+        }
         function mergeUpdatedAtMaps(localMap, remoteMap) {
             const out = { ...(localMap && typeof localMap === 'object' ? localMap : {}) };
             const remote = remoteMap && typeof remoteMap === 'object' ? remoteMap : {};
@@ -20705,6 +20742,52 @@
                         try {
                             portalSyncApplying = true;
                             saveRoomTimetable(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'daySchedules') {
+                    // Merge with remote first — stale PC must not overwrite fresher today-schedule edits.
+                    try {
+                        const merged = await buildMergedDaySchedulesPayload(sb);
+                        try {
+                            portalSyncApplying = true;
+                            saveDaySchedulesBundle(merged, { syncRemote: false, tick: true });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'schedChanges') {
+                    try {
+                        const merged = await buildMergedPortalListPayload(sb, 'schedChanges', loadSchedChanges);
+                        try {
+                            portalSyncApplying = true;
+                            saveSchedChanges(merged, { syncRemote: false });
+                        } finally {
+                            portalSyncApplying = false;
+                        }
+                        stores[name] = { data: merged, updatedAt: at };
+                    } catch (_) {
+                        stores[name] = { data: collectPortalStorePayload(name), updatedAt: at };
+                    }
+                    continue;
+                }
+                if (name === 'classCancels') {
+                    try {
+                        const merged = await buildMergedPortalListPayload(sb, 'classCancels', loadClassCancels);
+                        try {
+                            portalSyncApplying = true;
+                            saveClassCancels(merged, { syncRemote: false });
                         } finally {
                             portalSyncApplying = false;
                         }
@@ -24196,6 +24279,21 @@
         function saveDaySchedule(userId, list) {
             saveScheduleForDate(userId, todayKey(), list);
         }
+        /** Immediate portal push after today-schedule cancel/edit (same urgency as room TT). */
+        function flushDaySchedPortalAfterMutate() {
+            try {
+                if (typeof queuePortalStorePush === 'function') {
+                    queuePortalStorePush('daySchedules', 'schedChanges', 'classCancels', 'roomTt');
+                }
+                try { clearTimeout(portalSyncPushTimer); } catch (_) {}
+                if (typeof flushPortalStorePush === 'function') {
+                    return Promise.resolve()
+                        .then(() => flushPortalStorePush())
+                        .catch(() => {});
+                }
+            } catch (_) {}
+            return Promise.resolve();
+        }
         function canSelfCancelDirectorReport(user) {
             return !!(user && user.role === 'admin');
         }
@@ -25499,6 +25597,23 @@
                     if (document.getElementById('admin-ops-board') && all) renderAdminOpsBoard(user);
                     if (document.getElementById('admin-school-board') && (all || has('schoolFinance'))) renderAdminSchoolBoard(user);
                     if (document.getElementById('week-class-board') && (all || has('roomTt') || has('daySchedules'))) renderWeekClassBoard(user);
+                    // Today schedule list: soft-remount when synced (skip while editing / typing / modal)
+                    if ((has('daySchedules') || has('classCancels'))
+                        && currentTab === 'today'
+                        && document.getElementById('sched-list')
+                        && !document.querySelector('.sched-item.is-editing')
+                        && !document.querySelector('.modal.open')
+                        && typeof renderPanels === 'function') {
+                        try {
+                            const ae = document.activeElement;
+                            const formFocus = ae && typeof ae.closest === 'function'
+                                && ae.closest('.sched-form, .sched-item, #save-schedule-btn, #sched-dayoff-btn');
+                            if (!formFocus) {
+                                renderPanels(user);
+                                if (typeof setTab === 'function') setTab('today');
+                            }
+                        } catch (_) {}
+                    }
                     if (document.getElementById('notes-app') && (all || has('sharedNotes') || has('sharedNoteStudents'))) renderNotesApp(user);
                     if (typeof renderLeaveMineList === 'function' && document.getElementById('leave-mine-list') && (all || has('leaveRequests'))) {
                         renderLeaveMineList(user);
