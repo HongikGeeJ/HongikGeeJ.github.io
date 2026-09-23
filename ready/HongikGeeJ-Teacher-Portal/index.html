@@ -6230,144 +6230,286 @@
         .pt-calc-toolbar .pt-calc-chip-range {
             margin-left: .15rem;
         }
-        .pt-calc-sum {
+        /* PT self income summary — minimal morning-grass + playful motion */
+        #pt-app-self .pt-calc-sum {
             position: relative;
             overflow: hidden;
             isolation: isolate;
-            margin: 1rem 0 0; padding: 1.15rem 1.2rem 1.25rem;
-            border-radius: 1.15rem;
+            margin: 1rem 0 0; padding: 1.2rem 1.25rem 1.3rem;
+            border-radius: 1.25rem;
             background:
-                linear-gradient(135deg, #f7fcee 0%, #e8f9d4 42%, #d6f2b8 78%, #c8ebb0 100%);
+                radial-gradient(120% 90% at 8% -10%, rgba(255, 255, 255, .95) 0%, transparent 42%),
+                radial-gradient(90% 70% at 92% 110%, rgba(187, 247, 208, .55) 0%, transparent 48%),
+                linear-gradient(155deg, #f8fdf3 0%, #eef9e0 38%, #dff4c8 72%, #d4eeb8 100%);
             color: #14532d;
-            border: 1.5px solid rgba(134, 209, 120, .55);
+            border: 1px solid rgba(134, 209, 120, .42);
             box-shadow:
-                0 12px 28px rgba(134, 209, 120, .22),
-                inset 0 1px 0 rgba(255, 255, 255, .72);
+                0 14px 32px rgba(74, 140, 70, .12),
+                0 0 0 1px rgba(255, 255, 255, .55) inset,
+                0 1px 0 rgba(255, 255, 255, .85) inset;
         }
-        .pt-calc-sum::before {
+        #pt-app-self .pt-calc-sum::before {
             content: '';
             position: absolute; inset: 0;
             border-radius: inherit;
             background: linear-gradient(
                 105deg,
-                transparent 18%,
-                rgba(255, 255, 255, .55) 42%,
-                transparent 58%
+                transparent 12%,
+                rgba(255, 255, 255, .62) 44%,
+                transparent 62%
             );
-            background-size: 220% 100%;
-            animation: ptSumShimmer 5.5s ease-in-out infinite;
+            background-size: 240% 100%;
+            animation: ptSumShimmer 6s ease-in-out infinite;
             pointer-events: none;
             z-index: 0;
-            opacity: .7;
+            opacity: .75;
         }
-        .pt-calc-sum-deco {
+        #pt-app-self .pt-calc-sum::after {
+            content: '';
+            position: absolute;
+            width: 9rem; height: 9rem;
+            right: -2.2rem; top: -2.8rem;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(254, 240, 138, .45) 0%, transparent 68%);
+            animation: ptSumGlowPulse 5.2s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        #pt-app-self .pt-calc-sum-deco {
             position: absolute; inset: 0;
             pointer-events: none;
             z-index: 0;
             overflow: hidden;
         }
-        .pt-calc-sum-deco .pt-deco {
+        #pt-app-self .pt-calc-sum-deco .pt-deco {
             position: absolute;
-            font-size: .95rem;
+            font-size: 1rem;
             line-height: 1;
-            opacity: .72;
-            filter: saturate(1.05);
-            will-change: transform, opacity;
+            opacity: .78;
+            filter: drop-shadow(0 2px 6px rgba(74, 140, 70, .18)) saturate(1.08);
+            will-change: transform, opacity, filter;
             user-select: none;
         }
-        .pt-calc-sum-deco .pt-deco-a {
-            top: .45rem; right: 1.1rem;
-            animation: ptSumFloatA 4.2s ease-in-out infinite;
+        #pt-app-self .pt-calc-sum-deco .pt-deco-a {
+            top: .4rem; right: 1.15rem;
+            animation: ptSumFloatA 3.8s ease-in-out infinite;
         }
-        .pt-calc-sum-deco .pt-deco-b {
-            top: 42%; right: .55rem;
-            font-size: .82rem;
-            animation: ptSumTwinkle 2.8s ease-in-out infinite;
-        }
-        .pt-calc-sum-deco .pt-deco-c {
-            bottom: .55rem; right: 2.4rem;
+        #pt-app-self .pt-calc-sum-deco .pt-deco-b {
+            top: 38%; right: .5rem;
             font-size: .88rem;
-            animation: ptSumFloatB 5s ease-in-out infinite;
+            animation: ptSumTwinkle 2.4s ease-in-out infinite;
         }
-        .pt-calc-sum-deco .pt-deco-d {
-            top: .55rem; left: 42%;
+        #pt-app-self .pt-calc-sum-deco .pt-deco-c {
+            bottom: .5rem; right: 2.55rem;
+            font-size: .95rem;
+            animation: ptSumFloatB 4.6s ease-in-out infinite;
+        }
+        #pt-app-self .pt-calc-sum-deco .pt-deco-d {
+            top: .5rem; left: 44%;
+            font-size: .82rem;
+            animation: ptSumTwinkle 3.1s ease-in-out .5s infinite;
+        }
+        #pt-app-self .pt-calc-sum-deco .pt-deco-e {
+            bottom: .65rem; left: .9rem;
             font-size: .78rem;
-            animation: ptSumTwinkle 3.4s ease-in-out .6s infinite;
+            opacity: .62;
+            animation: ptSumDrift 5.4s ease-in-out .3s infinite;
         }
-        .pt-calc-sum-deco .pt-deco-e {
-            bottom: .7rem; left: .85rem;
+        #pt-app-self .pt-calc-sum-deco .pt-deco-f {
+            top: 52%; left: .55rem;
             font-size: .72rem;
-            opacity: .55;
-            animation: ptSumFloatA 4.8s ease-in-out .4s infinite;
+            opacity: .5;
+            animation: ptSumTwinkle 3.6s ease-in-out 1s infinite;
         }
-        .pt-calc-sum-title {
+        #pt-app-self .pt-calc-sum-title {
             position: relative; z-index: 1;
-            margin: 0 0 .85rem; font-size: .92rem; font-weight: 800;
-            letter-spacing: .01em; color: #166534;
+            margin: 0 0 .9rem; font-size: .9rem; font-weight: 800;
+            letter-spacing: .02em; color: #166534;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, .55);
         }
-        .pt-calc-sum-grid {
+        #pt-app-self .pt-calc-sum-grid {
             position: relative; z-index: 1;
-            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem 1rem;
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem .9rem;
         }
         @media (max-width: 560px) {
-            .pt-calc-sum-grid { grid-template-columns: 1fr; gap: .85rem; }
-            .pt-calc-sum-deco .pt-deco-d,
-            .pt-calc-sum-deco .pt-deco-e { display: none; }
+            #pt-app-self .pt-calc-sum-grid { grid-template-columns: 1fr; gap: .75rem; }
+            #pt-app-self .pt-calc-sum-deco .pt-deco-d,
+            #pt-app-self .pt-calc-sum-deco .pt-deco-e,
+            #pt-app-self .pt-calc-sum-deco .pt-deco-f { display: none; }
         }
-        .pt-sum-metric {
-            display: flex; flex-direction: column; gap: .2rem; min-width: 0;
-            padding: .55rem .7rem; border-radius: .85rem;
-            background: rgba(255, 255, 255, .62);
-            border: 1px solid rgba(255, 255, 255, .85);
-            box-shadow: 0 4px 12px rgba(74, 140, 70, .06);
-            backdrop-filter: blur(4px);
-        }
-        .pt-sum-metric.pay {
-            background: rgba(255, 255, 255, .78);
-            border-color: rgba(187, 247, 208, .95);
+        #pt-app-self .pt-sum-metric {
+            display: flex; flex-direction: column; gap: .22rem; min-width: 0;
+            padding: .65rem .75rem; border-radius: 1rem;
+            background: rgba(255, 255, 255, .72);
+            border: 1px solid rgba(255, 255, 255, .92);
             box-shadow:
-                0 4px 14px rgba(74, 140, 70, .08),
-                inset 0 0 0 1px rgba(134, 239, 172, .35);
+                0 6px 16px rgba(74, 140, 70, .07),
+                0 1px 0 rgba(255, 255, 255, .9) inset;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: transform .25s ease, box-shadow .25s ease;
         }
-        .pt-sum-label {
-            font-size: .72rem; font-weight: 750; letter-spacing: .01em;
-            color: #3f6212;
+        #pt-app-self .pt-sum-metric:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 10px 22px rgba(74, 140, 70, .12),
+                0 1px 0 rgba(255, 255, 255, .95) inset;
         }
-        .pt-sum-value {
-            font-size: clamp(1.55rem, 4.8vw, 2.2rem); font-weight: 900;
-            letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums;
+        #pt-app-self .pt-sum-metric.pay {
+            background: linear-gradient(160deg, rgba(255, 255, 255, .92) 0%, rgba(240, 253, 244, .88) 100%);
+            border-color: rgba(187, 247, 208, .9);
+            box-shadow:
+                0 6px 18px rgba(74, 140, 70, .1),
+                0 0 0 1px rgba(134, 239, 172, .28) inset,
+                0 0 18px rgba(134, 239, 172, .18);
+            animation: ptSumPayGlow 4.2s ease-in-out infinite;
+        }
+        #pt-app-self .pt-sum-label {
+            font-size: .7rem; font-weight: 700; letter-spacing: .03em;
+            text-transform: none; color: #4d7c0f; opacity: .92;
+        }
+        #pt-app-self .pt-sum-value {
+            font-size: clamp(1.5rem, 4.6vw, 2.1rem); font-weight: 900;
+            letter-spacing: -0.035em; line-height: 1.05; font-variant-numeric: tabular-nums;
             color: #14532d;
         }
-        .pt-sum-metric.pay .pt-sum-value {
-            font-size: clamp(1.85rem, 5.5vw, 2.55rem);
+        #pt-app-self .pt-sum-metric.pay .pt-sum-value {
+            font-size: clamp(1.75rem, 5.2vw, 2.4rem);
             color: #15803d;
+            text-shadow: 0 0 18px rgba(134, 239, 172, .35);
         }
-        .pt-sum-unit {
-            font-size: .78rem; font-weight: 750; margin-left: .2rem;
-            color: #4d7c0f;
+        #pt-app-self .pt-sum-unit {
+            font-size: .74rem; font-weight: 700; margin-left: .18rem;
+            color: #65a30d; opacity: .9;
         }
+
+        /* Director expense summary — formal slate / navy / steel */
+        #pt-app .pt-calc-sum,
+        .pt-calc-sum.pt-calc-sum--dir {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            margin: 1rem 0 0; padding: 1.15rem 1.2rem 1.25rem;
+            border-radius: .75rem;
+            background:
+                linear-gradient(165deg, #f4f6f9 0%, #e8edf3 48%, #dde4ed 100%);
+            color: #0f172a;
+            border: 1px solid rgba(30, 58, 95, .22);
+            box-shadow:
+                0 10px 24px rgba(15, 23, 42, .07),
+                inset 0 1px 0 rgba(255, 255, 255, .7);
+        }
+        #pt-app .pt-calc-sum::before,
+        .pt-calc-sum.pt-calc-sum--dir::before {
+            content: '';
+            position: absolute; inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(
+                105deg,
+                transparent 35%,
+                rgba(255, 255, 255, .28) 50%,
+                transparent 65%
+            );
+            background-size: 220% 100%;
+            animation: dirExecSheen 9s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+            opacity: .5;
+        }
+        #pt-app .pt-calc-sum-title,
+        .pt-calc-sum.pt-calc-sum--dir .pt-calc-sum-title {
+            position: relative; z-index: 1;
+            margin: 0 0 .85rem; font-size: .88rem; font-weight: 800;
+            letter-spacing: .015em; color: #1e3a5f;
+            line-height: 1.35;
+        }
+        #pt-app .pt-calc-sum-grid,
+        .pt-calc-sum.pt-calc-sum--dir .pt-calc-sum-grid {
+            position: relative; z-index: 1;
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem .85rem;
+        }
+        @media (max-width: 560px) {
+            #pt-app .pt-calc-sum-grid,
+            .pt-calc-sum.pt-calc-sum--dir .pt-calc-sum-grid { grid-template-columns: 1fr; gap: .7rem; }
+        }
+        #pt-app .pt-sum-metric,
+        .pt-calc-sum.pt-calc-sum--dir .pt-sum-metric {
+            display: flex; flex-direction: column; gap: .2rem; min-width: 0;
+            padding: .6rem .7rem; border-radius: .5rem;
+            background: rgba(255, 255, 255, .78);
+            border: 1px solid rgba(30, 58, 95, .14);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+        }
+        #pt-app .pt-sum-metric.pay,
+        .pt-calc-sum.pt-calc-sum--dir .pt-sum-metric.pay {
+            background: rgba(255, 255, 255, .92);
+            border-color: rgba(30, 58, 95, .28);
+            box-shadow:
+                0 2px 10px rgba(15, 23, 42, .06),
+                inset 0 0 0 1px rgba(30, 58, 95, .06);
+        }
+        #pt-app .pt-sum-label,
+        .pt-calc-sum.pt-calc-sum--dir .pt-sum-label {
+            font-size: .7rem; font-weight: 700; letter-spacing: .02em;
+            color: #64748b;
+        }
+        #pt-app .pt-sum-value,
+        .pt-calc-sum.pt-calc-sum--dir .pt-sum-value {
+            font-size: clamp(1.45rem, 4.4vw, 2rem); font-weight: 850;
+            letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums;
+            color: #0f172a;
+        }
+        #pt-app .pt-sum-metric.pay .pt-sum-value,
+        .pt-calc-sum.pt-calc-sum--dir .pt-sum-metric.pay .pt-sum-value {
+            font-size: clamp(1.65rem, 5vw, 2.25rem);
+            color: #1e3a5f;
+        }
+        #pt-app .pt-sum-unit,
+        .pt-calc-sum.pt-calc-sum--dir .pt-sum-unit {
+            font-size: .72rem; font-weight: 650; margin-left: .18rem;
+            color: #64748b;
+        }
+
         @keyframes ptSumShimmer {
             0%, 100% { background-position: 120% 0; }
             50% { background-position: -20% 0; }
         }
+        @keyframes ptSumGlowPulse {
+            0%, 100% { opacity: .55; transform: scale(1); }
+            50% { opacity: .9; transform: scale(1.12); }
+        }
+        @keyframes ptSumPayGlow {
+            0%, 100% { box-shadow: 0 6px 18px rgba(74, 140, 70, .1), 0 0 0 1px rgba(134, 239, 172, .28) inset, 0 0 14px rgba(134, 239, 172, .14); }
+            50% { box-shadow: 0 8px 22px rgba(74, 140, 70, .14), 0 0 0 1px rgba(134, 239, 172, .4) inset, 0 0 26px rgba(134, 239, 172, .28); }
+        }
         @keyframes ptSumFloatA {
-            0%, 100% { transform: translateY(0) rotate(-6deg); }
-            50% { transform: translateY(-5px) rotate(8deg); }
+            0%, 100% { transform: translateY(0) rotate(-8deg) scale(1); }
+            35% { transform: translateY(-7px) rotate(10deg) scale(1.08); }
+            70% { transform: translateY(-2px) rotate(-4deg) scale(1.02); }
         }
         @keyframes ptSumFloatB {
-            0%, 100% { transform: translate(0, 0) rotate(4deg); }
-            50% { transform: translate(-4px, -6px) rotate(-10deg); }
+            0%, 100% { transform: translate(0, 0) rotate(6deg) scale(1); }
+            50% { transform: translate(-6px, -8px) rotate(-12deg) scale(1.1); }
+        }
+        @keyframes ptSumDrift {
+            0%, 100% { transform: translate(0, 0) rotate(-4deg); opacity: .55; }
+            50% { transform: translate(5px, -6px) rotate(12deg); opacity: .85; }
         }
         @keyframes ptSumTwinkle {
-            0%, 100% { opacity: .45; transform: scale(.92); }
-            50% { opacity: .9; transform: scale(1.08); }
+            0%, 100% { opacity: .4; transform: scale(.88) rotate(0deg); filter: drop-shadow(0 0 0 transparent); }
+            50% { opacity: 1; transform: scale(1.14) rotate(12deg); filter: drop-shadow(0 0 6px rgba(254, 240, 138, .55)); }
         }
         @media (prefers-reduced-motion: reduce) {
-            .pt-calc-sum::before,
-            .pt-calc-sum-deco .pt-deco {
+            #pt-app-self .pt-calc-sum::before,
+            #pt-app-self .pt-calc-sum::after,
+            #pt-app-self .pt-calc-sum-deco .pt-deco,
+            #pt-app-self .pt-sum-metric.pay,
+            #pt-app .pt-calc-sum::before,
+            .pt-calc-sum.pt-calc-sum--dir::before {
                 animation: none !important;
             }
-            .pt-calc-sum::before { opacity: .35; }
+            #pt-app-self .pt-calc-sum::before { opacity: .35; }
+            #pt-app-self .pt-sum-metric:hover { transform: none; }
         }
         .pt-cal {
             margin: .2rem 0 .85rem; border-radius: 1.1rem; border: 1.5px solid #e2e8f0;
@@ -14771,6 +14913,8 @@
                 ptFormula: '공식: 시간 × 주 × ฿300',
                 ptRateFixed: '시급 고정 ฿300',
                 ptCalcTotal: '이달 합계',
+                ptCalcExpenseTotal: '수업 및 파트타임 비용',
+                ptExpensePay: '파트타임 비용',
                 ptCalcExample: '예시:',
                 ptSaveRecord: '계산 결과 저장',
                 ptAddRecord: '선생님 항목 추가',
@@ -15746,6 +15890,8 @@
                 ptFormula: 'สูตร: ชม. × สัปดาห์ × ฿300',
                 ptRateFixed: 'เรทคงที่ ฿300/ชม.',
                 ptCalcTotal: 'รวมเดือนนี้',
+                ptCalcExpenseTotal: 'ค่าใช้จ่ายสำหรับการสอนและค่า Part-time',
+                ptExpensePay: 'ค่าใช้จ่ายพาร์ทไทม์',
                 ptCalcExample: 'ตัวอย่าง:',
                 ptSaveRecord: 'บันทึกผลคำนวณ',
                 ptAddRecord: 'เพิ่มรายการคุณครู',
@@ -16721,6 +16867,8 @@
                 ptFormula: 'Formula: hours × weeks × ฿300',
                 ptRateFixed: 'Fixed rate ฿300/hr',
                 ptCalcTotal: 'Month total',
+                ptCalcExpenseTotal: 'Teaching & part-time expenses',
+                ptExpensePay: 'Part-time expense',
                 ptCalcExample: 'Example:',
                 ptSaveRecord: 'Save calculation',
                 ptAddRecord: 'Add teacher entry',
@@ -31059,15 +31207,9 @@
                             <tbody>${rows}</tbody>
                         </table>
                     </div>
-                    <div class="pt-calc-sum" title="${t('ptCalcTotal')}" aria-live="polite">
-                        <span class="pt-calc-sum-deco" aria-hidden="true">
-                            <span class="pt-deco pt-deco-a">🌸</span>
-                            <span class="pt-deco pt-deco-b">✨</span>
-                            <span class="pt-deco pt-deco-c">🦋</span>
-                            <span class="pt-deco pt-deco-d">🌼</span>
-                            <span class="pt-deco pt-deco-e">⭐</span>
-                        </span>
-                        <div class="pt-calc-sum-title">${t('ptCalcTotal')}</div>
+                    `;
+
+                const sumMetrics = `
                         <div class="pt-calc-sum-grid">
                             <div class="pt-sum-metric">
                                 <span class="pt-sum-label">${t('ptDaysCount')}</span>
@@ -31078,14 +31220,32 @@
                                 <span class="pt-sum-value">${hrsSum}<span class="pt-sum-unit">${t('ptHours')}</span></span>
                             </div>
                             <div class="pt-sum-metric pay">
-                                <span class="pt-sum-label">${t('ptPay')}</span>
+                                <span class="pt-sum-label">${isSelf ? t('ptPay') : t('ptExpensePay')}</span>
                                 <span class="pt-sum-value">${t('baht')}${paySum.toLocaleString()}</span>
                             </div>
-                        </div>
+                        </div>`;
+                const sumHtmlSelf = `
+                    <div class="pt-calc-sum" title="${t('ptCalcTotal')}" aria-live="polite">
+                        <span class="pt-calc-sum-deco" aria-hidden="true">
+                            <span class="pt-deco pt-deco-a">🌸</span>
+                            <span class="pt-deco pt-deco-b">✨</span>
+                            <span class="pt-deco pt-deco-c">🦋</span>
+                            <span class="pt-deco pt-deco-d">🌼</span>
+                            <span class="pt-deco pt-deco-e">⭐</span>
+                            <span class="pt-deco pt-deco-f">🌿</span>
+                        </span>
+                        <div class="pt-calc-sum-title">${t('ptCalcTotal')}</div>
+                        ${sumMetrics}
+                    </div>`;
+                const sumHtmlDir = `
+                    <div class="pt-calc-sum pt-calc-sum--dir" title="${t('ptCalcExpenseTotal')}" aria-live="polite">
+                        <div class="pt-calc-sum-title">${t('ptCalcExpenseTotal')}</div>
+                        ${sumMetrics}
                     </div>`;
 
                 mounts.forEach((app) => {
-                    app.innerHTML = html;
+                    const useSelfSum = isSelf || app.id === 'pt-app-self';
+                    app.innerHTML = html + (useSelfSum ? sumHtmlSelf : sumHtmlDir);
                     app.querySelectorAll('.pt-calc-month').forEach((sel) => {
                         sel.addEventListener('change', (e) => {
                             ptNav.month = e.target.value;
