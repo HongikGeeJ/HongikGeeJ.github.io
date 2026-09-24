@@ -17226,7 +17226,7 @@
 
         // ---- Accounts ----
         const ACCOUNTS = {
-            '1234': {
+            '2000': {
                 ...account('taehyun', 'A', '태현 선생님', 'Teacher Taehyun', 'คุณครูแทฮยอน', 'teacher', 'theme-teacher-a', '2025-12-01', 2),
                 classes: WEEKLY_CLASSES.taehyun,
                 workDaysNote: 'Wed–Sun',
@@ -22037,6 +22037,24 @@
             return out;
         }
         /**
+         * One-time forced PIN for Taehyun. Any stored entry older than RESET_AT (stale caches,
+         * old cloud mirror) is replaced so 2000 wins LWW everywhere; a later in-app change wins.
+         */
+        const TAEHYUN_PIN_ID = 'taehyun';
+        const TAEHYUN_PIN = '2000';
+        const TAEHYUN_PIN_RESET_AT = '2026-09-24T05:05:00.000Z';
+        function applyTaehyunPinReset(raw) {
+            const map = normalizePasswordsMap(raw);
+            const cur = map[TAEHYUN_PIN_ID];
+            if (cur && String(cur.updatedAt || '') >= TAEHYUN_PIN_RESET_AT) return { map, changed: false };
+            map[TAEHYUN_PIN_ID] = { pass: TAEHYUN_PIN, updatedAt: TAEHYUN_PIN_RESET_AT, cleared: false };
+            return { map, changed: true };
+        }
+        function isTaehyunPinStale(raw) {
+            const cur = normalizePasswordsMap(raw)[TAEHYUN_PIN_ID];
+            return !cur || String(cur.updatedAt || '') < TAEHYUN_PIN_RESET_AT;
+        }
+        /**
          * Merge PIN maps — last-write-wins by updatedAt.
          * Entry with a timestamp always beats legacy-without-ts; on equal ts, `b` wins.
          * Cleared tombstones (empty pass) remove the custom PIN when they win.
@@ -22114,6 +22132,7 @@
                 // Merge profile/emergency rows normally (local first arg, remote second → remote wins equal/newer)
                 const merged = mergeAccountDataMaps(loadOverrides(), remote);
                 const wasApplying = !!portalSyncApplying;
+                const remoteTaehyunStale = isTaehyunPinStale(remote[LOGIN_PW_ACCOUNT_KEY]);
                 portalSyncApplying = true;
                 try {
                     if (merged.changed) saveOverrides(merged.map, { syncRemote: false });
@@ -22138,13 +22157,15 @@
                         if (lAt && rAt && lAt > rAt) applied[id] = entry;
                         else if (lAt && !rAt) applied[id] = entry;
                     });
-                    writePasswordsLocal(applied);
+                    const resetApplied = applyTaehyunPinReset(applied).map;
+                    writePasswordsLocal(resetApplied);
                     const ov = loadOverrides() || {};
-                    ov[LOGIN_PW_ACCOUNT_KEY] = applied;
+                    ov[LOGIN_PW_ACCOUNT_KEY] = resetApplied;
                     saveOverrides(ov, { syncRemote: false });
                 } finally {
                     portalSyncApplying = wasApplying;
                 }
+                if (remoteTaehyunStale) pushTaehyunPinReset();
                 return true;
             } catch (_) {
                 return false;
@@ -22165,6 +22186,11 @@
                 const remoteMirror = normalizePasswordsMap(remote && remote[LOGIN_PW_ACCOUNT_KEY]);
                 // Pull side: remote beats local on equal/newer
                 const fromRemote = mergePasswordsMaps(local, remoteMirror);
+                const taehyunReset = applyTaehyunPinReset(fromRemote.map);
+                if (taehyunReset.changed) {
+                    fromRemote.map = taehyunReset.map;
+                    fromRemote.changed = true;
+                }
                 writePasswordsLocal(fromRemote.map);
                 // Push side: local beats remote on equal/newer (offline changes)
                 const forCloud = mergePasswordsMaps(remoteMirror, fromRemote.map);
@@ -25663,8 +25689,28 @@
                 }
             } catch (_) {}
         }
+        /** Queue + flush accountData so the forced Taehyun PIN reaches the central store. */
+        function pushTaehyunPinReset() {
+            try {
+                const reset = applyTaehyunPinReset(loadPasswords());
+                if (reset.changed) savePasswords(reset.map);
+                const ov = loadOverrides() || {};
+                ov[LOGIN_PW_ACCOUNT_KEY] = applyTaehyunPinReset(ov[LOGIN_PW_ACCOUNT_KEY]).map;
+                saveOverrides(ov, { syncRemote: true });
+                if (typeof flushPortalStorePush === 'function') {
+                    Promise.resolve(flushPortalStorePush()).catch(() => {});
+                }
+            } catch (_) {}
+        }
+        function migrateTaehyunPin() {
+            try {
+                const reset = applyTaehyunPinReset(loadPasswords());
+                if (reset.changed) savePasswords(reset.map);
+            } catch (_) {}
+        }
         migrateAdminPasscode();
         try { hydratePasswordsFromAccountData(loadOverrides()); } catch (_) {}
+        migrateTaehyunPin();
         migrateOfficialTimetable();
 
         function getPasswordForId(id) {
