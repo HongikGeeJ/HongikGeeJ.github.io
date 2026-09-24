@@ -22122,14 +22122,19 @@
                     const local = loadPasswords();
                     const applied = { ...remoteMirror };
                     Object.entries(local).forEach(([id, entry]) => {
-                        if (!entry) return;
+                        if (!entry || entry.cleared) return;
                         const rem = remoteMirror[id];
                         const lAt = String(entry.updatedAt || '');
                         const rAt = rem ? String(rem.updatedAt || '') : '';
+                        const localPass = String(entry.pass || '');
+                        const seedEntry = Object.entries(ACCOUNTS || {}).find(([, a]) => a && a.id === id);
+                        const seed = seedEntry ? String(seedEntry[0]) : '';
+                        const looksLikeStaleSeed = !!(seed && localPass === seed && rem && rem.pass && String(rem.pass) !== localPass);
                         if (!rem) {
                             applied[id] = entry; // not on server yet — reconcile will push
                             return;
                         }
+                        if (looksLikeStaleSeed) return; // never let stamped default resurrect over server custom
                         if (lAt && rAt && lAt > rAt) applied[id] = entry;
                         else if (lAt && !rAt) applied[id] = entry;
                     });
