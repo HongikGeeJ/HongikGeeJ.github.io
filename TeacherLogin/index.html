@@ -508,12 +508,7 @@
             .dc-c.bl { transform: none; }
             .dc-c.br { transform: scaleX(-1); }
         }
-        /*
-          Login panel corners: solid flowers (~1.5×) on top;
-          prominent CSS sparkles (ดาววิบวับ) around each bloom.
-          Prior SVG-as-background was invisible: SMIL/currentColor often fail
-          as CSS background-image, and flowers fully covered the wash.
-        */
+        /* Login panel corners: solid flowers only (no star/sparkle décor). */
         #login-screen .panel > .dc-corners .dc-c {
             opacity: 1;
             z-index: 3;
@@ -529,173 +524,6 @@
             width: 102px;
             height: 102px;
             opacity: 1;
-        }
-        #login-screen .panel > .dc-corners .dc-stars {
-            position: absolute;
-            width: 128px;
-            height: 128px;
-            background: none;
-            pointer-events: none !important;
-            transform-origin: 0 0;
-            z-index: 4; /* above petals so rim sparkles stay visible */
-            overflow: visible;
-        }
-        #login-screen .panel > .dc-corners .dc-stars.tl {
-            top: -4px; left: -4px;
-        }
-        #login-screen .panel > .dc-corners .dc-stars.tr {
-            top: -4px; left: 100%; right: auto;
-            transform: scaleX(-1);
-        }
-        #login-screen .panel > .dc-corners .dc-stars.bl {
-            top: auto; bottom: -4px; left: -4px;
-            width: 134px; height: 134px;
-            transform: scaleY(-1);
-        }
-        #login-screen .panel > .dc-corners .dc-stars.br {
-            top: auto; bottom: -4px; left: 100%; right: auto;
-            width: 134px; height: 134px;
-            transform: scale(-1);
-        }
-        #login-screen .panel > .dc-corners .dc-stars > i {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            margin: 0;
-            padding: 0;
-            font-style: normal;
-            /* yellow-forward base — bright gold that reads on flower petals */
-            background: #ffd700;
-            clip-path: polygon(
-                50% 0%, 62% 36%, 100% 38%, 68% 60%,
-                78% 100%, 50% 76%, 22% 100%, 32% 60%,
-                0% 38%, 38% 36%
-            );
-            box-shadow:
-                0 0 4px 1px rgba(255, 255, 220, 1),
-                0 0 10px 4px rgba(255, 220, 60, 1),
-                0 0 20px 8px rgba(255, 190, 40, .75),
-                0 0 32px 12px rgba(255, 230, 120, .4);
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(.55);
-            transform-origin: center;
-            animation: loginSparkTwinkle 1.55s ease-in-out infinite;
-            will-change: opacity, transform, filter;
-        }
-        #login-screen .panel > .dc-corners .dc-stars > i::after {
-            content: '';
-            position: absolute;
-            left: 50%; top: 50%;
-            width: 4px; height: 4px;
-            border-radius: 50%;
-            background: #fffef5;
-            box-shadow: 0 0 7px 3px rgba(255, 252, 200, 1);
-            transform: translate(-50%, -50%);
-        }
-        /* 1: bright lemon yellow (hero sparkle) */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(1) {
-            left: 78%; top: 14%; width: 14px; height: 14px;
-            background: #ffe566;
-            box-shadow:
-                0 0 4px 1px rgba(255, 255, 230, 1),
-                0 0 12px 5px rgba(255, 230, 80, 1),
-                0 0 22px 9px rgba(255, 200, 30, .8);
-            animation-duration: 1.4s; animation-delay: 0s;
-        }
-        /* 2: white-gold */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(2) {
-            left: 94%; top: 36%; width: 10px; height: 10px;
-            background: #fff3a0;
-            box-shadow:
-                0 0 4px 1px #fff,
-                0 0 10px 4px rgba(255, 240, 160, 1),
-                0 0 18px 6px rgba(255, 220, 100, .7);
-            animation-duration: 1.75s; animation-delay: -.35s;
-        }
-        /* 3: deep gold */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(3) {
-            left: 72%; top: 58%; width: 13px; height: 13px;
-            background: #ffc107;
-            box-shadow:
-                0 0 4px 1px rgba(255, 248, 200, 1),
-                0 0 12px 5px rgba(255, 193, 7, 1),
-                0 0 22px 8px rgba(255, 160, 0, .7);
-            animation-duration: 1.5s; animation-delay: -.7s;
-        }
-        /* 4: soft peach-pink accent */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(4) {
-            left: 48%; top: 78%; width: 11px; height: 11px;
-            background: #ffb7c5;
-            box-shadow:
-                0 0 4px 1px rgba(255, 240, 245, 1),
-                0 0 10px 4px rgba(255, 160, 180, .95),
-                0 0 18px 6px rgba(255, 120, 150, .55);
-            animation-duration: 1.85s; animation-delay: -1.05s;
-        }
-        /* 5: light cyan accent */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(5) {
-            left: 18%; top: 88%; width: 9px; height: 9px;
-            background: #b8f4ff;
-            box-shadow:
-                0 0 4px 1px rgba(240, 255, 255, 1),
-                0 0 10px 4px rgba(120, 220, 255, 1),
-                0 0 18px 6px rgba(80, 190, 255, .6);
-            animation-duration: 1.65s; animation-delay: -1.4s;
-        }
-        /* 6: hot white-gold flash */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(6) {
-            left: 96%; top: 62%; width: 8px; height: 8px;
-            background: #fffef0;
-            box-shadow:
-                0 0 5px 2px #fff,
-                0 0 12px 5px rgba(255, 245, 180, 1),
-                0 0 20px 7px rgba(255, 220, 80, .65);
-            animation-duration: 1.3s; animation-delay: -.2s;
-        }
-        /* 7: warm peach-gold */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(7) {
-            left: 58%; top: 6%; width: 9px; height: 9px;
-            background: #ffcc66;
-            box-shadow:
-                0 0 4px 1px rgba(255, 245, 210, 1),
-                0 0 10px 4px rgba(255, 200, 80, 1),
-                0 0 18px 6px rgba(255, 160, 60, .65);
-            animation-duration: 1.95s; animation-delay: -.9s;
-        }
-        @keyframes loginSparkTwinkle {
-            0%, 100% {
-                opacity: .42;
-                transform: translate(-50%, -50%) scale(.55);
-                filter: brightness(1.05);
-            }
-            18% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.5);
-                filter: brightness(1.65);
-            }
-            36% {
-                opacity: .5;
-                transform: translate(-50%, -50%) scale(.75);
-                filter: brightness(1.15);
-            }
-            55% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.35);
-                filter: brightness(1.5);
-            }
-            78% {
-                opacity: .45;
-                transform: translate(-50%, -50%) scale(.65);
-                filter: brightness(1.1);
-            }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            #login-screen .panel > .dc-corners .dc-stars > i {
-                animation: none !important;
-                opacity: .85;
-                transform: translate(-50%, -50%) scale(1);
-                will-change: auto;
-            }
         }
         /* Dashboard content-card corner blooms folded away by default.
            Taehyun (theme-teacher-a) restores animated TL head + BR tail on
@@ -1177,7 +1005,7 @@
         }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.85rem; }
-            /* Login corners ~1.5× prior mobile size; solid colors; stars behind */
+            /* Login corners ~1.5× prior mobile size; solid colors */
             #login-screen .panel > .dc-corners .dc-c.tl,
             #login-screen .panel > .dc-corners .dc-c.tr { width: 78px; height: 78px; opacity: 1; }
             #login-screen .panel > .dc-corners .dc-c.bl,
@@ -1186,12 +1014,6 @@
             #login-screen .panel > .dc-corners .dc-c.tr { top: 2px; left: 100%; right: auto; }
             #login-screen .panel > .dc-corners .dc-c.bl { top: auto; bottom: 2px; left: 2px; }
             #login-screen .panel > .dc-corners .dc-c.br { top: auto; bottom: 2px; left: 100%; right: auto; }
-            #login-screen .panel > .dc-corners .dc-stars.tl,
-            #login-screen .panel > .dc-corners .dc-stars.tr { width: 108px; height: 108px; }
-            #login-screen .panel > .dc-corners .dc-stars.bl,
-            #login-screen .panel > .dc-corners .dc-stars.br { width: 114px; height: 114px; }
-            #login-screen .panel > .dc-corners .dc-stars > i:nth-child(1) { width: 11px; height: 11px; }
-            #login-screen .panel > .dc-corners .dc-stars > i:nth-child(3) { width: 10px; height: 10px; }
             .dash-shell .content-card {
                 padding: 1rem 1.05rem 1.1rem;
             }
@@ -11370,11 +11192,6 @@
                 animation: dcBloomBrLite 9s ease-in-out infinite;
                 animation-delay: -4.8s;
             }
-            /* Login corner sparkles keep twinkle on mobile/iPad */
-            #login-screen .panel > .dc-corners .dc-stars > i {
-                animation: loginSparkTwinkle 1.55s ease-in-out infinite !important;
-                will-change: opacity, transform, filter;
-            }
             .dash-shell > .dc-corners .dc-c {
                 animation: none !important;
             }
@@ -11714,10 +11531,6 @@
     <main id="login-screen" class="relative z-10 min-h-screen flex items-center justify-center p-5">
         <section class="panel">
             <div class="dc-corners" aria-hidden="true">
-                <span class="dc-stars tl" title="corner stars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-                <span class="dc-stars tr" title="corner stars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-                <span class="dc-stars bl" title="corner stars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-                <span class="dc-stars br" title="corner stars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
                 <span class="dc-c tl" title="corner flower"></span>
                 <span class="dc-c tr" title="corner flower"></span>
                 <span class="dc-c bl" title="corner flower"></span>

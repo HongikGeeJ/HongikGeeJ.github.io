@@ -508,12 +508,7 @@
             .dc-c.bl { transform: none; }
             .dc-c.br { transform: scaleX(-1); }
         }
-        /*
-          Login panel corners: solid flowers (~1.5×) on top;
-          prominent CSS sparkles (ดาววิบวับ) around each bloom.
-          Prior SVG-as-background was invisible: SMIL/currentColor often fail
-          as CSS background-image, and flowers fully covered the wash.
-        */
+        /* Login panel corners: solid flowers only (no star/sparkle décor). */
         #login-screen .panel > .dc-corners .dc-c {
             opacity: 1;
             z-index: 3;
@@ -529,173 +524,6 @@
             width: 102px;
             height: 102px;
             opacity: 1;
-        }
-        #login-screen .panel > .dc-corners .dc-stars {
-            position: absolute;
-            width: 128px;
-            height: 128px;
-            background: none;
-            pointer-events: none !important;
-            transform-origin: 0 0;
-            z-index: 4; /* above petals so rim sparkles stay visible */
-            overflow: visible;
-        }
-        #login-screen .panel > .dc-corners .dc-stars.tl {
-            top: -4px; left: -4px;
-        }
-        #login-screen .panel > .dc-corners .dc-stars.tr {
-            top: -4px; left: 100%; right: auto;
-            transform: scaleX(-1);
-        }
-        #login-screen .panel > .dc-corners .dc-stars.bl {
-            top: auto; bottom: -4px; left: -4px;
-            width: 134px; height: 134px;
-            transform: scaleY(-1);
-        }
-        #login-screen .panel > .dc-corners .dc-stars.br {
-            top: auto; bottom: -4px; left: 100%; right: auto;
-            width: 134px; height: 134px;
-            transform: scale(-1);
-        }
-        #login-screen .panel > .dc-corners .dc-stars > i {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            margin: 0;
-            padding: 0;
-            font-style: normal;
-            /* yellow-forward base — bright gold that reads on flower petals */
-            background: #ffd700;
-            clip-path: polygon(
-                50% 0%, 62% 36%, 100% 38%, 68% 60%,
-                78% 100%, 50% 76%, 22% 100%, 32% 60%,
-                0% 38%, 38% 36%
-            );
-            box-shadow:
-                0 0 4px 1px rgba(255, 255, 220, 1),
-                0 0 10px 4px rgba(255, 220, 60, 1),
-                0 0 20px 8px rgba(255, 190, 40, .75),
-                0 0 32px 12px rgba(255, 230, 120, .4);
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(.55);
-            transform-origin: center;
-            animation: loginSparkTwinkle 1.55s ease-in-out infinite;
-            will-change: opacity, transform, filter;
-        }
-        #login-screen .panel > .dc-corners .dc-stars > i::after {
-            content: '';
-            position: absolute;
-            left: 50%; top: 50%;
-            width: 4px; height: 4px;
-            border-radius: 50%;
-            background: #fffef5;
-            box-shadow: 0 0 7px 3px rgba(255, 252, 200, 1);
-            transform: translate(-50%, -50%);
-        }
-        /* 1: bright lemon yellow (hero sparkle) */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(1) {
-            left: 78%; top: 14%; width: 14px; height: 14px;
-            background: #ffe566;
-            box-shadow:
-                0 0 4px 1px rgba(255, 255, 230, 1),
-                0 0 12px 5px rgba(255, 230, 80, 1),
-                0 0 22px 9px rgba(255, 200, 30, .8);
-            animation-duration: 1.4s; animation-delay: 0s;
-        }
-        /* 2: white-gold */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(2) {
-            left: 94%; top: 36%; width: 10px; height: 10px;
-            background: #fff3a0;
-            box-shadow:
-                0 0 4px 1px #fff,
-                0 0 10px 4px rgba(255, 240, 160, 1),
-                0 0 18px 6px rgba(255, 220, 100, .7);
-            animation-duration: 1.75s; animation-delay: -.35s;
-        }
-        /* 3: deep gold */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(3) {
-            left: 72%; top: 58%; width: 13px; height: 13px;
-            background: #ffc107;
-            box-shadow:
-                0 0 4px 1px rgba(255, 248, 200, 1),
-                0 0 12px 5px rgba(255, 193, 7, 1),
-                0 0 22px 8px rgba(255, 160, 0, .7);
-            animation-duration: 1.5s; animation-delay: -.7s;
-        }
-        /* 4: soft peach-pink accent */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(4) {
-            left: 48%; top: 78%; width: 11px; height: 11px;
-            background: #ffb7c5;
-            box-shadow:
-                0 0 4px 1px rgba(255, 240, 245, 1),
-                0 0 10px 4px rgba(255, 160, 180, .95),
-                0 0 18px 6px rgba(255, 120, 150, .55);
-            animation-duration: 1.85s; animation-delay: -1.05s;
-        }
-        /* 5: light cyan accent */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(5) {
-            left: 18%; top: 88%; width: 9px; height: 9px;
-            background: #b8f4ff;
-            box-shadow:
-                0 0 4px 1px rgba(240, 255, 255, 1),
-                0 0 10px 4px rgba(120, 220, 255, 1),
-                0 0 18px 6px rgba(80, 190, 255, .6);
-            animation-duration: 1.65s; animation-delay: -1.4s;
-        }
-        /* 6: hot white-gold flash */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(6) {
-            left: 96%; top: 62%; width: 8px; height: 8px;
-            background: #fffef0;
-            box-shadow:
-                0 0 5px 2px #fff,
-                0 0 12px 5px rgba(255, 245, 180, 1),
-                0 0 20px 7px rgba(255, 220, 80, .65);
-            animation-duration: 1.3s; animation-delay: -.2s;
-        }
-        /* 7: warm peach-gold */
-        #login-screen .panel > .dc-corners .dc-stars > i:nth-child(7) {
-            left: 58%; top: 6%; width: 9px; height: 9px;
-            background: #ffcc66;
-            box-shadow:
-                0 0 4px 1px rgba(255, 245, 210, 1),
-                0 0 10px 4px rgba(255, 200, 80, 1),
-                0 0 18px 6px rgba(255, 160, 60, .65);
-            animation-duration: 1.95s; animation-delay: -.9s;
-        }
-        @keyframes loginSparkTwinkle {
-            0%, 100% {
-                opacity: .42;
-                transform: translate(-50%, -50%) scale(.55);
-                filter: brightness(1.05);
-            }
-            18% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.5);
-                filter: brightness(1.65);
-            }
-            36% {
-                opacity: .5;
-                transform: translate(-50%, -50%) scale(.75);
-                filter: brightness(1.15);
-            }
-            55% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.35);
-                filter: brightness(1.5);
-            }
-            78% {
-                opacity: .45;
-                transform: translate(-50%, -50%) scale(.65);
-                filter: brightness(1.1);
-            }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            #login-screen .panel > .dc-corners .dc-stars > i {
-                animation: none !important;
-                opacity: .85;
-                transform: translate(-50%, -50%) scale(1);
-                will-change: auto;
-            }
         }
         /* Dashboard content-card corner blooms folded away by default.
            Taehyun (theme-teacher-a) restores animated TL head + BR tail on
@@ -721,7 +549,7 @@
             opacity: 0 !important;
             pointer-events: none !important;
         }
-        .dash-shell .content-card > * { position: relative; z-index: 1; }
+        .dash-shell .content-card > *:not(.tae-card-sky) { position: relative; z-index: 1; }
         .dash-shell .content-card.compact-card {
             padding: 1rem 1.1rem 1.15rem;
         }
@@ -734,17 +562,15 @@
             display: none !important;
         }
         /*
-          Taehyun-only (.theme-teacher-a): minimal sky corner décor on ALL tab panels
-          — soft clouds + stars + light storm, TL + BR (behind framed h3 / content).
-          Soft twinkle (วิ้ง ๆ วับ ๆ): CSS breathe + SVG SMIL star flash.
-          !important beats the fold-away width:0/height:0 kill switch.
-          z-index:0 keeps framed headings + forms above the décor.
+          Taehyun-only (.theme-teacher-a): ABUNDANT sky corner décor on ALL tab panels.
+          High-contrast clouds + wind + storm + many twinkling stars (TL+BR via ::before/::after,
+          plus injected .tae-card-sky for TR/BL + extra star particles).
+          Behind content (z-index:0); forms stay usable.
           Eunha / director / others untouched.
         */
         .dash-shell.theme-teacher-a .tab-panel > .content-card {
             isolation: isolate;
             overflow: visible;
-            /* Nudge content so TL sky clears the framed h3 */
             padding-top: 2.65rem !important;
             padding-bottom: 1.9rem !important;
         }
@@ -761,63 +587,175 @@
             content: '' !important;
             display: block !important;
             position: absolute !important;
-            width: 128px !important;
-            height: 128px !important;
+            width: 176px !important;
+            height: 176px !important;
             pointer-events: none !important;
             z-index: 0 !important;
             background-repeat: no-repeat !important;
-            background-size: contain !important;
-            background-image: url('assets/dancheong/corner-sky.svg?v=sky1') !important;
-            opacity: .82 !important;
-            animation: taeSkyTwinkle 4.2s ease-in-out infinite !important;
-            transform-origin: 0 0 !important;
-            filter: none !important;
+            background-size: 100% 100%, 100% 100%, 100% 100%, contain !important;
+            /* Layered CSS clouds (visible on white) + bold SVG */
+            background-image:
+                radial-gradient(ellipse 72% 48% at 24% 30%, rgba(110, 150, 190, .72) 0%, rgba(110, 150, 190, .28) 42%, transparent 68%),
+                radial-gradient(ellipse 58% 42% at 46% 16%, rgba(255, 255, 255, .98) 0%, rgba(180, 205, 230, .75) 38%, transparent 66%),
+                radial-gradient(ellipse 48% 36% at 10% 48%, rgba(90, 130, 170, .55) 0%, transparent 70%),
+                url('assets/dancheong/corner-sky.svg?v=sky3') !important;
+            background-position: 0 0, 0 0, 0 0, top left !important;
+            opacity: 1;
+            animation: taeSkyTwinkle 3.4s ease-in-out infinite;
+            transform-origin: 0 0;
+            filter: drop-shadow(0 2px 8px rgba(74, 111, 165, .28));
             will-change: transform, opacity;
+            /* Extra CSS star field (bright gold / white) */
+            box-shadow:
+                72px 28px 0 1.5px #ffd24a,
+                98px 18px 0 1px #fff6c8,
+                110px 48px 0 1.3px #ffe08a,
+                86px 62px 0 1px #fff,
+                124px 36px 0 .9px #f5c542,
+                54px 78px 0 1.1px #ffe9a0,
+                132px 70px 0 .8px #fff8d0,
+                40px 96px 0 .9px #ffd966,
+                148px 22px 0 1px #fff,
+                118px 90px 0 .7px #ffe08a;
         }
         .dash-shell.theme-teacher-a .tab-panel > .content-card::before {
-            top: -4px !important;
-            left: -4px !important;
+            top: -8px !important;
+            left: -8px !important;
             right: auto !important;
             bottom: auto !important;
-            transform: scale(1) !important;
+            transform: scale(1);
         }
         .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
-            /* BR — same sky motif, mirrored + slightly fuller footprint */
-            width: 148px !important;
-            height: 148px !important;
+            width: 196px !important;
+            height: 196px !important;
             top: auto !important;
             left: auto !important;
-            right: -6px !important;
-            bottom: -6px !important;
-            background-image: url('assets/dancheong/corner-sky.svg?v=sky1') !important;
-            background-position: bottom right !important;
-            transform: scale(-1, -1) !important;
-            transform-origin: 100% 100% !important;
-            animation: taeSkyTwinkleBr 4.2s ease-in-out infinite !important;
-            animation-delay: 1.35s !important;
+            right: -10px !important;
+            bottom: -10px !important;
+            background-position: center, center, center, bottom right !important;
+            transform: scale(-1, -1);
+            transform-origin: 100% 100%;
+            animation-name: taeSkyTwinkleBr;
+            animation-delay: .85s;
+            box-shadow:
+                -72px -28px 0 1.5px #ffd24a,
+                -98px -18px 0 1px #fff6c8,
+                -110px -48px 0 1.3px #ffe08a,
+                -86px -62px 0 1px #fff,
+                -124px -36px 0 .9px #f5c542,
+                -54px -78px 0 1.1px #ffe9a0,
+                -132px -70px 0 .8px #fff8d0,
+                -40px -96px 0 .9px #ffd966,
+                -148px -22px 0 1px #fff,
+                -118px -90px 0 .7px #ffe08a;
         }
-        .dash-shell.theme-teacher-a .tab-panel > .content-card > * {
+        .dash-shell.theme-teacher-a .tab-panel > .content-card > *:not(.tae-card-sky) {
             position: relative;
             z-index: 1;
         }
-        /* Soft sky twinkle / breathe — staggered TL vs BR */
+        /* Injected sky layer — all 4 corners + drifting stars / wind */
+        .dash-shell.theme-teacher-a .tab-panel > .content-card > .tae-card-sky {
+            position: absolute !important;
+            inset: 0;
+            z-index: 0 !important;
+            pointer-events: none !important;
+            overflow: visible;
+            border-radius: inherit;
+        }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-c {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            pointer-events: none;
+        }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-c.tl { top: -6px; left: -6px; }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-c.tr { top: -6px; right: -6px; transform: scaleX(-1); }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-c.bl { bottom: -6px; left: -6px; transform: scaleY(-1); }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-c.br { bottom: -8px; right: -8px; transform: scale(-1); width: 140px; height: 140px; }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-cloud {
+            position: absolute;
+            left: 4%; top: 10%;
+            width: 78%; height: 48%;
+            border-radius: 50%;
+            background:
+                radial-gradient(ellipse at 30% 50%, rgba(255,255,255,.95) 0%, rgba(170,195,220,.8) 42%, transparent 70%),
+                radial-gradient(ellipse at 62% 40%, rgba(120,155,190,.75) 0%, transparent 65%),
+                radial-gradient(ellipse at 48% 70%, rgba(95,130,170,.55) 0%, transparent 60%);
+            filter: blur(.2px);
+            animation: taeCloudDrift 5.5s ease-in-out infinite;
+        }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-wind {
+            position: absolute;
+            left: 28%; top: 42%;
+            width: 70%; height: 40%;
+            background:
+                repeating-linear-gradient(-18deg,
+                    transparent 0 6px,
+                    rgba(100, 140, 180, .45) 6px 7.5px,
+                    transparent 7.5px 14px);
+            mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+            opacity: .55;
+            animation: taeWindSweep 2.8s linear infinite;
+        }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-star {
+            position: absolute;
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #ffd24a;
+            box-shadow: 0 0 6px 1px rgba(255, 210, 74, .85), 0 0 0 1px rgba(255,255,255,.35);
+            animation: taeStarTwinkle 1.8s ease-in-out infinite;
+        }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-star.s2 { width: 3.5px; height: 3.5px; background: #fff8d0; animation-duration: 2.3s; }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-star.s3 { width: 4px; height: 4px; background: #ffe08a; animation-duration: 2.7s; }
+        .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-bolt {
+            position: absolute;
+            left: 38%; top: 18%;
+            width: 10px; height: 22px;
+            background: linear-gradient(160deg, #fff 0%, #c5daf0 40%, transparent 100%);
+            clip-path: polygon(45% 0, 70% 38%, 52% 38%, 78% 100%, 28% 48%, 48% 48%);
+            opacity: 0;
+            animation: taeStormFlash 4.6s ease-in-out infinite;
+        }
         @keyframes taeSkyTwinkle {
-            0%, 100% { opacity: .72; transform: scale(.96); }
-            35% { opacity: .95; transform: scale(1.04); }
-            55% { opacity: .8; transform: scale(1); }
-            75% { opacity: .9; transform: scale(1.02); }
+            0%, 100% { opacity: .88; transform: scale(.97); filter: drop-shadow(0 2px 6px rgba(74,111,165,.22)); }
+            40% { opacity: 1; transform: scale(1.06); filter: drop-shadow(0 4px 14px rgba(74,111,165,.4)); }
+            70% { opacity: .94; transform: scale(1.01); }
         }
         @keyframes taeSkyTwinkleBr {
-            0%, 100% { opacity: .7; transform: scale(-.96, -.96); }
-            35% { opacity: .92; transform: scale(-1.04, -1.04); }
-            55% { opacity: .78; transform: scale(-1, -1); }
-            75% { opacity: .88; transform: scale(-1.02, -1.02); }
+            0%, 100% { opacity: .86; transform: scale(-.97, -.97); filter: drop-shadow(0 2px 6px rgba(74,111,165,.22)); }
+            40% { opacity: 1; transform: scale(-1.06, -1.06); filter: drop-shadow(0 4px 14px rgba(74,111,165,.4)); }
+            70% { opacity: .92; transform: scale(-1.01, -1.01); }
+        }
+        @keyframes taeStarTwinkle {
+            0%, 100% { opacity: .35; transform: scale(.7); }
+            35% { opacity: 1; transform: scale(1.35); }
+            55% { opacity: .55; transform: scale(.9); }
+            75% { opacity: .95; transform: scale(1.15); }
+        }
+        @keyframes taeCloudDrift {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(5px, -4px); }
+        }
+        @keyframes taeWindSweep {
+            0% { transform: translateX(-12%); opacity: .25; }
+            50% { opacity: .65; }
+            100% { transform: translateX(18%); opacity: .3; }
+        }
+        @keyframes taeStormFlash {
+            0%, 42%, 48%, 54%, 100% { opacity: 0; }
+            44%, 46% { opacity: .9; }
+            50%, 52% { opacity: .45; }
         }
         @media (prefers-reduced-motion: reduce) {
             .dash-shell.theme-teacher-a .tab-panel > .content-card::before,
-            .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::after,
+            .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-star,
+            .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-cloud,
+            .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-wind,
+            .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-bolt {
                 animation: none !important;
-                opacity: .82 !important;
+                opacity: .95 !important;
                 will-change: auto;
             }
             .dash-shell.theme-teacher-a .tab-panel > .content-card::before {
@@ -1067,7 +1005,7 @@
         }
         @media (max-width: 480px) {
             .panel { padding: 1.7rem 1.45rem 3.85rem; }
-            /* Login corners ~1.5× prior mobile size; solid colors; stars behind */
+            /* Login corners ~1.5× prior mobile size; solid colors */
             #login-screen .panel > .dc-corners .dc-c.tl,
             #login-screen .panel > .dc-corners .dc-c.tr { width: 78px; height: 78px; opacity: 1; }
             #login-screen .panel > .dc-corners .dc-c.bl,
@@ -1076,12 +1014,6 @@
             #login-screen .panel > .dc-corners .dc-c.tr { top: 2px; left: 100%; right: auto; }
             #login-screen .panel > .dc-corners .dc-c.bl { top: auto; bottom: 2px; left: 2px; }
             #login-screen .panel > .dc-corners .dc-c.br { top: auto; bottom: 2px; left: 100%; right: auto; }
-            #login-screen .panel > .dc-corners .dc-stars.tl,
-            #login-screen .panel > .dc-corners .dc-stars.tr { width: 108px; height: 108px; }
-            #login-screen .panel > .dc-corners .dc-stars.bl,
-            #login-screen .panel > .dc-corners .dc-stars.br { width: 114px; height: 114px; }
-            #login-screen .panel > .dc-corners .dc-stars > i:nth-child(1) { width: 11px; height: 11px; }
-            #login-screen .panel > .dc-corners .dc-stars > i:nth-child(3) { width: 10px; height: 10px; }
             .dash-shell .content-card {
                 padding: 1rem 1.05rem 1.1rem;
             }
@@ -1094,12 +1026,12 @@
             }
             .dash-shell.theme-teacher-a .tab-panel > .content-card::before,
             .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
-                width: 112px !important;
-                height: 112px !important;
+                width: 132px !important;
+                height: 132px !important;
             }
             .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
-                width: 148px !important;
-                height: 148px !important;
+                width: 152px !important;
+                height: 152px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child,
@@ -6554,7 +6486,7 @@
         #pt-app-self .pt-sum-bloom.tr {
             top: -1px; right: -1px;
             width: 5.75rem; height: 5.75rem;
-            background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%20fill%3D%22none%22%20shape-rendering%3D%22geometricPrecision%22%3E%0A%20%20%3C%21--%0A%20%20%20%20Content-card%20corner%20bloom%20%28TL%20outer%20corner%29.%0A%20%20%20%20Dense%206-flower%20cluster%20hugging%20the%20rounded%20edge%3B%20flip%20via%20CSS%20for%20BR.%0A%20%20%20%20Palette%3A%20green%20leaves%20/%20white%20/%20yellow%20/%20purple.%0A%20%20%20%20Internal%20SMIL%3A%20leaf%20curl%2C%20bloom%20pulse%2C%20soft%20floating%20petal%20%28transform/opacity%20only%29.%0A%20%20--%3E%0A%20%20%3C%21--%20Leaf%20fans%20%E2%80%94%20soft%20curl%20--%3E%0A%20%20%3Cg%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20values%3D%22-1.6%2010%2032%3B%201.8%2010%2032%3B%20-1.6%2010%2032%22%20keyTimes%3D%220%3B0.5%3B1%22%0A%20%20%20%20%20%20dur%3D%226.8s%22%20begin%3D%22-0.5s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M1%2048%20C3%2024%2018%208%2042%203%20C26%2012%2012%2026%207%2046%20C5%2050%202%2050%201%2048%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%233D9A5C%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M3%2046%20C8%2026%2020%2012%2038%207%20C24%2015%2013%2028%209%2044%20C7%2048%204%2048%203%2046%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%236BC484%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M2%2030%20C5%2016%2016%206%2032%203%20C16%209%207%2020%204%2034%20C3%2032%202.2%2030.5%202%2030%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%23A8E0B4%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20values%3D%221.7%2032%2010%3B%20-1.9%2032%2010%3B%201.7%2032%2010%22%20keyTimes%3D%220%3B0.5%3B1%22%0A%20%20%20%20%20%20dur%3D%227.4s%22%20begin%3D%22-2s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M30%202%20C16%205%207%2018%204%2034%20C12%2018%2022%207%2036%204%20C34%202.5%2032%201.8%2030%202%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%238ED4A0%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20transform%3D%22translate%2810%2038%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%22-5%3B5%3B-5%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%226.2s%22%20begin%3D%22-1s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%224%22%20ry%3D%228%22%20fill%3D%22%235BB87A%22%20transform%3D%22rotate%28-28%29%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20transform%3D%22translate%2838%2010%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%225%3B-5%3B5%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%226.6s%22%20begin%3D%22-2.4s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%228%22%20ry%3D%224%22%20fill%3D%22%237CC994%22%20transform%3D%22rotate%2828%29%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%201%29%20Hero%20white%20daisy%20%E2%80%94%20scale%20pulse%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2822%2022%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22scale%22%0A%20%20%20%20%20%20%20%20values%3D%221%3B1.055%3B1%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%224.8s%22%20begin%3D%220s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%22-2%3B2.2%3B-2%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%225.6s%22%20begin%3D%22-0.8s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20additive%3D%22sum%22%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%237B5CB8%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%239B7AD4%22%20transform%3D%22rotate%2845%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%236A4AA8%22%20transform%3D%22rotate%2890%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28135%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%237B5CB8%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%239470CC%22%20transform%3D%22rotate%28225%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%236E50B0%22%20transform%3D%22rotate%28270%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%23B094E8%22%20transform%3D%22rotate%28315%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFFFF%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFDF8%22%20transform%3D%22rotate%2845%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFEFA%22%20transform%3D%22rotate%2890%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFF9F0%22%20transform%3D%22rotate%28135%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFCF5%22%20transform%3D%22rotate%28225%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28270%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFF8EC%22%20transform%3D%22rotate%28315%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%224.6%22%20fill%3D%22%23E8B020%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%223.1%22%20fill%3D%22%23F5D24A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.6%22%20fill%3D%22%23FFE97A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.7%22%20cy%3D%22-.9%22%20r%3D%221%22%20fill%3D%22%23FFF8D0%22%20opacity%3D%22.9%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%202%29%20Medium%20purple%20bloom%20%28top%20arm%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2842%2014%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22scale%22%0A%20%20%20%20%20%20%20%20values%3D%221%3B1.05%3B1%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%225.1s%22%20begin%3D%22-1.3s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%222.4%3B-2.6%3B2.4%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%226s%22%20begin%3D%22-2.2s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20additive%3D%22sum%22%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%238B6BC9%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%23C4A8F0%22%20transform%3D%22rotate%2860%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%237B5CB8%22%20transform%3D%22rotate%28120%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%239B7AD4%22%20transform%3D%22rotate%28240%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%23B094E8%22%20transform%3D%22rotate%28300%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%222.8%22%20fill%3D%22%23F0C83A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.4%22%20cy%3D%22-.5%22%20r%3D%22.8%22%20fill%3D%22%23FFF6C8%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%203%29%20Medium%20white%E2%80%93lavender%20bloom%20%28left%20arm%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2814%2042%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%22-2.2%3B2.5%3B-2.2%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%225.4s%22%20begin%3D%22-1.8s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23EDE4F8%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%2860%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23D4C0F0%22%20transform%3D%22rotate%28120%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23FFF8E0%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28240%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23C4A8F0%22%20transform%3D%22rotate%28300%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%222.5%22%20fill%3D%22%23F5D24A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.35%22%20cy%3D%22-.45%22%20r%3D%22.7%22%20fill%3D%22%23FFF8D0%22%20opacity%3D%22.9%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%204%29%20Small%20purple%20bud%20%28outer%20tip%20along%20top%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2856%2022%29%22%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%238B6BC9%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%23C4A8F0%22%20transform%3D%22rotate%2872%29%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%237B5CB8%22%20transform%3D%22rotate%28144%29%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28216%29%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28288%29%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.9%22%20fill%3D%22%23F0C83A%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-.3%22%20cy%3D%22-.4%22%20r%3D%22.55%22%20fill%3D%22%23FFF6C8%22/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%205%29%20Small%20white%E2%80%93yellow%20blossom%20%28outer%20tip%20along%20left%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2822%2056%29%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%22-2.8%22%20r%3D%221.9%22%20fill%3D%22%23FFFFFF%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%222.4%22%20cy%3D%22-.9%22%20r%3D%221.9%22%20fill%3D%22%23EDE4F8%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%221.5%22%20cy%3D%222.2%22%20r%3D%221.9%22%20fill%3D%22%23FFF8E0%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-1.5%22%20cy%3D%222.2%22%20r%3D%221.9%22%20fill%3D%22%23D4C0F0%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-2.4%22%20cy%3D%22-.9%22%20r%3D%221.9%22%20fill%3D%22%23FFFFFF%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.35%22%20fill%3D%22%23F5D24A%22/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%206%29%20Tiny%20accent%20bloom%20nestled%20between%20hero%20%2B%20arms%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2834%2034%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22scale%22%0A%20%20%20%20%20%20%20%20values%3D%221%3B1.06%3B1%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%224.4s%22%20begin%3D%22-2.6s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23B094E8%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%2872%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%239B7AD4%22%20transform%3D%22rotate%28144%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23FFF8EC%22%20transform%3D%22rotate%28216%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28288%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.45%22%20fill%3D%22%23E8B020%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.25%22%20cy%3D%22-.35%22%20r%3D%22.45%22%20fill%3D%22%23FFE97A%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%20Soft%20floating%20petal%20--%3E%0A%20%20%3Cg%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22translate%22%0A%20%20%20%20%20%20values%3D%220%200%3B%201.8%20-3.2%3B%200.6%20-5.5%3B%20-1%20-2.2%3B%200%200%22%20keyTimes%3D%220%3B0.28%3B0.55%3B0.78%3B1%22%0A%20%20%20%20%20%20dur%3D%228.8s%22%20begin%3D%22-1.5s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%22/%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20values%3D%2210%2040%2040%3B%2032%2040%2040%3B%2050%2040%2040%3B%2022%2040%2040%3B%2010%2040%2040%22%20keyTimes%3D%220%3B0.28%3B0.55%3B0.78%3B1%22%0A%20%20%20%20%20%20dur%3D%228.8s%22%20begin%3D%22-1.5s%22%20repeatCount%3D%22indefinite%22%20additive%3D%22sum%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%22/%3E%0A%20%20%20%20%3Canimate%20attributeName%3D%22opacity%22%20values%3D%220.36%3B0.55%3B0.4%3B0.5%3B0.36%22%20dur%3D%228.8s%22%20begin%3D%22-1.5s%22%20repeatCount%3D%22indefinite%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%2240%22%20cy%3D%2240%22%20rx%3D%221.7%22%20ry%3D%222.6%22%20fill%3D%22%23A888E0%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E%0A');
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom6');
             background-position: top left;
             transform: scale(-1, 1);
             transform-origin: 100% 0;
@@ -6563,7 +6495,7 @@
         #pt-app-self .pt-sum-bloom.bl {
             bottom: -1px; left: -1px;
             width: 5.6rem; height: 5.6rem;
-            background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%20fill%3D%22none%22%20shape-rendering%3D%22geometricPrecision%22%3E%0A%20%20%3C%21--%0A%20%20%20%20Content-card%20corner%20bloom%20%28TL%20outer%20corner%29.%0A%20%20%20%20Dense%206-flower%20cluster%20hugging%20the%20rounded%20edge%3B%20flip%20via%20CSS%20for%20BR.%0A%20%20%20%20Palette%3A%20green%20leaves%20/%20white%20/%20yellow%20/%20purple.%0A%20%20%20%20Internal%20SMIL%3A%20leaf%20curl%2C%20bloom%20pulse%2C%20soft%20floating%20petal%20%28transform/opacity%20only%29.%0A%20%20--%3E%0A%20%20%3C%21--%20Leaf%20fans%20%E2%80%94%20soft%20curl%20--%3E%0A%20%20%3Cg%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20values%3D%22-1.6%2010%2032%3B%201.8%2010%2032%3B%20-1.6%2010%2032%22%20keyTimes%3D%220%3B0.5%3B1%22%0A%20%20%20%20%20%20dur%3D%226.8s%22%20begin%3D%22-0.5s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M1%2048%20C3%2024%2018%208%2042%203%20C26%2012%2012%2026%207%2046%20C5%2050%202%2050%201%2048%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%233D9A5C%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M3%2046%20C8%2026%2020%2012%2038%207%20C24%2015%2013%2028%209%2044%20C7%2048%204%2048%203%2046%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%236BC484%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M2%2030%20C5%2016%2016%206%2032%203%20C16%209%207%2020%204%2034%20C3%2032%202.2%2030.5%202%2030%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%23A8E0B4%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20values%3D%221.7%2032%2010%3B%20-1.9%2032%2010%3B%201.7%2032%2010%22%20keyTimes%3D%220%3B0.5%3B1%22%0A%20%20%20%20%20%20dur%3D%227.4s%22%20begin%3D%22-2s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M30%202%20C16%205%207%2018%204%2034%20C12%2018%2022%207%2036%204%20C34%202.5%2032%201.8%2030%202%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%238ED4A0%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20transform%3D%22translate%2810%2038%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%22-5%3B5%3B-5%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%226.2s%22%20begin%3D%22-1s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%224%22%20ry%3D%228%22%20fill%3D%22%235BB87A%22%20transform%3D%22rotate%28-28%29%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20transform%3D%22translate%2838%2010%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%225%3B-5%3B5%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%226.6s%22%20begin%3D%22-2.4s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%228%22%20ry%3D%224%22%20fill%3D%22%237CC994%22%20transform%3D%22rotate%2828%29%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%201%29%20Hero%20white%20daisy%20%E2%80%94%20scale%20pulse%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2822%2022%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22scale%22%0A%20%20%20%20%20%20%20%20values%3D%221%3B1.055%3B1%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%224.8s%22%20begin%3D%220s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%22-2%3B2.2%3B-2%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%225.6s%22%20begin%3D%22-0.8s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20additive%3D%22sum%22%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%237B5CB8%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%239B7AD4%22%20transform%3D%22rotate%2845%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%236A4AA8%22%20transform%3D%22rotate%2890%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28135%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%237B5CB8%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%239470CC%22%20transform%3D%22rotate%28225%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%236E50B0%22%20transform%3D%22rotate%28270%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%23B094E8%22%20transform%3D%22rotate%28315%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFFFF%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFDF8%22%20transform%3D%22rotate%2845%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFEFA%22%20transform%3D%22rotate%2890%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFF9F0%22%20transform%3D%22rotate%28135%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFCF5%22%20transform%3D%22rotate%28225%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28270%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFF8EC%22%20transform%3D%22rotate%28315%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%224.6%22%20fill%3D%22%23E8B020%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%223.1%22%20fill%3D%22%23F5D24A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.6%22%20fill%3D%22%23FFE97A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.7%22%20cy%3D%22-.9%22%20r%3D%221%22%20fill%3D%22%23FFF8D0%22%20opacity%3D%22.9%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%202%29%20Medium%20purple%20bloom%20%28top%20arm%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2842%2014%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22scale%22%0A%20%20%20%20%20%20%20%20values%3D%221%3B1.05%3B1%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%225.1s%22%20begin%3D%22-1.3s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%222.4%3B-2.6%3B2.4%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%226s%22%20begin%3D%22-2.2s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20additive%3D%22sum%22%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%238B6BC9%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%23C4A8F0%22%20transform%3D%22rotate%2860%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%237B5CB8%22%20transform%3D%22rotate%28120%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%239B7AD4%22%20transform%3D%22rotate%28240%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%23B094E8%22%20transform%3D%22rotate%28300%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%222.8%22%20fill%3D%22%23F0C83A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.4%22%20cy%3D%22-.5%22%20r%3D%22.8%22%20fill%3D%22%23FFF6C8%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%203%29%20Medium%20white%E2%80%93lavender%20bloom%20%28left%20arm%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2814%2042%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%22-2.2%3B2.5%3B-2.2%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%225.4s%22%20begin%3D%22-1.8s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23EDE4F8%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%2860%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23D4C0F0%22%20transform%3D%22rotate%28120%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23FFF8E0%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28240%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23C4A8F0%22%20transform%3D%22rotate%28300%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%222.5%22%20fill%3D%22%23F5D24A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.35%22%20cy%3D%22-.45%22%20r%3D%22.7%22%20fill%3D%22%23FFF8D0%22%20opacity%3D%22.9%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%204%29%20Small%20purple%20bud%20%28outer%20tip%20along%20top%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2856%2022%29%22%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%238B6BC9%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%23C4A8F0%22%20transform%3D%22rotate%2872%29%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%237B5CB8%22%20transform%3D%22rotate%28144%29%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28216%29%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28288%29%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.9%22%20fill%3D%22%23F0C83A%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-.3%22%20cy%3D%22-.4%22%20r%3D%22.55%22%20fill%3D%22%23FFF6C8%22/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%205%29%20Small%20white%E2%80%93yellow%20blossom%20%28outer%20tip%20along%20left%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2822%2056%29%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%22-2.8%22%20r%3D%221.9%22%20fill%3D%22%23FFFFFF%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%222.4%22%20cy%3D%22-.9%22%20r%3D%221.9%22%20fill%3D%22%23EDE4F8%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%221.5%22%20cy%3D%222.2%22%20r%3D%221.9%22%20fill%3D%22%23FFF8E0%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-1.5%22%20cy%3D%222.2%22%20r%3D%221.9%22%20fill%3D%22%23D4C0F0%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-2.4%22%20cy%3D%22-.9%22%20r%3D%221.9%22%20fill%3D%22%23FFFFFF%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.35%22%20fill%3D%22%23F5D24A%22/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%206%29%20Tiny%20accent%20bloom%20nestled%20between%20hero%20%2B%20arms%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2834%2034%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22scale%22%0A%20%20%20%20%20%20%20%20values%3D%221%3B1.06%3B1%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%224.4s%22%20begin%3D%22-2.6s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23B094E8%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%2872%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%239B7AD4%22%20transform%3D%22rotate%28144%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23FFF8EC%22%20transform%3D%22rotate%28216%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28288%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.45%22%20fill%3D%22%23E8B020%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.25%22%20cy%3D%22-.35%22%20r%3D%22.45%22%20fill%3D%22%23FFE97A%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%20Soft%20floating%20petal%20--%3E%0A%20%20%3Cg%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22translate%22%0A%20%20%20%20%20%20values%3D%220%200%3B%201.8%20-3.2%3B%200.6%20-5.5%3B%20-1%20-2.2%3B%200%200%22%20keyTimes%3D%220%3B0.28%3B0.55%3B0.78%3B1%22%0A%20%20%20%20%20%20dur%3D%228.8s%22%20begin%3D%22-1.5s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%22/%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20values%3D%2210%2040%2040%3B%2032%2040%2040%3B%2050%2040%2040%3B%2022%2040%2040%3B%2010%2040%2040%22%20keyTimes%3D%220%3B0.28%3B0.55%3B0.78%3B1%22%0A%20%20%20%20%20%20dur%3D%228.8s%22%20begin%3D%22-1.5s%22%20repeatCount%3D%22indefinite%22%20additive%3D%22sum%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%22/%3E%0A%20%20%20%20%3Canimate%20attributeName%3D%22opacity%22%20values%3D%220.36%3B0.55%3B0.4%3B0.5%3B0.36%22%20dur%3D%228.8s%22%20begin%3D%22-1.5s%22%20repeatCount%3D%22indefinite%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%2240%22%20cy%3D%2240%22%20rx%3D%221.7%22%20ry%3D%222.6%22%20fill%3D%22%23A888E0%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E%0A');
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom6');
             background-position: top left;
             transform: scale(1, -1);
             transform-origin: 0 100%;
@@ -6572,7 +6504,7 @@
         #pt-app-self .pt-sum-bloom.br {
             bottom: -1px; right: -1px;
             width: 6rem; height: 6rem;
-            background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2080%2080%22%20fill%3D%22none%22%20shape-rendering%3D%22geometricPrecision%22%3E%0A%20%20%3C%21--%0A%20%20%20%20Content-card%20corner%20bloom%20%28TL%20outer%20corner%29.%0A%20%20%20%20Dense%206-flower%20cluster%20hugging%20the%20rounded%20edge%3B%20flip%20via%20CSS%20for%20BR.%0A%20%20%20%20Palette%3A%20green%20leaves%20/%20white%20/%20yellow%20/%20purple.%0A%20%20%20%20Internal%20SMIL%3A%20leaf%20curl%2C%20bloom%20pulse%2C%20soft%20floating%20petal%20%28transform/opacity%20only%29.%0A%20%20--%3E%0A%20%20%3C%21--%20Leaf%20fans%20%E2%80%94%20soft%20curl%20--%3E%0A%20%20%3Cg%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20values%3D%22-1.6%2010%2032%3B%201.8%2010%2032%3B%20-1.6%2010%2032%22%20keyTimes%3D%220%3B0.5%3B1%22%0A%20%20%20%20%20%20dur%3D%226.8s%22%20begin%3D%22-0.5s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M1%2048%20C3%2024%2018%208%2042%203%20C26%2012%2012%2026%207%2046%20C5%2050%202%2050%201%2048%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%233D9A5C%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M3%2046%20C8%2026%2020%2012%2038%207%20C24%2015%2013%2028%209%2044%20C7%2048%204%2048%203%2046%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%236BC484%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M2%2030%20C5%2016%2016%206%2032%203%20C16%209%207%2020%204%2034%20C3%2032%202.2%2030.5%202%2030%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%23A8E0B4%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20values%3D%221.7%2032%2010%3B%20-1.9%2032%2010%3B%201.7%2032%2010%22%20keyTimes%3D%220%3B0.5%3B1%22%0A%20%20%20%20%20%20dur%3D%227.4s%22%20begin%3D%22-2s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%3Cpath%20d%3D%22M30%202%20C16%205%207%2018%204%2034%20C12%2018%2022%207%2036%204%20C34%202.5%2032%201.8%2030%202%20Z%22%0A%20%20%20%20%20%20%20%20%20%20fill%3D%22%238ED4A0%22/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20transform%3D%22translate%2810%2038%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%22-5%3B5%3B-5%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%226.2s%22%20begin%3D%22-1s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%224%22%20ry%3D%228%22%20fill%3D%22%235BB87A%22%20transform%3D%22rotate%28-28%29%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20transform%3D%22translate%2838%2010%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%225%3B-5%3B5%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%226.6s%22%20begin%3D%22-2.4s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%228%22%20ry%3D%224%22%20fill%3D%22%237CC994%22%20transform%3D%22rotate%2828%29%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%201%29%20Hero%20white%20daisy%20%E2%80%94%20scale%20pulse%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2822%2022%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22scale%22%0A%20%20%20%20%20%20%20%20values%3D%221%3B1.055%3B1%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%224.8s%22%20begin%3D%220s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%22-2%3B2.2%3B-2%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%225.6s%22%20begin%3D%22-0.8s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20additive%3D%22sum%22%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%237B5CB8%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%239B7AD4%22%20transform%3D%22rotate%2845%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%236A4AA8%22%20transform%3D%22rotate%2890%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28135%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%237B5CB8%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%239470CC%22%20transform%3D%22rotate%28225%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%236E50B0%22%20transform%3D%22rotate%28270%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-10%22%20rx%3D%225.2%22%20ry%3D%2210%22%20fill%3D%22%23B094E8%22%20transform%3D%22rotate%28315%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFFFF%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFDF8%22%20transform%3D%22rotate%2845%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFEFA%22%20transform%3D%22rotate%2890%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFF9F0%22%20transform%3D%22rotate%28135%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFCF5%22%20transform%3D%22rotate%28225%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28270%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-7.6%22%20rx%3D%223.8%22%20ry%3D%227.8%22%20fill%3D%22%23FFF8EC%22%20transform%3D%22rotate%28315%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%224.6%22%20fill%3D%22%23E8B020%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%223.1%22%20fill%3D%22%23F5D24A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.6%22%20fill%3D%22%23FFE97A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.7%22%20cy%3D%22-.9%22%20r%3D%221%22%20fill%3D%22%23FFF8D0%22%20opacity%3D%22.9%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%202%29%20Medium%20purple%20bloom%20%28top%20arm%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2842%2014%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22scale%22%0A%20%20%20%20%20%20%20%20values%3D%221%3B1.05%3B1%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%225.1s%22%20begin%3D%22-1.3s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%222.4%3B-2.6%3B2.4%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%226s%22%20begin%3D%22-2.2s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20additive%3D%22sum%22%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%238B6BC9%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%23C4A8F0%22%20transform%3D%22rotate%2860%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%237B5CB8%22%20transform%3D%22rotate%28120%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%239B7AD4%22%20transform%3D%22rotate%28240%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-6.2%22%20rx%3D%223.4%22%20ry%3D%226.4%22%20fill%3D%22%23B094E8%22%20transform%3D%22rotate%28300%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%222.8%22%20fill%3D%22%23F0C83A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.4%22%20cy%3D%22-.5%22%20r%3D%22.8%22%20fill%3D%22%23FFF6C8%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%203%29%20Medium%20white%E2%80%93lavender%20bloom%20%28left%20arm%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2814%2042%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20%20%20values%3D%22-2.2%3B2.5%3B-2.2%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%225.4s%22%20begin%3D%22-1.8s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23EDE4F8%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%2860%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23D4C0F0%22%20transform%3D%22rotate%28120%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23FFF8E0%22%20transform%3D%22rotate%28180%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28240%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-5.8%22%20rx%3D%223.2%22%20ry%3D%226%22%20fill%3D%22%23C4A8F0%22%20transform%3D%22rotate%28300%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%222.5%22%20fill%3D%22%23F5D24A%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.35%22%20cy%3D%22-.45%22%20r%3D%22.7%22%20fill%3D%22%23FFF8D0%22%20opacity%3D%22.9%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%204%29%20Small%20purple%20bud%20%28outer%20tip%20along%20top%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2856%2022%29%22%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%238B6BC9%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%23C4A8F0%22%20transform%3D%22rotate%2872%29%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%237B5CB8%22%20transform%3D%22rotate%28144%29%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%28216%29%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-4.2%22%20rx%3D%222.4%22%20ry%3D%224.4%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28288%29%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.9%22%20fill%3D%22%23F0C83A%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-.3%22%20cy%3D%22-.4%22%20r%3D%22.55%22%20fill%3D%22%23FFF6C8%22/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%205%29%20Small%20white%E2%80%93yellow%20blossom%20%28outer%20tip%20along%20left%29%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2822%2056%29%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%22-2.8%22%20r%3D%221.9%22%20fill%3D%22%23FFFFFF%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%222.4%22%20cy%3D%22-.9%22%20r%3D%221.9%22%20fill%3D%22%23EDE4F8%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%221.5%22%20cy%3D%222.2%22%20r%3D%221.9%22%20fill%3D%22%23FFF8E0%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-1.5%22%20cy%3D%222.2%22%20r%3D%221.9%22%20fill%3D%22%23D4C0F0%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-2.4%22%20cy%3D%22-.9%22%20r%3D%221.9%22%20fill%3D%22%23FFFFFF%22/%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.35%22%20fill%3D%22%23F5D24A%22/%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%206%29%20Tiny%20accent%20bloom%20nestled%20between%20hero%20%2B%20arms%20--%3E%0A%20%20%3Cg%20transform%3D%22translate%2834%2034%29%22%3E%0A%20%20%20%20%3Cg%3E%0A%20%20%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22scale%22%0A%20%20%20%20%20%20%20%20values%3D%221%3B1.06%3B1%22%20keyTimes%3D%220%3B0.5%3B1%22%20dur%3D%224.4s%22%20begin%3D%22-2.6s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.42%200%200.58%201%3B0.42%200%200.58%201%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23B094E8%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23FFFFFF%22%20transform%3D%22rotate%2872%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%239B7AD4%22%20transform%3D%22rotate%28144%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23FFF8EC%22%20transform%3D%22rotate%28216%29%22/%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%22-3.4%22%20rx%3D%221.9%22%20ry%3D%223.5%22%20fill%3D%22%23A888E0%22%20transform%3D%22rotate%28288%29%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%221.45%22%20fill%3D%22%23E8B020%22/%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-.25%22%20cy%3D%22-.35%22%20r%3D%22.45%22%20fill%3D%22%23FFE97A%22/%3E%0A%20%20%20%20%3C/g%3E%0A%20%20%3C/g%3E%0A%0A%20%20%3C%21--%20Soft%20floating%20petal%20--%3E%0A%20%20%3Cg%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22translate%22%0A%20%20%20%20%20%20values%3D%220%200%3B%201.8%20-3.2%3B%200.6%20-5.5%3B%20-1%20-2.2%3B%200%200%22%20keyTimes%3D%220%3B0.28%3B0.55%3B0.78%3B1%22%0A%20%20%20%20%20%20dur%3D%228.8s%22%20begin%3D%22-1.5s%22%20repeatCount%3D%22indefinite%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%22/%3E%0A%20%20%20%20%3CanimateTransform%20attributeName%3D%22transform%22%20type%3D%22rotate%22%0A%20%20%20%20%20%20values%3D%2210%2040%2040%3B%2032%2040%2040%3B%2050%2040%2040%3B%2022%2040%2040%3B%2010%2040%2040%22%20keyTimes%3D%220%3B0.28%3B0.55%3B0.78%3B1%22%0A%20%20%20%20%20%20dur%3D%228.8s%22%20begin%3D%22-1.5s%22%20repeatCount%3D%22indefinite%22%20additive%3D%22sum%22%0A%20%20%20%20%20%20calcMode%3D%22spline%22%20keySplines%3D%220.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%3B0.4%200%200.2%201%22/%3E%0A%20%20%20%20%3Canimate%20attributeName%3D%22opacity%22%20values%3D%220.36%3B0.55%3B0.4%3B0.5%3B0.36%22%20dur%3D%228.8s%22%20begin%3D%22-1.5s%22%20repeatCount%3D%22indefinite%22/%3E%0A%20%20%20%20%3Cellipse%20cx%3D%2240%22%20cy%3D%2240%22%20rx%3D%221.7%22%20ry%3D%222.6%22%20fill%3D%22%23A888E0%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E%0A');
+            background-image: url('assets/dancheong/corner-bloom.svg?v=bloom6');
             background-position: top left;
             transform: scale(-1, -1);
             transform-origin: 100% 100%;
@@ -11192,15 +11124,18 @@
             }
             .content-card::before { transform: none; }
             .content-card::after { transform: none; }
-            /* Taehyun sky corners keep soft twinkle on lite/mobile (overrides FX kill above). */
+            /* Taehyun sky corners keep twinkle on lite/mobile (overrides FX kill above). */
             .dash-shell.theme-teacher-a .tab-panel > .content-card::before {
-                animation: taeSkyTwinkle 4.2s ease-in-out infinite !important;
-                will-change: transform, opacity;
+                animation: taeSkyTwinkle 3.4s ease-in-out infinite !important;
+                will-change: transform, opacity, filter;
             }
             .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
-                animation: taeSkyTwinkleBr 4.2s ease-in-out infinite !important;
-                animation-delay: 1.35s !important;
-                will-change: transform, opacity;
+                animation: taeSkyTwinkleBr 3.4s ease-in-out infinite !important;
+                animation-delay: .85s !important;
+                will-change: transform, opacity, filter;
+            }
+            .dash-shell.theme-teacher-a .tae-card-sky .tae-sky-star {
+                animation: taeStarTwinkle 1.8s ease-in-out infinite !important;
             }
             /* Eunha Shin décor keeps slow wobble on mobile/iPad (overrides FX kill above). */
             .dash-shell.is-eunha-shin .tab-panel > .content-card::before {
@@ -11256,11 +11191,6 @@
             #login-screen .panel > .dc-corners .dc-c.br {
                 animation: dcBloomBrLite 9s ease-in-out infinite;
                 animation-delay: -4.8s;
-            }
-            /* Login corner sparkles keep twinkle on mobile/iPad */
-            #login-screen .panel > .dc-corners .dc-stars > i {
-                animation: loginSparkTwinkle 1.55s ease-in-out infinite !important;
-                will-change: opacity, transform, filter;
             }
             .dash-shell > .dc-corners .dc-c {
                 animation: none !important;
@@ -11478,12 +11408,12 @@
             .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
                 content: '' !important;
                 display: block !important;
-                width: 84px !important;
-                height: 84px !important;
-            }
-            .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
                 width: 118px !important;
                 height: 118px !important;
+            }
+            .dash-shell.theme-teacher-a .tab-panel > .content-card::after {
+                width: 136px !important;
+                height: 136px !important;
             }
             .dash-shell.is-eunha-shin .tab-panel > .content-card > h3,
             .dash-shell.is-eunha-shin .tab-panel > .content-card > div:has(> h3:first-child):not(div:has(> h3:first-child) ~ div:has(> h3:first-child)) > h3:first-child,
@@ -11601,10 +11531,6 @@
     <main id="login-screen" class="relative z-10 min-h-screen flex items-center justify-center p-5">
         <section class="panel">
             <div class="dc-corners" aria-hidden="true">
-                <span class="dc-stars tl" title="corner stars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-                <span class="dc-stars tr" title="corner stars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-                <span class="dc-stars bl" title="corner stars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-                <span class="dc-stars br" title="corner stars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
                 <span class="dc-c tl" title="corner flower"></span>
                 <span class="dc-c tr" title="corner flower"></span>
                 <span class="dc-c bl" title="corner flower"></span>
@@ -28045,6 +27971,7 @@
                         document.querySelectorAll('.tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.tab === fid));
                     }
                 }
+                try { mountTaeCardSky(user); } catch (_) {}
                 return !!panelsEl.querySelector('.tab-panel.active');
             }
             /** Login / hard recovery: pull every portal store then soft-refresh boards. */
@@ -28130,6 +28057,9 @@
                 // Critical: panels + default tab for EVERY role (never blank decorative shell)
                 try { ensureDashboardPanels(user, keepTab); } catch (err) {
                     try { console.warn('[hongik] ensureDashboardPanels failed', err); } catch (_) {}
+                }
+                try { mountTaeCardSky(user); } catch (err) {
+                    try { console.warn('[hongik] mountTaeCardSky failed', err); } catch (_) {}
                 }
                 try { maybeShowAlertPopups(user); } catch (_) {}
                 try { tickClock(); } catch (_) {}
@@ -28403,9 +28333,11 @@
                                 try {
                                     renderPanels(currentUser);
                                     setTab(currentTab);
+                                    try { mountTaeCardSky(currentUser); } catch (_) {}
                                 } catch (err) {
                                     try { console.warn('[hongik] softRefresh renderPanels failed', err); } catch (_) {}
                                     try { ensureDashboardPanels(currentUser, true); } catch (_) {}
+                                    try { mountTaeCardSky(currentUser); } catch (_) {}
                                 }
                                 try {
                                     const pe = document.getElementById('tab-panels');
@@ -28458,6 +28390,52 @@
                     }
                 }, 120);
             }, true);
+
+            function mountTaeCardSky(user) {
+                const shell = document.getElementById('dash-shell');
+                if (!shell) return;
+                const isTae = !!(user && user.id === 'taehyun') || shell.classList.contains('theme-teacher-a');
+                const cards = shell.querySelectorAll('.tab-panel > .content-card');
+                cards.forEach((card) => {
+                    card.querySelectorAll(':scope > .tae-card-sky').forEach((n) => n.remove());
+                    if (!isTae) return;
+                    if (card.getAttribute('style') && /transparent/i.test(card.getAttribute('style'))) return;
+                    const wrap = document.createElement('div');
+                    wrap.className = 'tae-card-sky';
+                    wrap.setAttribute('aria-hidden', 'true');
+                    const starPos = [
+                        [[18,22],[42,14],[58,34],[30,48],[70,20],[48,56],[78,44],[22,66],[64,62],[88,28],[12,40],[54,8]],
+                        [[20,24],[46,12],[62,30],[28,52],[72,18],[50,58],[80,42],[16,64],[66,60],[90,26],[10,38],[56,10]],
+                    ];
+                    ['tl','tr','bl','br'].forEach((corner, ci) => {
+                        const c = document.createElement('span');
+                        c.className = 'tae-sky-c ' + corner;
+                        const cloud = document.createElement('span');
+                        cloud.className = 'tae-sky-cloud';
+                        c.appendChild(cloud);
+                        const wind = document.createElement('span');
+                        wind.className = 'tae-sky-wind';
+                        c.appendChild(wind);
+                        if (corner === 'tl' || corner === 'br') {
+                            const bolt = document.createElement('span');
+                            bolt.className = 'tae-sky-bolt';
+                            bolt.style.animationDelay = (ci * 0.7) + 's';
+                            c.appendChild(bolt);
+                        }
+                        const positions = starPos[ci % 2];
+                        positions.forEach((xy, i) => {
+                            const s = document.createElement('span');
+                            s.className = 'tae-sky-star' + (i % 3 === 1 ? ' s2' : i % 3 === 2 ? ' s3' : '');
+                            s.style.left = xy[0] + '%';
+                            s.style.top = xy[1] + '%';
+                            s.style.animationDelay = (-0.15 * i - ci * 0.35) + 's';
+                            c.appendChild(s);
+                        });
+                        wrap.appendChild(c);
+                    });
+                    card.insertBefore(wrap, card.firstChild);
+                });
+            }
 
             function mountThemeFx(user) {
                 const fx = document.getElementById('taehyun-fx');
